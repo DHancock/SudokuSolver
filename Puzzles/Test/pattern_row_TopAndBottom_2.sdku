@@ -1,0 +1,12 @@
+﻿<Sudoku>
+    <Cell x="0" y="0">1</Cell>
+    <Cell x="6" y="0">2</Cell>
+    <Cell x="0" y="2">2</Cell>
+    <Cell x="6" y="2">1</Cell>
+    <Cell x="2" y="4">5</Cell>
+    <Cell x="8" y="4">6</Cell>
+    <Cell x="1" y="6">1</Cell>
+    <Cell x="7" y="6">2</Cell>
+    <Cell x="1" y="8">2</Cell>
+    <Cell x="7" y="8">1</Cell>
+</Sudoku>

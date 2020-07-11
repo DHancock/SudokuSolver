@@ -1,0 +1,16 @@
+﻿<Sudoku>
+    <Cell x="6" y="0">2</Cell>
+    <Cell x="7" y="0">9</Cell>
+    <Cell x="8" y="0">7</Cell>
+    <Cell x="6" y="1">1</Cell>
+    <Cell x="7" y="1">8</Cell>
+    <Cell x="8" y="1">3</Cell>
+    <Cell x="8" y="2">5</Cell>
+    <Cell x="6" y="6">9</Cell>
+    <Cell x="7" y="6">7</Cell>
+    <Cell x="8" y="6">4</Cell>
+    <Cell x="6" y="7">8</Cell>
+    <Cell x="7" y="7">5</Cell>
+    <Cell x="8" y="7">2</Cell>
+    <Cell x="8" y="8">1</Cell>
+</Sudoku>

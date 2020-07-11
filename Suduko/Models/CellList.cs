@@ -1,0 +1,165 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+
+
+namespace Sudoku.Models
+{
+
+    internal sealed class CellList : IEnumerable<Cell>
+    {
+        private readonly Cell[] cells = new Cell[81];
+
+        public bool Rotated { get; set; } = false;
+
+
+        public CellList()
+        {
+            for (int index = 0; index < cells.Length; index++)
+                cells[index] = new Cell(index);
+        }
+
+
+        public Cell this[int index]
+        {
+            get
+            {
+                if (Rotated) // convert index to x,y coordinates, swap them and convert back to an index
+                    return cells[Convert(index / 9, index % 9)];
+
+                return cells[index];
+            }
+        }
+
+
+        private static int Convert(int x, int y) => x + (y * 9);
+
+
+        public IEnumerable<Cell> Row(int rowIndex)
+        {
+            for (int x = 0; x < 9; x++)
+                yield return this[Convert(x, rowIndex)];
+        }
+
+
+        public IEnumerable<Cell> Column(int columnIndex)
+        {
+            for (int y = 0; y < 9; y++)
+                yield return this[Convert(columnIndex, y)];
+        }
+
+
+
+        public IEnumerable<Cell> RowMinus(int cubex, int rowIndex)
+        {
+            // the row apart from cells in the cube
+
+            if (cubex == 0) // cube is at the start of the row
+            {
+                for (int x = 3; x < 9; x++)
+                    yield return this[Convert(x, rowIndex)];
+            }
+            else if (cubex == 2) // cube is at the end of the row
+            {
+                for (int x = 0; x < 6; x++)
+                    yield return this[Convert(x, rowIndex)];
+            }
+            else
+            {
+                for (int x = 0; x < 3; x++)
+                    yield return this[Convert(x, rowIndex)];
+
+                for (int x = 6; x < 9; x++)
+                    yield return this[Convert(x, rowIndex)];
+            }
+        }
+
+
+
+        public IEnumerable<Cell> ColumnMinus(int cubey, int columnIndex)
+        {
+            // the column apart from cells in the cube
+
+            if (cubey == 0) // cube is at top of the column
+            {
+                for (int y = 3; y < 9; y++)
+                    yield return this[Convert(columnIndex, y)];
+            }
+            else if (cubey == 2) // cube is at bottom of the column
+            {
+                for (int y = 0; y < 6; y++)
+                    yield return this[Convert(columnIndex, y)];
+            }
+            else
+            {
+                for (int y = 0; y < 3; y++)
+                    yield return this[Convert(columnIndex, y)];
+
+                for (int y = 6; y < 9; y++)
+                    yield return this[Convert(columnIndex, y)];
+            }
+        }
+
+
+
+        public IEnumerable<Cell> CubeColumn(int cubex, int cubey, int columnIndex)
+        {
+            int cubeStartIndex = (cubex * 3) + (cubey * 27);
+
+            for (int y = 0; y < 3; y++)
+                yield return this[cubeStartIndex + Convert(columnIndex, y)];
+        }
+
+
+
+        public IEnumerable<Cell> CubeRow(int cubex, int cubey, int rowIndex)
+        {
+            int cubeStartIndex = (cubex * 3) + (cubey * 27);
+
+            for (int x = 0; x < 3; x++)
+                yield return this[cubeStartIndex + Convert(x, rowIndex)];
+        }
+
+
+        // a cube has 9 values minus one - the source cell 
+        // a row has a further 6 to the left or right of the cube
+        // a column has 6 to the top or bottom of the cube
+        // a total of 20 cells per enumeration
+        public IEnumerable<Cell> CubeRowColumnMinus(int sourceCellIndex)
+        {
+            int row = sourceCellIndex / 9;
+            int column = sourceCellIndex % 9;
+            int cubey = row / 3;
+            int cubex = column / 3;
+            int cubeStartIndex = (cubex * 3) + (cubey * 27);
+
+            // the cube minus the source cell
+            for (int y = 0; y < 3; y++)
+            {
+                for (int x = 0; x < 3; x++)
+                {
+                    int current = cubeStartIndex + Convert(x, y);
+
+                    if (current != sourceCellIndex)
+                        yield return this[current];
+                }
+            }
+
+            // the row apart from cells already in the cube
+            foreach (Cell cell in RowMinus(cubex, row))
+                yield return cell;
+
+            // the column apart from cells already in the cube
+            foreach (Cell cell in ColumnMinus(cubey, column))
+                yield return cell;
+        }
+
+
+        public IEnumerator<Cell> GetEnumerator()
+        {
+            for (int index = 0; index < cells.Length; index++)
+                yield return cells[index];
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+    }
+}
