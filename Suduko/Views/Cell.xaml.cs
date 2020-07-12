@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -17,9 +16,9 @@ namespace Sudoku.Views
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        private TextBlock[] PossibleTBs { get; }
 
         public enum States { NoValue, UserValue, CalculatedValue }
-
 
         private States cellState = States.NoValue;
 
@@ -34,6 +33,8 @@ namespace Sudoku.Views
 
             MouseDown += Cell_MouseDown;
             KeyDown += Cell_KeyDown;
+
+            PossibleTBs = new TextBlock[9] { PossibleValue0, PossibleValue1, PossibleValue2, PossibleValue3, PossibleValue4, PossibleValue5, PossibleValue6, PossibleValue7, PossibleValue8 };
         }
 
 
@@ -96,28 +97,21 @@ namespace Sudoku.Views
                     cell.CellValue.Text = sLookUp[data.Possibles.First];
                 }
 
-                cell.PossibleValue0.Text = string.Empty;
-                cell.PossibleValue1.Text = string.Empty;
-                cell.PossibleValue2.Text = string.Empty;
-                cell.PossibleValue3.Text = string.Empty;
-                cell.PossibleValue4.Text = string.Empty;
-                cell.PossibleValue5.Text = string.Empty;
-                cell.PossibleValue6.Text = string.Empty;
-                cell.PossibleValue7.Text = string.Empty;
-                cell.PossibleValue8.Text = string.Empty;
+                foreach (TextBlock tb in cell.PossibleTBs)
+                    tb.Text = string.Empty;
             }
             else
             {
                 cell.CellValue.Text = string.Empty;
                 cell.State = States.NoValue;
 
-                int writeIndex = 1;
+                int writeIndex = 0;
 
                 for (int i = 1; i < 10; i++)
                 {
                     if (data.Possibles[i])
                     {
-                        TextBlock tb = cell.GetPossibleTextBlock(writeIndex++);
+                        TextBlock tb = cell.PossibleTBs[writeIndex++];
                         tb.Text = sLookUp[i];
 
                         if (data.VerticalDirections[i])
@@ -134,32 +128,11 @@ namespace Sudoku.Views
                     }
                 }
 
-                while (writeIndex < 10)
-                    cell.GetPossibleTextBlock(writeIndex++).Text = string.Empty;
+                while (writeIndex < 9)
+                    cell.PossibleTBs[writeIndex++].Text = string.Empty;
             }
         }
 
-
-
-
-        [SuppressMessage("Style", "IDE0066:Convert switch statement to expression", Justification = "pointless")]
-        private TextBlock GetPossibleTextBlock(int index)
-        {
-            switch (index)
-            {
-                case 1: return PossibleValue0;
-                case 2: return PossibleValue1;
-                case 3: return PossibleValue2;
-                case 4: return PossibleValue3;
-                case 5: return PossibleValue4;
-                case 6: return PossibleValue5;
-                case 7: return PossibleValue6;
-                case 8: return PossibleValue7;
-                case 9: return PossibleValue8;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(index));
-            }
-        }
 
 
         // cell.Data is bound to the cell. Changing its Value property raises a
@@ -184,8 +157,7 @@ namespace Sudoku.Views
 
         private void Cell_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            IInputElement element = (IInputElement)sender;
-            Keyboard.Focus(element);
+            Keyboard.Focus((IInputElement)sender);
         }
     }
 }
