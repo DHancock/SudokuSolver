@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
+
 
 namespace Sudoku.Models
 {
@@ -23,13 +23,15 @@ namespace Sudoku.Models
         {
             get
             {
-                Debug.Assert(!Rotated);
+                if (Rotated) // convert index to x,y coordinates, swap them and convert back to an index
+                    return cells[Convert(index / 9, index % 9)];
+
                 return cells[index];
             }
         }
 
 
-        private Cell this[int x, int y]
+        public Cell this[int x, int y]
         {
             get
             {
@@ -142,18 +144,17 @@ namespace Sudoku.Models
             int column = sourceCellIndex % 9;
             int cubey = row / 3;
             int cubex = column / 3;
-            int startX = cubex * 3 ;
-            int startY = cubey * 3 ;
+            int cubeStartIndex = (cubex * 3) + (cubey * 27);
 
             // the cube minus the source cell
             for (int y = 0; y < 3; y++)
             {
                 for (int x = 0; x < 3; x++)
                 {
-                    Cell cell = this[startX + x, startY + y];
-                    
-                    if (cell.Index != sourceCellIndex)
-                        yield return cell;
+                    int current = cubeStartIndex + Convert(x, y);
+
+                    if (current != sourceCellIndex)
+                        yield return this[current];
                 }
             }
 
