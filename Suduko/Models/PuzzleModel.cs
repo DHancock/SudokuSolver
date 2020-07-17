@@ -115,6 +115,12 @@ namespace Sudoku.Models
         {
             Cell cell = Cells[index];
 
+            if (!cell.HasValue && (cell.Possibles.Count == 1))
+            {
+                Debug.Fail("cells with calculated values should be disabled");
+                return false;
+            }
+
             if (cell.HasValue && (newValue > 0))
             {
                 Debug.Fail("replacing a cell value directly isn't supported");
