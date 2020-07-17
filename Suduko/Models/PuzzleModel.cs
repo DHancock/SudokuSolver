@@ -115,12 +115,6 @@ namespace Sudoku.Models
         {
             Cell cell = Cells[index];
 
-            if (!cell.HasValue && (cell.Possibles.Count == 1))
-            {
-                Debug.Fail("cells with calculated values should be disabled");
-                return false;
-            }
-
             if (cell.HasValue && (newValue > 0))
             {
                 Debug.Fail("replacing a cell value directly isn't supported");
@@ -156,12 +150,17 @@ namespace Sudoku.Models
 
             foreach (Cell cell in Cells.CubeRowColumnMinus(updatedCell.Index))
             {
-                if (!cell.HasValue && cell.Possibles[newValue] && (cell.Possibles.Count > 1))
+                if (!cell.HasValue && cell.Possibles[newValue])
                 {
-                    cell.Possibles[newValue] = false;
+                    int count = cell.Possibles.Count;
 
-                    if (cell.Possibles.Count == 1)
-                        cellsToUpdate.Push(cell);
+                    if (count != 1)
+                    {
+                        cell.Possibles[newValue] = false;
+
+                        if (count == 2)
+                            cellsToUpdate.Push(cell);  // only one possible left
+                    }
                 }
             }
         }
