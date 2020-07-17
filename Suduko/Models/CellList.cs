@@ -31,32 +31,20 @@ namespace Sudoku.Models
         }
 
 
-        public Cell this[int x, int y]
-        {
-            get
-            {
-                if (Rotated) 
-                    return cells[Convert(y, x)];
-
-                return cells[Convert(x, y)];
-            }
-        }
-
-
         private static int Convert(int x, int y) => x + (y * 9);
 
 
         public IEnumerable<Cell> Row(int rowIndex)
         {
             for (int x = 0; x < 9; x++)
-                yield return this[x, rowIndex];
+                yield return this[Convert(x, rowIndex)];
         }
 
 
         public IEnumerable<Cell> Column(int columnIndex)
         {
             for (int y = 0; y < 9; y++)
-                yield return this[columnIndex, y];
+                yield return this[Convert(columnIndex, y)];
         }
 
 
@@ -68,20 +56,20 @@ namespace Sudoku.Models
             if (cubex == 0) // cube is at the start of the row
             {
                 for (int x = 3; x < 9; x++)
-                    yield return this[x, rowIndex];
+                    yield return this[Convert(x, rowIndex)];
             }
             else if (cubex == 2) // cube is at the end of the row
             {
                 for (int x = 0; x < 6; x++)
-                    yield return this[x, rowIndex];
+                    yield return this[Convert(x, rowIndex)];
             }
             else
             {
                 for (int x = 0; x < 3; x++)
-                    yield return this[x, rowIndex];
+                    yield return this[Convert(x, rowIndex)];
 
                 for (int x = 6; x < 9; x++)
-                    yield return this[x, rowIndex];
+                    yield return this[Convert(x, rowIndex)];
             }
         }
 
@@ -94,20 +82,20 @@ namespace Sudoku.Models
             if (cubey == 0) // cube is at top of the column
             {
                 for (int y = 3; y < 9; y++)
-                    yield return this[columnIndex, y];
+                    yield return this[Convert(columnIndex, y)];
             }
             else if (cubey == 2) // cube is at bottom of the column
             {
                 for (int y = 0; y < 6; y++)
-                    yield return this[columnIndex, y];
+                    yield return this[Convert(columnIndex, y)];
             }
             else
             {
                 for (int y = 0; y < 3; y++)
-                    yield return this[columnIndex, y];
+                    yield return this[Convert(columnIndex, y)];
 
                 for (int y = 6; y < 9; y++)
-                    yield return this[columnIndex, y];
+                    yield return this[Convert(columnIndex, y)];
             }
         }
 
@@ -115,23 +103,21 @@ namespace Sudoku.Models
 
         public IEnumerable<Cell> CubeColumn(int cubex, int cubey, int columnIndex)
         {
-            int x = (cubex * 3) + columnIndex;
-            int startY = cubey * 3;
+            int cubeStartIndex = (cubex * 3) + (cubey * 27);
 
             for (int y = 0; y < 3; y++)
-                yield return this[x, startY + y];
+                yield return this[cubeStartIndex + Convert(columnIndex, y)];
         }
+
 
 
         public IEnumerable<Cell> CubeRow(int cubex, int cubey, int rowIndex)
         {
-            int y = (cubey * 3) + rowIndex;
-            int startX = cubex * 3 ;
+            int cubeStartIndex = (cubex * 3) + (cubey * 27);
 
             for (int x = 0; x < 3; x++)
-                yield return this[startX + x, y];
+                yield return this[cubeStartIndex + Convert(x, rowIndex)];
         }
-
 
 
         // a cube has 9 values minus one - the source cell 
