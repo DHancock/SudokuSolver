@@ -501,13 +501,18 @@ namespace Sudoku.Models
                                         // there is a possible value in this row
                                         foreach (Cell cell in Cells.CubeRow(cubex, cubey, row))
                                         {
-                                            if (!cell.HasValue && cell.Possibles[cellValue] && (cell.Possibles.Count > 1))
+                                            if (!cell.HasValue && cell.Possibles[cellValue])
                                             {
-                                                cell.Possibles[cellValue] = false;
-                                                modelChanged = true;
+                                                int count = cell.Possibles.Count;
 
-                                                if (cell.Possibles.Count == 1)
-                                                    cellsToUpdate.Push(cell);
+                                                if (count != 1)
+                                                {
+                                                    cell.Possibles[cellValue] = false;
+                                                    modelChanged = true;
+
+                                                    if (count == 2)
+                                                        cellsToUpdate.Push(cell);
+                                                }
                                             }
                                         }
                                     }
