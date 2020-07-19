@@ -5,6 +5,7 @@ using System.Diagnostics;
 namespace Sudoku.Common
 {
 
+    [DebuggerTypeProxy(typeof(BitFieldDebugProxy))]
     internal struct BitField
     {
         private const uint cSpan = 0x000003FE;   // cell values range from 1 to 9
@@ -127,29 +128,6 @@ namespace Sudoku.Common
         }
 
 
-#if DEBUG
-        // Visual Studio's debugger won't display a struct's ToString() override
-        // but it can display a string property once expanded...
-        public string DebugInfo
-        {
-            get
-            {
-                string output = string.Empty;
-
-                for (int index = 1; index < 10; index++)
-                    output += $"[{index}]=" + (this[index] ? "1  " : "0  ");
-
-                if ((data & ~cSpan) > 0)
-                    output += "(span is invalid)";
-
-                return output;
-            }
-        }
-#endif
-
-
-
-
         public override bool Equals(object obj)
         {
             if (obj is BitField a)
@@ -159,5 +137,35 @@ namespace Sudoku.Common
         }
 
         public override int GetHashCode() => HashCode.Combine<uint>(data);
+    }
+
+
+
+    internal sealed class BitFieldDebugProxy
+    {
+        private BitField a ;
+
+        public BitFieldDebugProxy(BitField bitfield)
+        {
+            a = bitfield;
+        }
+
+        public string DebugView
+        {
+            get
+            {
+                string output = "[1..9] = ";
+
+                for (int index = 1; index < 10; index++)
+                {
+                    output += a[index] ? "1" : "0";
+
+                    if (index % 3 == 0)
+                        output += " ";
+                }
+
+                return output;
+            }
+        }
     }
 }
