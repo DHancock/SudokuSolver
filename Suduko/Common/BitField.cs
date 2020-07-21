@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-
+using System.Text;
 
 namespace Sudoku.Common
 {
@@ -137,34 +137,29 @@ namespace Sudoku.Common
         }
 
         public override int GetHashCode() => HashCode.Combine<uint>(data);
-    }
 
 
 
-    internal sealed class BitFieldDebugProxy
-    {
-        private BitField a ;
-
-        public BitFieldDebugProxy(BitField bitfield)
+        private sealed class BitFieldDebugProxy
         {
-            a = bitfield;
-        }
+            private BitField a;
 
-        public string DebugView
-        {
-            get
+            public BitFieldDebugProxy(BitField bitfield)
             {
-                string output = "[1..9] = ";
+                a = bitfield;
+            }
 
-                for (int index = 1; index < 10; index++)
+            public string DebugView
+            {
+                get
                 {
-                    output += a[index] ? "1" : "0";
+                    StringBuilder sb = new StringBuilder(9);
 
-                    if (index % 3 == 0)
-                        output += " ";
+                    for (int index = 1; index < 10; index++)
+                        sb.Append(a[index] ? index.ToString() : "-");
+
+                    return sb.ToString();
                 }
-
-                return output;
             }
         }
     }
