@@ -27,6 +27,12 @@ namespace Sudoku.Models
         }
 
 
+        public PuzzleModel(PuzzleModel source)
+        {
+            Cells = new CellList(source.Cells);
+        }
+
+
 
 
 
