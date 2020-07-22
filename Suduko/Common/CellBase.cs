@@ -5,7 +5,8 @@ namespace Sudoku.Common
 
     internal abstract class CellBase : IEquatable<CellBase>
     {
-        public virtual int Value { get; set; } = 0;
+        private int cellValue;
+
         public int Index { get; protected set; }
 
         public BitField Possibles = new BitField(true);
@@ -22,7 +23,40 @@ namespace Sudoku.Common
         }
 
 
+
+        public CellBase(CellBase source)
+        {
+            CopyFrom(source, source.Index);
+        }
+
+
+        
+
+        public virtual int Value
+        {
+            get { return cellValue; }
+            set { cellValue = value; }
+        }
+
+
+
         public bool HasValue => Value > 0;
+
+
+        public void CopyFrom(CellBase source, int newIndex)
+        {
+            Index = newIndex;
+
+            if (source.HasValue)
+                cellValue = source.Value;  
+            else
+            {
+                cellValue = 0;
+                Possibles = source.Possibles;
+                VerticalDirections = source.VerticalDirections;
+                HorizontalDirections = source.HorizontalDirections;
+            }
+        }
 
 
         public bool Equals(CellBase other)

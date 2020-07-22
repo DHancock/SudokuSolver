@@ -36,21 +36,6 @@ namespace Sudoku.ViewModels
         }
 
 
-        public void CopyFrom(Models.Cell source, int newIndex)
-        {
-            Index = newIndex;
-
-            if (source.HasValue)
-                base.Value = source.Value;  // base doesn't fire a notification
-            else
-            {
-                base.Value = 0;
-                Possibles = source.Possibles;
-                VerticalDirections = source.VerticalDirections;
-                HorizontalDirections = source.HorizontalDirections;
-            }
-        }
-
 
         public void RevertValue(int value)
         {

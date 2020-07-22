@@ -18,6 +18,12 @@ namespace Sudoku.Models
                 cells[index] = new Cell(index);
         }
 
+        public CellList(CellList source)
+        {
+            for (int index = 0; index < cells.Length; index++)
+                cells[index] = new Cell(source.cells[index]);
+        }
+
 
         public Cell this[int index]
         {

@@ -11,5 +11,9 @@ namespace Sudoku.Models
         public Cell(int index) : base(index)
         {
         }
+
+        public Cell(Cell source) : base(source)                        
+        {
+        }
     }
 }
