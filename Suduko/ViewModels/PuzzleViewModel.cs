@@ -7,7 +7,7 @@ using System.Windows.Input;
 using Microsoft.Win32;
 
 using Sudoku.Models;
-
+using Sudoku.Common;
 
 namespace Sudoku.ViewModels
 {
@@ -38,6 +38,7 @@ namespace Sudoku.ViewModels
         }
 
 
+
         // the user typed a value into a cell
         private void CellChanged_EventHandler(object sender, PropertyChangedEventArgs e)
         {
@@ -46,13 +47,16 @@ namespace Sudoku.ViewModels
             int previousValue = Model.Cells[changedCell.Index].Value;
 
             // if replacing an old cell value with a new one, first delete the old value
-            // to recalculate the cell possibles which are used to validate the new value
+            // to recalculate the cell possibles which are then used to validate the new value
             if ((previousValue > 0) && changedCell.HasValue)
                 Model.SetCellValue(changedCell.Index, 0);
 
             if (Model.ValidateCellValue(changedCell.Index, changedCell.Value))
             {
-                Model.SetCellValue(changedCell.Index, changedCell.Value);
+                Model.SetCellValue(changedCell.Index, changedCell.Value, Origins.User);
+                // TODO may be check if the puzzle is valid so far and revert if errors found?
+
+                Model.AttemptSimpleTrialAndError();  
 
                 foreach (Models.Cell cell in Model.Cells)
                 {
@@ -65,7 +69,7 @@ namespace Sudoku.ViewModels
                 changedCell.RevertValue(previousValue); // avoids another cell changed event
 
                 if (previousValue > 0)
-                    Model.SetCellValue(changedCell.Index, previousValue);
+                    Model.SetCellValue(changedCell.Index, previousValue, Origins.User);
 
                 SystemSounds.Beep.Play();
             }
@@ -110,7 +114,7 @@ namespace Sudoku.ViewModels
             Model.Clear();
 
             foreach (Models.Cell cell in Model.Cells)
-                this.Cells.UpdateCell(cell);
+                Cells.UpdateCell(cell);
         }
 
 

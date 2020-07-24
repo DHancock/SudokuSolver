@@ -7,20 +7,22 @@ namespace Sudoku.Models
 
     internal sealed class CellList : IEnumerable<Cell>
     {
-        private readonly Cell[] cells = new Cell[81];
+        public const int Length = 81;
+
+        private readonly Cell[] cells = new Cell[Length];
 
         public bool Rotated { get; set; } = false;
 
 
         public CellList()
         {
-            for (int index = 0; index < cells.Length; index++)
+            for (int index = 0; index < Length; index++)
                 cells[index] = new Cell(index);
         }
 
         public CellList(CellList source)
         {
-            for (int index = 0; index < cells.Length; index++)
+            for (int index = 0; index < Length; index++)
                 cells[index] = new Cell(source.cells[index]);
         }
 

@@ -15,7 +15,6 @@ namespace Sudoku.Models
         private const string xmlXAttrbuteName = "x";
         private const string xmlYAttrbuteName = "y";
 
-        private enum Process { Rows, Columns }
 
 
         public CellList Cells { get; }
@@ -52,7 +51,7 @@ namespace Sudoku.Models
 
             foreach (Cell cell in Cells)
             {
-                if (cell.HasValue)
+                if (cell.HasValue && (cell.Origin == Origins.User))
                 {
                     writer.WriteStartElement(xmlCellElementName);
                     writer.WriteAttributeString(xmlXAttrbuteName, (cell.Index % 9).ToString());
@@ -78,6 +77,7 @@ namespace Sudoku.Models
         }
 
 
+
         public void Open(Stream stream)
         {
             Clear();
@@ -97,18 +97,20 @@ namespace Sudoku.Models
                             if (int.TryParse(reader.GetAttribute(xmlYAttrbuteName), out int y) && (y >= 0) && (y < 9))
                             {
                                 int value = reader.ReadElementContentAsInt();
-                           
+
                                 if ((value > 0) && (value < 10))
                                 {
                                     int index = x + (y * 9);
 
                                     if (!Cells[index].HasValue && ValidateCellValue(index, value))
-                                        SetCellValue(index, value);
+                                        SetCellValue(index, value, Origins.User);
                                 }
                             }
                         }
                     }
                 }
+
+                AttemptSimpleTrialAndError();
             }
             catch (XmlException e)
             {
@@ -117,15 +119,12 @@ namespace Sudoku.Models
         }
 
 
+
         public bool ValidateCellValue(int index, int newValue)
         {
             Cell cell = Cells[index];
 
-            if (cell.HasValue && (newValue > 0))
-            {
-                Debug.Fail("replacing a cell value directly isn't supported");
-                return false;
-            }
+            Debug.Assert(!(cell.HasValue && (newValue > 0)), "replacing a cell value directly isn't supported");
 
             if (newValue == 0) // deleting is always valid
                 return true;
@@ -135,24 +134,24 @@ namespace Sudoku.Models
 
 
 
-        public void SetCellValue(int index, int newValue)
+        public void SetCellValue(int index, int newValue, Origins origin = Origins.NotDefined)
         {
-            Cells[index].Value = newValue;
-            CalculatePossibleValues();
+            Cell cell = Cells[index];
+
+            cell.Value = newValue;
+            cell.Origin = origin;
+
+            CalculatePossibleValues(cell);
         }
+
 
 
 
         private void SimpleEliminationForCell(Cell updatedCell, Stack<Cell> cellsToUpdate)
         {
-            int newValue;
-
             Debug.Assert(updatedCell.HasValue || (updatedCell.Possibles.Count == 1));
 
-            if (updatedCell.HasValue)
-                newValue = updatedCell.Value;
-            else
-                newValue = updatedCell.Possibles.First;
+            int newValue = updatedCell.HasValue ? updatedCell.Value : updatedCell.Possibles.First;
 
             foreach (Cell cell in Cells.CubeRowColumnMinus(updatedCell.Index))
             {
@@ -339,6 +338,8 @@ namespace Sudoku.Models
 
         private bool DirectionElimination(Stack<Cell> cellsToUpdate)
         {
+            UpdateCubesDirections();
+
             bool modelUpdated = RowDirectionElimination(cellsToUpdate);
             modelUpdated |= ColumnDirectionElimination(cellsToUpdate);
 
@@ -356,7 +357,6 @@ namespace Sudoku.Models
 
             for (int y = 0; y < 9; y++)  // for each row
             {
-
                 foreach (Cell cell in Cells.Row(y))
                 {
                     if (!cell.HasValue)
@@ -554,29 +554,131 @@ namespace Sudoku.Models
         }
 
 
-        private void DebugValidation()
-        {
 #if DEBUG
-            foreach (Cell cell in Cells)
+        public static void DebugValidation(PuzzleModel a, PuzzleModel b)
+        {
+            for (int index = 0; index < CellList.Length; index++)
             {
-                if (!cell.HasValue && cell.Possibles.Count < 1)
+                Cell ca = a.Cells[index];
+                Cell cb = b.Cells[index];
+
+                if (!ca.Equals(cb))
+                {
                     Debug.Fail("validation fail");
+                    return;
+                }
             }
+        }
 #endif
+
+
+        private enum PuzzleState { NoErrors, CellsRemaining, CellsInError, Solved }
+
+
+        private PuzzleState ValidatePuzzleRows()
+        {
+            for (int row = 0; row < 9; row++)
+            {
+                BitField temp = new BitField(true);
+
+                foreach (Cell cell in Cells.Row(row))
+                {
+                    if (cell.HasValue || (cell.Possibles.Count == 1))
+                    {
+                        int value = cell.HasValue ? cell.Value : cell.Possibles.First;
+
+                        if (!temp[value])
+                            return PuzzleState.CellsInError;  // found a duplicate
+
+                        temp[value] = false;
+                    }
+                }
+
+                if (!temp.IsEmpty)
+                    return PuzzleState.CellsRemaining;
+            }
+
+            return PuzzleState.NoErrors;
+        }
+
+
+        private PuzzleState ValidatePuzzle()
+        {
+            PuzzleState state = ValidatePuzzleRows();
+
+            if (state == PuzzleState.NoErrors)
+            {
+                Cells.Rotated = true;
+                state = ValidatePuzzleRows();
+                Cells.Rotated = false;
+
+                if (state == PuzzleState.NoErrors)
+                    state = PuzzleState.Solved;
+            }
+
+            return state;
         }
 
 
 
-        private void CalculatePossibleValues()
+        private PuzzleState TryCellPossibles(Cell cell)
+        {
+            PuzzleState state = PuzzleState.NoErrors;
+            BitField temp = cell.Possibles;
+            int count = cell.Possibles.Count;
+
+            for (int possible = 0; (possible < count) && (state != PuzzleState.Solved); possible++)
+            {
+                int cellValue = temp.First;
+                SetCellValue(cell.Index, cellValue, Origins.Trial);
+
+                state = ValidatePuzzle();
+
+                if (state != PuzzleState.Solved)
+                {
+                    SetCellValue(cell.Index, 0);
+                    temp[cellValue] = false;
+                }
+            }
+
+            return state;
+        }
+
+
+
+        public void AttemptSimpleTrialAndError()
+        {
+            foreach (Cell cell in Cells)
+            {
+                if (!cell.HasValue && (cell.Possibles.Count == 2))
+                {
+                    if (TryCellPossibles(cell) == PuzzleState.Solved)
+                        break;
+                }
+            }
+        }
+
+
+
+
+        private void CalculatePossibleValues(Cell updatedCell)
         {
             Stack<Cell> cellsToUpdate = new Stack<Cell>();
 
-            foreach (Cell cell in Cells)
+            if (updatedCell.Value > 0)
+                cellsToUpdate.Push(updatedCell);
+            else
             {
-                if (cell.HasValue)
-                    cellsToUpdate.Push(cell);
-                else
-                    cell.Possibles.Reset(true);  // directions will be recalculated
+                // the cell's value has been deleted
+                // rewinding the model is fiendishly difficult and hence error prone
+                // it's much simpler to just start from scratch and rebuild it...
+                foreach (Cell cell in Cells)
+                {
+                    if (cell.HasValue)
+                        cellsToUpdate.Push(cell);
+                    else
+                        cell.Possibles.Reset(true);  // directions will be recalculated
+                }
             }
 
             do
@@ -588,8 +690,6 @@ namespace Sudoku.Models
 
                 do
                 {
-                    UpdateCubesDirections();
-
                     modelChanged = DirectionElimination(cellsToUpdate);
 
                     CheckForSinglePossibles(cellsToUpdate);

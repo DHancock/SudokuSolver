@@ -15,6 +15,8 @@ namespace Sudoku.Common
 
         public BitField VerticalDirections = new BitField();
 
+        public Origins Origin { get; set; } = Origins.NotDefined;
+
 
 
         public CellBase(int index)
@@ -46,6 +48,7 @@ namespace Sudoku.Common
         public void CopyFrom(CellBase source, int newIndex)
         {
             Index = newIndex;
+            Origin = source.Origin;
 
             if (source.HasValue)
                 cellValue = source.Value;  
