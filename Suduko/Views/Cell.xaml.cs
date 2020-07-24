@@ -5,6 +5,8 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 
+using Sudoku.Common;
+
 namespace Sudoku.Views
 {
     /// <summary>
@@ -18,9 +20,7 @@ namespace Sudoku.Views
 
         private TextBlock[] PossibleTBs { get; }
 
-        public enum States { NoValue, UserValue, CalculatedValue }
-
-        private States cellState = States.NoValue;
+        private Origins origin = Origins.NotDefined;
 
 
 
@@ -39,18 +39,18 @@ namespace Sudoku.Views
 
 
 
-        // the cell state notification is for a data trigger that controls 
+        // the cell value origin notification is for a data trigger that controls 
         // properties of the displayed cell
-        public States State
+        public Origins Origin
         {
-            get => cellState;
+            get => origin;
 
             set
             {
-                if (value != cellState)
+                if (value != origin)
                 {
-                    cellState = value;
-                    NotifyPropertyChanged(nameof(State));
+                    origin = value;
+                    NotifyPropertyChanged(nameof(Origin));
                 }
             }
         }
@@ -84,16 +84,15 @@ namespace Sudoku.Views
             Cell cell = (Cell)d;
             ViewModels.Cell data = (ViewModels.Cell)e.NewValue;
 
+            cell.Origin = data.Origin;
+
             if (data.HasValue || (data.Possibles.Count == 1))
             {
                 if (data.HasValue)
-                {
-                    cell.State = States.UserValue;
                     cell.CellValue.Text = sLookUp[data.Value];
-                }
                 else
                 {
-                    cell.State = States.CalculatedValue;
+                    cell.Origin = Origins.Calculated;
                     cell.CellValue.Text = sLookUp[data.Possibles.First];
                 }
 
@@ -103,7 +102,6 @@ namespace Sudoku.Views
             else
             {
                 cell.CellValue.Text = string.Empty;
-                cell.State = States.NoValue;
 
                 int writeIndex = 0;
 
@@ -115,12 +113,7 @@ namespace Sudoku.Views
                         tb.Text = sLookUp[i];
 
                         if (data.VerticalDirections[i])
-                        {
-                            if (data.HorizontalDirections[i])
-                                tb.Foreground = Brushes.Violet;  // both (can only be single possible)
-                            else
-                                tb.Foreground = Brushes.Green;
-                        }
+                            tb.Foreground = Brushes.Green;
                         else if (data.HorizontalDirections[i])
                             tb.Foreground = Brushes.Red;
                         else

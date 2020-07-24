@@ -29,8 +29,11 @@
                 <DataTrigger Binding="{Binding ElementName=SudokuCell, Path=IsFocused}" Value="true">
                     <Setter Property="Background" Value="{x:Static SystemColors.HighlightBrush}"/>
                 </DataTrigger>
-                <DataTrigger Binding="{Binding ElementName=SudokuCell, Path=State}" Value="CalculatedValue">
+                <DataTrigger Binding="{Binding ElementName=SudokuCell, Path=Origin}" Value="Calculated">
                     <Setter Property="Foreground" Value="LightBlue"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding ElementName=SudokuCell, Path=Origin}" Value="Trial">
+                    <Setter Property="Foreground" Value="LightGreen"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>

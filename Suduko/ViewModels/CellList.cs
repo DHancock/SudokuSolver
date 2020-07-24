@@ -5,13 +5,14 @@ namespace Sudoku.ViewModels
 {
     internal sealed class CellList : ObservableCollection<Cell>
     {
+        public const int Length = 81;
 
         private Cell TempStore { get; set; }
 
 
         public CellList(PropertyChangedEventHandler cellChangedEventHandler) : base()
         {
-            for (int index = 0; index < 81; index++)
+            for (int index = 0; index < Length; index++)
                 this.Add(new Cell(index, cellChangedEventHandler));
 
             TempStore = new Cell(0, cellChangedEventHandler);
@@ -39,6 +40,9 @@ namespace Sudoku.ViewModels
                 foreach (Cell cell in this)
                 {
                     if (cell.HasValue)
+                        return true;
+                    
+                    if ((!cell.Possibles).IsEmpty == false)
                         return true;
                 }
 
