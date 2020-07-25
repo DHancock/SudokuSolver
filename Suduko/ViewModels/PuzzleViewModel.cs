@@ -8,14 +8,18 @@ using Microsoft.Win32;
 
 using Sudoku.Models;
 using Sudoku.Common;
+using System.IO;
 
 namespace Sudoku.ViewModels
-{
-    internal sealed class PuzzleViewModel
+{                                                         
+    internal sealed class PuzzleViewModel: INotifyPropertyChanged
     {
         // according to https://fileinfo.com this extension isn't in use (at least by a popular program)
         private const string cFileFilter = "Sudoku files (.sdku)|*.sdku";
         private const string cDefaultFileExt = ".sdku";
+
+        private const string cDefaultWindowTitle = "Sudoku Solver";
+        private string windowTitle = cDefaultWindowTitle;
 
         private PuzzleModel Model { get; }
         public CellList Cells { get; }
@@ -24,7 +28,7 @@ namespace Sudoku.ViewModels
         public ICommand ClearCommand { get; }
         public ICommand PrintCommand { get; }
         public bool ShowPossibles { get; set; } = true;
-
+        
 
         public PuzzleViewModel()
         {
@@ -101,6 +105,8 @@ namespace Sudoku.ViewModels
 
             if (dialog.ShowDialog() == true)
             {
+                WindowTitle = cDefaultWindowTitle + " - " + Path.GetFileNameWithoutExtension(dialog.FileName);
+
                 Model.Open(dialog.OpenFile());
 
                 foreach (Models.Cell cell in Model.Cells)
@@ -139,5 +145,24 @@ namespace Sudoku.ViewModels
                 printDialog.PrintVisual(puzzleView, "Sudoku puzzle");
             }
         }
+
+        
+        public string WindowTitle
+        {
+            get => windowTitle;
+
+            private set
+            {
+                windowTitle = value ?? cDefaultWindowTitle;
+                NotifyPropertyChanged(nameof(WindowTitle));
+            }
+        }
+
+        private void NotifyPropertyChanged(String propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }
