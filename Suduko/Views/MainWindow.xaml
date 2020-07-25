@@ -6,19 +6,18 @@
         xmlns:local="clr-namespace:Sudoku.Views"
         xmlns:vm="clr-namespace:Sudoku.ViewModels"
         mc:Ignorable="d"
-        Title="Sudoku Solver" 
+        Title="{Binding WindowTitle}"
         Height="540" 
         Width="600" 
         WindowStartupLocation="CenterScreen"
         MinHeight="320"
         MinWidth="400">
 
-
     <Window.DataContext>
         <vm:PuzzleViewModel/>
     </Window.DataContext>
-   
-    
+ 
+
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
