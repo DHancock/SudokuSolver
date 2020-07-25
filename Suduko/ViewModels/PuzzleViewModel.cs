@@ -1,18 +1,18 @@
 ﻿using System;
 using System.ComponentModel;
+using System.IO;
 using System.Media;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Microsoft.Win32;
 
-using Sudoku.Models;
 using Sudoku.Common;
-using System.IO;
+using Sudoku.Models;
 
 namespace Sudoku.ViewModels
-{                                                         
-    internal sealed class PuzzleViewModel: INotifyPropertyChanged
+{
+    internal sealed class PuzzleViewModel : INotifyPropertyChanged
     {
         // according to https://fileinfo.com this extension isn't in use (at least by a popular program)
         private const string cFileFilter = "Sudoku files (.sdku)|*.sdku";
@@ -28,7 +28,7 @@ namespace Sudoku.ViewModels
         public ICommand ClearCommand { get; }
         public ICommand PrintCommand { get; }
         public bool ShowPossibles { get; set; } = true;
-        
+
 
         public PuzzleViewModel()
         {
@@ -60,7 +60,7 @@ namespace Sudoku.ViewModels
                 Model.SetCellValue(changedCell.Index, changedCell.Value, Origins.User);
                 // TODO may be check if the puzzle is valid so far and revert if errors found?
 
-                Model.AttemptSimpleTrialAndError();  
+                Model.AttemptSimpleTrialAndError();
 
                 foreach (Models.Cell cell in Model.Cells)
                 {
@@ -146,7 +146,7 @@ namespace Sudoku.ViewModels
             }
         }
 
-        
+
         public string WindowTitle
         {
             get => windowTitle;
