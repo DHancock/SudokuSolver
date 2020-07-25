@@ -21,13 +21,15 @@ namespace Sudoku.ViewModels
         private const string cDefaultWindowTitle = "Sudoku Solver";
         private string windowTitle = cDefaultWindowTitle;
 
+        private bool showPossibles = true;
+
         private PuzzleModel Model { get; }
         public CellList Cells { get; }
         public ICommand OpenCommand { get; }
         public ICommand SaveCommand { get; }
         public ICommand ClearCommand { get; }
         public ICommand PrintCommand { get; }
-        public bool ShowPossibles { get; set; } = true;
+        
 
 
         public PuzzleViewModel()
@@ -145,6 +147,22 @@ namespace Sudoku.ViewModels
                 printDialog.PrintVisual(puzzleView, "Sudoku puzzle");
             }
         }
+
+
+
+        public bool ShowPossibles
+        {                                                        
+            get => showPossibles;
+            set
+            {
+                if (value != showPossibles)
+                {
+                    showPossibles = value;
+                    NotifyPropertyChanged(nameof(ShowPossibles));
+                }
+            }
+        }
+
 
 
         public string WindowTitle
