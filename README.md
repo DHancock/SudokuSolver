@@ -2,9 +2,9 @@
 
 An application that attempts to solve sudoku puzzles using strategies.
 
-Currently I've only implemented the strategies that I already know. As such it
-is capable of solving moderately difficult puzzles but not harder puzzles
-requiring more complex strategies.
+It uses logic to solve as much of the puzzle as possible. This is enough
+to solve the majority of sudoku puzzles but if required it will use a trial
+and error approach once the number of permutations has been reduced to a
+manageable level.
 
-I intend to research and implement more strategies but that may have to wait
-until winter now that the covid lock down has eased.
+I don't claim that it will be able to solve every puzzle.
