@@ -16,7 +16,7 @@ namespace Sudoku.ViewModels
     {
         // according to https://fileinfo.com this extension isn't in use (at least by a popular program)
         private const string cFileFilter = "Sudoku files (.sdku)|*.sdku";
-        private const string cDefaultFileExt = ".sdku";
+        public const string cDefaultFileExt = ".sdku";
 
         private const string cDefaultWindowTitle = "Sudoku Solver";
         private string windowTitle = cDefaultWindowTitle;
@@ -106,15 +106,20 @@ namespace Sudoku.ViewModels
             };
 
             if (dialog.ShowDialog() == true)
-            {
-                WindowTitle = cDefaultWindowTitle + " - " + Path.GetFileNameWithoutExtension(dialog.FileName);
-
-                Model.Open(dialog.OpenFile());
-
-                foreach (Models.Cell cell in Model.Cells)
-                    Cells.UpdateCell(cell);
-            }
+                OpenFile(dialog.OpenFile(), dialog.FileName);
         }
+
+
+        public void OpenFile(Stream stream, string fileName)
+        {
+            WindowTitle = cDefaultWindowTitle + " - " + Path.GetFileNameWithoutExtension(fileName);
+
+            Model.Open(stream);
+
+            foreach (Models.Cell cell in Model.Cells)
+                Cells.UpdateCell(cell);
+        }
+
 
 
         private void ClearCommandHandler(object o)
