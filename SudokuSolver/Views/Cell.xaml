@@ -13,7 +13,7 @@
              MaxWidth="50"
              FocusVisualStyle="{x:Null}"
              x:Name="SudokuCell">
-  
+
     <UserControl.Resources>
         <Style TargetType="TextBlock">
             <Setter Property="Foreground" Value="LightGray"/>
@@ -38,15 +38,6 @@
             </Style.Triggers>
         </Style>
     </UserControl.Resources>
-    <UserControl.Style>
-        <Style TargetType="UserControl">
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding ElementName=SudokuCell, Path=State}" Value="CalculatedValue">
-                    <Setter Property="IsEnabled" Value="false"/>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-    </UserControl.Style>
 
     <Canvas Height="50" Width="50">
 
