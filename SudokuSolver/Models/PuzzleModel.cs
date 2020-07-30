@@ -579,7 +579,7 @@ namespace Sudoku.Models
         {
             for (int row = 0; row < 9; row++)
             {
-                BitField temp = new BitField(true);
+                BitField temp = new BitField();
 
                 foreach (Cell cell in Cells.Row(row))
                 {
@@ -587,15 +587,14 @@ namespace Sudoku.Models
                     {
                         int value = cell.HasValue ? cell.Value : cell.Possibles.First;
 
-                        if (!temp[value])
+                        if (temp[value])
                             return PuzzleState.CellsInError;  // found a duplicate
 
-                        temp[value] = false;
+                        temp[value] = true;
                     }
+                    else
+                        return PuzzleState.CellsRemaining;
                 }
-
-                if (!temp.IsEmpty)
-                    return PuzzleState.CellsRemaining;
             }
 
             return PuzzleState.NoErrors;
