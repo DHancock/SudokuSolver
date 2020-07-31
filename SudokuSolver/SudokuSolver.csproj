@@ -16,6 +16,7 @@
     <Product>SudokuSolver</Product>
     <AssemblyName>SudokuSolver</AssemblyName>
     <RootNamespace>Sudoku</RootNamespace>
+    <ApplicationIcon>app.ico</ApplicationIcon>
   </PropertyGroup>
 
 </Project>
