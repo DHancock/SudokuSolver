@@ -575,7 +575,7 @@ namespace Sudoku.Models
         private enum PuzzleState { NoErrors, CellsRemaining, CellsInError, Solved }
 
 
-        private PuzzleState ValidatePuzzleRows()
+        private PuzzleState CheckPuzzleRows()
         {
             for (int row = 0; row < 9; row++)
             {
@@ -601,14 +601,14 @@ namespace Sudoku.Models
         }
 
 
-        private PuzzleState ValidatePuzzle()
+        private PuzzleState CheckPuzzleState()
         {
-            PuzzleState state = ValidatePuzzleRows();
+            PuzzleState state = CheckPuzzleRows();
 
             if (state == PuzzleState.NoErrors)
             {
                 Cells.Rotated = true;
-                state = ValidatePuzzleRows();
+                state = CheckPuzzleRows();
                 Cells.Rotated = false;
 
                 if (state == PuzzleState.NoErrors)
@@ -631,7 +631,7 @@ namespace Sudoku.Models
                 int cellValue = temp.First;
                 SetCellValue(cell.Index, cellValue, Origins.Trial);
 
-                state = ValidatePuzzle();
+                state = CheckPuzzleState();
 
                 if (state != PuzzleState.Solved)
                 {
