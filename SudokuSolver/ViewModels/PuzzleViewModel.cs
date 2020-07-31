@@ -21,7 +21,7 @@ namespace Sudoku.ViewModels
         private const string cDefaultWindowTitle = "Sudoku Solver";
         private string windowTitle = cDefaultWindowTitle;
 
-        private bool showPossibles = true;
+        private bool showPossibles = false;
 
         private PuzzleModel Model { get; }
         public CellList Cells { get; }
