@@ -4,19 +4,21 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWPF>true</UseWPF>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
     <Authors>David Hancock</Authors>
     <Company>code@davidhancock.net</Company>
     <Copyright>David Hancock 2020</Copyright>
     <PackageId>SudokuSolver</PackageId>
     <RepositoryUrl>https://github.com/DHancock/SudokuSolver</RepositoryUrl>
-    <RepositoryType>Github</RepositoryType>
+    <RepositoryType></RepositoryType>
     <NeutralLanguage>En</NeutralLanguage>
     <PackageReleaseNotes>Prerelease version</PackageReleaseNotes>
     <Product>SudokuSolver</Product>
     <AssemblyName>SudokuSolver</AssemblyName>
     <RootNamespace>Sudoku</RootNamespace>
     <ApplicationIcon>app.ico</ApplicationIcon>
+    <AssemblyVersion>0.2.0.0</AssemblyVersion>
+    <FileVersion>0.2.0.0</FileVersion>
   </PropertyGroup>
 
 </Project>
