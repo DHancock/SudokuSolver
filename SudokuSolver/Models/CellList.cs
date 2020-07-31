@@ -177,7 +177,7 @@ namespace Sudoku.Models
 
         public IEnumerator<Cell> GetEnumerator()
         {
-            for (int index = 0; index < cells.Length; index++)
+            for (int index = 0; index < Length; index++)
                 yield return cells[index];
         }
 
