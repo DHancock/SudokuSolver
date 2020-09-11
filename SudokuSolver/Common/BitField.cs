@@ -153,12 +153,16 @@ namespace Sudoku.Common
             {
                 get
                 {
-                    StringBuilder sb = new StringBuilder(9);
-
-                    for (int index = 1; index < 10; index++)
-                        sb.Append(a[index] ? index.ToString() : "-");
-
-                    return sb.ToString();
+                    return string.Create(9, a, (Span<char> chars, BitField state) =>
+                    {
+                        for (int i = 0; i < chars.Length; i++)
+                        {
+                            if (state[i + 1])
+                                chars[i] = (char)(i + '1');
+                            else
+                                chars[i] = '-';
+                        }
+                    });
                 }
             }
         }
