@@ -622,25 +622,22 @@ namespace Sudoku.Models
 
         private PuzzleState TryCellPossibles(Cell cell)
         {
-            PuzzleState state = PuzzleState.NoErrors;
             BitField temp = cell.Possibles;
-            int count = cell.Possibles.Count;
 
-            for (int possible = 0; (possible < count) && (state != PuzzleState.Solved); possible++)
+            while (!temp.IsEmpty)
             {
                 int cellValue = temp.First;
                 SetCellValue(cell.Index, cellValue, Origins.Trial);
 
-                state = CheckPuzzleState();
+                if (CheckPuzzleState() == PuzzleState.Solved)
+                    return PuzzleState.Solved;
 
-                if (state != PuzzleState.Solved)
-                {
-                    SetCellValue(cell.Index, 0);
-                    temp[cellValue] = false;
-                }
+                // revert puzzle and clear the possible value
+                SetCellValue(cell.Index, 0);
+                temp[cellValue] = false;
             }
 
-            return state;
+            return PuzzleState.CellsRemaining;
         }
 
 
