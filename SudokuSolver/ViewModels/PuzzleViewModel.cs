@@ -15,7 +15,7 @@ namespace Sudoku.ViewModels
     internal sealed class PuzzleViewModel : INotifyPropertyChanged
     {
         // according to https://fileinfo.com this extension isn't in use (at least by a popular program)
-        private const string cFileFilter = "Sudoku files (.sdku)|*.sdku";
+        private const string cFileFilter = "Sudoku files|*.sdku";
         public const string cDefaultFileExt = ".sdku";
 
         private const string cDefaultWindowTitle = "Sudoku Solver";
@@ -85,11 +85,7 @@ namespace Sudoku.ViewModels
 
         private void SaveCommandHandler(object o)
         {
-            SaveFileDialog dialog = new SaveFileDialog
-            {
-                DefaultExt = cDefaultFileExt,
-                Filter = cFileFilter,
-            };
+            SaveFileDialog dialog = new SaveFileDialog { Filter = cFileFilter };
 
             if (dialog.ShowDialog() == true)
                 Model.Save(dialog.OpenFile());
@@ -99,11 +95,7 @@ namespace Sudoku.ViewModels
 
         private void OpenCommandHandler(object o)
         {
-            OpenFileDialog dialog = new OpenFileDialog
-            {
-                DefaultExt = cDefaultFileExt,
-                Filter = cFileFilter,
-            };
+            OpenFileDialog dialog = new OpenFileDialog { Filter = cFileFilter };
 
             if (dialog.ShowDialog() == true)
                 OpenFile(dialog.OpenFile(), dialog.FileName);
