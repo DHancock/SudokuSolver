@@ -16,7 +16,7 @@ namespace Sudoku.Views
     {
         private static readonly string[] sLookUp = new[] { "", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         private TextBlock[] PossibleTBs { get; }
 

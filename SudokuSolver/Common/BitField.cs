@@ -128,7 +128,7 @@ namespace Sudoku.Common
         }
 
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is BitField a)
                 return this == a;

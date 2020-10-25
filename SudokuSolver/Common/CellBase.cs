@@ -62,7 +62,7 @@ namespace Sudoku.Common
         }
 
 
-        public bool Equals(CellBase other)
+        public bool Equals(CellBase? other)
         {
             if (other is null)
                 return false;

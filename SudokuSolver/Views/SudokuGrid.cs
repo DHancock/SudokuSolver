@@ -98,9 +98,9 @@ namespace Sudoku.Views
             Size availableSize = new Size(childSize, childSize);
 
 
-            foreach (UIElement child in InternalChildren)
+            foreach (UIElement? child in InternalChildren)
             {
-                child.Measure(availableSize);   // causes the child to update it's desired size
+                child?.Measure(availableSize);   // causes the child to update it's desired size
             }
 
             Size desiredSize;
@@ -142,7 +142,7 @@ namespace Sudoku.Views
             int index = 0;
             Rect finalRect = new Rect(0, 0, cellSize, cellSize);
 
-            foreach (UIElement uIElement in InternalChildren)
+            foreach (UIElement? uIElement in InternalChildren)
             {
                 int x = index % 9;
                 int y = index / 9;
@@ -150,7 +150,7 @@ namespace Sudoku.Views
                 finalRect.X = offsets[x];
                 finalRect.Y = offsets[y];
 
-                uIElement.Arrange(finalRect);
+                uIElement?.Arrange(finalRect);
                 ++index;
             }
 
