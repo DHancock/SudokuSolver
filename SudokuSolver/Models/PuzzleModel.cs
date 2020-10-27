@@ -554,23 +554,6 @@ namespace Sudoku.Models
         }
 
 
-#if DEBUG
-        public static void DebugValidation(PuzzleModel a, PuzzleModel b)
-        {
-            for (int index = 0; index < CellList.Length; index++)
-            {
-                Cell ca = a.Cells[index];
-                Cell cb = b.Cells[index];
-
-                if (!ca.Equals(cb))
-                {
-                    Debug.Fail("validation fail");
-                    return;
-                }
-            }
-        }
-#endif
-
 
         private enum PuzzleState { NoErrors, CellsRemaining, CellsInError, Solved }
 
