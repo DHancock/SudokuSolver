@@ -6,16 +6,15 @@ namespace Sudoku.ViewModels
     internal sealed class RelayCommand : ICommand
     {
         private readonly Action<object> execute;
-        private readonly Func<object, bool> canExecute = DefaultCanExecute;
+        private readonly Func<object, bool> canExecute;
 
-
-        public RelayCommand(Action<object> execute)
+        public RelayCommand(Action<object> execute) : this(execute, DefaultCanExecute)
         {
-            this.execute = execute;
         }
 
-        public RelayCommand(Action<object> execute, Func<object, bool> canExecute) : this(execute)
+        public RelayCommand(Action<object> execute, Func<object, bool> canExecute)
         {
+            this.execute = execute;
             this.canExecute = canExecute;
         }
 
