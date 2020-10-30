@@ -1,25 +1,39 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Sudoku.Models
 {
 
-    internal sealed class CellList : List<Cell>
+    internal sealed class CellList : IEnumerable<Cell>
     {
-        private const int length = 81;
+        public const int Length = 81;
+
+        private readonly Cell[] cells = new Cell[Length];
 
         public bool Rotated { get; set; } = false;
 
 
-        public CellList() : base(length)
+        public CellList()
         {
-            for (int index = 0; index < length; index++)
-                Add(new Cell(index));
+            for (int index = 0; index < Length; index++)
+                cells[index] = new Cell(index);
         }
 
-        public CellList(CellList source) : base(length)
+        public CellList(CellList source)
         {
-            for (int index = 0; index < length; index++)
-                Add(new Cell(source[index]));
+            for (int index = 0; index < Length; index++)
+                cells[index] = new Cell(source.cells[index]);
+        }
+
+
+        public Cell this[int index]
+        {
+            get
+            {
+                Debug.Assert(!Rotated);
+                return cells[index];
+            }
         }
 
 
@@ -28,9 +42,9 @@ namespace Sudoku.Models
             get
             {
                 if (Rotated)
-                    return this[Convert(y, x)];
+                    return cells[Convert(y, x)];
 
-                return this[Convert(x, y)];
+                return cells[Convert(x, y)];
             }
         }
 
@@ -159,5 +173,14 @@ namespace Sudoku.Models
             foreach (Cell cell in ColumnMinus(cubey, column))
                 yield return cell;
         }
+
+
+        public IEnumerator<Cell> GetEnumerator()
+        {
+            for (int index = 0; index < Length; index++)
+                yield return cells[index];
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
     }
 }
