@@ -5,24 +5,24 @@ using System.Diagnostics;
 namespace Sudoku.Models
 {
 
-    internal sealed class CellList : IEnumerable<Cell>
+    internal sealed class CellList : IReadOnlyList<Cell>
     {
-        public const int Length = 81;
+        private const int cLength = 81;
 
-        private readonly Cell[] cells = new Cell[Length];
+        private readonly Cell[] cells = new Cell[cLength];
 
         public bool Rotated { get; set; } = false;
 
 
         public CellList()
         {
-            for (int index = 0; index < Length; index++)
+            for (int index = 0; index < cLength; index++)
                 cells[index] = new Cell(index);
         }
 
         public CellList(CellList source)
         {
-            for (int index = 0; index < Length; index++)
+            for (int index = 0; index < cLength; index++)
                 cells[index] = new Cell(source.cells[index]);
         }
 
@@ -177,10 +177,12 @@ namespace Sudoku.Models
 
         public IEnumerator<Cell> GetEnumerator()
         {
-            for (int index = 0; index < Length; index++)
+            for (int index = 0; index < cLength; index++)
                 yield return cells[index];
         }
 
         IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+
+        public int Count => cLength;
     }
 }
