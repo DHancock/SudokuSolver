@@ -659,9 +659,9 @@ namespace Sudoku.Models
 
         private void CalculatePossibleValues(Cell updatedCell)
         {
-            Stack<Cell> cellsToUpdate = new Stack<Cell>();
+            Stack<Cell> cellsToUpdate = new Stack<Cell>(Cells.Count);
 
-            if (updatedCell.Value > 0)
+            if (updatedCell.HasValue)
                 cellsToUpdate.Push(updatedCell);
             else
             {
@@ -671,7 +671,18 @@ namespace Sudoku.Models
                 foreach (Cell cell in Cells)
                 {
                     if (cell.HasValue)
-                        cellsToUpdate.Push(cell);
+                    {
+                        if (cell.Origin != Origins.Trial)
+                            cellsToUpdate.Push(cell);
+                        else
+                        {
+                            // Clear a trial and error cells value. It was only valid 
+                            // for the puzzles previous state which is now changing.
+                            cell.Origin = Origins.NotDefined;
+                            cell.Value = 0;
+                            cell.Possibles.Reset(true);
+                        }
+                    }
                     else
                         cell.Possibles.Reset(true);  // directions will be recalculated
                 }
