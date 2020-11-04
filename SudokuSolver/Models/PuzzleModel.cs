@@ -70,9 +70,9 @@ namespace Sudoku.Models
             foreach (Cell cell in Cells)
             {
                 cell.Value = 0;
-                cell.Possibles.Reset(true);
-                cell.HorizontalDirections.Reset(false);
-                cell.VerticalDirections.Reset(false);
+                cell.Possibles.SetAllTo(true);
+                cell.HorizontalDirections.SetAllTo(false);
+                cell.VerticalDirections.SetAllTo(false);
             }
         }
 
@@ -293,8 +293,6 @@ namespace Sudoku.Models
                                 }
                             }
                         }
-
-                        directions.Reset(false);  // for next loop
                     }
                 }
             }
@@ -385,7 +383,7 @@ namespace Sudoku.Models
 
                         if (cell.Possibles.Count > 1)  // only push once
                         {
-                            cell.Possibles.Reset(false);
+                            cell.Possibles.SetAllTo(false);
                             cell.Possibles[index] = true;
 
                             cellsToUpdate.Push(cell);
@@ -680,11 +678,11 @@ namespace Sudoku.Models
                             // for the puzzles previous state which is now changing.
                             cell.Origin = Origins.NotDefined;
                             cell.Value = 0;
-                            cell.Possibles.Reset(true);
+                            cell.Possibles.SetAllTo(true);
                         }
                     }
                     else
-                        cell.Possibles.Reset(true);  // directions will be recalculated
+                        cell.Possibles.SetAllTo(true);  // directions will be recalculated
                 }
             }
 

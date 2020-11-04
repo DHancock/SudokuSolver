@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Text;
 
 namespace Sudoku.Common
 {
@@ -8,14 +7,14 @@ namespace Sudoku.Common
     [DebuggerTypeProxy(typeof(BitFieldDebugProxy))]
     internal struct BitField
     {
-        private const uint cSpan = 0x000003FE;   // cell values range from 1 to 9
+        private const uint cSpan = 0x03FE;   // cell values range from 1 to 9
 
         private uint data;
 
 
         public BitField(bool toSpan)
         {
-            data = (toSpan) ? cSpan : 0U;
+            data = toSpan ? cSpan : 0U;
         }
 
         private BitField(uint value)
@@ -24,7 +23,9 @@ namespace Sudoku.Common
         }
 
 
-
+        // In a classic BitField implementation the indexer is a mask allowing
+        // multiple bits to be set or tested. Here it refers to the bit number
+        // of an individual bit, more like an array indexer.
         public bool this[int bit]
         {
             get
@@ -47,9 +48,9 @@ namespace Sudoku.Common
 
 
 
-        public void Reset(bool toSpan)
+        public void SetAllTo(bool toSpan)
         {
-            data = (toSpan) ? cSpan : 0U;
+            data = toSpan ? cSpan : 0U;
         }
 
 
@@ -88,14 +89,13 @@ namespace Sudoku.Common
                 uint temp = data >> 1;
                 int count = 0;
 
-                do
+                while (temp != 0U)
                 {
                     if ((temp & 1U) != 0)
                         ++count;
 
                     temp >>= 1;
                 }
-                while (temp != 0);
 
                 return count;
             }
