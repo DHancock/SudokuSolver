@@ -86,16 +86,10 @@ namespace Sudoku.Views
 
             cell.Origin = data.Origin;
 
-            if (data.HasValue || (data.Possibles.Count == 1))
+            if (data.HasValue)
             {
-                if (data.HasValue)
-                    cell.CellValue.Text = sLookUp[data.Value];
-                else
-                {
-                    cell.Origin = Origins.Calculated;
-                    cell.CellValue.Text = sLookUp[data.Possibles.First];
-                }
-
+                cell.CellValue.Text = sLookUp[data.Value];
+                
                 foreach (TextBlock tb in cell.PossibleTBs)
                     tb.Text = string.Empty;
             }
