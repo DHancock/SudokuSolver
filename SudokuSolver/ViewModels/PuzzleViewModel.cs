@@ -168,7 +168,7 @@ namespace Sudoku.ViewModels
 
             private set
             {
-                windowTitle = value ?? cDefaultWindowTitle;
+                windowTitle = value;
                 NotifyPropertyChanged(nameof(WindowTitle));
             }
         }
