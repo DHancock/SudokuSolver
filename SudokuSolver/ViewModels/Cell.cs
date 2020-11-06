@@ -12,7 +12,7 @@ namespace Sudoku.ViewModels
 
         public Cell(int index, PropertyChangedEventHandler callBack) : base(index)
         {
-            PropertyChanged += callBack ?? throw new ArgumentNullException(nameof(callBack));
+            PropertyChanged += callBack;
         }
 
 
@@ -32,7 +32,7 @@ namespace Sudoku.ViewModels
 
         private void NotifyPropertyChanged(String propertyName)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
 
