@@ -51,16 +51,16 @@ namespace Sudoku.ViewModels
             Cell changedCell = (Cell)sender;
 
             int previousValue = Model.Cells[changedCell.Index].Value;
+            Origins previousOrigin = changedCell.Origin;
 
-            // if replacing an old cell value with a new one, first delete the old value
-            // to recalculate the cell possibles which are then used to validate the new value
-            if ((previousValue > 0) && changedCell.HasValue)
-                Model.SetCellValue(changedCell.Index, 0);
+            // if replacing an user cell value, first delete the old value to
+            // recalculate the cell possibles which are then used to validate the new value
+            if ((previousOrigin == Origins.User) && changedCell.HasValue)
+                Model.SetCellValue(changedCell.Index, 0, Origins.NotDefined);
 
             if (Model.ValidateCellValue(changedCell.Index, changedCell.Value))
             {
                 Model.SetCellValue(changedCell.Index, changedCell.Value, Origins.User);
-                // TODO may be check if the puzzle is valid so far and revert if errors found?
 
                 Model.AttemptSimpleTrialAndError();
 
@@ -74,7 +74,7 @@ namespace Sudoku.ViewModels
             {
                 changedCell.RevertValue(previousValue); // avoids another cell changed event
 
-                if (previousValue > 0)
+                if (previousOrigin == Origins.User)
                     Model.SetCellValue(changedCell.Index, previousValue, Origins.User);
 
                 SystemSounds.Beep.Play();

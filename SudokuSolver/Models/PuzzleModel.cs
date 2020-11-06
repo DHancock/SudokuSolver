@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Xml;
@@ -69,6 +70,7 @@ namespace Sudoku.Models
         {
             foreach (Cell cell in Cells)
             {
+                cell.Origin = Origins.NotDefined;
                 cell.Value = 0;
                 cell.Possibles.SetAllTo(true);
                 cell.HorizontalDirections.SetAllTo(false);
@@ -102,7 +104,7 @@ namespace Sudoku.Models
                                 {
                                     int index = x + (y * 9);
 
-                                    if (!Cells[index].HasValue && ValidateCellValue(index, value))
+                                    if (ValidateCellValue(index, value))
                                         SetCellValue(index, value, Origins.User);
                                 }
                             }
@@ -120,21 +122,22 @@ namespace Sudoku.Models
 
 
 
-        public bool ValidateCellValue(int index, int newValue)
+        public bool ValidateCellValue(int index, int newValue)                    
         {
             Cell cell = Cells[index];
 
-            Debug.Assert(!(cell.HasValue && (newValue > 0)), "replacing a cell value directly isn't supported");
-
             if (newValue == 0) // deleting is always valid
                 return true;
+
+            if (cell.HasValue) // replacing a cell value directly isn't supported
+                return false;
 
             return cell.Possibles[newValue];   // so far at least...
         }
 
 
 
-        public void SetCellValue(int index, int newValue, Origins origin = Origins.NotDefined)
+        public void SetCellValue(int index, int newValue, Origins origin)
         {
             Cell cell = Cells[index];
 
@@ -149,9 +152,7 @@ namespace Sudoku.Models
 
         private void SimpleEliminationForCell(Cell updatedCell, Stack<Cell> cellsToUpdate)
         {
-            Debug.Assert(updatedCell.HasValue || (updatedCell.Possibles.Count == 1));
-
-            int newValue = updatedCell.HasValue ? updatedCell.Value : updatedCell.Possibles.First;
+            int newValue = updatedCell.Value;
 
             foreach (Cell cell in Cells.CubeRowColumnMinus(updatedCell.Index))
             {
@@ -581,9 +582,9 @@ namespace Sudoku.Models
 
                 foreach (Cell cell in Cells.Row(row))
                 {
-                    if (cell.HasValue || (cell.Possibles.Count == 1))
+                    if (cell.HasValue)
                     {
-                        int value = cell.HasValue ? cell.Value : cell.Possibles.First;
+                        int value = cell.Value;
 
                         if (temp[value])
                             return PuzzleState.CellsInError;  // found a duplicate
@@ -631,7 +632,7 @@ namespace Sudoku.Models
                     return PuzzleState.Solved;
 
                 // revert puzzle and clear the possible value
-                SetCellValue(cell.Index, 0);
+                SetCellValue(cell.Index, 0, Origins.NotDefined);
                 temp[cellValue] = false;
             }
 
@@ -670,11 +671,11 @@ namespace Sudoku.Models
                 {
                     if (cell.HasValue)
                     {
-                        if (cell.Origin != Origins.Trial)
+                        if (cell.Origin == Origins.User)
                             cellsToUpdate.Push(cell);
                         else
                         {
-                            // Clear a trial and error cells value. It was only valid 
+                            // Clear any calculated cell value. It was only valid 
                             // for the puzzles previous state which is now changing.
                             cell.Origin = Origins.NotDefined;
                             cell.Value = 0;
@@ -688,8 +689,19 @@ namespace Sudoku.Models
 
             do
             {
+
                 while (cellsToUpdate.Count > 0)
-                    SimpleEliminationForCell(cellsToUpdate.Pop(), cellsToUpdate);
+                {
+                    Cell cell = cellsToUpdate.Pop();
+
+                    if (!cell.HasValue) // convert a single possible into a cell value
+                    {
+                        cell.Value = cell.Possibles.First;
+                        cell.Origin = Origins.Calculated;
+                    }
+
+                    SimpleEliminationForCell(cell, cellsToUpdate);
+                }
 
                 bool modelChanged;
 
