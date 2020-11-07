@@ -60,7 +60,7 @@ namespace Sudoku.ViewModels
 
             if (Model.ValidateCellValue(changedCell.Index, changedCell.Value))
             {
-                Model.SetCellValue(changedCell.Index, changedCell.Value, Origins.User);
+                Model.SetCellValue(changedCell.Index, changedCell.Value, changedCell.HasValue ? Origins.User : Origins.NotDefined);
 
                 Model.AttemptSimpleTrialAndError();
 
