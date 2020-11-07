@@ -1,4 +1,4 @@
-# SudukoSolver
+# SudokuSolver
 
 An application that attempts to solve sudoku puzzles using strategies.
 
