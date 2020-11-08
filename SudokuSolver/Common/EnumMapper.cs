@@ -62,8 +62,6 @@ namespace Sudoku.Common
             {
                 if (!initialised)
                 {
-                    initialised = true; 
-            
                     foreach (string name in Enum.GetNames(typeof(T)))
                     {
                         T value = (T)Enum.Parse<T>(name);
@@ -71,6 +69,8 @@ namespace Sudoku.Common
                         valueLookUp.Add(name, value);
                         nameLookUp.Add(value, name);
                     }
+
+                    initialised = true;
                 }
             }
         }
