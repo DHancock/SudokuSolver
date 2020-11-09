@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Xml;
-
+using System.Linq;
+using System.Xml.Linq;
 using Sudoku.Common;
 
 
@@ -11,12 +10,17 @@ namespace Sudoku.Models
 {
     internal sealed class PuzzleModel
     {
-        private const string xmlSudokuElementName = "Sudoku";
-        private const string xmlCellElementName = "Cell";
-        private const string xmlXAttrbuteName = "x";
-        private const string xmlYAttrbuteName = "y";
-
-
+        private static class Cx
+        {
+            public const string Sudoku = "Sudoku";
+            public const string version = "version";
+            public const int current_version = 1;
+            public const string Cell = "Cell";
+            public const string x = "x";
+            public const string y = "y";
+            public const string origin = "origin";
+            public const string value = "value";
+        }
 
         public CellList Cells { get; }
 
@@ -33,96 +37,123 @@ namespace Sudoku.Models
         }
 
 
-
-
-
-
         public void Save(Stream stream)
         {
-            XmlWriterSettings settings = new XmlWriterSettings
-            {
-                Indent = true,
-                IndentChars = "    ",
-                OmitXmlDeclaration = true
-            };
-
-            using XmlWriter writer = XmlWriter.Create(stream, settings);
-
-            writer.WriteStartElement(xmlSudokuElementName);
+            XElement xmlTree = new XElement(Cx.Sudoku, new XAttribute(Cx.version, Cx.current_version));
 
             foreach (Cell cell in Cells)
             {
-                if (cell.HasValue && (cell.Origin == Origins.User))
+                if (cell.HasValue)
                 {
-                    writer.WriteStartElement(xmlCellElementName);
-                    writer.WriteAttributeString(xmlXAttrbuteName, (cell.Index % 9).ToString());
-                    writer.WriteAttributeString(xmlYAttrbuteName, (cell.Index / 9).ToString());
-                    writer.WriteValue(cell.Value);
-                    writer.WriteEndElement();
+                    xmlTree.Add(new XElement(Cx.Cell, new XElement(Cx.x, cell.Index % 9),
+                                                      new XElement(Cx.y, cell.Index / 9),
+                                                      new XElement(Cx.value, cell.Value),
+                                                      new XElement(Cx.origin, OriginsMapper.ToName(cell.Origin))));
                 }
             }
 
-            writer.WriteEndElement();
+            xmlTree.Save(stream);
         }
 
 
         public void Clear()
         {
             foreach (Cell cell in Cells)
-            {
-                cell.Origin = Origins.NotDefined;
-                cell.Value = 0;
-                cell.Possibles.SetAllTo(true);
-                cell.HorizontalDirections.SetAllTo(false);
-                cell.VerticalDirections.SetAllTo(false);
-            }
+                cell.Reset();
         }
+
 
 
 
         public void Open(Stream stream)
         {
-            Clear();
+            XDocument document = XDocument.Load(stream);
 
-            using XmlReader reader = XmlReader.Create(stream);
+            // sanity check
+            if (document.Root.Name != Cx.Sudoku)
+                throw new InvalidDataException();
 
-            try
+            // version check
+            int version = 0;
+
+            if (document.Root.HasAttributes)
             {
-                reader.ReadStartElement(xmlSudokuElementName);
+                XAttribute va = document.Root.Attribute(Cx.version);
 
-                while (reader.Read())
-                {
-                    if (reader.Name == xmlCellElementName)
-                    {
-                        if (int.TryParse(reader.GetAttribute(xmlXAttrbuteName), out int x) && (x >= 0) && (x < 9))
-                        {
-                            if (int.TryParse(reader.GetAttribute(xmlYAttrbuteName), out int y) && (y >= 0) && (y < 9))
-                            {
-                                int value = reader.ReadElementContentAsInt();
-
-                                if ((value > 0) && (value < 10))
-                                {
-                                    int index = x + (y * 9);
-
-                                    if (ValidateCellValue(index, value))
-                                        SetCellValue(index, value, Origins.User);
-                                }
-                            }
-                        }
-                    }
-                }
-
-                AttemptSimpleTrialAndError();
+                if ((va == null) || !int.TryParse(va.Value, out version))
+                    throw new InvalidDataException();
             }
-            catch (XmlException e)
+
+            switch (version)
             {
-                Debug.Fail(e.Message);
+                case 0: OpenVersion_0(document); break;
+                case 1: OpenVersion_1(document); break;
+
+                default: throw new InvalidDataException(); 
             }
         }
 
 
 
-        public bool ValidateCellValue(int index, int newValue)                    
+        private void OpenVersion_0(XDocument document)
+        {
+            // list of validated user cells
+            IEnumerable<XElement> cells =
+                from el in document.Descendants(Cx.Cell)
+                where el.Attribute(Cx.x) != null && (int)el.Attribute(Cx.x) >= 0 && (int)el.Attribute(Cx.x) < 9
+                    && el.Attribute(Cx.y) != null && (int)el.Attribute(Cx.y) >= 0 && (int)el.Attribute(Cx.y) < 9
+                    && el.Value != null && (int)el > 0 && (int)el < 10
+                select el;
+
+            // update model
+            foreach (XElement el in cells)
+            {
+                int x = (int)el.Attribute(Cx.x);
+                int y = (int)el.Attribute(Cx.y);
+                int value = (int)el;
+
+                int index = x + (y * 9);
+
+                if (ValidateNewCellValue(index, value))
+                    SetCellValue(index, value, Origins.User);
+            }
+
+            AttemptSimpleTrialAndError();
+        }
+
+    
+
+
+        private void OpenVersion_1(XDocument document)
+        {
+            // list of validated user cells
+            IEnumerable<XElement> cells =
+                from el in document.Descendants(Cx.Cell)
+                where el.Element(Cx.origin) != null && (string)el.Element(Cx.origin) == OriginsMapper.ToName(Origins.User)
+                    && el.Element(Cx.x) != null && (int)el.Element(Cx.x) >= 0 && (int)el.Element(Cx.x) < 9
+                    && el.Element(Cx.y) != null && (int)el.Element(Cx.y) >= 0 && (int)el.Element(Cx.y) < 9
+                    && el.Element(Cx.value) != null && (int)el.Element(Cx.value) > 0 && (int)el.Element(Cx.value) < 10
+                select el;
+
+            // update model
+            foreach (XElement el in cells)                                        
+            {
+                int x = (int)el.Element(Cx.x);
+                int y = (int)el.Element(Cx.y);
+                int value = (int)el.Element(Cx.value);
+
+                int index = x + (y * 9);
+
+                if (ValidateNewCellValue(index, value))
+                    SetCellValue(index, value, Origins.User);
+            }
+
+            AttemptSimpleTrialAndError();
+        }
+  
+
+
+        public bool ValidateNewCellValue(int index, int newValue)                    
         {
             Cell cell = Cells[index];
 

@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
+
 using Sudoku.ViewModels;
 
 namespace Sudoku.Views
@@ -23,10 +24,13 @@ namespace Sudoku.Views
                 {
                     try
                     {
-                        ((PuzzleViewModel)DataContext).OpenFile(File.OpenRead(args[1]), args[1]);
+                        using FileStream fs = File.OpenRead(args[1]);
+                        ((PuzzleViewModel)DataContext).OpenFile(fs, args[1]);
                     }
-                    catch    // this is not production quality code
+                    catch (Exception e)
                     {
+                        // TODO - failed to open message box
+                        Debug.Fail(e.Message);
                     }
                 }
             }

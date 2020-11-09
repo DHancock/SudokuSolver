@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Media;
 using System.Windows;
@@ -58,7 +59,7 @@ namespace Sudoku.ViewModels
             if ((previousOrigin == Origins.User) && changedCell.HasValue)
                 Model.SetCellValue(changedCell.Index, 0, Origins.NotDefined);
 
-            if (Model.ValidateCellValue(changedCell.Index, changedCell.Value))
+            if (Model.ValidateNewCellValue(changedCell.Index, changedCell.Value))
             {
                 Model.SetCellValue(changedCell.Index, changedCell.Value, changedCell.HasValue ? Origins.User : Origins.NotDefined);
 
@@ -88,7 +89,18 @@ namespace Sudoku.ViewModels
             SaveFileDialog dialog = new SaveFileDialog { Filter = cFileFilter };
 
             if (dialog.ShowDialog() == true)
-                Model.Save(dialog.OpenFile());
+            {
+                try
+                {
+                    using Stream stream = dialog.OpenFile();
+                    Model.Save(stream);
+                }
+                catch (Exception e)
+                {
+                    // TODO - failed to save message box
+                    Debug.Fail(e.Message);
+                }
+            }
         }
 
 
@@ -98,18 +110,40 @@ namespace Sudoku.ViewModels
             OpenFileDialog dialog = new OpenFileDialog { Filter = cFileFilter };
 
             if (dialog.ShowDialog() == true)
-                OpenFile(dialog.OpenFile(), dialog.FileName);
+            {
+                try
+                {
+                    using Stream stream = dialog.OpenFile();
+                    OpenFile(stream, dialog.FileName);
+                }
+                catch (Exception e)
+                {
+                    // TODO - failed to open message box
+                    Debug.Fail(e.Message);
+                }
+            }
         }
 
 
         public void OpenFile(Stream stream, string fileName)
         {
-            WindowTitle = cDefaultWindowTitle + " - " + Path.GetFileNameWithoutExtension(fileName);
-
-            Model.Open(stream);
-
-            foreach (Models.Cell cell in Model.Cells)
-                Cells.UpdateCell(cell);
+            try
+            {
+                Model.Clear();
+                Model.Open(stream);
+                WindowTitle = cDefaultWindowTitle + " - " + Path.GetFileNameWithoutExtension(fileName);
+            }
+            catch
+            {
+                Model.Clear();
+                WindowTitle = cDefaultWindowTitle;
+                throw;
+            }
+            finally
+            {
+                foreach (Models.Cell cell in Model.Cells)
+                    Cells.UpdateCell(cell);
+            }
         }
 
 
