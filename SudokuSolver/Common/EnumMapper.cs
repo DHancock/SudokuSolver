@@ -10,69 +10,49 @@ namespace Sudoku.Common
       /// of values and you need to convert formats regularly. 
       /// </summary>
       /// <typeparam name="T"></typeparam>
-    internal class EnumMapper<T> where T : struct, Enum
+    internal sealed class EnumMapper<T> where T : struct, Enum
     {
-        private readonly Dictionary<string, T> valueLookUp = new Dictionary<string, T>();
-        private readonly Dictionary<T, string> nameLookUp = new Dictionary<T, string>();
+        private sealed class Mapper
+        {
+            public Dictionary<string, T> ValueLookUp { get; } = new Dictionary<string, T>();
+            public Dictionary<T, string> NameLookUp { get; } = new Dictionary<T, string>();
 
-        private bool initialised = false;
-        private readonly object initialiseLock = new object();
+            public Mapper()
+            {
+                foreach (string name in Enum.GetNames(typeof(T)))
+                {
+                    T value = Enum.Parse<T>(name);
 
+                    ValueLookUp.Add(name, value);
+                    NameLookUp.Add(value, name);
+                }
+            }
+        }
 
+        private Lazy<Mapper> data = new Lazy<Mapper>(() => { return new Mapper(); });
+
+        public EnumMapper()
+        {
+        }
 
         public string ToName(T src)
         {
-            if (!initialised)
-                Init();
-
-            return nameLookUp[src];
+            return data.Value.NameLookUp[src];
         }
-
 
         public bool TryGetName(T src, [NotNullWhen(returnValue: true)] out string? name)
         {
-            if (!initialised)
-                Init();
-
-            return nameLookUp.TryGetValue(src, out name);
+            return data.Value.NameLookUp.TryGetValue(src, out name);
         }
-
 
         public T ToValue(string src)
         {
-            if (!initialised)
-                Init();
-
-            return valueLookUp[src];
+            return data.Value.ValueLookUp[src];
         }
-
 
         public bool TryGetValue(string src, out T value)
-        {
-            if (!initialised)
-                Init();
-                                                    
-            return valueLookUp.TryGetValue(src, out value);
-        }
-
-
-        private void Init()
-        {
-            lock(initialiseLock)
-            {
-                if (!initialised)
-                {
-                    foreach (string name in Enum.GetNames(typeof(T)))
-                    {
-                        T value = (T)Enum.Parse<T>(name);
-
-                        valueLookUp.Add(name, value);
-                        nameLookUp.Add(value, name);
-                    }
-
-                    initialised = true;
-                }
-            }
+        {                        
+            return data.Value.ValueLookUp.TryGetValue(src, out value);
         }
     }
 }
