@@ -6,7 +6,7 @@ namespace Sudoku.Common
 {
       /// <summary>
       /// A mapper for converting between enum field names and their associated values
-      /// and visa versa. This could be useful if your enum type contains a small number
+      /// and vice versa. This could be useful if your enum type contains a small number
       /// of values and you need to convert formats regularly. 
       /// </summary>
       /// <typeparam name="T"></typeparam>
@@ -14,8 +14,8 @@ namespace Sudoku.Common
     {
         private sealed class Mapper
         {
-            public Dictionary<string, T> ValueLookUp { get; } = new Dictionary<string, T>();
-            public Dictionary<T, string> NameLookUp { get; } = new Dictionary<T, string>();
+            public readonly Dictionary<string, T> valueLookUp = new Dictionary<string, T>();
+            public readonly Dictionary<T, string> nameLookUp = new Dictionary<T, string>();
 
             public Mapper()
             {
@@ -23,13 +23,13 @@ namespace Sudoku.Common
                 {
                     T value = Enum.Parse<T>(name);
 
-                    ValueLookUp.Add(name, value);
-                    NameLookUp.Add(value, name);
+                    valueLookUp.Add(name, value);
+                    nameLookUp.Add(value, name);
                 }
             }
         }
 
-        private Lazy<Mapper> data = new Lazy<Mapper>(() => { return new Mapper(); });
+        private readonly Lazy<Mapper> data = new Lazy<Mapper>(() => { return new Mapper(); });
 
         public EnumMapper()
         {
@@ -37,22 +37,22 @@ namespace Sudoku.Common
 
         public string ToName(T src)
         {
-            return data.Value.NameLookUp[src];
+            return data.Value.nameLookUp[src];
         }
 
         public bool TryGetName(T src, [NotNullWhen(returnValue: true)] out string? name)
         {
-            return data.Value.NameLookUp.TryGetValue(src, out name);
+            return data.Value.nameLookUp.TryGetValue(src, out name);
         }
 
         public T ToValue(string src)
         {
-            return data.Value.ValueLookUp[src];
+            return data.Value.valueLookUp[src];
         }
 
         public bool TryGetValue(string src, out T value)
         {                        
-            return data.Value.ValueLookUp.TryGetValue(src, out value);
+            return data.Value.valueLookUp.TryGetValue(src, out value);
         }
     }
 }
