@@ -700,21 +700,10 @@ namespace Sudoku.Models
                 // it's much simpler to just start from scratch and rebuild it...
                 foreach (Cell cell in Cells)
                 {
-                    if (cell.HasValue)
-                    {
-                        if (cell.Origin == Origins.User)
-                            cellsToUpdate.Push(cell);
-                        else
-                        {
-                            // Clear any calculated cell value. It was only valid 
-                            // for the puzzles previous state which is now changing.
-                            cell.Origin = Origins.NotDefined;
-                            cell.Value = 0;
-                            cell.Possibles.SetAllTo(true);
-                        }
-                    }
+                    if (cell.Origin == Origins.User)
+                        cellsToUpdate.Push(cell);
                     else
-                        cell.Possibles.SetAllTo(true);  // directions will be recalculated
+                        cell.Reset(); 
                 }
             }
 
