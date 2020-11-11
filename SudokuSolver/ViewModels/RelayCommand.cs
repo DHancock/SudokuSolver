@@ -5,14 +5,14 @@ namespace Sudoku.ViewModels
 {
     internal sealed class RelayCommand : ICommand
     {
-        private readonly Action<object> execute;
-        private readonly Func<object, bool> canExecute;
+        private readonly Action<object?> execute;
+        private readonly Func<object?, bool> canExecute;
 
-        public RelayCommand(Action<object> execute) : this(execute, DefaultCanExecute)
+        public RelayCommand(Action<object?> execute) : this(execute, DefaultCanExecute)
         {
         }
 
-        public RelayCommand(Action<object> execute, Func<object, bool> canExecute)
+        public RelayCommand(Action<object?> execute, Func<object?, bool> canExecute)
         {
             this.execute = execute;
             this.canExecute = canExecute;
@@ -21,16 +21,16 @@ namespace Sudoku.ViewModels
         // when hooked up by wpf add our can execute method to the command 
         // managers event handler instead of this so that the state is 
         // updated when the command manger sees fit
-        public event EventHandler CanExecuteChanged
+        public event EventHandler? CanExecuteChanged
         {
             add { CommandManager.RequerySuggested += value; }
             remove { CommandManager.RequerySuggested -= value; }
         }
 
-        private static bool DefaultCanExecute(object param) => true;
+        private static bool DefaultCanExecute(object? param) => true;
 
-        public bool CanExecute(object param) => canExecute(param);
+        public bool CanExecute(object? param) => canExecute(param);
 
-        public void Execute(object param) => execute(param);
+        public void Execute(object? param) => execute(param);
     }
 }
