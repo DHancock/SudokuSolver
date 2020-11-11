@@ -32,7 +32,6 @@ namespace Sudoku.ViewModels
         public ICommand PrintCommand { get; }
         
 
-
         public PuzzleViewModel()
         {
             Model = new PuzzleModel();
@@ -45,10 +44,12 @@ namespace Sudoku.ViewModels
         }
 
 
-
         // the user typed a value into a cell
-        private void CellChanged_EventHandler(object sender, PropertyChangedEventArgs e)
+        private void CellChanged_EventHandler(object? sender, PropertyChangedEventArgs e)
         {
+            if (sender == null)
+                return;
+
             Cell changedCell = (Cell)sender;
 
             int previousValue = Model.Cells[changedCell.Index].Value;
@@ -83,8 +84,7 @@ namespace Sudoku.ViewModels
         }
 
 
-
-        private void SaveCommandHandler(object o)
+        private void SaveCommandHandler(object? unused)
         {
             SaveFileDialog dialog = new SaveFileDialog { Filter = cFileFilter };
 
@@ -104,8 +104,7 @@ namespace Sudoku.ViewModels
         }
 
 
-
-        private void OpenCommandHandler(object o)
+        private void OpenCommandHandler(object? unused)
         {
             OpenFileDialog dialog = new OpenFileDialog { Filter = cFileFilter };
 
@@ -148,7 +147,7 @@ namespace Sudoku.ViewModels
 
 
 
-        private void ClearCommandHandler(object o)
+        private void ClearCommandHandler(object? unused)
         {
             Model.Clear();
 
@@ -157,7 +156,7 @@ namespace Sudoku.ViewModels
         }
 
 
-        private void PrintCommandHandler(object o)
+        private void PrintCommandHandler(object? unused)
         {
             PrintDialog printDialog = new PrintDialog
             {

@@ -18,20 +18,16 @@ namespace Sudoku.Common
         public Origins Origin { get; set; } = Origins.NotDefined;
 
 
-
         public CellBase(int index)
         {
             Index = index;
         }
 
 
-
         public CellBase(CellBase source)
         {
             CopyFrom(source, source.Index);
         }
-
-
         
 
         public virtual int Value
@@ -39,7 +35,6 @@ namespace Sudoku.Common
             get { return cellValue; }
             set { cellValue = value; }
         }
-
 
 
         public bool HasValue => Value > 0;
@@ -78,6 +73,16 @@ namespace Sudoku.Common
             return (Possibles == other.Possibles) &&
                     (VerticalDirections == other.VerticalDirections) &&
                     (HorizontalDirections == other.HorizontalDirections);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return Equals(obj as CellBase);
+        }
+
+        public override int GetHashCode()
+        {
+            throw new NotImplementedException();
         }
     }
 }

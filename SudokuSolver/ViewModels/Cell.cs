@@ -7,7 +7,7 @@ namespace Sudoku.ViewModels
 {
     internal sealed class Cell : CellBase, INotifyPropertyChanged
     {
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
 
         public Cell(int index, PropertyChangedEventHandler callBack) : base(index)
@@ -32,7 +32,7 @@ namespace Sudoku.ViewModels
 
         private void NotifyPropertyChanged(String propertyName)
         {
-            PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
 

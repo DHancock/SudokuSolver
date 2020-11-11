@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Xml.Linq;
+
 using Sudoku.Common;
 
 
@@ -63,14 +63,12 @@ namespace Sudoku.Models
         }
 
 
-
-
         public void Open(Stream stream)
         {
             XDocument document = XDocument.Load(stream);
 
             // sanity check
-            if (document.Root.Name != Cx.Sudoku)
+            if ((document.Root == null) || (document.Root.Name != Cx.Sudoku))
                 throw new InvalidDataException();
 
             // version check
@@ -78,7 +76,7 @@ namespace Sudoku.Models
 
             if (document.Root.HasAttributes)
             {
-                XAttribute va = document.Root.Attribute(Cx.version);
+                XAttribute? va = document.Root.Attribute(Cx.version);
 
                 if ((va == null) || !int.TryParse(va.Value, out version))
                     throw new InvalidDataException();
@@ -89,68 +87,48 @@ namespace Sudoku.Models
                 case 0: OpenVersion_0(document); break;
                 case 1: OpenVersion_1(document); break;
 
-                default: throw new InvalidDataException(); 
+                default: throw new InvalidDataException();
             }
         }
-
 
 
         private void OpenVersion_0(XDocument document)
         {
-            // list of validated user cells
-            IEnumerable<XElement> cells =
-                from el in document.Descendants(Cx.Cell)
-                where el.Attribute(Cx.x) != null && (int)el.Attribute(Cx.x) >= 0 && (int)el.Attribute(Cx.x) < 9
-                    && el.Attribute(Cx.y) != null && (int)el.Attribute(Cx.y) >= 0 && (int)el.Attribute(Cx.y) < 9
-                    && el.Value != null && (int)el > 0 && (int)el < 10
-                select el;
-
-            // update model
-            foreach (XElement el in cells)
+            foreach (XElement cell in document.Descendants(Cx.Cell))
             {
-                int x = (int)el.Attribute(Cx.x);
-                int y = (int)el.Attribute(Cx.y);
-                int value = (int)el;
+                if (int.TryParse(cell.Attribute(Cx.x)?.Value, out int x) && (x >= 0) && (x < 9)
+                    && int.TryParse(cell.Attribute(Cx.y)?.Value, out int y) && (y >= 0) && (y < 9)
+                    && int.TryParse(cell?.Value, out int value) && (value > 0) && (value < 10))
+                {
+                    int index = x + (y * 9);
 
-                int index = x + (y * 9);
-
-                if (ValidateNewCellValue(index, value))
-                    SetCellValue(index, value, Origins.User);
+                    if (ValidateNewCellValue(index, value))
+                        SetCellValue(index, value, Origins.User);
+                }
             }
 
             AttemptSimpleTrialAndError();
         }
-
-    
 
 
         private void OpenVersion_1(XDocument document)
         {
-            // list of validated user cells
-            IEnumerable<XElement> cells =
-                from el in document.Descendants(Cx.Cell)
-                where el.Element(Cx.origin) != null && (string)el.Element(Cx.origin) == OriginsMapper.ToName(Origins.User)
-                    && el.Element(Cx.x) != null && (int)el.Element(Cx.x) >= 0 && (int)el.Element(Cx.x) < 9
-                    && el.Element(Cx.y) != null && (int)el.Element(Cx.y) >= 0 && (int)el.Element(Cx.y) < 9
-                    && el.Element(Cx.value) != null && (int)el.Element(Cx.value) > 0 && (int)el.Element(Cx.value) < 10
-                select el;
-
-            // update model
-            foreach (XElement el in cells)                                        
+            foreach (XElement cell in document.Descendants(Cx.Cell))
             {
-                int x = (int)el.Element(Cx.x);
-                int y = (int)el.Element(Cx.y);
-                int value = (int)el.Element(Cx.value);
+                if (cell.Element(Cx.origin)?.Value == OriginsMapper.ToName(Origins.User) 
+                    && int.TryParse(cell.Element(Cx.x)?.Value, out int x) && (x >= 0) && (x < 9)
+                    && int.TryParse(cell.Element(Cx.y)?.Value, out int y) && (y >= 0) && (y < 9)
+                    && int.TryParse(cell.Element(Cx.value)?.Value, out int value) && (value > 0) && (value < 10))
+                {
+                    int index = x + (y * 9);
 
-                int index = x + (y * 9);
-
-                if (ValidateNewCellValue(index, value))
-                    SetCellValue(index, value, Origins.User);
+                    if (ValidateNewCellValue(index, value))
+                        SetCellValue(index, value, Origins.User);
+                }
             }
 
             AttemptSimpleTrialAndError();
         }
-  
 
 
         public bool ValidateNewCellValue(int index, int newValue)                    
@@ -448,7 +426,7 @@ namespace Sudoku.Models
         private enum Pattern { None, Lower2, Upper2, TopAndBottom };
 
 
-        private Pattern FindVerticalPattern(bool a, bool b, bool c)
+        private static Pattern FindVerticalPattern(bool a, bool b, bool c)
         {
             if (a && b && !c)
                 return Pattern.Upper2;
