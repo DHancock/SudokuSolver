@@ -27,7 +27,7 @@ namespace Sudoku.ViewModels
             remove { CommandManager.RequerySuggested -= value; }
         }
 
-        private static bool DefaultCanExecute(object? param) => true;
+        private static bool DefaultCanExecute(object? _) => true;
 
         public bool CanExecute(object? param) => canExecute(param);
 

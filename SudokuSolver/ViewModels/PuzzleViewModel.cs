@@ -84,7 +84,7 @@ namespace Sudoku.ViewModels
         }
 
 
-        private void SaveCommandHandler(object? unused)
+        private void SaveCommandHandler(object? _)
         {
             SaveFileDialog dialog = new SaveFileDialog { Filter = cFileFilter };
 
@@ -104,7 +104,7 @@ namespace Sudoku.ViewModels
         }
 
 
-        private void OpenCommandHandler(object? unused)
+        private void OpenCommandHandler(object? _)
         {
             OpenFileDialog dialog = new OpenFileDialog { Filter = cFileFilter };
 
@@ -147,7 +147,7 @@ namespace Sudoku.ViewModels
 
 
 
-        private void ClearCommandHandler(object? unused)
+        private void ClearCommandHandler(object? _)
         {
             Model.Clear();
 
@@ -156,7 +156,7 @@ namespace Sudoku.ViewModels
         }
 
 
-        private void PrintCommandHandler(object? unused)
+        private void PrintCommandHandler(object? _)
         {
             PrintDialog printDialog = new PrintDialog
             {
