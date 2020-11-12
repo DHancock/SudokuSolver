@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
+#nullable enable
+
 namespace Sudoku.Common
 {
       /// <summary>
@@ -14,8 +16,8 @@ namespace Sudoku.Common
     {
         private sealed class Mapper
         {
-            public readonly Dictionary<string, T> valueLookUp = new Dictionary<string, T>();
-            public readonly Dictionary<T, string> nameLookUp = new Dictionary<T, string>();
+            public readonly Dictionary<string, T> valueLookUp = new();
+            public readonly Dictionary<T, string> nameLookUp = new();
 
             public Mapper()
             {
