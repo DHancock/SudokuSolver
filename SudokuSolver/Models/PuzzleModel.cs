@@ -60,6 +60,10 @@ namespace Sudoku.Models
         {
             foreach (Cell cell in Cells)
                 cell.Reset();
+
+            Origins x = (Origins)2;
+            string xs = OriginsMapper.ToName(x);
+
         }
 
 

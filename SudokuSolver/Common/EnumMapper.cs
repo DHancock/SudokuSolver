@@ -11,9 +11,9 @@ namespace Sudoku.Common
     /// and vice versa. This could be useful if your enum type contains a small number
     /// of values and you need to convert formats regularly.
     ///     
-    /// If the enum type has two or more members with the same value (violating design
-    /// rule CA1069) the name returned for that value will be one of the possible names 
-    /// but which name actually returned will be indeterminate.
+    /// If the enum type has two or more members with the same value, the name returned 
+    /// for that value will be one of the possible names, but which name actually returned 
+    /// will be indeterminate.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     internal sealed class EnumMapper<T> where T : struct, Enum
@@ -25,6 +25,7 @@ namespace Sudoku.Common
 
             public Mapper()
             {
+                // both the names and values arrays are sorted using the enum member values
                 string[] names = Enum.GetNames<T>();
                 T[] values = Enum.GetValues<T>();
 
