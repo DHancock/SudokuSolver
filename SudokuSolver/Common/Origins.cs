@@ -11,6 +11,6 @@ namespace Sudoku.Common
 
         public static string ToName(Origins src) => mapper.ToName(src);
 
-        public static bool TryGetValue(string src, out Origins origin) => mapper.TryGetValue(src, out origin);
+        public static bool TryParse(string? src, out Origins origin) => mapper.TryParse(src, out origin);
     }
 }
