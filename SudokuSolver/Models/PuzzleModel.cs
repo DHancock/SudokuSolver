@@ -115,7 +115,7 @@ namespace Sudoku.Models
         {
             foreach (XElement cell in document.Descendants(Cx.Cell))
             {
-                if (cell.Element(Cx.origin)?.Value == OriginsMapper.ToName(Origins.User) 
+                if (OriginsMapper.TryParse(cell.Element(Cx.origin)?.Value, out Origins o) && (o == Origins.User)
                     && int.TryParse(cell.Element(Cx.x)?.Value, out int x) && (x >= 0) && (x < 9)
                     && int.TryParse(cell.Element(Cx.y)?.Value, out int y) && (y >= 0) && (y < 9)
                     && int.TryParse(cell.Element(Cx.value)?.Value, out int value) && (value > 0) && (value < 10))
