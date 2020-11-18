@@ -9,33 +9,24 @@ namespace Sudoku.ViewModels
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
-
         public Cell(int index, PropertyChangedEventHandler callBack) : base(index)
         {
             PropertyChanged += callBack;
         }
 
-
-
         public override int Value
         {
             set
             {
-                if (base.Value != value)
-                {
-                    base.Value = value;
-                    NotifyPropertyChanged(nameof(Value));
-                }
+                base.Value = value;
+                NotifyPropertyChanged(nameof(Value)); // always notify even if the value hasn't changed
             }
         }
-
 
         private void NotifyPropertyChanged(String propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
-
 
         public void RevertValue(int value)
         {

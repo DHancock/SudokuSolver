@@ -135,12 +135,77 @@ namespace Sudoku.Models
         }
 
 
-        public bool ValidateNewCellValue(int index, int newValue)                    
+        public bool Add(int index, int newValue)
         {
-            Cell cell = Cells[index];
+            if (ValidateNewCellValue(index, newValue))
+            {
+                SetCellValue(index, newValue, Origins.User);
+                AttemptSimpleTrialAndError();
 
-            if (newValue == 0) // deleting is always valid
                 return true;
+            }
+
+            return false;
+        }
+
+        public bool Delete(int index, int _)
+        {
+            SetCellValue(index, 0, Origins.NotDefined);
+            AttemptSimpleTrialAndError();
+            return true;
+        }
+
+
+        public bool Edit(int index, int newValue)
+        {
+            int previousValue = Cells[index].Value;
+
+            // delete the exiting value to recalculate the possibles
+            SetCellValue(index, 0, Origins.NotDefined);
+
+            if (Add(index, newValue))
+                return true;
+
+            // revert model
+            SetCellValue(index, previousValue, Origins.User);
+            AttemptSimpleTrialAndError();
+            return false;
+        }
+                                                                      
+
+        public bool EditForced(int index, int newValue)
+        {
+            if (IsForcedCellValueValid(index, newValue))
+            {
+                ForceCellValue(index, newValue);
+
+                if (PuzzleIsErrorFree())   // post validation...
+                {
+                    AttemptSimpleTrialAndError();
+                    return true;
+                }
+                
+                // revert the forced value, the model will be recalculated
+                SetCellValue(index, 0, Origins.NotDefined);
+                AttemptSimpleTrialAndError();
+            }
+            
+            return false;
+        }
+        
+
+        public bool SetOrigin(int index, int _)
+        {
+            Cells[index].Origin = Origins.User;
+            return true;
+        }
+
+
+        private bool ValidateNewCellValue(int index, int newValue)                    
+        {
+            Debug.Assert(newValue > 0);
+                
+            Cell cell = Cells[index];
 
             if (cell.HasValue) // replacing a cell value directly isn't supported
                 return false;
@@ -149,18 +214,38 @@ namespace Sudoku.Models
         }
 
 
-
-        public void SetCellValue(int index, int newValue, Origins origin)
+        private void SetCellValue(int index, int newValue, Origins origin)
         {
             Cell cell = Cells[index];
 
             cell.Value = newValue;
             cell.Origin = origin;
 
-            CalculatePossibleValues(cell);
+            CalculatePossibleValues(cell, forceRecalculation: false);
         }
 
 
+        private void ForceCellValue(int index, int newValue)
+        {
+            Cell cell = Cells[index];
+
+            cell.Value = newValue;
+            cell.Origin = Origins.User;
+
+            CalculatePossibleValues(cell, forceRecalculation: true);
+        }
+
+
+        private bool IsForcedCellValueValid(int index, int newValue)
+        {
+            foreach (Cell cell in Cells.CubeRowColumnMinus(index))
+            {
+                if (cell.HasValue && (cell.Origin == Origins.User) && (cell.Value == newValue))
+                    return false;
+            }
+
+            return true;
+        }
 
 
         private void SimpleEliminationForCell(Cell updatedCell, Stack<Cell> cellsToUpdate)
@@ -183,7 +268,6 @@ namespace Sudoku.Models
                 }
             }
         }
-
 
 
         private void UpdateCubesDirections()
@@ -545,7 +629,6 @@ namespace Sudoku.Models
         }
 
 
-
         private bool CubeColumnPatternMatchElimination(Stack<Cell> cellsToUpdate)
         {
             Cells.Rotated = true;
@@ -554,7 +637,6 @@ namespace Sudoku.Models
 
             return modelUpdated;
         }
-
 
 
         private bool CubePatternMatchElimination(Stack<Cell> cellsToUpdate)
@@ -587,7 +669,22 @@ namespace Sudoku.Models
         private enum PuzzleState { NoErrors, CellsRemaining, CellsInError, Solved }
 
 
-        private PuzzleState CheckPuzzleRows()
+        private bool PuzzleIsErrorFree()
+        {
+            PuzzleState state = CheckPuzzleRows(allowEmptyCells: true);
+
+            if (state == PuzzleState.NoErrors)
+            {
+                Cells.Rotated = true;
+                state = CheckPuzzleRows(allowEmptyCells: true);
+                Cells.Rotated = false;
+            }
+
+            return state == PuzzleState.NoErrors;
+        }
+
+
+        private PuzzleState CheckPuzzleRows(bool allowEmptyCells)
         {
             for (int row = 0; row < 9; row++)
             {
@@ -604,7 +701,7 @@ namespace Sudoku.Models
 
                         temp[value] = true;
                     }
-                    else
+                    else if (!allowEmptyCells)
                         return PuzzleState.CellsRemaining;
                 }
             }
@@ -612,24 +709,20 @@ namespace Sudoku.Models
             return PuzzleState.NoErrors;
         }
 
-
-        private PuzzleState CheckPuzzleState()
+                                     
+        private bool PuzzleHasBeenSolved()
         {
-            PuzzleState state = CheckPuzzleRows();
+            PuzzleState state = CheckPuzzleRows(allowEmptyCells: false);
 
             if (state == PuzzleState.NoErrors)
             {
                 Cells.Rotated = true;
-                state = CheckPuzzleRows();
+                state = CheckPuzzleRows(allowEmptyCells: false);
                 Cells.Rotated = false;
-
-                if (state == PuzzleState.NoErrors)
-                    state = PuzzleState.Solved;
             }
 
-            return state;
+            return state == PuzzleState.NoErrors;
         }
-
 
 
         private PuzzleState TryCellPossibles(Cell cell)
@@ -641,7 +734,7 @@ namespace Sudoku.Models
                 int cellValue = temp.First;
                 SetCellValue(cell.Index, cellValue, Origins.Trial);
 
-                if (CheckPuzzleState() == PuzzleState.Solved)
+                if (PuzzleHasBeenSolved())
                     return PuzzleState.Solved;
 
                 // revert puzzle and clear the possible value
@@ -653,8 +746,7 @@ namespace Sudoku.Models
         }
 
 
-
-        public void AttemptSimpleTrialAndError()
+        private void AttemptSimpleTrialAndError()
         {
             foreach (Cell cell in Cells)
             {
@@ -667,13 +759,11 @@ namespace Sudoku.Models
         }
 
 
-
-
-        private void CalculatePossibleValues(Cell updatedCell)
+        private void CalculatePossibleValues(Cell updatedCell, bool forceRecalculation)
         {
             Stack<Cell> cellsToUpdate = new Stack<Cell>(Cells.Count);
 
-            if (updatedCell.HasValue)
+            if (updatedCell.HasValue && !forceRecalculation)
                 cellsToUpdate.Push(updatedCell);
             else
             {
