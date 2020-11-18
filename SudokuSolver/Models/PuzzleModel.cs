@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Xml.Linq;
@@ -48,7 +49,7 @@ namespace Sudoku.Models
                     xmlTree.Add(new XElement(Cx.Cell, new XElement(Cx.x, cell.Index % 9),
                                                       new XElement(Cx.y, cell.Index / 9),
                                                       new XElement(Cx.value, cell.Value),
-                                                      new XElement(Cx.origin, OriginsMapper.ToName(cell.Origin))));
+                                                      new XElement(Cx.origin, Enum.GetName<Origins>(cell.Origin))));
                 }
             }
 
@@ -60,10 +61,6 @@ namespace Sudoku.Models
         {
             foreach (Cell cell in Cells)
                 cell.Reset();
-
-            Origins x = (Origins)2;
-            string xs = OriginsMapper.ToName(x);
-
         }
 
 
@@ -119,7 +116,7 @@ namespace Sudoku.Models
         {
             foreach (XElement cell in document.Descendants(Cx.Cell))
             {
-                if (OriginsMapper.TryParse(cell.Element(Cx.origin)?.Value, out Origins o) && (o == Origins.User)
+                if (Enum.TryParse<Origins>(cell.Element(Cx.origin)?.Value, out Origins o) && (o == Origins.User)
                     && int.TryParse(cell.Element(Cx.x)?.Value, out int x) && (x >= 0) && (x < 9)
                     && int.TryParse(cell.Element(Cx.y)?.Value, out int y) && (y >= 0) && (y < 9)
                     && int.TryParse(cell.Element(Cx.value)?.Value, out int value) && (value > 0) && (value < 10))
