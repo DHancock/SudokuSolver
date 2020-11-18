@@ -44,6 +44,51 @@ namespace Sudoku.ViewModels
         }
 
 
+        // an empty implementation used to indicate no action is required
+        // when the user changes a cell. As the code supports nullable using
+        // this avoids the need to return a null function delegate.
+        private static bool NoOp(int index, int value)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        private Func<int, int, bool> DetermineChange(Cell changedCell, int previousValue)
+        {
+            int newValue = changedCell.Value;
+            Origins origin = changedCell.Origin;
+
+            if (newValue > 0)
+            {
+                if (previousValue == 0) 
+                    return Model.Add;
+
+                if ((previousValue == newValue) && ((origin == Origins.Trial) || (origin == Origins.Calculated)))
+                    return Model.SetOrigin;
+            }
+
+            if (previousValue > 0)
+            {
+                if ((newValue == 0) && (origin == Origins.User))
+                    return Model.Delete;
+
+                if ((newValue > 0) && (previousValue != newValue))
+                {
+                    if (origin == Origins.User)
+                        return Model.Edit;
+
+                    if ((origin == Origins.Trial) || (origin == Origins.Calculated))
+                        return Model.EditForced;
+                }
+            }
+
+            // typical changes that require no action are deleting an empty cell, 
+            // deleting a cell containing a calculated value which would then just 
+            // be recalculated and also editing a user cell to have the same value.
+            return NoOp;
+        }
+
+
         // the user typed a value into a cell
         private void CellChanged_EventHandler(object? sender, PropertyChangedEventArgs e)
         {
@@ -51,35 +96,25 @@ namespace Sudoku.ViewModels
                 return;
 
             Cell changedCell = (Cell)sender;
-
             int previousValue = Model.Cells[changedCell.Index].Value;
-            Origins previousOrigin = changedCell.Origin;
 
-            // if replacing an user cell value, first delete the old value to
-            // recalculate the cell possibles which are then used to validate the new value
-            if ((previousOrigin == Origins.User) && changedCell.HasValue)
-                Model.SetCellValue(changedCell.Index, 0, Origins.NotDefined);
+            Func<int, int, bool> modelFunction = DetermineChange(changedCell, previousValue);
 
-            if (Model.ValidateNewCellValue(changedCell.Index, changedCell.Value))
+            if (modelFunction != NoOp)
             {
-                Model.SetCellValue(changedCell.Index, changedCell.Value, changedCell.HasValue ? Origins.User : Origins.NotDefined);
-
-                Model.AttemptSimpleTrialAndError();
-
-                foreach (Models.Cell cell in Model.Cells)
+                if (modelFunction(changedCell.Index, changedCell.Value))
                 {
-                    if (!cell.Equals(Cells[cell.Index]) || (changedCell.Index == cell.Index))
-                        Cells.UpdateCell(cell);
+                    foreach (Models.Cell cell in Model.Cells) // copy model in to the view model
+                    {
+                        if (!cell.Equals(Cells[cell.Index]) || (changedCell.Index == cell.Index))
+                            Cells.UpdateCell(cell);
+                    }
                 }
-            }
-            else  // revert the cell's value, updating the model if required 
-            {
-                changedCell.RevertValue(previousValue); // avoids another cell changed event
-
-                if (previousOrigin == Origins.User)
-                    Model.SetCellValue(changedCell.Index, previousValue, Origins.User);
-
-                SystemSounds.Beep.Play();
+                else
+                {
+                    changedCell.RevertValue(previousValue); // avoids another cell changed event
+                    SystemSounds.Beep.Play();
+                }
             }
         }
 
@@ -146,7 +181,6 @@ namespace Sudoku.ViewModels
         }
 
 
-
         private void ClearCommandHandler(object? _)
         {
             Model.Clear();
@@ -179,7 +213,6 @@ namespace Sudoku.ViewModels
         }
 
 
-
         public bool ShowPossibles
         {                                                        
             get => showPossibles;
@@ -192,7 +225,6 @@ namespace Sudoku.ViewModels
                 }
             }
         }
-
 
 
         public string WindowTitle
