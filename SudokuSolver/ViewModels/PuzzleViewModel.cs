@@ -116,6 +116,8 @@ namespace Sudoku.ViewModels
                     SystemSounds.Beep.Play();
                 }
             }
+            else
+                changedCell.RevertValue(previousValue);
         }
 
 
