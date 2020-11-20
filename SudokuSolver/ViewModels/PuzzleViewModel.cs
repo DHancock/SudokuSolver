@@ -60,19 +60,10 @@ namespace Sudoku.ViewModels
 
             if (newValue > 0)
             {
-                if (previousValue == 0) 
+                if (previousValue == 0)
                     return Model.Add;
 
-                if ((previousValue == newValue) && ((origin == Origins.Trial) || (origin == Origins.Calculated)))
-                    return Model.SetOrigin;
-            }
-
-            if (previousValue > 0)
-            {
-                if ((newValue == 0) && (origin == Origins.User))
-                    return Model.Delete;
-
-                if ((newValue > 0) && (previousValue != newValue))
+                if (previousValue != newValue)
                 {
                     if (origin == Origins.User)
                         return Model.Edit;
@@ -80,7 +71,13 @@ namespace Sudoku.ViewModels
                     if ((origin == Origins.Trial) || (origin == Origins.Calculated))
                         return Model.EditForced;
                 }
+
+                if ((previousValue == newValue) && ((origin == Origins.Trial) || (origin == Origins.Calculated)))
+                    return Model.SetOrigin;
             }
+
+            if ((newValue == 0) && (previousValue > 0) && (origin == Origins.User))
+                return Model.Delete;
 
             // typical changes that require no action are deleting an empty cell, 
             // deleting a cell containing a calculated value which would then just 

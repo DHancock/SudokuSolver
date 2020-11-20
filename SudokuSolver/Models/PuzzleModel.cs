@@ -49,7 +49,7 @@ namespace Sudoku.Models
                     xmlTree.Add(new XElement(Cx.Cell, new XElement(Cx.x, cell.Index % 9),
                                                       new XElement(Cx.y, cell.Index / 9),
                                                       new XElement(Cx.value, cell.Value),
-                                                      new XElement(Cx.origin, Enum.GetName<Origins>(cell.Origin))));
+                                                      new XElement(Cx.origin, Enum.GetName(cell.Origin))));
                 }
             }
 
@@ -116,7 +116,7 @@ namespace Sudoku.Models
         {
             foreach (XElement cell in document.Descendants(Cx.Cell))
             {
-                if (Enum.TryParse<Origins>(cell.Element(Cx.origin)?.Value, out Origins o) && (o == Origins.User)
+                if (Enum.TryParse(cell.Element(Cx.origin)?.Value, out Origins o) && (o == Origins.User)
                     && int.TryParse(cell.Element(Cx.x)?.Value, out int x) && (x >= 0) && (x < 9)
                     && int.TryParse(cell.Element(Cx.y)?.Value, out int y) && (y >= 0) && (y < 9)
                     && int.TryParse(cell.Element(Cx.value)?.Value, out int value) && (value > 0) && (value < 10))
@@ -172,7 +172,7 @@ namespace Sudoku.Models
 
         public bool EditForced(int index, int newValue)
         {
-            if (IsForcedCellValueValid(index, newValue))
+            if (ForcedCellValueIsValid(index, newValue))
             {
                 ForceCellValue(index, newValue);
 
@@ -233,7 +233,9 @@ namespace Sudoku.Models
         }
 
 
-        private bool IsForcedCellValueValid(int index, int newValue)
+        // A quick sanity check that the new forced value is valid in the current
+        // puzzles context. It cannot check if the puzzle will still be solvable. 
+        private bool ForcedCellValueIsValid(int index, int newValue)
         {
             foreach (Cell cell in Cells.CubeRowColumnMinus(index))
             {
