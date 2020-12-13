@@ -28,12 +28,34 @@
                 <DataTrigger Binding="{Binding ElementName=SudokuCell, Path=IsFocused}" Value="true">
                     <Setter Property="Background" Value="{x:Static SystemParameters.WindowGlassBrush}"/>
                 </DataTrigger>
-                <DataTrigger Binding="{Binding ElementName=SudokuCell, Path=Origin}" Value="Calculated">
-                    <Setter Property="Foreground" Value="LightBlue"/>
-                </DataTrigger>
-                <DataTrigger Binding="{Binding ElementName=SudokuCell, Path=Origin}" Value="Trial">
-                    <Setter Property="Foreground" Value="LightGreen"/>
-                </DataTrigger>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding ElementName=SudokuCell, Path=Origin}" Value="Calculated" />
+                        <Condition Binding="{Binding DarkThemed}" Value="False" />
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="Foreground" Value="LightBlue" />
+                </MultiDataTrigger>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding ElementName=SudokuCell, Path=Origin}" Value="Calculated" />
+                        <Condition Binding="{Binding DarkThemed}" Value="True" />
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="Foreground" Value="DarkBlue" />
+                </MultiDataTrigger>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding ElementName=SudokuCell, Path=Origin}" Value="Trial" />
+                        <Condition Binding="{Binding DarkThemed}" Value="False" />
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="Foreground" Value="LightGreen" />
+                </MultiDataTrigger>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding ElementName=SudokuCell, Path=Origin}" Value="Trial" />
+                        <Condition Binding="{Binding DarkThemed}" Value="True" />
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="Foreground" Value="DarkGreen" />
+                </MultiDataTrigger>
             </Style.Triggers>
         </Style>
     </UserControl.Resources>
