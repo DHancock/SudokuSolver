@@ -6,10 +6,14 @@ using System.Media;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Runtime.CompilerServices;
 using Microsoft.Win32;
+
+using ControlzEx.Theming;
 
 using Sudoku.Common;
 using Sudoku.Models;
+
 
 namespace Sudoku.ViewModels
 {
@@ -24,13 +28,16 @@ namespace Sudoku.ViewModels
 
         private bool showPossibles = false;
 
+        private bool darkThemed = false;
+
         private PuzzleModel Model { get; }
         public CellList Cells { get; }
         public ICommand OpenCommand { get; }
         public ICommand SaveCommand { get; }
         public ICommand ClearCommand { get; }
         public ICommand PrintCommand { get; }
-        
+        public ICommand ExitCommand { get; }
+
 
         public PuzzleViewModel()
         {
@@ -41,6 +48,7 @@ namespace Sudoku.ViewModels
             SaveCommand = new RelayCommand(SaveCommandHandler);
             ClearCommand = new RelayCommand(ClearCommandHandler, o => Cells.NotEmpty);
             PrintCommand = new RelayCommand(PrintCommandHandler);
+            ExitCommand = new RelayCommand(ExitCommandHandler);
         }
 
 
@@ -212,6 +220,12 @@ namespace Sudoku.ViewModels
         }
 
 
+        private void ExitCommandHandler(object? _)
+        {
+            Application.Current.MainWindow.Close();
+        }
+
+
         public bool ShowPossibles
         {                                                        
             get => showPossibles;
@@ -220,7 +234,21 @@ namespace Sudoku.ViewModels
                 if (value != showPossibles)
                 {
                     showPossibles = value;
-                    NotifyPropertyChanged(nameof(ShowPossibles));
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        
+        public bool DarkThemed
+        {
+            get => darkThemed;
+            set
+            {
+                if (value != darkThemed)
+                {
+                    darkThemed = value;
+                    ThemeManager.Current.ChangeThemeBaseColor(Application.Current, darkThemed ? ThemeManager.BaseColorDark : ThemeManager.BaseColorLight);
                 }
             }
         }
@@ -233,11 +261,11 @@ namespace Sudoku.ViewModels
             private set
             {
                 windowTitle = value;
-                NotifyPropertyChanged(nameof(WindowTitle));
+                NotifyPropertyChanged();
             }
         }
 
-        private void NotifyPropertyChanged(String propertyName)
+        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
