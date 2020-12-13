@@ -249,6 +249,7 @@ namespace Sudoku.ViewModels
                 {
                     darkThemed = value;
                     ThemeManager.Current.ChangeThemeBaseColor(Application.Current, darkThemed ? ThemeManager.BaseColorDark : ThemeManager.BaseColorLight);
+                    NotifyPropertyChanged();
                 }
             }
         }
