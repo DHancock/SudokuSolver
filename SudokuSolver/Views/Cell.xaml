@@ -24,10 +24,9 @@
             </Style.Triggers>
         </Style>
         <Style TargetType="TextBlock" x:Key="ValueStyle">
-            <Setter Property="Foreground" Value="Black"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding ElementName=SudokuCell, Path=IsFocused}" Value="true">
-                    <Setter Property="Background" Value="{x:Static SystemColors.HighlightBrush}"/>
+                    <Setter Property="Background" Value="{x:Static SystemParameters.WindowGlassBrush}"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding ElementName=SudokuCell, Path=Origin}" Value="Calculated">
                     <Setter Property="Foreground" Value="LightBlue"/>

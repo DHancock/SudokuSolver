@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Windows;
-
+using ControlzEx.Theming;
 using Sudoku.ViewModels;
 
 namespace Sudoku.Views
@@ -10,15 +9,20 @@ namespace Sudoku.Views
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow
     {
         public MainWindow()
         {
             InitializeComponent();
 
-            string[] args = Environment.GetCommandLineArgs();
+            ProcessCommandLine(Environment.GetCommandLineArgs());
+            InitializeTheme();
+        }
 
-            if (args.Length == 2)
+
+        private void ProcessCommandLine(string[] args)
+        {
+            if (args?.Length == 2)  // args[0] is typically the full path of the executing assembly
             {
                 if ((Path.GetExtension(args[1]) == PuzzleViewModel.cDefaultFileExt) && File.Exists(args[1]))
                 {
@@ -34,6 +38,12 @@ namespace Sudoku.Views
                     }
                 }
             }
+        }
+
+
+        private void InitializeTheme()
+        {
+            ((PuzzleViewModel)DataContext).DarkThemed = !WindowsThemeHelper.AppsUseLightTheme();
         }
     }
 }

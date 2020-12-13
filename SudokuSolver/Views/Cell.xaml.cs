@@ -1,5 +1,5 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -50,13 +50,13 @@ namespace Sudoku.Views
                 if (value != origin)
                 {
                     origin = value;
-                    NotifyPropertyChanged(nameof(Origin));
+                    NotifyPropertyChanged();
                 }
             }
         }
 
 
-        private void NotifyPropertyChanged(String propertyName)
+        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
