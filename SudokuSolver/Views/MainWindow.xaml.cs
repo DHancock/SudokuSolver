@@ -15,8 +15,8 @@ namespace Sudoku.Views
         {
             InitializeComponent();
 
-            ProcessCommandLine(Environment.GetCommandLineArgs());
             InitializeTheme();
+            ProcessCommandLine(Environment.GetCommandLineArgs());
         }
 
 
