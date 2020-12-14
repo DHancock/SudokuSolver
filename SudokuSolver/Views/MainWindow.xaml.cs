@@ -24,7 +24,7 @@ namespace Sudoku.Views
         {
             if (args?.Length == 2)  // args[0] is typically the full path of the executing assembly
             {
-                if ((Path.GetExtension(args[1]) == PuzzleViewModel.cDefaultFileExt) && File.Exists(args[1]))
+                if ((Path.GetExtension(args[1]).ToLower() == PuzzleViewModel.cDefaultFileExt) && File.Exists(args[1]))
                 {
                     try
                     {
