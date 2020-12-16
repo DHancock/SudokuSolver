@@ -7,10 +7,20 @@
     mc:Ignorable="d" 
     d:DesignHeight="480" 
     d:DesignWidth="480">
-    <Viewbox>
-        <local:SudokuGrid CellBorderThickness="1" CubeBorderBrush="{DynamicResource MahApps.Brushes.Text}">
-            <local:Cell Data="{Binding Cells[0]}" />
-            <local:Cell Data="{Binding Cells[1]}" />
+    <Viewbox >
+        <local:SudokuGrid>
+            <local:SudokuGrid.Resources>
+                <Style TargetType="Line" x:Key="MinorGridStyle">
+                    <Setter Property="Stroke" Value="Gray"/>
+                    <Setter Property="StrokeThickness" Value="1"/>
+                </Style>
+                <Style TargetType="Line" x:Key="MajorGridStyle">
+                    <Setter Property="Stroke" Value="{DynamicResource MahApps.Brushes.Text}"/>
+                    <Setter Property="StrokeThickness" Value="2"/>
+                </Style>
+            </local:SudokuGrid.Resources>
+            <local:Cell Data="{Binding Cells[0]}"/>
+            <local:Cell Data="{Binding Cells[1]}"/>
             <local:Cell Data="{Binding Cells[2]}" />
             <local:Cell Data="{Binding Cells[3]}" />
             <local:Cell Data="{Binding Cells[4]}" />
@@ -90,6 +100,29 @@
             <local:Cell Data="{Binding Cells[78]}" />
             <local:Cell Data="{Binding Cells[79]}" />
             <local:Cell Data="{Binding Cells[80]}" />
+            <!-- minor grid lines -->
+            <Line Style="{StaticResource MinorGridStyle}"/>
+            <Line Style="{StaticResource MinorGridStyle}"/>
+            <Line Style="{StaticResource MinorGridStyle}"/>
+            <Line Style="{StaticResource MinorGridStyle}"/>
+            <Line Style="{StaticResource MinorGridStyle}"/>
+            <Line Style="{StaticResource MinorGridStyle}"/>
+            <Line Style="{StaticResource MinorGridStyle}"/>
+            <Line Style="{StaticResource MinorGridStyle}"/>
+            <Line Style="{StaticResource MinorGridStyle}"/>
+            <Line Style="{StaticResource MinorGridStyle}"/>
+            <Line Style="{StaticResource MinorGridStyle}"/>
+            <Line Style="{StaticResource MinorGridStyle}"/>
+            <!-- internal major grid lines -->
+            <Line Style="{StaticResource MajorGridStyle}"/>
+            <Line Style="{StaticResource MajorGridStyle}"/>
+            <Line Style="{StaticResource MajorGridStyle}"/>
+            <Line Style="{StaticResource MajorGridStyle}"/>
+            <!-- major grid lines forming the enclosing rectangle -->
+            <Line Style="{StaticResource MajorGridStyle}"/>
+            <Line Style="{StaticResource MajorGridStyle}"/>
+            <Line Style="{StaticResource MajorGridStyle}"/>
+            <Line Style="{StaticResource MajorGridStyle}"/>
         </local:SudokuGrid>
     </Viewbox>
 </UserControl>
