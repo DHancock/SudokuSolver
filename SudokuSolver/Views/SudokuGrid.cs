@@ -27,11 +27,10 @@ namespace Sudoku.Views
 
         private void InitializeGridLineSizes()
         {
-            if (Children[cCellCount] is Line minorLine)
-                minorGridLineWidth = minorLine.StrokeThickness;
-
-            if (Children[cCellCount + cMinorGridLineCount] is Line majorLine)
-                majorGridLineWidth = majorLine.StrokeThickness;
+            // this assumes the xaml is correctly laid out and that all the major 
+            // grid lines and minor grid lines each have the same stroke width
+            minorGridLineWidth = ((Line)Children[cCellCount]).StrokeThickness;
+            majorGridLineWidth = ((Line)Children[cCellCount + cMinorGridLineCount]).StrokeThickness;
         }
 
 
@@ -110,8 +109,6 @@ namespace Sudoku.Views
 
         private void ArrangeGridLines(Size arrangeSize)
         {
-            // the horizontal grid lines have the same dimensions as the vertical
-            // grid lines but rotated by 90 degrees - swap x and y coordinates
             Rect finalRect = new Rect(0, 0, arrangeSize.Width, arrangeSize.Height);
 
             for (int index = 0; index < 20; index += 2)
@@ -127,11 +124,12 @@ namespace Sudoku.Views
                                                                                                      
                 horizontalLine.Arrange(finalRect);
 
+                // the vertical grid lines have the same dimensions as the horizontal
+                // grid lines but rotated by 90 degrees - swap the x and y coordinates
                 Line verticalLine = (Line)Children[cCellCount + index + 1];
 
                 verticalLine.X1 = horizontalLine.Y1;
                 verticalLine.Y1 = horizontalLine.X1;
-
                 verticalLine.X2 = horizontalLine.Y2;
                 verticalLine.Y2 = horizontalLine.X2;
 
