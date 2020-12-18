@@ -2,19 +2,17 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:System="clr-namespace:System;assembly=mscorlib" 
              xmlns:local="clr-namespace:Sudoku.Views"
              mc:Ignorable="d" 
-             d:DesignHeight="50" 
-             d:DesignWidth="50" 
-             MinHeight="50"
-             MaxHeight="50"
-             MinWidth="50"
-             MaxWidth="50"
+             Height="{DynamicResource cell_size}"
+             Width="{DynamicResource cell_size}"
              FocusVisualStyle="{x:Null}"
              x:Name="SudokuCell">
 
     <UserControl.Resources>
+        <System:Double x:Key="cell_size">50</System:Double>
         <SolidColorBrush x:Key="DarkishBlue" Color="#FF0000B4"/>
 
         <Style TargetType="TextBlock">
@@ -63,9 +61,9 @@
         </Style>
     </UserControl.Resources>
 
-    <Canvas Height="50" Width="50">
+    <Canvas Height="{StaticResource cell_size}" Width="{StaticResource cell_size}">
 
-        <TextBlock x:Name="CellValue" Text="8" FontSize="34"  Canvas.Top="0" Canvas.Left="0" TextAlignment="Center" Width="50" Height="50" Style="{StaticResource ValueStyle}" />
+        <TextBlock x:Name="CellValue" Text="8" FontSize="34"  Canvas.Top="0" Canvas.Left="0" TextAlignment="Center" Width="{StaticResource cell_size}" Height="{StaticResource cell_size}" Style="{StaticResource ValueStyle}" />
 
         <TextBlock x:Name="PossibleValue0" Text="1" Canvas.Top="-1" Canvas.Left="4" />
         <TextBlock x:Name="PossibleValue1" Text="2" Canvas.Top="-1" Canvas.Left="22"/>
