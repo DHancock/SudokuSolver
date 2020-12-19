@@ -10,6 +10,7 @@ namespace Sudoku.Views
     {
         private double minorGridLineWidth = 0.0;   
         private double majorGridLineWidth = 0.0;
+        private double totalWidthOfBorders = 0.0;
         private double cellSize = 0.0;
 
         private const int cCellCount = 81;
@@ -19,20 +20,16 @@ namespace Sudoku.Views
         private const int cValidChildrenCount = cCellCount + cMinorGridLineCount + cMajorGridLineCount;
 
 
-        private double TotalWidthOfBorders()
-        {
-            return (minorGridLineWidth * (cMinorGridLineCount / 2)) + (majorGridLineWidth * (cMajorGridLineCount / 2));
-        }
 
-
-        private void InitializeGridLineSizes()
+        private void InitializeGridSizes()
         {
             // this assumes the xaml is correctly laid out and that all the major 
             // grid lines and minor grid lines each have the same stroke width
             minorGridLineWidth = ((Line)Children[cCellCount]).StrokeThickness;
             majorGridLineWidth = ((Line)Children[cCellCount + cMinorGridLineCount]).StrokeThickness;
-        }
 
+            totalWidthOfBorders = (minorGridLineWidth * (cMinorGridLineCount / 2)) + (majorGridLineWidth * (cMajorGridLineCount / 2));
+        }
 
 
         // Calculates the desired size of the grid
@@ -43,7 +40,7 @@ namespace Sudoku.Views
 
             if (Children.Count == cValidChildrenCount)
             {
-                InitializeGridLineSizes();
+                InitializeGridSizes();
 
                 foreach (UIElement child in Children)
                     child?.Measure(constraint);   // the child will update it's desired size
@@ -52,7 +49,7 @@ namespace Sudoku.Views
                 cellSize = Children[0].DesiredSize.Width;
 
                 Size desiredSize = new Size();
-                desiredSize.Width = (cellSize * 9.0) + TotalWidthOfBorders();
+                desiredSize.Width = (cellSize * 9.0) + totalWidthOfBorders;
                 desiredSize.Height = desiredSize.Width;
 
                 return desiredSize;
@@ -60,9 +57,6 @@ namespace Sudoku.Views
 
             return Size.Empty;  // for design time only
         }
-
-
-
 
 
         // Define the layout of the child elements within the grid
