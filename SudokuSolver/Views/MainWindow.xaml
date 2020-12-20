@@ -13,11 +13,7 @@
         WindowStartupLocation="CenterScreen"
         MinHeight="320"
         MinWidth="260"
-        SnapsToDevicePixels="False"
-        ResizeMode="CanResizeWithGrip"
-        GlowBrush="{DynamicResource MahApps.Brushes.Button.Border}"
-        TitleCharacterCasing="Normal"
-        TitleAlignment="Left">
+        Style="{StaticResource MainWindowStyle}">
 
     <Window.DataContext>
         <vm:PuzzleViewModel/>
