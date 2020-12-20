@@ -21,8 +21,10 @@
     <Window.InputBindings>
         <KeyBinding Modifiers="Control" Key="O" Command="{Binding OpenCommand}"/>
         <KeyBinding Modifiers="Control" Key="S" Command="{Binding SaveCommand}"/>
-        <KeyBinding Modifiers="Control" Key="P" Command="{Binding PrintCommand}"/>
     </Window.InputBindings>
+    <Window.CommandBindings>
+        <CommandBinding Command="ApplicationCommands.Print" Executed="PrintExecuted"/>
+    </Window.CommandBindings>
 
     <DockPanel>
         <Menu DockPanel.Dock="Top">
@@ -52,13 +54,13 @@
                     </MenuItem.Icon>
                 </MenuItem>
                 <Separator />
-                <MenuItem Header="_Print..." Command="{Binding PrintCommand}" InputGestureText="Ctrl+P">
+                <MenuItem Header="_Print..." Click="PrintClickHandler" InputGestureText="Ctrl+P">
                     <MenuItem.Icon>
                         <TextBlock Text="&#xE749;"/>
                     </MenuItem.Icon>
                 </MenuItem>
                 <Separator />
-                <MenuItem Header="_Exit" Command="{Binding ExitCommand}" InputGestureText="Alt+F4"/>
+                <MenuItem Header="_Exit" Click="ExitClickHandler" InputGestureText="Alt+F4"/>
             </MenuItem>
             <MenuItem Header="_Options">
                 <MenuItem Header="_Show possibles" IsCheckable="True" IsChecked="{Binding ShowPossibles}"/>
