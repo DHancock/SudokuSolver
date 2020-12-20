@@ -27,8 +27,8 @@ namespace Sudoku.ViewModels
         private string windowTitle = cDefaultWindowTitle;
 
         private bool showPossibles = false;
-
         private bool darkThemed = false;
+        private bool accentTitleBar = false;
 
         private PuzzleModel Model { get; }
         public CellList Cells { get; }
@@ -249,6 +249,20 @@ namespace Sudoku.ViewModels
                 {
                     darkThemed = value;
                     ThemeManager.Current.ChangeThemeBaseColor(Application.Current, darkThemed ? ThemeManager.BaseColorDark : ThemeManager.BaseColorLight);
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+
+        public bool AccentTitleBar
+        {
+            get => accentTitleBar;
+            set
+            {
+                if (value != accentTitleBar)
+                {
+                    accentTitleBar = value;
                     NotifyPropertyChanged();
                 }
             }

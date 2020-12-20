@@ -15,8 +15,19 @@ namespace Sudoku.Views
         {
             InitializeComponent();
 
+            this.Activated += MainWindow_Activated;
+
             InitializeTheme();
             ProcessCommandLine(Environment.GetCommandLineArgs());
+        }
+
+
+        private void MainWindow_Activated(object? sender, EventArgs e)
+        {
+            // this app's light/dark theme setting over rides the OS setting
+            // so only check if the title bar and borders setting has changed
+            PuzzleViewModel vm = (PuzzleViewModel)DataContext;
+            vm.AccentTitleBar = WindowsThemeHelper.ShowAccentColorOnTitleBarsAndWindowBorders();
         }
 
 
@@ -43,7 +54,10 @@ namespace Sudoku.Views
 
         private void InitializeTheme()
         {
-            ((PuzzleViewModel)DataContext).DarkThemed = !WindowsThemeHelper.AppsUseLightTheme();
+            PuzzleViewModel vm = (PuzzleViewModel)DataContext;
+
+            vm.DarkThemed = !WindowsThemeHelper.AppsUseLightTheme();
+            vm.AccentTitleBar = WindowsThemeHelper.ShowAccentColorOnTitleBarsAndWindowBorders();
         }
     }
 }
