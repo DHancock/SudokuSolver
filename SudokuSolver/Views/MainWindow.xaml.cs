@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Printing;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 using ControlzEx.Theming;
 using Sudoku.ViewModels;
 
@@ -58,6 +62,48 @@ namespace Sudoku.Views
 
             vm.DarkThemed = !WindowsThemeHelper.AppsUseLightTheme();
             vm.AccentTitleBar = WindowsThemeHelper.ShowAccentColorOnTitleBarsAndWindowBorders();
+        }
+
+
+        private void ExitClickHandler(object sender, System.Windows.RoutedEventArgs e)
+        {
+            Close();
+        }
+
+
+
+        private void PrintClickHandler(object sender, System.Windows.RoutedEventArgs e)
+        {
+            PrintHandler();
+        }
+
+
+        private void PrintExecuted(object sender, ExecutedRoutedEventArgs e)
+        {
+            PrintHandler();
+        }
+
+
+        private void PrintHandler()
+        {
+            PrintDialog printDialog = new PrintDialog
+            {
+                UserPageRangeEnabled = false,
+                CurrentPageEnabled = false
+            };
+
+            if (printDialog.ShowDialog() == true)
+            {
+                const double cMarginsPercentage = 6.25;
+
+                Views.PuzzleView puzzleView = new Views.PuzzleView
+                {
+                    Margin = new Thickness(Math.Min(printDialog.PrintableAreaHeight, printDialog.PrintableAreaWidth) * (cMarginsPercentage / 100D)),
+                    DataContext = this.DataContext
+                };
+
+                printDialog.PrintVisual(puzzleView, "Sudoku puzzle");
+            }
         }
     }
 }

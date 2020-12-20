@@ -35,8 +35,6 @@ namespace Sudoku.ViewModels
         public ICommand OpenCommand { get; }
         public ICommand SaveCommand { get; }
         public ICommand ClearCommand { get; }
-        public ICommand PrintCommand { get; }
-        public ICommand ExitCommand { get; }
 
 
         public PuzzleViewModel()
@@ -47,8 +45,6 @@ namespace Sudoku.ViewModels
             OpenCommand = new RelayCommand(OpenCommandHandler);
             SaveCommand = new RelayCommand(SaveCommandHandler);
             ClearCommand = new RelayCommand(ClearCommandHandler, o => Cells.NotEmpty);
-            PrintCommand = new RelayCommand(PrintCommandHandler);
-            ExitCommand = new RelayCommand(ExitCommandHandler);
         }
 
 
@@ -194,35 +190,6 @@ namespace Sudoku.ViewModels
 
             foreach (Models.Cell cell in Model.Cells)
                 Cells.UpdateCell(cell);
-        }
-
-
-        private void PrintCommandHandler(object? _)
-        {
-            PrintDialog printDialog = new PrintDialog
-            {
-                UserPageRangeEnabled = false,
-                CurrentPageEnabled = false
-            };
-
-            if (printDialog.ShowDialog() == true)
-            {
-                const double cMarginsPercentage = 6.25;
-
-                Views.PuzzleView puzzleView = new Views.PuzzleView
-                {
-                    Margin = new Thickness(Math.Min(printDialog.PrintableAreaHeight, printDialog.PrintableAreaWidth) * (cMarginsPercentage / 100D)),
-                    DataContext = this
-                };
-
-                printDialog.PrintVisual(puzzleView, "Sudoku puzzle");
-            }
-        }
-
-
-        private void ExitCommandHandler(object? _)
-        {
-            Application.Current.MainWindow.Close();
         }
 
 
