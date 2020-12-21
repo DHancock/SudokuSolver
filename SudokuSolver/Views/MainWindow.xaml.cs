@@ -57,7 +57,7 @@ namespace Sudoku.Views
             if (!WindowsThemeHelper.AppsUseLightTheme())
             {
                 vm.DarkThemed = true;
-                ThemeManager.Current.ChangeThemeBaseColor(this, ThemeManager.BaseColorDark);
+                ThemeManager.Current.ChangeThemeBaseColor(Application.Current, ThemeManager.BaseColorDark);
             }
 
             vm.AccentTitleBar = WindowsThemeHelper.ShowAccentColorOnTitleBarsAndWindowBorders();
@@ -135,7 +135,7 @@ namespace Sudoku.Views
         private void SetTheme(bool dark)
         {
             ((PuzzleViewModel)DataContext).DarkThemed = dark;
-            ThemeManager.Current.ChangeThemeBaseColor(this, dark ? ThemeManager.BaseColorDark : ThemeManager.BaseColorLight);
+            ThemeManager.Current.ChangeThemeBaseColor(Application.Current, dark ? ThemeManager.BaseColorDark : ThemeManager.BaseColorLight);
         }
 
         private void DarkThemeCheckedHandler(object sender, RoutedEventArgs e) => SetTheme(dark: true);
