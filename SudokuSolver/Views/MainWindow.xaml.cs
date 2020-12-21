@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Printing;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+
 using ControlzEx.Theming;
+
 using Sudoku.ViewModels;
 
 namespace Sudoku.Views
@@ -65,26 +66,10 @@ namespace Sudoku.Views
         }
 
 
-        private void ExitClickHandler(object sender, System.Windows.RoutedEventArgs e)
-        {
-            Close();
-        }
+        private void ExitClickHandler(object sender, RoutedEventArgs e) => Close();
 
 
-
-        private void PrintClickHandler(object sender, System.Windows.RoutedEventArgs e)
-        {
-            PrintHandler();
-        }
-
-
-        private void PrintExecuted(object sender, ExecutedRoutedEventArgs e)
-        {
-            PrintHandler();
-        }
-
-
-        private void PrintHandler()
+        private void PrintExecutedHandler(object sender, ExecutedRoutedEventArgs e)
         {
             PrintDialog printDialog = new PrintDialog
             {
@@ -98,10 +83,12 @@ namespace Sudoku.Views
 
                 Views.PuzzleView puzzleView = new Views.PuzzleView
                 {
-                    Margin = new Thickness(Math.Min(printDialog.PrintableAreaHeight, printDialog.PrintableAreaWidth) * (cMarginsPercentage / 100D)),
+                    Padding = new Thickness(Math.Min(printDialog.PrintableAreaHeight, printDialog.PrintableAreaWidth) * (cMarginsPercentage / 100D)),
+                    Background = this.Background,
+                    Foreground = this.Foreground,
                     DataContext = this.DataContext
                 };
-
+ 
                 printDialog.PrintVisual(puzzleView, "Sudoku puzzle");
             }
         }

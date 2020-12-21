@@ -23,7 +23,7 @@
         <KeyBinding Modifiers="Control" Key="S" Command="{Binding SaveCommand}"/>
     </Window.InputBindings>
     <Window.CommandBindings>
-        <CommandBinding Command="ApplicationCommands.Print" Executed="PrintExecuted"/>
+        <CommandBinding Command="ApplicationCommands.Print" Executed="PrintExecutedHandler"/>
     </Window.CommandBindings>
 
     <DockPanel>
@@ -54,7 +54,7 @@
                     </MenuItem.Icon>
                 </MenuItem>
                 <Separator />
-                <MenuItem Header="_Print..." Click="PrintClickHandler" InputGestureText="Ctrl+P">
+                <MenuItem Header="_Print..." Command="ApplicationCommands.Print" InputGestureText="Ctrl+P">
                     <MenuItem.Icon>
                         <TextBlock Text="&#xE749;"/>
                     </MenuItem.Icon>
