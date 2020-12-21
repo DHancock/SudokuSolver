@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Microsoft.Win32;
 
 using ControlzEx.Theming;
 
@@ -16,11 +16,18 @@ namespace Sudoku.Views
     /// </summary>
     public partial class MainWindow
     {
+        // according to https://fileinfo.com this extension isn't in use (at least by a popular program)
+        private const string cFileFilter = "Sudoku files|*.sdku";
+        private const string cDefaultFileExt = ".sdku";
+        private const string cDefaultWindowTitle = "Sudoku Solver";
+
+
         public MainWindow()
         {
             InitializeComponent();
 
-            this.Activated += MainWindow_Activated;
+            Title = cDefaultWindowTitle;
+            Activated += MainWindow_Activated;
 
             InitializeTheme();
             ProcessCommandLine(Environment.GetCommandLineArgs());
@@ -38,36 +45,25 @@ namespace Sudoku.Views
 
         private void ProcessCommandLine(string[] args)
         {
-            if (args?.Length == 2)  // args[0] is typically the full path of the executing assembly
-            {
-                if ((Path.GetExtension(args[1]).ToLower() == PuzzleViewModel.cDefaultFileExt) && File.Exists(args[1]))
-                {
-                    try
-                    {
-                        using FileStream fs = File.OpenRead(args[1]);
-                        ((PuzzleViewModel)DataContext).OpenFile(fs, args[1]);
-                    }
-                    catch (Exception e)
-                    {
-                        // TODO - failed to open message box
-                        Debug.Fail(e.Message);
-                    }
-                }
-            }
+            // args[0] is typically the full path of the executing assembly
+            if ((args?.Length == 2) && (Path.GetExtension(args[1]).ToLower() == cDefaultFileExt) && File.Exists(args[1]))
+                OpenFile(args[1]);
         }
-
 
         private void InitializeTheme()
         {
             PuzzleViewModel vm = (PuzzleViewModel)DataContext;
 
-            vm.DarkThemed = !WindowsThemeHelper.AppsUseLightTheme();
+            if (!WindowsThemeHelper.AppsUseLightTheme())
+            {
+                vm.DarkThemed = true;
+                ThemeManager.Current.ChangeThemeBaseColor(this, ThemeManager.BaseColorDark);
+            }
+
             vm.AccentTitleBar = WindowsThemeHelper.ShowAccentColorOnTitleBarsAndWindowBorders();
         }
 
-
         private void ExitClickHandler(object sender, RoutedEventArgs e) => Close();
-
 
         private void PrintExecutedHandler(object sender, ExecutedRoutedEventArgs e)
         {
@@ -81,7 +77,7 @@ namespace Sudoku.Views
             {
                 const double cMarginsPercentage = 6.25;
 
-                Views.PuzzleView puzzleView = new Views.PuzzleView
+                PuzzleView puzzleView = new PuzzleView
                 {
                     Padding = new Thickness(Math.Min(printDialog.PrintableAreaHeight, printDialog.PrintableAreaWidth) * (cMarginsPercentage / 100D)),
                     Background = this.Background,
@@ -92,5 +88,59 @@ namespace Sudoku.Views
                 printDialog.PrintVisual(puzzleView, "Sudoku puzzle");
             }
         }
+
+        private void OpenFile(string fullPath)
+        {
+            try
+            {
+                using FileStream fs = File.OpenRead(fullPath);
+                ((PuzzleViewModel)DataContext).OpenFile(fs);
+                Title = $"{cDefaultWindowTitle} - {Path.GetFileNameWithoutExtension(fullPath)}";
+                throw new Exception("arse");
+            }
+            catch (Exception ex)
+            {
+                Title = cDefaultWindowTitle;
+                string heading = $"Failed to open file \"{Path.GetFileNameWithoutExtension(fullPath)}\"";
+                ErrorDialog.Show(this, heading, ex.Message);
+            }
+        }
+                                                                             
+        private void OpenExecutedHandler(object sender, ExecutedRoutedEventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog { Filter = cFileFilter };
+
+            if (dialog.ShowDialog() == true)
+                OpenFile(dialog.FileName);
+        }
+
+        private void SaveExecutedHandler(object sender, ExecutedRoutedEventArgs e)
+        {
+            SaveFileDialog dialog = new SaveFileDialog { Filter = cFileFilter };
+
+            if (dialog.ShowDialog() == true)
+            {
+                try
+                {
+                    using Stream stream = dialog.OpenFile();
+                    ((PuzzleViewModel)DataContext).SaveFile(stream);
+                }
+                catch (Exception ex)
+                {
+                    string heading = $"Failed to save file \"{Path.GetFileNameWithoutExtension(dialog.FileName)}\"";
+                    ErrorDialog.Show(this, heading, ex.Message);
+                }
+            }
+        }
+
+        private void SetTheme(bool dark)
+        {
+            ((PuzzleViewModel)DataContext).DarkThemed = dark;
+            ThemeManager.Current.ChangeThemeBaseColor(this, dark ? ThemeManager.BaseColorDark : ThemeManager.BaseColorLight);
+        }
+
+        private void DarkThemeCheckedHandler(object sender, RoutedEventArgs e) => SetTheme(dark: true);
+
+        private void DarkThemeUncheckedHandler(object sender, RoutedEventArgs e) => SetTheme(dark: false);
     }
 }

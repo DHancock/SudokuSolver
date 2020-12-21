@@ -7,7 +7,6 @@
         xmlns:local="clr-namespace:Sudoku.Views"
         xmlns:vm="clr-namespace:Sudoku.ViewModels"
         mc:Ignorable="d"
-        Title="{Binding WindowTitle}"
         Height="543" 
         Width="485" 
         WindowStartupLocation="CenterScreen"
@@ -18,11 +17,9 @@
     <Window.DataContext>
         <vm:PuzzleViewModel/>
     </Window.DataContext>
-    <Window.InputBindings>
-        <KeyBinding Modifiers="Control" Key="O" Command="{Binding OpenCommand}"/>
-        <KeyBinding Modifiers="Control" Key="S" Command="{Binding SaveCommand}"/>
-    </Window.InputBindings>
     <Window.CommandBindings>
+        <CommandBinding Command="ApplicationCommands.Open" Executed="OpenExecutedHandler"/>
+        <CommandBinding Command="ApplicationCommands.Save" Executed="SaveExecutedHandler"/>
         <CommandBinding Command="ApplicationCommands.Print" Executed="PrintExecutedHandler"/>
     </Window.CommandBindings>
 
@@ -37,7 +34,7 @@
                 </Style>
             </Menu.Resources>
             <MenuItem Header="_File">
-                <MenuItem Header="_Open..." Command="{Binding OpenCommand}" InputGestureText="Ctrl+O">
+                <MenuItem Header="_Open..." Command="ApplicationCommands.Open" InputGestureText="Ctrl+O">
                     <MenuItem.Icon>
                         <TextBlock Text="&#xE1A5;"/>
                     </MenuItem.Icon>
@@ -48,7 +45,7 @@
                     </MenuItem.Icon>
                 </MenuItem>
                 <Separator />
-                <MenuItem Header="_Save As..." Command="{Binding SaveCommand}" InputGestureText="Ctrl+S">
+                <MenuItem Header="_Save As..." Command="ApplicationCommands.Save" InputGestureText="Ctrl+S">
                     <MenuItem.Icon>
                         <TextBlock Text="&#xE105;"/>
                     </MenuItem.Icon>
@@ -65,7 +62,7 @@
             <MenuItem Header="_Options">
                 <MenuItem Header="_Show possibles" IsCheckable="True" IsChecked="{Binding ShowPossibles}"/>
                 <Separator />
-                <MenuItem Header="_Dark theme" IsCheckable="True" IsChecked="{Binding DarkThemed}"/>
+                <MenuItem Header="_Dark theme" IsCheckable="True" IsChecked="{Binding DarkThemed}" Checked="DarkThemeCheckedHandler" Unchecked="DarkThemeUncheckedHandler"/>
             </MenuItem>
         </Menu>
 

@@ -1,15 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Media;
-using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Runtime.CompilerServices;
-using Microsoft.Win32;
-
-using ControlzEx.Theming;
 
 using Sudoku.Common;
 using Sudoku.Models;
@@ -19,21 +13,12 @@ namespace Sudoku.ViewModels
 {
     internal sealed class PuzzleViewModel : INotifyPropertyChanged
     {
-        // according to https://fileinfo.com this extension isn't in use (at least by a popular program)
-        private const string cFileFilter = "Sudoku files|*.sdku";
-        public const string cDefaultFileExt = ".sdku";
-
-        private const string cDefaultWindowTitle = "Sudoku Solver";
-        private string windowTitle = cDefaultWindowTitle;
-
         private bool showPossibles = false;
         private bool darkThemed = false;
         private bool accentTitleBar = false;
 
         private PuzzleModel Model { get; }
         public CellList Cells { get; }
-        public ICommand OpenCommand { get; }
-        public ICommand SaveCommand { get; }
         public ICommand ClearCommand { get; }
 
 
@@ -41,9 +26,6 @@ namespace Sudoku.ViewModels
         {
             Model = new PuzzleModel();
             Cells = new CellList(CellChanged_EventHandler);
-
-            OpenCommand = new RelayCommand(OpenCommandHandler);
-            SaveCommand = new RelayCommand(SaveCommandHandler);
             ClearCommand = new RelayCommand(ClearCommandHandler, o => Cells.NotEmpty);
         }
 
@@ -122,58 +104,19 @@ namespace Sudoku.ViewModels
         }
 
 
-        private void SaveCommandHandler(object? _)
-        {
-            SaveFileDialog dialog = new SaveFileDialog { Filter = cFileFilter };
+        public void SaveFile(Stream stream) => Model.Save(stream);
+    
 
-            if (dialog.ShowDialog() == true)
-            {
-                try
-                {
-                    using Stream stream = dialog.OpenFile();
-                    Model.Save(stream);
-                }
-                catch (Exception e)
-                {
-                    // TODO - failed to save message box
-                    Debug.Fail(e.Message);
-                }
-            }
-        }
-
-
-        private void OpenCommandHandler(object? _)
-        {
-            OpenFileDialog dialog = new OpenFileDialog { Filter = cFileFilter };
-
-            if (dialog.ShowDialog() == true)
-            {
-                try
-                {
-                    using Stream stream = dialog.OpenFile();
-                    OpenFile(stream, dialog.FileName);
-                }
-                catch (Exception e)
-                {
-                    // TODO - failed to open message box
-                    Debug.Fail(e.Message);
-                }
-            }
-        }
-
-
-        public void OpenFile(Stream stream, string fileName)
+        public void OpenFile(Stream stream)
         {
             try
             {
                 Model.Clear();
                 Model.Open(stream);
-                WindowTitle = cDefaultWindowTitle + " - " + Path.GetFileNameWithoutExtension(fileName);
             }
             catch
             {
                 Model.Clear();
-                WindowTitle = cDefaultWindowTitle;
                 throw;
             }
             finally
@@ -215,7 +158,6 @@ namespace Sudoku.ViewModels
                 if (value != darkThemed)
                 {
                     darkThemed = value;
-                    ThemeManager.Current.ChangeThemeBaseColor(Application.Current, darkThemed ? ThemeManager.BaseColorDark : ThemeManager.BaseColorLight);
                     NotifyPropertyChanged();
                 }
             }
@@ -235,17 +177,6 @@ namespace Sudoku.ViewModels
             }
         }
 
-
-        public string WindowTitle
-        {
-            get => windowTitle;
-
-            private set
-            {
-                windowTitle = value;
-                NotifyPropertyChanged();
-            }
-        }
 
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
         {
