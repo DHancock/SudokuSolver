@@ -96,7 +96,6 @@ namespace Sudoku.Views
                 using FileStream fs = File.OpenRead(fullPath);
                 ((PuzzleViewModel)DataContext).OpenFile(fs);
                 Title = $"{cDefaultWindowTitle} - {Path.GetFileNameWithoutExtension(fullPath)}";
-                throw new Exception("arse");
             }
             catch (Exception ex)
             {
