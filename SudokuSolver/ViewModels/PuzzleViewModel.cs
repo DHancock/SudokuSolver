@@ -104,10 +104,10 @@ namespace Sudoku.ViewModels
         }
 
 
-        public void SaveFile(Stream stream) => Model.Save(stream);
+        public void Save(Stream stream) => Model.Save(stream);
     
 
-        public void OpenFile(Stream stream)
+        public void Open(Stream stream)
         {
             try
             {
