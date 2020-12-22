@@ -62,7 +62,7 @@
             <MenuItem Header="_Options">
                 <MenuItem Header="_Show possibles" IsCheckable="True" IsChecked="{Binding ShowPossibles}"/>
                 <Separator />
-                <MenuItem Header="_Dark theme" IsCheckable="True" IsChecked="{Binding DarkThemed, Mode=OneWayToSource}" Checked="DarkThemeCheckedHandler" Unchecked="DarkThemeUncheckedHandler"/>
+                <MenuItem Header="_Dark theme" IsCheckable="True" IsChecked="{Binding DarkThemed, Mode=OneWay}" Checked="DarkThemeCheckedHandler" Unchecked="DarkThemeUncheckedHandler"/>
             </MenuItem>
         </Menu>
 
