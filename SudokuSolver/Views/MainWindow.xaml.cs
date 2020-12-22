@@ -52,15 +52,10 @@ namespace Sudoku.Views
 
         private void InitializeTheme()
         {
-            PuzzleViewModel vm = (PuzzleViewModel)DataContext;
-
             if (!WindowsThemeHelper.AppsUseLightTheme())
-            {
-                vm.DarkThemed = true;
-                ThemeManager.Current.ChangeThemeBaseColor(Application.Current, ThemeManager.BaseColorDark);
-            }
+                SetTheme(dark: true);
 
-            vm.AccentTitleBar = WindowsThemeHelper.ShowAccentColorOnTitleBarsAndWindowBorders();
+            ((PuzzleViewModel)DataContext).AccentTitleBar = WindowsThemeHelper.ShowAccentColorOnTitleBarsAndWindowBorders();
         }
 
         private void ExitClickHandler(object sender, RoutedEventArgs e) => Close();
@@ -94,7 +89,7 @@ namespace Sudoku.Views
             try
             {
                 using FileStream fs = File.OpenRead(fullPath);
-                ((PuzzleViewModel)DataContext).OpenFile(fs);
+                ((PuzzleViewModel)DataContext).Open(fs);
                 Title = $"{cDefaultWindowTitle} - {Path.GetFileNameWithoutExtension(fullPath)}";
             }
             catch (Exception ex)
@@ -122,7 +117,7 @@ namespace Sudoku.Views
                 try
                 {
                     using Stream stream = dialog.OpenFile();
-                    ((PuzzleViewModel)DataContext).SaveFile(stream);
+                    ((PuzzleViewModel)DataContext).Save(stream);
                 }
                 catch (Exception ex)
                 {
