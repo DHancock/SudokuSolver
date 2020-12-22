@@ -71,7 +71,7 @@
         <TextBlock x:Name="PossibleValue3" Text="4" Canvas.Top="16" Canvas.Left="4"/>
         <TextBlock x:Name="PossibleValue4" Text="5" Canvas.Top="16" Canvas.Left="22"/>
         <TextBlock x:Name="PossibleValue5" Text="6" Canvas.Top="16" Canvas.Left="39"/>
-        <TextBlock x:Name="PossibleValue6" Text="7" Canvas.Top="34" Canvas.Left="5"/>
+        <TextBlock x:Name="PossibleValue6" Text="7" Canvas.Top="34" Canvas.Left="4"/>
         <TextBlock x:Name="PossibleValue7" Text="8" Canvas.Top="34" Canvas.Left="22"/>
         <TextBlock x:Name="PossibleValue8" Text="9" Canvas.Top="34" Canvas.Left="39"/>
     </Canvas>
