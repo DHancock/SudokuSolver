@@ -52,7 +52,7 @@ namespace Sudoku.Views
 
         private void InitializeTheme()
         {
-            if (!WindowsThemeHelper.AppsUseLightTheme())
+            if (WindowsThemeHelper.GetWindowsBaseColor() == ThemeManager.BaseColorDark)
                 SetTheme(dark: true);
 
             ((PuzzleViewModel)DataContext).AccentTitleBar = WindowsThemeHelper.ShowAccentColorOnTitleBarsAndWindowBorders();
