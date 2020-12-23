@@ -52,7 +52,7 @@ namespace Sudoku.Views
 
         private void InitializeTheme()
         {
-            if (!WindowsThemeHelper.AppsUseLightTheme())
+            if (WindowsThemeHelper.GetWindowsBaseColor() == ThemeManager.BaseColorDark)
                 SetTheme(dark: true);
 
             ((PuzzleViewModel)DataContext).AccentTitleBar = WindowsThemeHelper.ShowAccentColorOnTitleBarsAndWindowBorders();
@@ -75,10 +75,17 @@ namespace Sudoku.Views
                 PuzzleView puzzleView = new PuzzleView
                 {
                     Padding = new Thickness(Math.Min(printDialog.PrintableAreaHeight, printDialog.PrintableAreaWidth) * (cMarginsPercentage / 100D)),
-                    Background = this.Background,
-                    Foreground = this.Foreground,
-                    DataContext = this.DataContext
                 };
+
+                if (((PuzzleViewModel)DataContext).DarkThemed)
+                {
+                    PuzzleViewModel clone = new PuzzleViewModel((PuzzleViewModel)DataContext);
+                    clone.DarkThemed = false;
+                    puzzleView.DataContext = clone;
+                    ThemeManager.Current.ChangeThemeBaseColor(puzzleView, ThemeManager.BaseColorLight);
+                }
+                else
+                    puzzleView.DataContext = DataContext; 
  
                 printDialog.PrintVisual(puzzleView, "Sudoku puzzle");
             }

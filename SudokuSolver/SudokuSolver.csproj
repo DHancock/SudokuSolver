@@ -4,7 +4,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
-    <Version>0.3.0</Version>
+    <Version>1.0.0</Version>
     <Authors>David Hancock</Authors>
     <Company>code@davidhancock.net</Company>
     <Copyright>David Hancock 2020</Copyright>
@@ -12,13 +12,13 @@
     <RepositoryUrl>https://github.com/DHancock/SudokuSolver</RepositoryUrl>
     <RepositoryType></RepositoryType>
     <NeutralLanguage>En</NeutralLanguage>
-    <PackageReleaseNotes>pre-release version</PackageReleaseNotes>
+    <PackageReleaseNotes></PackageReleaseNotes>
     <Product>SudokuSolver</Product>
     <AssemblyName>SudokuSolver</AssemblyName>
     <RootNamespace>Sudoku</RootNamespace>
     <ApplicationIcon>app.ico</ApplicationIcon>
-    <AssemblyVersion>0.3.0.0</AssemblyVersion>
-    <FileVersion>0.3.0.0</FileVersion>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <ApplicationManifest>app.manifest</ApplicationManifest>

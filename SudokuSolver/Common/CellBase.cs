@@ -65,7 +65,7 @@ namespace Sudoku.Common
             if (HasValue)
             {
                 if (other.HasValue)
-                    return Value == other.Value;
+                    return (Value == other.Value) && (Origin == other.Origin);
 
                 return false;
             }

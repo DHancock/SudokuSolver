@@ -30,6 +30,21 @@ namespace Sudoku.ViewModels
         }
 
 
+        public PuzzleViewModel(PuzzleViewModel source)
+        {
+            Model = new PuzzleModel(source.Model);
+            Cells = new CellList(CellChanged_EventHandler);
+            ClearCommand = new RelayCommand(ClearCommandHandler, o => Cells.NotEmpty);
+
+            foreach (Models.Cell cell in Model.Cells)
+                Cells.UpdateCell(cell);
+
+            DarkThemed = source.DarkThemed;
+            ShowPossibles = source.ShowPossibles;
+            AccentTitleBar = source.AccentTitleBar;
+        }
+
+
         // an empty implementation used to indicate no action is required
         // when the user changes a cell. As the code supports nullable using
         // this avoids the need to return a null function delegate.
