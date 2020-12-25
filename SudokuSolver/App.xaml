@@ -10,7 +10,7 @@
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
                 <!-- the following theme is the application's default theme -->
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Light.Steel.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/SudokuSolver;component/themes/lighttheme.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <Style x:Key="MainWindowStyle" TargetType="{x:Type mah:MetroWindow}">

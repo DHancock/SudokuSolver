@@ -13,7 +13,7 @@
 
     <UserControl.Resources>
         <System:Double x:Key="cell_size">50</System:Double>
-        <SolidColorBrush x:Key="DarkishBlue" Color="#FF0000B4"/>
+        
 
         <Style TargetType="TextBlock">
             <Setter Property="Foreground" Value="LightGray"/>
@@ -29,34 +29,12 @@
                 <DataTrigger Binding="{Binding ElementName=SudokuCell, Path=IsFocused}" Value="true">
                     <Setter Property="Background" Value="{x:Static SystemParameters.WindowGlassBrush}"/>
                 </DataTrigger>
-                <MultiDataTrigger>
-                    <MultiDataTrigger.Conditions>
-                        <Condition Binding="{Binding ElementName=SudokuCell, Path=Origin}" Value="Calculated" />
-                        <Condition Binding="{Binding DarkThemed}" Value="False" />
-                    </MultiDataTrigger.Conditions>
-                    <Setter Property="Foreground" Value="LightBlue" />
-                </MultiDataTrigger>
-                <MultiDataTrigger>
-                    <MultiDataTrigger.Conditions>
-                        <Condition Binding="{Binding ElementName=SudokuCell, Path=Origin}" Value="Calculated" />
-                        <Condition Binding="{Binding DarkThemed}" Value="True" />
-                    </MultiDataTrigger.Conditions>
-                    <Setter Property="Foreground" Value="{StaticResource DarkishBlue}" />
-                </MultiDataTrigger>
-                <MultiDataTrigger>
-                    <MultiDataTrigger.Conditions>
-                        <Condition Binding="{Binding ElementName=SudokuCell, Path=Origin}" Value="Trial" />
-                        <Condition Binding="{Binding DarkThemed}" Value="False" />
-                    </MultiDataTrigger.Conditions>
-                    <Setter Property="Foreground" Value="LightGreen" />
-                </MultiDataTrigger>
-                <MultiDataTrigger>
-                    <MultiDataTrigger.Conditions>
-                        <Condition Binding="{Binding ElementName=SudokuCell, Path=Origin}" Value="Trial" />
-                        <Condition Binding="{Binding DarkThemed}" Value="True" />
-                    </MultiDataTrigger.Conditions>
-                    <Setter Property="Foreground" Value="DarkGreen" />
-                </MultiDataTrigger>
+                <DataTrigger Binding="{Binding ElementName=SudokuCell, Path=Origin}" Value="Calculated">
+                    <Setter Property="Foreground" Value="{DynamicResource CalculatedCellBrush}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding ElementName=SudokuCell, Path=Origin}" Value="Trial">
+                    <Setter Property="Foreground" Value="{DynamicResource TrialCellBrush}"/>
+                </DataTrigger>
             </Style.Triggers>
         </Style>
     </UserControl.Resources>

@@ -8,6 +8,7 @@ using Microsoft.Win32;
 using ControlzEx.Theming;
 
 using Sudoku.ViewModels;
+using Sudoku.Themes;
 
 namespace Sudoku.Views
 {
@@ -75,18 +76,12 @@ namespace Sudoku.Views
                 PuzzleView puzzleView = new PuzzleView
                 {
                     Padding = new Thickness(Math.Min(printDialog.PrintableAreaHeight, printDialog.PrintableAreaWidth) * (cMarginsPercentage / 100D)),
+                    DataContext = this.DataContext
                 };
 
-                if (((PuzzleViewModel)DataContext).DarkThemed)
-                {
-                    PuzzleViewModel clone = new PuzzleViewModel((PuzzleViewModel)DataContext);
-                    clone.DarkThemed = false;
-                    puzzleView.DataContext = clone;
-                    ThemeManager.Current.ChangeThemeBaseColor(puzzleView, ThemeManager.BaseColorLight);
-                }
-                else
-                    puzzleView.DataContext = DataContext; 
- 
+                // always print using the light theme
+                ThemeController.SetLightTheme(puzzleView);
+
                 printDialog.PrintVisual(puzzleView, "Sudoku puzzle");
             }
         }
@@ -137,7 +132,11 @@ namespace Sudoku.Views
         private void SetTheme(bool dark)
         {
             ((PuzzleViewModel)DataContext).DarkThemed = dark;
-            ThemeManager.Current.ChangeThemeBaseColor(Application.Current, dark ? ThemeManager.BaseColorDark : ThemeManager.BaseColorLight);
+
+            if (dark)
+                ThemeController.SetDarkTheme(Application.Current);
+            else
+                ThemeController.SetLightTheme(Application.Current);
         }
 
         private void DarkThemeCheckedHandler(object sender, RoutedEventArgs e) => SetTheme(dark: true);
