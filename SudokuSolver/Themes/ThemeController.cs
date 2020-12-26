@@ -1,9 +1,14 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Linq;
 using System.Windows;
 
+using Sudoku.Common;
+
+#nullable enable
+
 namespace Sudoku.Themes
-{
-                    
+{             
     internal static class ThemeController
     {
         private sealed class Implementation
@@ -25,15 +30,18 @@ namespace Sudoku.Themes
                 darkTheme = new ResourceDictionary { Source = new Uri(cDarkThemeLocation) };
             }
 
-            private static ThemeType IdentifyTheme(string? themeType)
+            private static ThemeType IdentifyTheme(string? keyValue)
             {
-                if (themeType == cLightThemeKeyValue)
+                if (keyValue is null)
+                    return ThemeType.none;
+                    
+                if (keyValue == cLightThemeKeyValue)
                     return ThemeType.light;
 
-                if (themeType == cDarkThemeKeyValue)
+                if (keyValue == cDarkThemeKeyValue)
                     return ThemeType.dark;
 
-                return ThemeType.none;
+                throw new ArgumentOutOfRangeException(nameof(keyValue));
             }
 
             private static ThemeType FindCurrentTheme(FrameworkElement frameworkElement)
@@ -46,23 +54,17 @@ namespace Sudoku.Themes
                 return IdentifyTheme(app.TryFindResource(cUID_Key) as string);
             }
 
-            private static void DeleteExistingTheme(ResourceDictionary resources)
+            // This will only remove an existing theme from the current level of the logical
+            // tree which is where the new themed resource will be added. It won't remove
+            // a theme resource from the children of the item containing these resources.
+            private static void RemoveExistingTheme(ResourceDictionary resources)
             {
-                ResourceDictionary? existingTheme = null;
+                Debug.Assert(resources.MergedDictionaries.CountOf(rd => rd.Contains(cUID_Key)) <= 1);
 
-                // this will only delete at the current level of the tree
-                // because this is where the themed resource will be added
-                foreach (ResourceDictionary rd in resources.MergedDictionaries)
-                {
-                    if (rd.Contains(cUID_Key))
-                    {
-                        existingTheme = rd;
-                        break;
-                    }
-                }
-
-                if (existingTheme is not null)
-                    resources.MergedDictionaries.Remove(existingTheme);
+                ResourceDictionary? theme = resources.MergedDictionaries.FirstOrDefault(rd => rd.Contains(cUID_Key)) ;
+                
+                if (theme is not null)
+                    resources.MergedDictionaries.Remove(theme);
             }
 
             private void SetTheme(ResourceDictionary resources, ThemeType newTheme, ThemeType currentTheme)
@@ -72,7 +74,7 @@ namespace Sudoku.Themes
                     resources.BeginInit();
 
                     if (currentTheme != ThemeType.none)
-                        DeleteExistingTheme(resources);
+                        RemoveExistingTheme(resources);
 
                     if (newTheme != ThemeType.none)
                         resources.MergedDictionaries.Add(newTheme == ThemeType.light ? lightTheme : darkTheme);
@@ -102,11 +104,11 @@ namespace Sudoku.Themes
             }
         }
         
-        private static Lazy<Implementation> imp = new Lazy<Implementation>(() => { return new Implementation(); });
+        private static Lazy<Implementation> lazy = new Lazy<Implementation>(() => { return new Implementation(); });
 
-        public static void SetLightTheme(Application app) => imp.Value.SetLightTheme(app);
-        public static void SetDarkTheme(Application app) => imp.Value.SetDarkTheme(app);
-        public static void SetLightTheme(FrameworkElement element) => imp.Value.SetLightTheme(element);
-        public static void SetDarkTheme(FrameworkElement element) => imp.Value.SetDarkTheme(element);
+        public static void SetLightTheme(Application app) => lazy.Value.SetLightTheme(app);
+        public static void SetDarkTheme(Application app) => lazy.Value.SetDarkTheme(app);
+        public static void SetLightTheme(FrameworkElement element) => lazy.Value.SetLightTheme(element);
+        public static void SetDarkTheme(FrameworkElement element) => lazy.Value.SetDarkTheme(element);
     }
 }
