@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "CodeGenerator": {
-      "commandName": "Project",
-      "commandLineArgs": "\"$(ProjectDir)Template.xml\" \"$(ProjectDir)PuzzleView.xml\""
-    }
-  }
-}
