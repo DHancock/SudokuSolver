@@ -14,4 +14,7 @@
     <SolidColorBrush x:Key="CalculatedCellBrush" Color="LightBlue"/>
     <SolidColorBrush x:Key="TrialCellBrush" Color="LightGreen"/>
 
+    <!-- make menu check marks higher contrast -->
+    <SolidColorBrush x:Key="MahApps.Brushes.CheckmarkFill" Color="Black"/>
+
 </ResourceDictionary>
