@@ -16,5 +16,6 @@
 
     <!-- make menu check marks higher contrast -->
     <SolidColorBrush x:Key="MahApps.Brushes.CheckmarkFill" Color="Black"/>
-
+    <!-- the puzzle grid line -->
+    <SolidColorBrush x:Key="MajorGridLineBrush" Color="Black"/>
 </ResourceDictionary>

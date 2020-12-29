@@ -15,7 +15,7 @@
                     <Setter Property="StrokeThickness" Value="1"/>
                 </Style>
                 <Style TargetType="Line" x:Key="MajorGridStyle">
-                    <Setter Property="Stroke" Value="{DynamicResource MahApps.Brushes.Text}"/>
+                    <Setter Property="Stroke" Value="{DynamicResource MajorGridLineBrush}"/>
                     <Setter Property="StrokeThickness" Value="2"/>
                 </Style>
             </local:SudokuGrid.Resources>
