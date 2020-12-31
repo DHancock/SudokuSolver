@@ -19,12 +19,11 @@
                 <Setter Property="GlowBrush" Value="{Binding RelativeSource={RelativeSource Self}, Path=WindowTitleBrush}" />
                 <Setter Property="TitleCharacterCasing" Value="Normal" />
                 <Setter Property="TitleAlignment" Value="Left" />
+                <Setter Property="SaveWindowPosition" Value="True"/>
                 <Style.Triggers>
                     <DataTrigger Binding="{Binding AccentTitleBar}" Value="True">
-                        <!-- the WindowTitleBrush is the window title bar background brush --> 
+                        <!-- the WindowTitleBrush is the window title bar background brush -->
                         <Setter Property="WindowTitleBrush" Value="{x:Static SystemParameters.WindowGlassBrush}"/>
-                        <!-- the GlowBrush is also used as the window's border brush --> 
-                        <Setter Property="GlowBrush" Value="{x:Static SystemParameters.WindowGlassBrush}"/>
                     </DataTrigger>
                 </Style.Triggers>
             </Style>
