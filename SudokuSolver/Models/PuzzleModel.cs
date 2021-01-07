@@ -6,6 +6,7 @@ using System.Xml.Linq;
 
 using Sudoku.Common;
 
+#nullable enable
 
 namespace Sudoku.Models
 {
@@ -137,9 +138,12 @@ namespace Sudoku.Models
             if (ValidateNewCellValue(index, newValue))
             {
                 SetCellValue(index, newValue, Origins.User);
-                AttemptSimpleTrialAndError();
 
-                return true;
+                if (PuzzleIsErrorFree()) // so far, it doesn't mean the puzzle is still solvable
+                {
+                    AttemptSimpleTrialAndError();
+                    return true;
+                }
             }
 
             return false;
