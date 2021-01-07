@@ -5,7 +5,7 @@ namespace Sudoku.ViewModels
 {
     internal sealed class CellList : ObservableCollection<Cell>
     {
-        public const int Length = 81;
+        private const int Length = 81;
 
         private Cell TempStore { get; set; }
 
