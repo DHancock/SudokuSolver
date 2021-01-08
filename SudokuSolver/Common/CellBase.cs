@@ -1,8 +1,9 @@
 ﻿using System;
 
+#nullable enable
+
 namespace Sudoku.Common
 {
-
     internal abstract class CellBase : IEquatable<CellBase>
     {
         private int cellValue;
@@ -56,23 +57,22 @@ namespace Sudoku.Common
             }
         }
 
-
         public bool Equals(CellBase? other)
         {
             if (other is null)
                 return false;
 
-            if (HasValue)
+            if (HasValue == other.HasValue)
             {
-                if (other.HasValue)
+                if (HasValue)
                     return (Value == other.Value) && (Origin == other.Origin);
 
-                return false;
+                return (Possibles == other.Possibles) &&
+                        (VerticalDirections == other.VerticalDirections) &&
+                        (HorizontalDirections == other.HorizontalDirections);
             }
 
-            return (Possibles == other.Possibles) &&
-                    (VerticalDirections == other.VerticalDirections) &&
-                    (HorizontalDirections == other.HorizontalDirections);
+            return false;
         }
 
         public override bool Equals(object? obj)
