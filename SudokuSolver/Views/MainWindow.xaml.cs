@@ -6,9 +6,12 @@ using System.Windows.Input;
 using Microsoft.Win32;
 
 using ControlzEx.Theming;
+using MahApps.Metro.Controls.Dialogs;
 
 using Sudoku.ViewModels;
 using Sudoku.Themes;
+
+#nullable enable
 
 namespace Sudoku.Views
 {
@@ -30,7 +33,7 @@ namespace Sudoku.Views
             Title = cDefaultWindowTitle;
             Activated += MainWindow_Activated;
 
-            InitializeTheme();
+            InitializeThemeAndAccent();
             ProcessCommandLine(Environment.GetCommandLineArgs());
         }
 
@@ -51,7 +54,7 @@ namespace Sudoku.Views
                 OpenFile(args[1]);
         }
 
-        private void InitializeTheme()
+        private void InitializeThemeAndAccent()
         {
             if (WindowsThemeHelper.GetWindowsBaseColor() == ThemeManager.BaseColorDark)
                 SetTheme(dark: true);
@@ -98,7 +101,7 @@ namespace Sudoku.Views
             {
                 Title = cDefaultWindowTitle;
                 string heading = $"Failed to open file \"{Path.GetFileNameWithoutExtension(fullPath)}\"";
-                ErrorDialog.Show(this, heading, ex.Message);
+                this.ShowModalMessageExternal(heading, ex.Message);
             }
         }
                                                                              
@@ -124,7 +127,7 @@ namespace Sudoku.Views
                 catch (Exception ex)
                 {
                     string heading = $"Failed to save file \"{Path.GetFileNameWithoutExtension(dialog.FileName)}\"";
-                    ErrorDialog.Show(this, heading, ex.Message);
+                    this.ShowModalMessageExternal(heading, ex.Message);
                 }
             }
         }

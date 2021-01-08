@@ -10,7 +10,7 @@ using Sudoku.Common;
 
 namespace Sudoku.Models
 {
-    internal sealed class PuzzleModel
+    internal sealed class PuzzleModel : IEquatable<PuzzleModel>
     {
         private static class Cx
         {
@@ -144,6 +144,9 @@ namespace Sudoku.Models
                     AttemptSimpleTrialAndError();
                     return true;
                 }
+
+                // revert model
+                SetCellValue(index, 0, Origins.NotDefined);
             }
 
             return false;
@@ -812,6 +815,21 @@ namespace Sudoku.Models
 
             }
             while (cellsToUpdate.Count > 0);
+        }
+
+        public bool Equals(PuzzleModel? other)
+        {
+            if (other is null)
+                return false;
+
+            // Cells is a fixed size read only list
+            for (int index = 0; index < Cells.Count; index++)
+            {
+                if (!Cells[index].Equals(other.Cells[index]))
+                    return false;
+            }
+
+            return true;
         }
     }
 }
