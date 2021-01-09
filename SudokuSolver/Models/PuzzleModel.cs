@@ -804,7 +804,7 @@ namespace Sudoku.Models
             if (other is null)
                 return false;
 
-            // Cells is a fixed size read only list
+            // no need to check lengths, Cells is a fixed size list
             for (int index = 0; index < Cells.Count; index++)
             {
                 if (!Cells[index].Equals(other.Cells[index]))
@@ -812,6 +812,16 @@ namespace Sudoku.Models
             }
 
             return true;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return Equals(obj as PuzzleModel);
+        }
+
+        public override int GetHashCode()
+        {
+            throw new NotImplementedException();
         }
     }
 }
