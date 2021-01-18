@@ -23,8 +23,14 @@
         <CommandBinding Command="ApplicationCommands.Print" Executed="PrintExecutedHandler"/>
     </Window.CommandBindings>
 
-    <DockPanel>
-        <Menu DockPanel.Dock="Top">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="98*"/>
+            <RowDefinition Height="2*"/>
+        </Grid.RowDefinitions>
+
+        <Menu Grid.Row="0">
             <Menu.Resources>
                 <Style TargetType="TextBlock">
                     <Setter Property="FontFamily" Value="{StaticResource MahApps.Fonts.Family.SymbolTheme}"/>
@@ -66,13 +72,6 @@
             </MenuItem>
         </Menu>
 
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="98*"/>
-                <RowDefinition Height="2*"/>
-            </Grid.RowDefinitions>
-        
-            <local:PuzzleView Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="5,5,5,0"/>
-        </Grid>
-    </DockPanel>
+        <local:PuzzleView Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="5,5,5,0"/>
+    </Grid>
 </mah:MetroWindow>
