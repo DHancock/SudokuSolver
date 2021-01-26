@@ -804,24 +804,11 @@ namespace Sudoku.Models
             if (other is null)
                 return false;
 
-            // no need to check lengths, Cells is a fixed size list
-            for (int index = 0; index < Cells.Count; index++)
-            {
-                if (!Cells[index].Equals(other.Cells[index]))
-                    return false;
-            }
-
-            return true;
+            return Cells.Equals(other.Cells);
         }
 
-        public override bool Equals(object? obj)
-        {
-            return Equals(obj as PuzzleModel);
-        }
+        public override bool Equals(object? obj) => Equals(obj as PuzzleModel);
 
-        public override int GetHashCode()
-        {
-            throw new NotImplementedException();
-        }
+        public override int GetHashCode() => throw new NotImplementedException();
     }
 }
