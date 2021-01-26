@@ -1,11 +1,14 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+
+#nullable enable
 
 namespace Sudoku.Models
 {
 
-    internal sealed class CellList : IReadOnlyList<Cell>
+    internal sealed class CellList : IReadOnlyList<Cell>, IEquatable<CellList>
     {
         private const int cLength = 81;
 
@@ -184,5 +187,23 @@ namespace Sudoku.Models
         IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
         public int Count => cLength;
+
+        public bool Equals(CellList? other)
+        {
+            if (other is null)
+                return false;
+
+            for (int index = 0; index < cLength; index++)
+            {
+                if (!this[index].Equals(other[index]))
+                    return false;
+            }
+
+            return true;
+        }
+
+        public override bool Equals(object? obj) => Equals(obj as CellList);
+
+        public override int GetHashCode() => throw new NotImplementedException();
     }
 }
