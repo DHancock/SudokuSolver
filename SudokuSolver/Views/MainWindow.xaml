@@ -18,16 +18,16 @@
         <vm:PuzzleViewModel/>
     </Window.DataContext>
     <Window.CommandBindings>
-        <CommandBinding Command="ApplicationCommands.Open" Executed="OpenExecutedHandler"/>
-        <CommandBinding Command="ApplicationCommands.Save" Executed="SaveExecutedHandler"/>
-        <CommandBinding Command="ApplicationCommands.Print" Executed="PrintExecutedHandler"/>
+        <CommandBinding Command="Open" Executed="OpenExecutedHandler"/>
+        <CommandBinding Command="Save" Executed="SaveExecutedHandler"/>
+        <CommandBinding Command="Print" Executed="PrintExecutedHandler"/>
     </Window.CommandBindings>
 
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="98*"/>
-            <RowDefinition Height="2*"/>
+            <RowDefinition Height="2*"/> <!-- this row is used as the window bottom padding -->
         </Grid.RowDefinitions>
 
         <Menu Grid.Row="0">
@@ -40,7 +40,7 @@
                 </Style>
             </Menu.Resources>
             <MenuItem Header="_File">
-                <MenuItem Header="_Open..." Command="ApplicationCommands.Open" InputGestureText="Ctrl+O">
+                <MenuItem Header="_Open..." Command="Open" InputGestureText="Ctrl+O">
                     <MenuItem.Icon>
                         <TextBlock Text="&#xE1A5;"/>
                     </MenuItem.Icon>
@@ -51,13 +51,13 @@
                     </MenuItem.Icon>
                 </MenuItem>
                 <Separator />
-                <MenuItem Header="_Save As..." Command="ApplicationCommands.Save" InputGestureText="Ctrl+S">
+                <MenuItem Header="_Save As..." Command="Save" InputGestureText="Ctrl+S">
                     <MenuItem.Icon>
                         <TextBlock Text="&#xE105;"/>
                     </MenuItem.Icon>
                 </MenuItem>
                 <Separator />
-                <MenuItem Header="_Print..." Command="ApplicationCommands.Print" InputGestureText="Ctrl+P">
+                <MenuItem Header="_Print..." Command="Print" InputGestureText="Ctrl+P">
                     <MenuItem.Icon>
                         <TextBlock Text="&#xE749;"/>
                     </MenuItem.Icon>
