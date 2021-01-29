@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
 
-#nullable enable 
-
 namespace Sudoku.Common
 {
 
     [DebuggerTypeProxy(typeof(BitFieldDebugProxy))]
-    internal struct BitField : IEquatable<BitField>
+    internal struct BitField
     {
         private const uint cSpan = 0x03FE;   // cell values range from 1 to 9
 
@@ -30,7 +28,7 @@ namespace Sudoku.Common
         // of an individual bit, more like an array indexer.
         public bool this[int bit]
         {
-            readonly get
+            get
             {
                 Debug.Assert((bit > 0) && (bit < 10));
 
@@ -49,16 +47,18 @@ namespace Sudoku.Common
         }
 
 
+
         public void SetAllTo(bool toSpan)
         {
             data = toSpan ? cSpan : 0U;
         }
 
 
-        public readonly bool IsEmpty => data == 0U;
+        public bool IsEmpty => data == 0U;
 
 
-        public readonly int First
+
+        public int First
         {
             get
             {
@@ -81,7 +81,8 @@ namespace Sudoku.Common
         }
 
 
-        public readonly int Count
+
+        public int Count
         {
             get
             {
@@ -126,10 +127,6 @@ namespace Sudoku.Common
             return new BitField((~a.data) & cSpan);
         }
 
-        public readonly bool Equals(BitField other)
-        {
-            return this == other;
-        }
 
         public override bool Equals(object? obj)
         {
