@@ -193,13 +193,7 @@ namespace Sudoku.Models
             if (other is null)
                 return false;
 
-            for (int index = 0; index < cLength; index++)
-            {
-                if (!this[index].Equals(other[index]))
-                    return false;
-            }
-
-            return true;
+            return cells.AsSpan().SequenceEqual(other.cells);
         }
 
         public override bool Equals(object? obj) => Equals(obj as CellList);
