@@ -755,8 +755,6 @@ namespace Sudoku.Models
                 cellsToUpdate.Push(updatedCell);
             else
             {
-                // the cell's value has been deleted
-                // rewinding the model is fiendishly difficult and hence error prone
                 // it's much simpler to just start from scratch and rebuild it...
                 foreach (Cell cell in Cells)
                 {
