@@ -26,7 +26,7 @@
 
         <Style TargetType="TextBlock" x:Key="ValueStyle">
             <Style.Triggers>
-                <DataTrigger Binding="{Binding ElementName=SudokuCell, Path=IsFocused}" Value="true">
+                <DataTrigger Binding="{Binding ElementName=SudokuCell, Path=IsKeyboardFocused}" Value="true">
                     <Setter Property="Background" Value="{x:Static SystemParameters.WindowGlassBrush}"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding ElementName=SudokuCell, Path=Origin}" Value="Calculated">

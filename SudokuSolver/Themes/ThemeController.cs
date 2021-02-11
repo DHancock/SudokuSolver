@@ -104,7 +104,7 @@ namespace Sudoku.Themes
             }
         }
         
-        private static Lazy<Implementation> lazy = new Lazy<Implementation>(() => { return new Implementation(); });
+        private static Lazy<Implementation> lazy = new Lazy<Implementation>(() => { return new Implementation(); }, isThreadSafe: false);
 
         public static void SetLightTheme(Application app) => lazy.Value.SetLightTheme(app);
         public static void SetDarkTheme(Application app) => lazy.Value.SetDarkTheme(app);
