@@ -13,7 +13,6 @@
 
     <UserControl.Resources>
         <System:Double x:Key="cell_size">50</System:Double>
-        
 
         <Style TargetType="TextBlock">
             <Setter Property="Foreground" Value="LightGray"/>
@@ -41,16 +40,16 @@
 
     <Canvas Height="{StaticResource cell_size}" Width="{StaticResource cell_size}">
 
-        <TextBlock x:Name="CellValue" Text="8" FontSize="34"  Canvas.Top="0" Canvas.Left="0" TextAlignment="Center" Width="{StaticResource cell_size}" Height="{StaticResource cell_size}" Style="{StaticResource ValueStyle}" />
+        <TextBlock x:Name="CellValue" d:Text="8" FontSize="34"  Canvas.Top="0" Canvas.Left="0" TextAlignment="Center" Width="{StaticResource cell_size}" Height="{StaticResource cell_size}" Style="{StaticResource ValueStyle}" />
 
-        <TextBlock x:Name="PossibleValue0" Text="1" Canvas.Top="-1" Canvas.Left="4" />
-        <TextBlock x:Name="PossibleValue1" Text="2" Canvas.Top="-1" Canvas.Left="22"/>
-        <TextBlock x:Name="PossibleValue2" Text="3" Canvas.Top="-1" Canvas.Left="39"/>
-        <TextBlock x:Name="PossibleValue3" Text="4" Canvas.Top="16" Canvas.Left="4"/>
-        <TextBlock x:Name="PossibleValue4" Text="5" Canvas.Top="16" Canvas.Left="22"/>
-        <TextBlock x:Name="PossibleValue5" Text="6" Canvas.Top="16" Canvas.Left="39"/>
-        <TextBlock x:Name="PossibleValue6" Text="7" Canvas.Top="34" Canvas.Left="4"/>
-        <TextBlock x:Name="PossibleValue7" Text="8" Canvas.Top="34" Canvas.Left="22"/>
-        <TextBlock x:Name="PossibleValue8" Text="9" Canvas.Top="34" Canvas.Left="39"/>
+        <TextBlock x:Name="PossibleValue0" d:Text="1" Canvas.Top="-1" Canvas.Left="4" />
+        <TextBlock x:Name="PossibleValue1" d:Text="2" Canvas.Top="-1" Canvas.Left="22"/>
+        <TextBlock x:Name="PossibleValue2" d:Text="3" Canvas.Top="-1" Canvas.Left="39"/>
+        <TextBlock x:Name="PossibleValue3" d:Text="4" Canvas.Top="16" Canvas.Left="4"/>
+        <TextBlock x:Name="PossibleValue4" d:Text="5" Canvas.Top="16" Canvas.Left="22"/>
+        <TextBlock x:Name="PossibleValue5" d:Text="6" Canvas.Top="16" Canvas.Left="39"/>
+        <TextBlock x:Name="PossibleValue6" d:Text="7" Canvas.Top="34" Canvas.Left="4"/>
+        <TextBlock x:Name="PossibleValue7" d:Text="8" Canvas.Top="34" Canvas.Left="22"/>
+        <TextBlock x:Name="PossibleValue8" d:Text="9" Canvas.Top="34" Canvas.Left="39"/>
     </Canvas>
 </UserControl>
