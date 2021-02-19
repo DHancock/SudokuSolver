@@ -50,7 +50,7 @@ namespace Sudoku.Models
                     xmlTree.Add(new XElement(Cx.Cell, new XElement(Cx.x, cell.Index % 9),
                                                       new XElement(Cx.y, cell.Index / 9),
                                                       new XElement(Cx.value, cell.Value),
-                                                      new XElement(Cx.origin, Enum.GetName(cell.Origin))));
+                                                      new XElement(Cx.origin, cell.Origin.ToString())));
                 }
             }
 

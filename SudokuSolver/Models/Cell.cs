@@ -8,7 +8,7 @@ using Sudoku.Common;
 namespace Sudoku.Models
 {
 
-    [DebuggerDisplay("[{Index  % 9}, {Index / 9}] value = {Value}, origin = {System.Enum.GetName<Sudoku.Common.Origins>(Origin)}")]
+    [DebuggerDisplay("[{Index  % 9}, {Index / 9}] value = {Value}, origin = {Origin}")]
     internal sealed class Cell : CellBase, IEquatable<Cell>
     {
         public Cell(int index) : base(index)
