@@ -87,11 +87,7 @@ namespace Sudoku.ViewModels
             {
                 if (modelFunction(changedCell.Index, changedCell.Value))
                 {
-                    foreach (Models.Cell cell in Model.Cells) // copy model in to the view model
-                    {
-                        if (!cell.Equals(Cells[cell.Index]) || (changedCell.Index == cell.Index))
-                            Cells.UpdateCell(cell);
-                    }
+                    UpdateView(changedCell.Index);
                 }
                 else
                 {
@@ -121,7 +117,17 @@ namespace Sudoku.ViewModels
             }
             finally
             {
-                foreach (Models.Cell cell in Model.Cells)
+                UpdateView();
+            }
+        }
+
+
+        private void UpdateView(int changedCellIndex = -1)
+        {
+            // copy model cells in to the view model, which updates the ui
+            foreach (Models.Cell cell in Model.Cells) 
+            {
+                if (!cell.Equals(Cells[cell.Index]) || (changedCellIndex == cell.Index))
                     Cells.UpdateCell(cell);
             }
         }
@@ -130,9 +136,7 @@ namespace Sudoku.ViewModels
         private void ClearCommandHandler(object? _)
         {
             Model.Clear();
-
-            foreach (Models.Cell cell in Model.Cells)
-                Cells.UpdateCell(cell);
+            UpdateView();
         }
 
 
