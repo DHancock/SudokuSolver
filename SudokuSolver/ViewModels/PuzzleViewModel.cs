@@ -87,7 +87,8 @@ namespace Sudoku.ViewModels
             {
                 if (modelFunction(changedCell.Index, changedCell.Value))
                 {
-                    UpdateView(changedCell.Index);
+                    changedCell.Value = -1;   // forces a cell update
+                    UpdateView();
                 }
                 else
                 {
@@ -122,12 +123,12 @@ namespace Sudoku.ViewModels
         }
 
 
-        private void UpdateView(int changedCellIndex = -1)
+        private void UpdateView()
         {
-            // copy model cells in to the view model, which updates the ui
+            // copy model cells in to the view model observable collection, causing a ui update
             foreach (Models.Cell cell in Model.Cells) 
             {
-                if (!cell.Equals(Cells[cell.Index]) || (changedCellIndex == cell.Index))
+                if (!cell.Equals(Cells[cell.Index]))
                     Cells.UpdateCell(cell);
             }
         }
