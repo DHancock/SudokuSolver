@@ -87,7 +87,7 @@ namespace Sudoku.ViewModels
             {
                 if (modelFunction(changedCell.Index, changedCell.Value))
                 {
-                    changedCell.Value = -1;   // forces a cell update
+                    Cells.UpdateCell(Model.Cells[changedCell.Index]);  
                     UpdateView();
                 }
                 else
