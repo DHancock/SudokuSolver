@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Xml.Linq;
+using System.Threading.Tasks;
 
 using Sudoku.Common;
 
@@ -713,6 +714,84 @@ namespace Sudoku.Models
         }
 
 
+#if Use_Parallel_TrialAndError
+
+        // Use parallel tasks when attempting trial and error. 
+        // The code works but I've left it disabled because:
+        //
+        //  0) The sequential single threaded method is fast enough.
+        //
+        //  1) It's quite difficult to access the performance of this code.
+        //      Like all search algorithms, if the solution is found early it will be
+        //      slower due to set up costs. If it's found later then it may be quicker.
+        //      However the number of puzzles and their states of completion is almost 
+        //      infinite. I also don't have access to different hardware.
+        //
+        //  2) If there is more than one solution in different partitions then which 
+        //      solution is found is indeterminate. That isn't optimal, getting
+        //      different results for the same action.      
+
+        private void AttemptSimpleTrialAndError()
+        {
+            List<(int index, int value)> attempts = new(Cells.Count);
+        
+            foreach (Cell cell in Cells)
+            {
+                if (!cell.HasValue && (cell.Possibles.Count == 2))
+                {
+                    BitField temp = cell.Possibles;
+        
+                    while (!temp.IsEmpty)
+                    {
+                        int value = temp.First;
+                        attempts.Add((cell.Index, value));
+                        temp[value] = false;
+                    }
+                }
+            }
+        
+            object lockObject = new();
+
+            Parallel.ForEach(
+                    attempts,
+                    () => new PuzzleModel(this),       // thread local initializer
+                    (attempt, state, localModel) =>    // body
+                    {
+                        localModel.SetCellValue(attempt.index, attempt.value, Origins.Trial);
+
+                        if (state.IsStopped)
+                            return localModel;
+
+                        if (localModel.PuzzleHasBeenSolved())
+                        {
+                            if (!state.IsStopped)
+                            {
+                                lock (lockObject)
+                                {
+                                    if (!state.IsStopped)
+                                    {
+                                        state.Stop();
+
+                                        for (int index = 0; index < Cells.Count; index++)
+                                            Cells[index].CopyFrom(localModel.Cells[index], index);
+                                    }
+                                }
+                            }
+
+                            return localModel;
+                        }
+
+                        if (state.IsStopped)
+                            return localModel;
+
+                        // revert local puzzle
+                        localModel.SetCellValue(attempt.index, 0, Origins.NotDefined);
+                        return localModel;
+                    },
+                    (_) => {});     // local finally
+        }
+#else
+
         private PuzzleState TryCellPossibles(Cell cell)
         {
             BitField temp = cell.Possibles;
@@ -745,7 +824,7 @@ namespace Sudoku.Models
                 }
             }
         }
-
+#endif
 
         private void CalculatePossibleValues(Cell updatedCell, bool forceRecalculation)
         {
