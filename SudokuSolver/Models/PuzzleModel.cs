@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Xml.Linq;
 using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
 using Sudoku.Common;
 
@@ -727,9 +728,11 @@ namespace Sudoku.Models
         //      However the number of puzzles and their states of completion is almost 
         //      infinite. I also don't have access to different hardware.
         //
-        //  2) If there is more than one solution in different partitions then which 
-        //      solution is found is indeterminate. That isn't optimal, getting
+        //  2) If there is more than one solution and they are in different partitions then  
+        //      which solution is found will be indeterminate. That isn't optimal, getting
         //      different results for the same action.      
+
+        private readonly ConcurrentStack<PuzzleModel> modelCache = new();
 
         private void AttemptSimpleTrialAndError()
         {
@@ -754,41 +757,47 @@ namespace Sudoku.Models
 
             Parallel.ForEach(
                     attempts,
-                    () => new PuzzleModel(this),       // thread local initializer
+                    () =>   // task local initializer
+                    {
+                        if (!modelCache.TryPop(out PuzzleModel? localModel))
+                            localModel = new PuzzleModel();
+
+                        return localModel;
+                    },
                     (attempt, state, localModel) =>    // body
                     {
-                        localModel.SetCellValue(attempt.index, attempt.value, Origins.Trial);
+                        // either initialise or revert changes from the previous run
+                        for (int index = 0; (index < Cells.Count) && !state.IsStopped; index++)
+                            localModel.Cells[index].CopyFrom(Cells[index], index);
 
-                        if (state.IsStopped)
-                            return localModel;
-
-                        if (localModel.PuzzleHasBeenSolved())
+                        if (!state.IsStopped)
                         {
-                            if (!state.IsStopped)
-                            {
-                                lock (lockObject)
-                                {
-                                    if (!state.IsStopped)
-                                    {
-                                        state.Stop();
+                            localModel.SetCellValue(attempt.index, attempt.value, Origins.Trial);
 
-                                        for (int index = 0; index < Cells.Count; index++)
-                                            Cells[index].CopyFrom(localModel.Cells[index], index);
+                            if (!state.IsStopped && localModel.PuzzleHasBeenSolved())
+                            {
+                                if (!state.IsStopped)
+                                {
+                                    lock (lockObject)
+                                    {
+                                        if (!state.IsStopped)
+                                        {
+                                            state.Stop();
+
+                                            for (int index = 0; index < Cells.Count; index++)
+                                                Cells[index].CopyFrom(localModel.Cells[index], index);
+                                        }
                                     }
                                 }
                             }
-
-                            return localModel;
                         }
 
-                        if (state.IsStopped)
-                            return localModel;
-
-                        // revert local puzzle
-                        localModel.SetCellValue(attempt.index, 0, Origins.NotDefined);
                         return localModel;
                     },
-                    (_) => {});     // local finally
+                    (localModel) =>   // local finally
+                    {
+                        modelCache.Push(localModel);
+                    });     
         }
 #else
 
