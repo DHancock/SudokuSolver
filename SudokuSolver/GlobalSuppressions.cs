@@ -7,3 +7,4 @@ using System.Diagnostics.CodeAnalysis;
 
 [assembly: SuppressMessage("Style", "IDE0017:Simplify object initialization", Justification = "pointless")]
 [assembly: SuppressMessage("Style", "IDE0066:Convert switch statement to expression", Justification = "pointless")]
+[assembly: SuppressMessage("Style", "IDE0090:'new' expression can be simplified", Justification = "pointless")]
