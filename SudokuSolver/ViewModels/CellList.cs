@@ -31,23 +31,5 @@ namespace Sudoku.ViewModels
 
             this[index] = temp;
         }
-
-
-        public bool NotEmpty
-        {
-            get
-            {
-                foreach (Cell cell in this)
-                {
-                    if (cell.HasValue)
-                        return true;
-                    
-                    if ((!cell.Possibles).IsEmpty == false)
-                        return true;
-                }
-
-                return false;
-            }
-        }
     }
 }

@@ -4,10 +4,10 @@ using System.IO;
 using System.Media;
 using System.Windows.Input;
 using System.Runtime.CompilerServices;
+using System.Diagnostics;
 
 using Sudoku.Common;
 using Sudoku.Models;
-
 
 namespace Sudoku.ViewModels
 {
@@ -26,7 +26,7 @@ namespace Sudoku.ViewModels
         {
             Model = new PuzzleModel();
             Cells = new CellList(CellChanged_EventHandler);
-            ClearCommand = new RelayCommand(ClearCommandHandler, o => Cells.NotEmpty);
+            ClearCommand = new RelayCommand(ClearCommandHandler, o => !Model.PuzzleIsEmpty);
         }
 
 
@@ -95,6 +95,8 @@ namespace Sudoku.ViewModels
                     changedCell.RevertValue(previousValue); // avoids another cell changed event
                     SystemSounds.Beep.Play();
                 }
+
+                Debug.Assert(Model.CompletedCellCountIsValid);
             }
             else
                 changedCell.RevertValue(previousValue);

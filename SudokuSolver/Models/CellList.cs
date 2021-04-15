@@ -55,6 +55,13 @@ namespace Sudoku.Models
         private static int Convert(int x, int y) => x + (y * 9);
 
 
+        public void CopyFrom(CellList other)
+        {
+            for (int index = 0; index < cLength; index++)
+                cells[index].CopyFrom(other.cells[index], index);
+        }
+
+
         public IEnumerable<Cell> Row(int rowIndex)
         {
             for (int x = 0; x < 9; x++)
