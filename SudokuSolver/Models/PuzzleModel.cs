@@ -27,17 +27,20 @@ namespace Sudoku.Models
         }
 
         public CellList Cells { get; }
+        private int CompletedCellsCount { get; set; }
 
 
         public PuzzleModel()
         {
             Cells = new CellList();
+            CompletedCellsCount = 0;
         }
 
 
         public PuzzleModel(PuzzleModel source)
         {
             Cells = new CellList(source.Cells);
+            CompletedCellsCount = source.CompletedCellsCount;
         }
 
 
@@ -64,6 +67,8 @@ namespace Sudoku.Models
         {
             foreach (Cell cell in Cells)
                 cell.Reset();
+
+            CompletedCellsCount = 0;
         }
 
 
@@ -177,7 +182,7 @@ namespace Sudoku.Models
             AttemptSimpleTrialAndError();
             return false;
         }
-                                                                      
+
 
         public bool EditForced(int index, int newValue)
         {
@@ -190,15 +195,15 @@ namespace Sudoku.Models
                     AttemptSimpleTrialAndError();
                     return true;
                 }
-                
+
                 // revert the forced value, the model will be recalculated
                 SetCellValue(index, 0, Origins.NotDefined);
                 AttemptSimpleTrialAndError();
             }
-            
+
             return false;
         }
-        
+
 
         public bool SetOrigin(int index, int _)
         {
@@ -207,10 +212,10 @@ namespace Sudoku.Models
         }
 
 
-        private bool ValidateNewCellValue(int index, int newValue)                    
+        private bool ValidateNewCellValue(int index, int newValue)
         {
             Debug.Assert(newValue > 0);
-                
+
             Cell cell = Cells[index];
 
             if (cell.HasValue) // replacing a cell value directly isn't supported
@@ -661,20 +666,21 @@ namespace Sudoku.Models
 
         private bool PuzzleIsErrorFree()
         {
-            PuzzleState state = CheckPuzzleRows(allowEmptyCells: true);
+            PuzzleState state = CheckPuzzleRows();
 
             if (state == PuzzleState.NoErrors)
             {
                 Cells.Rotated = true;
-                state = CheckPuzzleRows(allowEmptyCells: true);
+                state = CheckPuzzleRows();
                 Cells.Rotated = false;
             }
 
+            // TODO: should really check that values in the cubes are unique as well
             return state == PuzzleState.NoErrors;
         }
 
 
-        private PuzzleState CheckPuzzleRows(bool allowEmptyCells)
+        private PuzzleState CheckPuzzleRows()
         {
             for (int row = 0; row < 9; row++)
             {
@@ -691,27 +697,26 @@ namespace Sudoku.Models
 
                         temp[value] = true;
                     }
-                    else if (!allowEmptyCells)
-                        return PuzzleState.CellsRemaining;
                 }
             }
 
             return PuzzleState.NoErrors;
         }
 
-                                     
-        private bool PuzzleHasBeenSolved()
+
+        private bool PuzzleHasBeenSolved => CompletedCellsCount == Cells.Count;
+
+        public bool PuzzleIsEmpty => CompletedCellsCount == 0;
+
+        public bool CompletedCellCountIsValid => Cells.CountOf(cell =>
+                                                    (cell.Origin == Origins.User) ||
+                                                    (cell.Origin == Origins.Trial) ||
+                                                    (cell.Origin == Origins.Calculated)) == CompletedCellsCount;
+
+        private void CopyFrom(PuzzleModel other)
         {
-            PuzzleState state = CheckPuzzleRows(allowEmptyCells: false);
-
-            if (state == PuzzleState.NoErrors)
-            {
-                Cells.Rotated = true;
-                state = CheckPuzzleRows(allowEmptyCells: false);
-                Cells.Rotated = false;
-            }
-
-            return state == PuzzleState.NoErrors;
+            Cells.CopyFrom(other.Cells);
+            CompletedCellsCount = other.CompletedCellsCount;
         }
 
 
@@ -767,14 +772,13 @@ namespace Sudoku.Models
                     (attempt, state, localModel) =>    // body
                     {
                         // either initialise or revert changes from the previous run
-                        for (int index = 0; (index < Cells.Count) && !state.IsStopped; index++)
-                            localModel.Cells[index].CopyFrom(Cells[index], index);
+                        localModel.CopyFrom(this);
 
                         if (!state.IsStopped)
                         {
                             localModel.SetCellValue(attempt.index, attempt.value, Origins.Trial);
 
-                            if (!state.IsStopped && localModel.PuzzleHasBeenSolved())
+                            if (!state.IsStopped && localModel.PuzzleHasBeenSolved)
                             {
                                 if (!state.IsStopped)
                                 {
@@ -783,9 +787,7 @@ namespace Sudoku.Models
                                         if (!state.IsStopped)
                                         {
                                             state.Stop();
-
-                                            for (int index = 0; index < Cells.Count; index++)
-                                                Cells[index].CopyFrom(localModel.Cells[index], index);
+                                            CopyFrom(localModel);
                                         }
                                     }
                                 }
@@ -801,35 +803,31 @@ namespace Sudoku.Models
         }
 #else
 
-        private PuzzleState TryCellPossibles(Cell cell)
-        {
-            BitField temp = cell.Possibles;
-
-            while (!temp.IsEmpty)
-            {
-                int cellValue = temp.First;
-                SetCellValue(cell.Index, cellValue, Origins.Trial);
-
-                if (PuzzleHasBeenSolved())
-                    return PuzzleState.Solved;
-
-                // revert puzzle and clear the possible value
-                SetCellValue(cell.Index, 0, Origins.NotDefined);
-                temp[cellValue] = false;
-            }
-
-            return PuzzleState.CellsRemaining;
-        }
-
-
         private void AttemptSimpleTrialAndError()
         {
+            PuzzleModel? originalModel = null;
+
             foreach (Cell cell in Cells)
             {
                 if (!cell.HasValue && (cell.Possibles.Count == 2))
                 {
-                    if (TryCellPossibles(cell) == PuzzleState.Solved)
-                        break;
+                    if (originalModel is null)
+                        originalModel = new PuzzleModel(this);
+
+                    BitField temp = cell.Possibles;
+
+                    while (!temp.IsEmpty)
+                    {        
+                        int cellValue = temp.First;
+                        SetCellValue(cell.Index, cellValue, Origins.Trial);
+
+                        if (PuzzleHasBeenSolved)
+                            return;
+
+                        // revert puzzle and clear the possible value
+                        CopyFrom(originalModel);
+                        temp[cellValue] = false;
+                    }
                 }
             }
         }
@@ -851,11 +849,12 @@ namespace Sudoku.Models
                     else
                         cell.Reset(); 
                 }
+
+                CompletedCellsCount = 0;
             }
 
             do
             {
-
                 while (cellsToUpdate.Count > 0)
                 {
                     Cell cell = cellsToUpdate.Pop();
@@ -866,6 +865,7 @@ namespace Sudoku.Models
                         cell.Origin = Origins.Calculated;
                     }
 
+                    CompletedCellsCount += 1;
                     SimpleEliminationForCell(cell, cellsToUpdate);
                 }
 
