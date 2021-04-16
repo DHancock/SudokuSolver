@@ -58,7 +58,7 @@ namespace Sudoku.Models
         public void CopyFrom(CellList other)
         {
             for (int index = 0; index < cLength; index++)
-                cells[index].CopyFrom(other.cells[index], index);
+                cells[index].CopyFrom(other.cells[index]);
         }
 
 

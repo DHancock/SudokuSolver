@@ -27,7 +27,7 @@ namespace Sudoku.ViewModels
             Cell temp = TempStore;
             TempStore = this[index];
 
-            temp.CopyFrom(modelCell, index);
+            temp.CopyFrom(modelCell);
 
             this[index] = temp;
         }

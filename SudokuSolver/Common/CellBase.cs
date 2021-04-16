@@ -27,7 +27,7 @@ namespace Sudoku.Common
 
         public CellBase(CellBase source)
         {
-            CopyFrom(source, source.Index);
+            CopyFrom(source);
         }
         
 
@@ -41,13 +41,13 @@ namespace Sudoku.Common
         public bool HasValue => Value > 0;
 
 
-        public void CopyFrom(CellBase source, int newIndex)
+        public void CopyFrom(CellBase source)
         {
-            Index = newIndex;
+            Index = source.Index;
             Origin = source.Origin;
 
             if (source.HasValue)
-                cellValue = source.Value;  
+                cellValue = source.Value;
             else
             {
                 cellValue = 0;
@@ -75,14 +75,8 @@ namespace Sudoku.Common
             return false;
         }
 
-        public override bool Equals(object? obj)
-        {
-            return Equals(obj as CellBase);
-        }
+        public override bool Equals(object? obj) => Equals(obj as CellBase);
 
-        public override int GetHashCode()
-        {
-            throw new NotImplementedException();
-        }
+        public override int GetHashCode() => throw new NotImplementedException();
     }
 }
