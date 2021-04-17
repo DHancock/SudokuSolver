@@ -149,6 +149,17 @@ namespace Sudoku.Models
         }
 
 
+        public IEnumerable<Cell> Cube(int cubex, int cubey)
+        {
+            int startX = cubex * 3;
+            int startY = cubey * 3;
+
+            for (int y = 0; y < 3; y++)
+            {
+                for (int x = 0; x < 3; x++)
+                    yield return this[startX + x, startY + y];
+            }
+        }
 
         // a cube has 9 values minus one - the source cell 
         // a row has a further 6 to the left or right of the cube
@@ -160,19 +171,12 @@ namespace Sudoku.Models
             int column = sourceCellIndex % 9;
             int cubey = row / 3;
             int cubex = column / 3;
-            int startX = cubex * 3;
-            int startY = cubey * 3;
 
             // the cube minus the source cell
-            for (int y = 0; y < 3; y++)
+            foreach (Cell cell in Cube(cubex, cubey))
             {
-                for (int x = 0; x < 3; x++)
-                {
-                    Cell cell = this[startX + x, startY + y];
-
-                    if (cell.Index != sourceCellIndex)
-                        yield return cell;
-                }
+                if (cell.Index != sourceCellIndex)
+                    yield return cell;
             }
 
             // the row apart from cells already in the cube

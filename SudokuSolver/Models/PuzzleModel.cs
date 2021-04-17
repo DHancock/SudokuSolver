@@ -661,26 +661,23 @@ namespace Sudoku.Models
         }
 
 
-        private enum PuzzleState { NoErrors, CellsRemaining, CellsInError, Solved }
-
-
         private bool PuzzleIsErrorFree()
         {
-            PuzzleState state = CheckPuzzleRows();
-
-            if (state == PuzzleState.NoErrors)
+            if (CheckRowsAreErrorFree())
             {
                 Cells.Rotated = true;
-                state = CheckPuzzleRows();
+                bool errorFree = CheckRowsAreErrorFree();
                 Cells.Rotated = false;
+
+                if (errorFree)
+                    return CheckCubesAreErrorFree();
             }
 
-            // TODO: should really check that values in the cubes are unique as well
-            return state == PuzzleState.NoErrors;
+            return false;
         }
 
 
-        private PuzzleState CheckPuzzleRows()
+        private bool CheckRowsAreErrorFree()
         {
             for (int row = 0; row < 9; row++)
             {
@@ -690,17 +687,36 @@ namespace Sudoku.Models
                 {
                     if (cell.HasValue)
                     {
-                        int value = cell.Value;
+                        if (temp[cell.Value])
+                            return false;  // found a duplicate
 
-                        if (temp[value])
-                            return PuzzleState.CellsInError;  // found a duplicate
-
-                        temp[value] = true;
+                        temp[cell.Value] = true;
                     }
                 }
             }
 
-            return PuzzleState.NoErrors;
+            return true;
+        }
+
+        private bool CheckCubesAreErrorFree()
+        {
+            for (int cube = 0; cube < 9; cube++)
+            {
+                BitField temp = new BitField();
+
+                foreach (Cell cell in Cells.Cube(cube % 3, cube / 3))
+                {
+                    if (cell.HasValue)
+                    {
+                        if (temp[cell.Value])
+                            return false;  // found a duplicate
+
+                        temp[cell.Value] = true;
+                    }
+                }
+            }
+            
+            return true;
         }
 
 
@@ -778,7 +794,7 @@ namespace Sudoku.Models
                         {
                             localModel.SetCellValue(attempt.index, attempt.value, Origins.Trial);
 
-                            if (!state.IsStopped && localModel.PuzzleHasBeenSolved)
+                            if (!state.IsStopped && localModel.PuzzleHasBeenSolved && localModel.PuzzleIsErrorFree())
                             {
                                 if (!state.IsStopped)
                                 {
@@ -821,7 +837,7 @@ namespace Sudoku.Models
                         int cellValue = temp.First;
                         SetCellValue(cell.Index, cellValue, Origins.Trial);
 
-                        if (PuzzleHasBeenSolved)
+                        if (PuzzleHasBeenSolved && PuzzleIsErrorFree())
                             return;
 
                         // revert puzzle and clear the possible value
