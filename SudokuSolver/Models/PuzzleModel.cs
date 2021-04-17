@@ -720,7 +720,7 @@ namespace Sudoku.Models
         }
 
 
-        private bool PuzzleHasBeenSolved => CompletedCellsCount == Cells.Count;
+        private bool PuzzleIsComplete => CompletedCellsCount == Cells.Count;
 
         public bool PuzzleIsEmpty => CompletedCellsCount == 0;
 
@@ -794,7 +794,7 @@ namespace Sudoku.Models
                         {
                             localModel.SetCellValue(attempt.index, attempt.value, Origins.Trial);
 
-                            if (!state.IsStopped && localModel.PuzzleHasBeenSolved && localModel.PuzzleIsErrorFree())
+                            if (!state.IsStopped && localModel.PuzzleIsComplete && localModel.PuzzleIsErrorFree())
                             {
                                 if (!state.IsStopped)
                                 {
@@ -837,7 +837,7 @@ namespace Sudoku.Models
                         int cellValue = temp.First;
                         SetCellValue(cell.Index, cellValue, Origins.Trial);
 
-                        if (PuzzleHasBeenSolved && PuzzleIsErrorFree())
+                        if (PuzzleIsComplete && PuzzleIsErrorFree())
                             return;
 
                         // revert puzzle and clear the possible value
