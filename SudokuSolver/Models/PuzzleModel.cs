@@ -681,18 +681,8 @@ namespace Sudoku.Models
         {
             for (int row = 0; row < 9; row++)
             {
-                BitField temp = new BitField();
-
-                foreach (Cell cell in Cells.Row(row))
-                {
-                    if (cell.HasValue)
-                    {
-                        if (temp[cell.Value])
-                            return false;  // found a duplicate
-
-                        temp[cell.Value] = true;
-                    }
-                }
+                if (!CellValuesAreUnique(Cells.Row(row)))
+                    return false;
             }
 
             return true;
@@ -702,20 +692,28 @@ namespace Sudoku.Models
         {
             for (int cube = 0; cube < 9; cube++)
             {
-                BitField temp = new BitField();
-
-                foreach (Cell cell in Cells.Cube(cube % 3, cube / 3))
-                {
-                    if (cell.HasValue)
-                    {
-                        if (temp[cell.Value])
-                            return false;  // found a duplicate
-
-                        temp[cell.Value] = true;
-                    }
-                }
+                if (!CellValuesAreUnique(Cells.Cube(cube % 3, cube / 3)))
+                    return false;
             }
             
+            return true;
+        }
+
+        private static bool CellValuesAreUnique(IEnumerable<Cell> cells)
+        {
+            BitField temp = new BitField();
+
+            foreach (Cell cell in cells)
+            {
+                if (cell.HasValue)
+                {
+                    if (temp[cell.Value])
+                        return false;  // found a duplicate
+
+                    temp[cell.Value] = true;
+                }
+            }
+
             return true;
         }
 
