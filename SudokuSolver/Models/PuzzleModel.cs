@@ -904,7 +904,7 @@ namespace Sudoku.Models
             if (other is null)
                 return false;
 
-            return Cells.Equals(other.Cells);
+            return (CompletedCellsCount == other.CompletedCellsCount) && Cells.Equals(other.Cells);
         }
 
         public override bool Equals(object? obj) => Equals(obj as PuzzleModel);
