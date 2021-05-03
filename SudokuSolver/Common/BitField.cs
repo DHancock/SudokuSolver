@@ -1,23 +1,27 @@
 ﻿using System;
 using System.Diagnostics;
 
+#nullable enable
+
 namespace Sudoku.Common
 {
 
     [DebuggerTypeProxy(typeof(BitFieldDebugProxy))]
     internal struct BitField
     {
-        private const uint cSpan = 0x03FE;   // cell values range from 1 to 9
+        private const int cMinIndex = 1;    // cell values range from 1 to 9
+        private const int cMaxIndex = 9;
 
-        private uint data;
+        private const nuint cSpan = 0b_0000_0011_1111_1110;   
 
+        private nuint data;
 
         public BitField(bool toSpan)
         {
-            data = toSpan ? cSpan : 0U;
+            data = toSpan ? cSpan : 0;
         }
 
-        private BitField(uint value)
+        private BitField(nuint value)
         {
             data = value;
         }
@@ -30,19 +34,19 @@ namespace Sudoku.Common
         {
             get
             {
-                Debug.Assert((bit > 0) && (bit < 10));
+                Debug.Assert((bit >= cMinIndex) && (bit <= cMaxIndex));
 
-                return (data & (1U << bit)) > 0;
+                return (data & ((nuint)1 << bit)) > 0;
             }
 
             set
             {
-                Debug.Assert((bit > 0) && (bit < 10));
+                Debug.Assert((bit >= cMinIndex) && (bit <= cMaxIndex));
 
                 if (value)
-                    data |= 1U << bit;
+                    data |= (nuint)1 << bit;
                 else
-                    data &= ~(1U << bit);
+                    data &= ~((nuint)1 << bit);
             }
         }
 
@@ -50,11 +54,11 @@ namespace Sudoku.Common
 
         public void SetAllTo(bool toSpan)
         {
-            data = toSpan ? cSpan : 0U;
+            data = toSpan ? cSpan : 0;
         }
 
 
-        public bool IsEmpty => data == 0U;
+        public bool IsEmpty => data == 0;
 
 
 
@@ -62,7 +66,7 @@ namespace Sudoku.Common
         {
             get
             {
-                uint mask = 2;
+                nuint mask = 2;
                 int index = 1;
 
                 if (data != 0)
@@ -86,12 +90,12 @@ namespace Sudoku.Common
         {
             get
             {
-                uint temp = data >> 1;
+                nuint temp = data >> 1;
                 int count = 0;
 
-                while (temp != 0U)
+                while (temp != 0)
                 {
-                    if ((temp & 1U) != 0)
+                    if ((temp & 1) != 0)
                         ++count;
 
                     temp >>= 1;
@@ -136,7 +140,7 @@ namespace Sudoku.Common
             return false;
         }
 
-        public override int GetHashCode() => HashCode.Combine<uint>(data);
+        public override int GetHashCode() => HashCode.Combine(data);
 
 
 
@@ -153,15 +157,10 @@ namespace Sudoku.Common
             {
                 get
                 {
-                    return string.Create(9, a, (Span<char> chars, BitField state) =>
+                    return string.Create(cMaxIndex - cMinIndex + 1, a, (Span<char> chars, BitField state) =>
                     {
-                        for (int i = 0; i < chars.Length; i++)
-                        {
-                            if (state[i + 1])
-                                chars[i] = (char)(i + '1');
-                            else
-                                chars[i] = '-';
-                        }
+                        for (int i = cMinIndex; i <= cMaxIndex; i++)
+                            chars[i - cMinIndex] = state[i] ? (char)((i % 10) + '0') : '-' ;
                     });
                 }
             }
