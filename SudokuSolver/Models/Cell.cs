@@ -23,9 +23,9 @@ namespace Sudoku.Models
         {
             Origin = Origins.NotDefined;
             Value = 0;
-            Possibles.SetAllTo(true);
-            HorizontalDirections.SetAllTo(false);
-            VerticalDirections.SetAllTo(false);
+            Possibles = BitField.AllTrue;
+            HorizontalDirections = BitField.Empty;
+            VerticalDirections = BitField.Empty;
         }
 
         public bool Equals(Cell? other)
