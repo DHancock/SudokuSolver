@@ -50,17 +50,10 @@ namespace Sudoku.Common
             }
         }
 
-
-
-        public void SetAllTo(bool toSpan)
-        {
-            data = toSpan ? cSpan : 0;
-        }
-
+        public static readonly BitField AllTrue = new BitField(cSpan);
+        public static readonly BitField Empty = new BitField(0);
 
         public bool IsEmpty => data == 0;
-
-
 
         public int First
         {
@@ -84,8 +77,6 @@ namespace Sudoku.Common
             }
         }
 
-
-
         public int Count
         {
             get
@@ -104,7 +95,6 @@ namespace Sudoku.Common
                 return count;
             }
         }
-
 
         public static bool operator ==(BitField a, BitField b)
         {
@@ -128,9 +118,8 @@ namespace Sudoku.Common
 
         public static BitField operator !(BitField a)
         {
-            return new BitField((~a.data) & cSpan);
+            return new BitField(~a.data & cSpan);
         }
-
 
         public override bool Equals(object? obj)
         {
@@ -141,7 +130,6 @@ namespace Sudoku.Common
         }
 
         public override int GetHashCode() => HashCode.Combine(data);
-
 
 
         private sealed class BitFieldDebugProxy

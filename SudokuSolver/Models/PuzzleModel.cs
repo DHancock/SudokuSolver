@@ -494,7 +494,7 @@ namespace Sudoku.Models
 
                         if (cell.Possibles.Count > 1)  // only push once
                         {
-                            cell.Possibles.SetAllTo(false);
+                            cell.Possibles = BitField.Empty;
                             cell.Possibles[index] = true;
 
                             cellsToUpdate.Push(cell);
