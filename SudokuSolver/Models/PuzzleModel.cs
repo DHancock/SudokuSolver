@@ -548,7 +548,7 @@ namespace Sudoku.Models
 
             for (int cubey = 0; cubey < 3; cubey++)  // horizontal rows of 3 cubes
             {
-                BitField temp = new BitField(true);
+                BitField temp = BitField.AllTrue;
                 BitField[,] possibles = new BitField[3, 3];
 
                 for (int cubex = 0; cubex < 3; cubex++) //  cube in row

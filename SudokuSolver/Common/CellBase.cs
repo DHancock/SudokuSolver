@@ -10,11 +10,9 @@ namespace Sudoku.Common
 
         public int Index { get; protected set; }
 
-        public BitField Possibles = new BitField(true);
-
-        public BitField HorizontalDirections = new BitField();
-
-        public BitField VerticalDirections = new BitField();
+        public BitField Possibles = BitField.AllTrue;
+        public BitField HorizontalDirections = BitField.Empty;
+        public BitField VerticalDirections = BitField.Empty;
 
         public Origins Origin { get; set; } = Origins.NotDefined;
 

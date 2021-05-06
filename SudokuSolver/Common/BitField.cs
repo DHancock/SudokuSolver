@@ -7,7 +7,7 @@ namespace Sudoku.Common
 {
 
     [DebuggerTypeProxy(typeof(BitFieldDebugProxy))]
-    internal struct BitField
+    internal struct BitField : IEquatable<BitField>
     {
         private const int cMinIndex = 1;    // cell values range from 1 to 9
         private const int cMaxIndex = 9;
@@ -16,16 +16,13 @@ namespace Sudoku.Common
 
         private nuint data;
 
-        public BitField(bool toSpan)
-        {
-            data = toSpan ? cSpan : 0;
-        }
+        public static readonly BitField AllTrue = new BitField(cSpan);
+        public static readonly BitField Empty = new BitField(0);
 
         private BitField(nuint value)
         {
             data = value;
         }
-
 
         // In a classic BitField implementation the indexer is a mask allowing
         // multiple bits to be set or tested. Here it refers to the bit number
@@ -50,9 +47,6 @@ namespace Sudoku.Common
             }
         }
 
-        public static readonly BitField AllTrue = new BitField(cSpan);
-        public static readonly BitField Empty = new BitField(0);
-
         public bool IsEmpty => data == 0;
 
         public int First
@@ -73,7 +67,8 @@ namespace Sudoku.Common
                     return index;
                 }
 
-                return 0;
+                // this property isn't FirstOrDefault
+                throw new InvalidOperationException();
             }
         }
 
@@ -127,6 +122,11 @@ namespace Sudoku.Common
                 return this == a;
 
             return false;
+        }
+
+        public bool Equals(BitField other)
+        {
+            return data == other.data;
         }
 
         public override int GetHashCode() => HashCode.Combine(data);
