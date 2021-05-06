@@ -59,7 +59,7 @@ namespace Sudoku.Themes
             // a theme resource from the children of the item containing these resources.
             private static void RemoveExistingTheme(ResourceDictionary resources)
             {
-                Debug.Assert(resources.MergedDictionaries.CountOf(rd => rd.Contains(cUID_Key)) <= 1);
+                Debug.Assert(resources.MergedDictionaries.Count(rd => rd.Contains(cUID_Key)) <= 1);
 
                 ResourceDictionary? theme = resources.MergedDictionaries.FirstOrDefault(rd => rd.Contains(cUID_Key)) ;
                 
