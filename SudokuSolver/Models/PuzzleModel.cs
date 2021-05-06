@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Xml.Linq;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
 
@@ -585,21 +586,21 @@ namespace Sudoku.Models
                             int cubex = 0;
                             int skipRow = 0;
 
-                            if (patterns.CountOf(Pattern.Lower2) == 2)
+                            if (patterns.Count(item => item == Pattern.Lower2) == 2)
                             {
                                 // remove the cell value from possibles of lower 2 rows of the other cube
                                 foundPattern = true;
                                 cubex = patterns.FindIndex(item => item != Pattern.Lower2);
                                 skipRow = 0;
                             }
-                            else if (patterns.CountOf(Pattern.Upper2) == 2)
+                            else if (patterns.Count(item => item == Pattern.Upper2) == 2)
                             {
                                 // remove the cell value from possibles of upper 2 rows of the other cube
                                 foundPattern = true;
                                 cubex = patterns.FindIndex(item => item != Pattern.Upper2);
                                 skipRow = 2;
                             }
-                            else if (patterns.CountOf(Pattern.TopAndBottom) == 2)
+                            else if (patterns.Count(item => item == Pattern.TopAndBottom) == 2)
                             {
                                 // remove the cell value from possibles of the top and bottom rows of the other cube
                                 foundPattern = true;
@@ -722,7 +723,7 @@ namespace Sudoku.Models
 
         public bool PuzzleIsEmpty => CompletedCellsCount == 0;
 
-        public bool CompletedCellCountIsValid => Cells.CountOf(cell =>
+        public bool CompletedCellCountIsValid => Cells.Count(cell =>
                                                     (cell.Origin == Origins.User) ||
                                                     (cell.Origin == Origins.Trial) ||
                                                     (cell.Origin == Origins.Calculated)) == CompletedCellsCount;
