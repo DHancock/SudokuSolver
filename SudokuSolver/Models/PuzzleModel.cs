@@ -763,10 +763,10 @@ namespace Sudoku.Models
                 if (!cell.HasValue && (cell.Possibles.Count == 2))
                 {
                     BitField temp = cell.Possibles;
-        
-                    while (!temp.IsEmpty)
+                    int value;
+
+                    while ((value = temp.First) > 0)
                     {
-                        int value = temp.First;
                         attempts.Add((cell.Index, value));
                         temp[value] = false;
                     }
@@ -830,18 +830,18 @@ namespace Sudoku.Models
                         originalModel = new PuzzleModel(this);
 
                     BitField temp = cell.Possibles;
+                    int value;
 
-                    while (!temp.IsEmpty)
+                    while ((value = temp.First) > 0)
                     {        
-                        int cellValue = temp.First;
-                        SetCellValue(cell.Index, cellValue, Origins.Trial);
+                        SetCellValue(cell.Index, value, Origins.Trial);
 
                         if (PuzzleIsComplete && PuzzleIsErrorFree())
                             return;
 
                         // revert puzzle and clear the possible value
                         CopyFrom(originalModel);
-                        temp[cellValue] = false;
+                        temp[value] = false;
                     }
                 }
             }

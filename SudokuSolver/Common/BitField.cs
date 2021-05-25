@@ -53,11 +53,11 @@ namespace Sudoku.Common
         {
             get
             {
-                nuint mask = 2;
-                int index = 1;
-
                 if (data != 0)
                 {
+                    nuint mask = 2;
+                    int index = 1;
+
                     while ((data & mask) == 0)
                     {
                         index++;
@@ -67,8 +67,7 @@ namespace Sudoku.Common
                     return index;
                 }
 
-                // this property isn't FirstOrDefault
-                throw new InvalidOperationException();
+                return -1;
             }
         }
 
