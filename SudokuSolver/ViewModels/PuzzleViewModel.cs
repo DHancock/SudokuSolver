@@ -16,6 +16,7 @@ namespace Sudoku.ViewModels
         private bool showPossibles = false;
         private bool darkThemed = false;
         private bool accentTitleBar = false;
+        private bool showSolution = true;
 
         private PuzzleModel Model { get; }
         public CellList Cells { get; }
@@ -142,7 +143,6 @@ namespace Sudoku.ViewModels
             UpdateView();
         }
 
-
         public bool ShowPossibles
         {                                                        
             get => showPossibles;
@@ -151,11 +151,10 @@ namespace Sudoku.ViewModels
                 if (value != showPossibles)
                 {
                     showPossibles = value;
-                    NotifyPropertyChanged();
+                    NotifyPropertyChanged();  // a style trigger updates the ui
                 }
             }
         }
-
         
         public bool DarkThemed
         {
@@ -184,6 +183,28 @@ namespace Sudoku.ViewModels
             }
         }
 
+        public bool ShowSolution
+        {
+            get => showSolution;
+            set
+            {
+                if (value != showSolution)
+                {
+                    showSolution = value;
+                    NotifyPropertyChanged();
+                    UpdateViewForShowSolutionStateChange();
+                }
+            }
+        }
+
+        private void UpdateViewForShowSolutionStateChange()
+        {
+            foreach (Models.Cell cell in Model.Cells)
+            {
+                if ((cell.Origin == Origins.Calculated) || (cell.Origin == Origins.Trial))
+                    Cells.UpdateCell(cell);
+            }
+        }
 
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
         {
