@@ -88,8 +88,11 @@ namespace Sudoku.Views
 
             if (data.HasValue)
             {
-                cell.CellValue.Text = sLookUp[data.Value];
-                
+                if (((ViewModels.PuzzleViewModel)cell.DataContext).ShowSolution || (data.Origin == Origins.User))
+                    cell.CellValue.Text = sLookUp[data.Value];
+                else
+                    cell.CellValue.Text = string.Empty;
+
                 foreach (TextBlock tb in cell.PossibleTBs)
                     tb.Text = string.Empty;
             }

@@ -67,6 +67,7 @@
             </MenuItem>
             <MenuItem Header="_Options">
                 <MenuItem Header="_Show possibles" IsCheckable="True" IsChecked="{Binding ShowPossibles}"/>
+                <MenuItem Header="S_how solution" IsCheckable="True" IsChecked="{Binding ShowSolution}"/>
                 <Separator />
                 <MenuItem Header="_Dark mode" IsCheckable="True" IsChecked="{Binding DarkThemed, Mode=OneWay}" Checked="DarkThemeCheckedHandler" Unchecked="DarkThemeUncheckedHandler"/>
             </MenuItem>
