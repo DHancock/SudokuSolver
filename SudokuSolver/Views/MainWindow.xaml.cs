@@ -74,11 +74,11 @@ namespace Sudoku.Views
 
             if (printDialog.ShowDialog() == true)
             {
-                const double cMarginsPercentage = 6.25;
+                const double cPaddingPercentage = 6.25;
 
                 PuzzleView puzzleView = new PuzzleView
                 {
-                    Padding = new Thickness(Math.Min(printDialog.PrintableAreaHeight, printDialog.PrintableAreaWidth) * (cMarginsPercentage / 100D)),
+                    Padding = new Thickness(Math.Min(printDialog.PrintableAreaHeight, printDialog.PrintableAreaWidth) * (cPaddingPercentage / 100D)),
                     DataContext = this.DataContext
                 };
 
