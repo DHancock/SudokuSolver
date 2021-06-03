@@ -112,14 +112,14 @@ namespace Sudoku.Models
                 {
                     int index = x + (y * 9);
 
-                    if (ValidateNewCellValue(index, value))
-                        SetCellValue(index, value, Origins.User);
+                    Cells[index].Value = value;
+                    Cells[index].Origin = Origins.User;
                 }
             }
 
+            CalculatePossibleValues(Cells[0], forceRecalculation: true);
             AttemptSimpleTrialAndError();
         }
-
 
         private void OpenVersion_1(XDocument document)
         {
@@ -132,14 +132,14 @@ namespace Sudoku.Models
                 {
                     int index = x + (y * 9);
 
-                    if (ValidateNewCellValue(index, value))
-                        SetCellValue(index, value, Origins.User);
+                    Cells[index].Value = value;
+                    Cells[index].Origin = Origins.User;
                 }
             }
 
+            CalculatePossibleValues(Cells[0], forceRecalculation: true);
             AttemptSimpleTrialAndError();
         }
-
 
         public bool Add(int index, int newValue)
         {
