@@ -3,8 +3,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 
-using Sudoku.Common;
-
 #nullable enable
 
 namespace Sudoku.Themes
