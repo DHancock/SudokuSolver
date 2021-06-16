@@ -22,6 +22,7 @@
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <DebugType>embedded</DebugType>
   </PropertyGroup>
 
   <ItemGroup>
