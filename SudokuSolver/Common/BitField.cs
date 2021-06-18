@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Numerics;
 
 #nullable enable
 
@@ -31,14 +32,14 @@ namespace Sudoku.Common
         {
             get
             {
-                Debug.Assert((bit >= cMinIndex) && (bit <= cMaxIndex));
+                Debug.Assert(bit is >= cMinIndex and <= cMaxIndex);
 
                 return (data & ((nuint)1 << bit)) > 0;
             }
 
             set
             {
-                Debug.Assert((bit >= cMinIndex) && (bit <= cMaxIndex));
+                Debug.Assert(bit is >= cMinIndex and <= cMaxIndex);
 
                 if (value)
                     data |= (nuint)1 << bit;
@@ -49,46 +50,10 @@ namespace Sudoku.Common
 
         public bool IsEmpty => data == 0;
 
-        public int First
-        {
-            get
-            {
-                if (data != 0)
-                {
-                    nuint mask = 2;
-                    int index = 1;
+        public int First => (data > 0) ? BitOperations.TrailingZeroCount(data) : -1;
 
-                    while ((data & mask) == 0)
-                    {
-                        index++;
-                        mask <<= 1;
-                    }
+        public int Count => BitOperations.PopCount(data);
 
-                    return index;
-                }
-
-                return -1;
-            }
-        }
-
-        public int Count
-        {
-            get
-            {
-                nuint temp = data >> 1;
-                int count = 0;
-
-                while (temp != 0)
-                {
-                    if ((temp & 1) != 0)
-                        ++count;
-
-                    temp >>= 1;
-                }
-
-                return count;
-            }
-        }
 
         public static bool operator ==(BitField a, BitField b)
         {
