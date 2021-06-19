@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
 
@@ -10,10 +11,7 @@ namespace Sudoku.Common
     [DebuggerTypeProxy(typeof(BitFieldDebugProxy))]
     internal struct BitField : IEquatable<BitField>
     {
-        private const int cMinIndex = 1;    // cell values range from 1 to 9
-        private const int cMaxIndex = 9;
-
-        private const nuint cSpan = 0b_0000_0011_1111_1110;   
+        private const nuint cSpan = 0b_0000_0011_1111_1110;
 
         private nuint data;
 
@@ -32,14 +30,14 @@ namespace Sudoku.Common
         {
             get
             {
-                Debug.Assert(bit is >= cMinIndex and <= cMaxIndex);
+                Debug.Assert((cSpan | ((nuint)1 << bit)) == cSpan);
 
                 return (data & ((nuint)1 << bit)) > 0;
             }
 
             set
             {
-                Debug.Assert(bit is >= cMinIndex and <= cMaxIndex);
+                Debug.Assert((cSpan | ((nuint)1 << bit)) == cSpan);
 
                 if (value)
                     data |= (nuint)1 << bit;
@@ -98,7 +96,7 @@ namespace Sudoku.Common
 
         private sealed class BitFieldDebugProxy
         {
-            private BitField a;
+            private readonly BitField a;
 
             public BitFieldDebugProxy(BitField bitfield)
             {
@@ -109,10 +107,26 @@ namespace Sudoku.Common
             {
                 get
                 {
-                    return string.Create(cMaxIndex - cMinIndex + 1, a, (Span<char> chars, BitField state) =>
+                    List<char> chars = new(64);
+                    nuint bits = cSpan;
+
+                    while (bits > 0)
                     {
-                        for (int i = cMinIndex; i <= cMaxIndex; i++)
-                            chars[i - cMinIndex] = state[i] ? (char)((i % 10) + '0') : '-' ;
+                        if ((bits & 1) > 0)
+                            chars.Add(a[chars.Count] ? (char)((chars.Count % 10) + '0') : '-');
+                        else
+                            chars.Add('.');   // it's not in cSpan
+
+                        bits >>= 1;
+                    }
+
+                    return string.Create(chars.Count, chars, (Span<char> charSpan, List<char> state) =>
+                    {
+                        int readIndex = 0;
+                        int writeIndex = state.Count;
+
+                        while (writeIndex > 0)
+                            charSpan[--writeIndex] = state[readIndex++];
                     });
                 }
             }
