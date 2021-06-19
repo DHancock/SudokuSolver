@@ -107,7 +107,7 @@ namespace Sudoku.Common
             {
                 get
                 {
-                    List<char> chars = new();
+                    List<char> chars = new(64);
                     nuint bits = cSpan;
 
                     while (bits > 0)
