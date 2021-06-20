@@ -73,7 +73,7 @@ namespace Sudoku.Common
             return new BitField(a.data | b.data);
         }
 
-        public static BitField operator !(BitField a)
+        public static BitField operator ~(BitField a)
         {
             return new BitField(~a.data & cSpan);
         }
@@ -107,7 +107,7 @@ namespace Sudoku.Common
             {
                 get
                 {
-                    List<char> chars = new(64);
+                    List<char> chars = new();
                     nuint bits = cSpan;
 
                     while (bits > 0)

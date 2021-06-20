@@ -346,7 +346,7 @@ namespace Sudoku.Models
             {
                 // possible values that are exclusive to this column
                 if (!cell.HasValue)
-                    cell.VerticalDirections = cell.Possibles & !(columnA | columnB);
+                    cell.VerticalDirections = cell.Possibles & ~(columnA | columnB);
             }
         }
 
@@ -357,7 +357,7 @@ namespace Sudoku.Models
             {
                 // possible values that are exclusive to this row
                 if (!cell.HasValue)
-                    cell.HorizontalDirections = cell.Possibles & !(rowA | rowB);
+                    cell.HorizontalDirections = cell.Possibles & ~(rowA | rowB);
             }
         }
 
@@ -387,7 +387,7 @@ namespace Sudoku.Models
 
                     if (!directions.IsEmpty) // update the cells that are not in the cube
                     {
-                        BitField mask = !directions;
+                        BitField mask = ~directions;
 
                         foreach (Cell cell in Cells.RowMinus(cube, y))
                         {
