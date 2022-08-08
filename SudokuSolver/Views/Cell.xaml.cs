@@ -5,16 +5,13 @@ namespace Sudoku.Views;
 /// <summary>
 /// Interaction logic for Cell.xaml
 /// </summary>
-internal sealed partial class Cell : UserControl //, INotifyPropertyChanged
+internal sealed partial class Cell : UserControl
 {
     private static readonly string[] sLookUp = new[] { string.Empty, "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    private TextBlock[] PossibleTBs { get; }
+    private readonly TextBlock[] possibleTBs;
 
     private Origins origin = Origins.NotDefined;
-
 
 
     public Cell()
@@ -28,7 +25,7 @@ internal sealed partial class Cell : UserControl //, INotifyPropertyChanged
 
         LosingFocus += Cell_LosingFocus;
 
-        PossibleTBs = new TextBlock[9] { PossibleValue0, PossibleValue1, PossibleValue2, PossibleValue3, PossibleValue4, PossibleValue5, PossibleValue6, PossibleValue7, PossibleValue8 };
+        possibleTBs = new TextBlock[9] { PossibleValue0, PossibleValue1, PossibleValue2, PossibleValue3, PossibleValue4, PossibleValue5, PossibleValue6, PossibleValue7, PossibleValue8 };
     }
 
 
@@ -62,8 +59,7 @@ internal sealed partial class Cell : UserControl //, INotifyPropertyChanged
         Debug.Assert(stateFound);
     }
 
-    // the cell value origin notification is for a data trigger that controls 
-    // properties of the displayed cell
+    // the origin of this cell's value, be it user entered, calculated etc.
     public Origins Origin
     {
         get => origin;
@@ -74,19 +70,13 @@ internal sealed partial class Cell : UserControl //, INotifyPropertyChanged
             {
                 origin = value;
 
-                if (origin != Origins.NotDefined)
+                if (origin != Origins.NotDefined) // cell isn't empty
                 {
                     bool stateFound = VisualStateManager.GoToState(this, origin.ToString(), false);
                     Debug.Assert(stateFound);
                 }
             }
         }
-    }
-
-
-    private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
 
@@ -118,7 +108,7 @@ internal sealed partial class Cell : UserControl //, INotifyPropertyChanged
             else
                 cell.CellValue.Text = string.Empty;
 
-            foreach (TextBlock tb in cell.PossibleTBs)
+            foreach (TextBlock tb in cell.possibleTBs)
                 tb.Text = string.Empty;
         }
         else
@@ -131,8 +121,12 @@ internal sealed partial class Cell : UserControl //, INotifyPropertyChanged
             {
                 if (data.Possibles[i])
                 {
-                    TextBlock tb = cell.PossibleTBs[writeIndex++];
+                    TextBlock tb = cell.possibleTBs[writeIndex++];
                     tb.Text = sLookUp[i];
+
+                    // TODO:
+                    // change the colours using a visual state?
+                    // debug only?
 
                     if (data.VerticalDirections[i])
                         tb.Foreground = new SolidColorBrush(Colors.Green);
@@ -144,7 +138,7 @@ internal sealed partial class Cell : UserControl //, INotifyPropertyChanged
             }
 
             while (writeIndex < 9)
-                cell.PossibleTBs[writeIndex++].Text = string.Empty;
+                cell.possibleTBs[writeIndex++].Text = string.Empty;
         }
     }
 
@@ -169,7 +163,5 @@ internal sealed partial class Cell : UserControl //, INotifyPropertyChanged
         {
             Data.Value = 0;
         }
-
-        e.Handled = true;
     }
 }
