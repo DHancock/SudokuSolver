@@ -3,7 +3,7 @@
 namespace Sudoku.Models;
 
 [DebuggerDisplay("[{Index  % 9}, {Index / 9}] value = {Value}, origin = {Origin}")]
-internal sealed class Cell : CellBase, IEquatable<Cell>
+internal sealed class Cell : CellBase
 {
     public Cell(int index) : base(index)
     {
@@ -21,13 +21,4 @@ internal sealed class Cell : CellBase, IEquatable<Cell>
         HorizontalDirections = BitField.Empty;
         VerticalDirections = BitField.Empty;
     }
-
-    public bool Equals(Cell? other)
-    {
-        return base.Equals(other);
-    }
-
-    public override bool Equals(object? obj) => Equals(obj as Cell);
-
-    public override int GetHashCode() => throw new NotImplementedException();
 }

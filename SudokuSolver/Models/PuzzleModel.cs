@@ -2,7 +2,7 @@
 
 namespace Sudoku.Models;
 
-internal sealed class PuzzleModel : IEquatable<PuzzleModel>
+internal sealed class PuzzleModel
 {
     private static class Cx
     {
@@ -888,16 +888,4 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
         }
         while (cellsToUpdate.Count > 0);
     }
-
-    public bool Equals(PuzzleModel? other)
-    {
-        if (other is null)
-            return false;
-
-        return (CompletedCellsCount == other.CompletedCellsCount) && Cells.Equals(other.Cells);
-    }
-
-    public override bool Equals(object? obj) => Equals(obj as PuzzleModel);
-
-    public override int GetHashCode() => throw new NotImplementedException();
 }

@@ -1,6 +1,6 @@
 ﻿namespace Sudoku.Models;
 
-internal sealed class CellList : IReadOnlyList<Cell>, IEquatable<CellList>
+internal sealed class CellList : IReadOnlyList<Cell>
 {
     private const int cLength = 81;
 
@@ -190,16 +190,4 @@ internal sealed class CellList : IReadOnlyList<Cell>, IEquatable<CellList>
     IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
     public int Count => cLength;
-
-    public bool Equals(CellList? other)
-    {
-        if (other is null)
-            return false;
-
-        return cells.AsSpan().SequenceEqual(other.cells);
-    }
-
-    public override bool Equals(object? obj) => Equals(obj as CellList);
-
-    public override int GetHashCode() => throw new NotImplementedException();
 }
