@@ -1,153 +1,175 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media;
+﻿using Sudoku.Common;
 
-using Sudoku.Common;
+namespace Sudoku.Views;
 
-namespace Sudoku.Views
+/// <summary>
+/// Interaction logic for Cell.xaml
+/// </summary>
+internal sealed partial class Cell : UserControl //, INotifyPropertyChanged
 {
-    /// <summary>
-    /// Interaction logic for Cell.xaml
-    /// </summary>
-    public partial class Cell : UserControl, INotifyPropertyChanged
+    private static readonly string[] sLookUp = new[] { string.Empty, "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    private TextBlock[] PossibleTBs { get; }
+
+    private Origins origin = Origins.NotDefined;
+
+
+
+    public Cell()
     {
-        private static readonly string[] sLookUp = new[] { "", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+        this.InitializeComponent();
 
-        public event PropertyChangedEventHandler? PropertyChanged;
+        IsTabStop = true;
+        IsHitTestVisible = true;
+        AllowFocusOnInteraction = true;
+        ManipulationMode = ManipulationModes.System;
 
-        private TextBlock[] PossibleTBs { get; }
+        LosingFocus += Cell_LosingFocus;
 
-        private Origins origin = Origins.NotDefined;
+        PossibleTBs = new TextBlock[9] { PossibleValue0, PossibleValue1, PossibleValue2, PossibleValue3, PossibleValue4, PossibleValue5, PossibleValue6, PossibleValue7, PossibleValue8 };
+    }
 
 
+    protected override void OnPointerPressed(PointerRoutedEventArgs e)
+    {
+        bool focused = Focus(FocusState.Programmatic);
+        Debug.Assert(focused);
+    }
 
-        public Cell()
+    protected override void OnLostFocus(RoutedEventArgs e)
+    { 
+        bool stateFound = VisualStateManager.GoToState(this, "Unfocused", false);
+        Debug.Assert(stateFound);
+    }
+
+    // Above the every thing else in the visual tree is a scroll viewer
+    // provided by Microsoft. It steals focus immediately after a User
+    // Control receives focus. This cancels that focus change.
+    private void Cell_LosingFocus(UIElement sender, LosingFocusEventArgs args)
+    {
+        if (args.NewFocusedElement is ScrollViewer)
         {
-            InitializeComponent();
-
-            Focusable = true;
-            IsTabStop = true;
-
-            MouseDown += Cell_MouseDown;
-            KeyDown += Cell_KeyDown;
-
-            PossibleTBs = new TextBlock[9] { PossibleValue0, PossibleValue1, PossibleValue2, PossibleValue3, PossibleValue4, PossibleValue5, PossibleValue6, PossibleValue7, PossibleValue8 };
+            bool cancelled = args.TryCancel();
+            Debug.Assert(cancelled);
         }
+    }
 
+    protected override void OnGotFocus(RoutedEventArgs e)
+    {
+        bool stateFound = VisualStateManager.GoToState(this, "Focused", false);
+        Debug.Assert(stateFound);
+    }
 
+    // the cell value origin notification is for a data trigger that controls 
+    // properties of the displayed cell
+    public Origins Origin
+    {
+        get => origin;
 
-        // the cell value origin notification is for a data trigger that controls 
-        // properties of the displayed cell
-        public Origins Origin
+        set
         {
-            get => origin;
-
-            set
+            if (value != origin)
             {
-                if (value != origin)
+                origin = value;
+
+                if (origin != Origins.NotDefined)
                 {
-                    origin = value;
-                    NotifyPropertyChanged();
+                    bool stateFound = VisualStateManager.GoToState(this, origin.ToString(), false);
+                    Debug.Assert(stateFound);
                 }
             }
         }
+    }
 
 
-        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+    private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+
+    public static readonly DependencyProperty DataProperty =
+        DependencyProperty.Register(nameof(Data),
+        typeof(ViewModels.Cell),
+        typeof(Cell),
+        new PropertyMetadata(null, CellDataChangedCallback));
+
+    public ViewModels.Cell Data
+    {
+        get { return (ViewModels.Cell)GetValue(DataProperty); }
+        set { base.SetValue(DataProperty, value); }
+    }
+    
+    private static void CellDataChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        Cell cell = (Cell)d;
+        ViewModels.Cell data = (ViewModels.Cell)e.NewValue;
+
+        cell.Origin = data.Origin;
+
+        if (data.HasValue)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-
-
-
-        public static readonly DependencyProperty DataProperty =
-            DependencyProperty.Register(nameof(Data),
-            typeof(ViewModels.Cell),
-            typeof(Cell),
-            new PropertyMetadata(CellDataChangedCallback));
-
-
-        internal ViewModels.Cell Data
-        {
-            get { return (ViewModels.Cell)GetValue(DataProperty); }
-            set { base.SetValue(DataProperty, value); }
-        }
-
-
-
-        private static void CellDataChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            Cell cell = (Cell)d;
-            ViewModels.Cell data = (ViewModels.Cell)e.NewValue;
-
-            cell.Origin = data.Origin;
-
-            if (data.HasValue)
+            if (((ViewModels.PuzzleViewModel)cell.DataContext).ShowSolution || (data.Origin == Origins.User))
             {
-                if (((ViewModels.PuzzleViewModel)cell.DataContext).ShowSolution || (data.Origin == Origins.User))
-                    cell.CellValue.Text = sLookUp[data.Value];
-                else
-                    cell.CellValue.Text = string.Empty;
-
-                foreach (TextBlock tb in cell.PossibleTBs)
-                    tb.Text = string.Empty;
+                cell.CellValue.Text = sLookUp[data.Value];
             }
             else
-            {
                 cell.CellValue.Text = string.Empty;
 
-                int writeIndex = 0;
+            foreach (TextBlock tb in cell.PossibleTBs)
+                tb.Text = string.Empty;
+        }
+        else
+        {
+            cell.CellValue.Text = string.Empty;
 
-                for (int i = 1; i < 10; i++)
+            int writeIndex = 0;
+
+            for (int i = 1; i < 10; i++)
+            {
+                if (data.Possibles[i])
                 {
-                    if (data.Possibles[i])
-                    {
-                        TextBlock tb = cell.PossibleTBs[writeIndex++];
-                        tb.Text = sLookUp[i];
+                    TextBlock tb = cell.PossibleTBs[writeIndex++];
+                    tb.Text = sLookUp[i];
 
-                        if (data.VerticalDirections[i])
-                            tb.Foreground = Brushes.Green;
-                        else if (data.HorizontalDirections[i])
-                            tb.Foreground = Brushes.Red;
-                        else
-                            tb.Foreground = Brushes.LightGray;
-                    }
+                    if (data.VerticalDirections[i])
+                        tb.Foreground = new SolidColorBrush(Colors.Green);
+                    else if (data.HorizontalDirections[i])
+                        tb.Foreground = new SolidColorBrush(Colors.Red);
+                    else
+                        tb.Foreground = new SolidColorBrush(Colors.LightGray);
                 }
-
-                while (writeIndex < 9)
-                    cell.PossibleTBs[writeIndex++].Text = string.Empty;
             }
+
+            while (writeIndex < 9)
+                cell.PossibleTBs[writeIndex++].Text = string.Empty;
         }
+    }
 
 
 
-        // cell.Data is bound to the cell. Changing its Value property raises a
-        // property changed notification which is listened to by the PuzzleViewModel
-        // This passes the updated data to the model which recalculates the puzzle.
-        private void Cell_KeyDown(object sender, KeyEventArgs e)
+    // The view's cell.Data is bound to a view model's cell. When it's value
+    // changes the view model passes the cell to the model which recalculates the puzzle.
+    // After the models finished recalculating the view model's observable collection
+    // of cells is compared to the model's cells and updated as required forcing
+    // the UI to be updated.
+    protected override void OnKeyDown(KeyRoutedEventArgs e)
+    {
+        if ((e.Key > VirtualKey.Number0) && (e.Key <= VirtualKey.Number9))
         {
-            Views.Cell cell = (Cell)sender;
-
-            if ((e.Key > Key.D0) && (e.Key <= Key.D9))  // the Key enum explicitly states values
-            {
-                cell.Data.Value = e.Key - Key.D0;
-                e.Handled = true;
-            }
-            else if ((e.Key == Key.Delete) || (e.Key == Key.Back))
-            {
-                cell.Data.Value = 0;
-                e.Handled = true;
-            }
+            Data.Value = e.Key - VirtualKey.Number0;
         }
-
-
-        private void Cell_MouseDown(object sender, MouseButtonEventArgs e)
+        else if ((e.Key > VirtualKey.NumberPad0) && (e.Key <= VirtualKey.NumberPad9))
         {
-            Keyboard.Focus((IInputElement)sender);
+            Data.Value = e.Key - VirtualKey.NumberPad0;
         }
+        else if ((e.Key == VirtualKey.Delete) || (e.Key == VirtualKey.Back))
+        {
+            Data.Value = 0;
+        }
+
+        e.Handled = true;
     }
 }

@@ -1,15 +1,27 @@
-﻿using System.Windows.Controls;
+﻿using Sudoku.ViewModels;
 
-namespace Sudoku.Views
+namespace Sudoku.Views;
+
+/// <summary>
+/// Interaction logic for PuzzleView.xaml
+/// </summary>
+internal partial class PuzzleView : UserControl
 {
-    /// <summary>
-    /// Interaction logic for PuzzleView.xaml
-    /// </summary>
-    public partial class PuzzleView : UserControl
+    PuzzleViewModel? viewModel;
+
+    public PuzzleView()
     {
-        public PuzzleView()
+        InitializeComponent();
+    }
+
+    public PuzzleViewModel? ViewModel
+    {
+        get => viewModel;
+
+        set
         {
-            InitializeComponent();
+            viewModel = value;
+            DataContext = value;
         }
     }
 }
