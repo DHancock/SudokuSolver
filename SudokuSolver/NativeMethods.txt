@@ -3,10 +3,6 @@ GetDpiForWindow
 MINMAXINFO
 SetWindowPos
 GetWindowRect
-LoadImage
-SendMessage
-GetSystemMetrics
-GetModuleHandleEx
 GetWindowPlacement
 SetWindowPlacement
 SetWindowSubclass

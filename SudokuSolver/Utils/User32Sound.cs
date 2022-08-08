@@ -10,6 +10,7 @@ internal static class User32Sound
 
     public static void PlayExclamation()
     {
-        _ = PInvoke.MessageBeep(MB_ICONEXCLAMATION);
+        BOOL succeeded = PInvoke.MessageBeep(MB_ICONEXCLAMATION);
+        Debug.Assert(succeeded != 0);
     }
 }

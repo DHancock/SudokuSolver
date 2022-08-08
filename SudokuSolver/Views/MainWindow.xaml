@@ -13,8 +13,9 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
 
-        <Grid x:Name="CustomTitleBar" Height="32" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-            <TextBlock x:Name="CustomTitle" Text="Sudoku Solver" Margin="15,0,0,0" VerticalAlignment="Center" />
+        <Grid x:Name="CustomTitleBar" Height="32" ColumnDefinitions="Auto, Auto"  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+            <ImageIcon Source="{x:Bind LoadWindowsIconImage(), Mode=OneTime}" Width="16" Height="16" Margin="12,0,0,0"/>
+            <TextBlock Grid.Column="1" x:Name="CustomTitle" Margin="8,0,0,0" VerticalAlignment="Center"/>
         </Grid>
 
         <Grid Grid.Row="1" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">

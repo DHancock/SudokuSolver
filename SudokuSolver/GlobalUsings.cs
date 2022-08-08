@@ -18,12 +18,13 @@ global using Microsoft.UI.Xaml;
 global using Microsoft.UI.Xaml.Controls;
 global using Microsoft.UI.Xaml.Input;
 global using Microsoft.UI.Xaml.Media;
+global using Microsoft.UI.Xaml.Media.Imaging;
 global using Microsoft.UI.Xaml.Printing;
-global using Microsoft.Win32.SafeHandles;
 
 global using Windows.Foundation;
 global using Windows.Graphics.Printing;
 global using Windows.Storage;
+global using Windows.Storage.Streams;
 global using Windows.Storage.Pickers;
 global using Windows.System;
 global using Windows.Win32;

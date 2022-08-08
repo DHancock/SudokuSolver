@@ -1,7 +1,6 @@
 ﻿using Sudoku.ViewModels;
 using Sudoku.Utils;
 
-
 namespace Sudoku.Views;
 
 /// <summary>
@@ -12,23 +11,17 @@ internal sealed partial class MainWindow : SubClassWindow
     // according to https://fileinfo.com this extension isn't in use (at least by a popular program)
     private const string cDefaultFilterName = "Sudoku files";
     private const string cDefaultFileExt = ".sdku";
-
     private const string cDefaultWindowTitle = "Sudoku Solver";
 
-    private readonly IntPtr hWnd;
     private readonly AppWindow appWindow;
     private readonly PrintHelper printHelper;
 
     public MainWindow()
     {
         InitializeComponent();
-        
-
-        Title = cDefaultWindowTitle;
 
         PuzzleView.ViewModel = new PuzzleViewModel(ReadSettings());
 
-        hWnd = WindowNative.GetWindowHandle(this);
         appWindow = AppWindow.GetFromWindowId(Win32Interop.GetWindowIdFromWindow(hWnd));
 
         appWindow.Closing += (s, a) =>
@@ -37,22 +30,22 @@ internal sealed partial class MainWindow : SubClassWindow
             SaveSettings();
         };
 
-        this.Activated += (s, a) =>
+        Activated += (s, a) =>
         {
             ThemeHelper.Instance.UpdateTheme(PuzzleView.ViewModel.IsDarkThemed);
         };
 
         if (AppWindowTitleBar.IsCustomizationSupported() && appWindow.TitleBar is not null)
         {
+            CustomTitle.Text = cDefaultWindowTitle;
             appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
-            SetTitleBar(CustomTitleBar);
             ThemeHelper.Instance.Register(LayoutRoot, appWindow.TitleBar);
         }
         else
         {
-            SetWindowIcon();
-            appWindow.Title = CustomTitle.Text;
-            CustomTitleBar.Visibility = Visibility.Collapsed;
+            CustomTitle.Text = cDefaultWindowTitle;
+            this.ExtendsContentIntoTitleBar = true;
+            this.SetTitleBar(CustomTitleBar);
             ThemeHelper.Instance.Register(LayoutRoot);
         }
 
@@ -63,9 +56,6 @@ internal sealed partial class MainWindow : SubClassWindow
         ProcessCommandLine(Environment.GetCommandLineArgs());
     }
 
-
-    
-
     private async void ProcessCommandLine(string[] args)
     {
         // args[0] is typically the full path of the executing assembly
@@ -75,46 +65,6 @@ internal sealed partial class MainWindow : SubClassWindow
             OpenFile(file);
         }
     }
-
-
-    private void InitializeThemeAndAccent()
-    {
-        //if (WindowsThemeHelper.GetWindowsBaseColor() == ThemeManager.BaseColorDark)
-        //    SetTheme(dark: true);
-
-        //((PuzzleViewModel)DataContext).AccentTitleBar = WindowsThemeHelper.ShowAccentColorOnTitleBarsAndWindowBorders();
-        FindColorPaletteResourcesForTheme("Dark");
-
-
-    }
-
-
-
-    private ColorPaletteResources? FindColorPaletteResourcesForTheme(string theme)
-    {
-        foreach (var themeDictionary in Application.Current.Resources.ThemeDictionaries)
-        {
-            if (themeDictionary.Key.ToString() == theme)
-            {
-                if (themeDictionary.Value is SolidColorBrush)
-                {
-                    return themeDictionary.Value as ColorPaletteResources;
-                }
-                else if (themeDictionary.Value is ResourceDictionary targetDictionary)
-                {
-                    foreach (var mergedDictionary in targetDictionary.MergedDictionaries)
-                    {
-                        if (mergedDictionary is ColorPaletteResources)
-                        {
-                            return mergedDictionary as ColorPaletteResources;
-                        }
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
 
     private void ExitClickHandler(object sender, RoutedEventArgs e) => Close();
 
@@ -135,22 +85,19 @@ internal sealed partial class MainWindow : SubClassWindow
     {
         try
         {
-            Stream stream = await file.OpenStreamForReadAsync();
-            PuzzleView.ViewModel?.Open(stream);
+            using (Stream stream = await file.OpenStreamForReadAsync())
+            {
+                PuzzleView.ViewModel?.Open(stream);
+            }
+
             Title = $"{cDefaultWindowTitle} - {file.Name}";
         }
         catch (Exception ex)
         {
             Title = cDefaultWindowTitle;
             string heading = $"Failed to open file \"{file.Name}\"";
-            //this.ShowModalMessageExternal(heading, ex.Message);
+            ShowModalMessage(heading, ex.Message);
         }
-    }
-
-
-    private void OpenCommand_CanExecuteRequested(XamlUICommand sender, CanExecuteRequestedEventArgs args)
-    {
-        args.CanExecute = true;  // TODO: is this necessary defaults to true?
     }
 
     private async void OpenCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
@@ -159,26 +106,22 @@ internal sealed partial class MainWindow : SubClassWindow
 
         InitializeWithWindow.Initialize(openPicker, hWnd);
 
-
         openPicker.FileTypeFilter.Add(cDefaultFileExt);
-
 
         StorageFile file = await openPicker.PickSingleFileAsync();
 
-        if (file != null)
+        if (file is not null)
             OpenFile(file);
-       
     }
-
 
     private void SaveCommand_CanExecuteRequested(XamlUICommand sender, CanExecuteRequestedEventArgs args)
     {
-        args.CanExecute = true;  // TODO: need a dirty flag always true?
+        args.CanExecute = true;  // TODO: need a dirty flag, can only save if the source was a file
     }
 
     private void SaveCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
     {
-
+        // TODO:
     }
 
     private async void SaveAsClickHandler(object sender, RoutedEventArgs e)
@@ -192,26 +135,27 @@ internal sealed partial class MainWindow : SubClassWindow
 
         StorageFile file = await savePicker.PickSaveFileAsync();
 
-        if (file != null)
+        if (file is not null)
         {
             try
             {
                 using (StorageStreamTransaction transaction = await file.OpenTransactedWriteAsync())
                 {
-                    PuzzleView.ViewModel?.Save(transaction.Stream.AsStreamForWrite());
+                    using (Stream stream = transaction.Stream.AsStreamForWrite())
+                    {
+                        PuzzleView.ViewModel?.Save(stream);
+                    }
+
                     await transaction.CommitAsync();
                 }
             }
-
             catch (Exception ex)
             {
                 string heading = $"Failed to save file \"{file.Name}\"";
-                //this.ShowModalMessageExternal(heading, ex.Message);
+                ShowModalMessage(heading, ex.Message);
             }
         }
     }
-
-
 
     private static string ReadSettings()
     {
@@ -229,7 +173,7 @@ internal sealed partial class MainWindow : SubClassWindow
             }
         }
 
-        return String.Empty;
+        return string.Empty;
     }
 
     private async void SaveSettings()
@@ -238,9 +182,7 @@ internal sealed partial class MainWindow : SubClassWindow
         {
             string path = GetSettingsFilePath();
             string? directory = Path.GetDirectoryName(path);
-
-            if (string.IsNullOrWhiteSpace(directory))
-                throw new InvalidOperationException();
+            Debug.Assert(!string.IsNullOrWhiteSpace(directory));
 
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
@@ -253,14 +195,36 @@ internal sealed partial class MainWindow : SubClassWindow
         }
     }
 
-
-    
-
-
     private void AboutClickHandler(object sender, RoutedEventArgs e)
     {
-
-
+        // TODO:
     }
 
+    public async void ShowModalMessage(string heading, string message)
+    {
+        ContentDialog messageDialog = new ContentDialog()
+        {
+            XamlRoot = this.Content.XamlRoot,
+            Title = heading,
+            Content = message,
+            PrimaryButtonText = "OK"
+        };
+
+        await messageDialog.ShowAsync();
+    }
+
+    private BitmapImage LoadWindowsIconImage()  // an embedded resource
+    {
+        BitmapImage bitmapImage = new BitmapImage();
+
+        using (Stream? resourceStream = this.GetType().Assembly.GetManifestResourceStream("Sudoku.Resources.app.png"))
+        {
+            using (IRandomAccessStream stream = resourceStream.AsRandomAccessStream())
+            {
+                bitmapImage.SetSource(stream);
+            }
+        }
+
+        return bitmapImage;
+    }
 }

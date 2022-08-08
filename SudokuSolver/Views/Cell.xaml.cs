@@ -106,7 +106,9 @@ internal sealed partial class Cell : UserControl
                 cell.CellValue.Text = sLookUp[data.Value];
             }
             else
+            {
                 cell.CellValue.Text = string.Empty;
+            }
 
             foreach (TextBlock tb in cell.possibleTBs)
                 tb.Text = string.Empty;

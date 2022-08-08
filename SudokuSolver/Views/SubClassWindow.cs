@@ -10,7 +10,7 @@ internal class SubClassWindow : Window
 
     private const int S_OK = 0;
 
-    private readonly HWND hWnd;
+    protected readonly HWND hWnd;
     private readonly SUBCLASSPROC subClassDelegate;
 
     public SubClassWindow()
@@ -22,7 +22,6 @@ internal class SubClassWindow : Window
         if (!PInvoke.SetWindowSubclass(hWnd, subClassDelegate, 0, 0))
             throw new Win32Exception(Marshal.GetLastPInvokeError());
     }
-
 
     private LRESULT NewSubWindowProc(HWND hWnd, uint uMsg, WPARAM wParam, LPARAM lParam, nuint uIdSubclass, nuint dwRefData)
     {
@@ -42,7 +41,6 @@ internal class SubClassWindow : Window
         return PInvoke.DefSubclassProc(hWnd, uMsg, wParam, lParam);
     }
 
-
     private Size WindowSize
     {
         set
@@ -54,45 +52,6 @@ internal class SubClassWindow : Window
                 throw new Win32Exception(Marshal.GetLastPInvokeError());
         }
     }
-
-
-    protected void SetWindowIcon()
-    {
-        if (!PInvoke.GetModuleHandleEx(0, null, out FreeLibrarySafeHandle module))
-            throw new Win32Exception(Marshal.GetLastPInvokeError());
-
-        WPARAM ICON_SMALL = 0;
-        WPARAM ICON_BIG = 1;
-        const string appIconResourceId = "#32512";
-
-        SetWindowIcon(module, appIconResourceId, ICON_SMALL, PInvoke.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXSMICON));
-        SetWindowIcon(module, appIconResourceId, ICON_BIG, PInvoke.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXICON));
-    }
-
-
-    private void SetWindowIcon(FreeLibrarySafeHandle module, string iconId, WPARAM iconType, int size)
-    {
-        const uint WM_SETICON = 0x0080;
-
-        SafeFileHandle hIcon = PInvoke.LoadImage(module, iconId, GDI_IMAGE_TYPE.IMAGE_ICON, size, size, IMAGE_FLAGS.LR_DEFAULTCOLOR);
-        
-        if (hIcon.IsInvalid)
-            throw new Win32Exception(Marshal.GetLastPInvokeError());
-
-        try
-        {
-            LRESULT previousIcon = PInvoke.SendMessage(hWnd, WM_SETICON, iconType, hIcon.DangerousGetHandle());
-            Debug.Assert(previousIcon == (LRESULT)0);
-        }
-        finally
-        {
-            hIcon.SetHandleAsInvalid(); // SafeFileHandle must not release the shared icon
-        }
-
-        if (Marshal.GetLastPInvokeError() != S_OK)
-            throw new Win32Exception(Marshal.GetLastPInvokeError());
-    }
-
 
     protected void CenterInPrimaryDisplay()
     {
@@ -119,7 +78,6 @@ internal class SubClassWindow : Window
         return Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), cSettingsDirName, cSettingsFileName);
     }
 
-
     protected WINDOWPLACEMENT GetWindowPlacement()
     {
         WINDOWPLACEMENT placement = default;
@@ -129,7 +87,6 @@ internal class SubClassWindow : Window
 
         return placement;
     }
-
 
     protected void SetWindowPlacement(WINDOWPLACEMENT placement)
     {
