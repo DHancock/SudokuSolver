@@ -79,7 +79,7 @@ internal sealed partial class MainWindow : SubClassWindow
         printHelper.PrintView(printView);
     }
 
-    public bool IsPrintingSupported => printHelper.IsSupported();
+    public static bool IsPrintingSupported => PrintHelper.IsSupported;
 
     private async void OpenFile(StorageFile file)
     {
@@ -217,8 +217,10 @@ internal sealed partial class MainWindow : SubClassWindow
     {
         BitmapImage bitmapImage = new BitmapImage();
 
-        using (Stream? resourceStream = this.GetType().Assembly.GetManifestResourceStream("Sudoku.Resources.app.png"))
+        using (Stream? resourceStream = typeof(App).Assembly.GetManifestResourceStream("Sudoku.Resources.app.png"))
         {
+            Debug.Assert(resourceStream is not null);
+
             using (IRandomAccessStream stream = resourceStream.AsRandomAccessStream())
             {
                 bitmapImage.SetSource(stream);

@@ -115,7 +115,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
 
     private void UpdateView()
     {
-        // copy model cells in to the view model observable collection, causing a ui update
+        // update the view model observable collection Cells from the model, causing a ui update
         foreach (Models.Cell cell in Model.Cells) 
         {
             if (!cell.Equals(Cells[cell.Index]))
@@ -139,6 +139,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
             {
                 Settings.ShowPossibles = value;
                 NotifyPropertyChanged();
+                UpdateViewForShowPossiblesStateChange();
             }
         }
     }
@@ -176,8 +177,13 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
 
     private void UpdateViewForShowPossiblesStateChange()
     {
-        // TODO: possibles changed
+        foreach (Models.Cell cell in Model.Cells)
+        {
+            if (!cell.HasValue)
+                Cells.UpdateFromModelCell(cell);
+        }
     }
+
     private void UpdateViewForShowSolutionStateChange()
     {
         foreach (Models.Cell cell in Model.Cells)

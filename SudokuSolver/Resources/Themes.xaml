@@ -4,16 +4,39 @@
     xmlns:views="using:Sudoku.Views">
 
     <ResourceDictionary.ThemeDictionaries>
+        
         <ResourceDictionary x:Key="HighContrast">
+            <!-- TODO: fix these... -->
             <SolidColorBrush x:Key="MajorGridLineBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
+            <SolidColorBrush x:Key="MinorGridLineBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
+            <SolidColorBrush x:Key="CalculatedCellValueBrush" Color="Gray"/>
+            <SolidColorBrush x:Key="TrialCellValueBrush" Color="Gray"/>
+            <SolidColorBrush x:Key="CellFillBrush" Color="White"/>
+            <SolidColorBrush x:Key="CellPossiblesBrush" Color="Gray"/>
+            <SolidColorBrush x:Key="PossiblesHorizontalBrush" Color="Red"/>
+            <SolidColorBrush x:Key="PossiblesVerticalBrush" Color="Green"/>
         </ResourceDictionary>
 
         <ResourceDictionary x:Key="Dark">
             <SolidColorBrush x:Key="MajorGridLineBrush" Color="LightGray"/>
+            <SolidColorBrush x:Key="MinorGridLineBrush" Color="Gray"/>
+            <SolidColorBrush x:Key="CalculatedCellValueBrush" Color="Blue"/>
+            <SolidColorBrush x:Key="TrialCellValueBrush" Color="DarkGreen"/>
+            <SolidColorBrush x:Key="CellFillBrush" Color="Black"/>
+            <SolidColorBrush x:Key="CellPossiblesBrush" Color="Gray"/>
+            <SolidColorBrush x:Key="PossiblesHorizontalBrush" Color="Red"/>
+            <SolidColorBrush x:Key="PossiblesVerticalBrush" Color="Green"/>
         </ResourceDictionary>
 
         <ResourceDictionary x:Key="Light">
             <SolidColorBrush x:Key="MajorGridLineBrush" Color="Black"/>
+            <SolidColorBrush x:Key="MinorGridLineBrush" Color="Gray"/>
+            <SolidColorBrush x:Key="CalculatedCellValueBrush" Color="LightBlue"/>
+            <SolidColorBrush x:Key="TrialCellValueBrush" Color="LightGreen"/>
+            <SolidColorBrush x:Key="CellFillBrush" Color="White"/>
+            <SolidColorBrush x:Key="CellPossiblesBrush" Color="LightGray"/>
+            <SolidColorBrush x:Key="PossiblesHorizontalBrush" Color="Red"/>
+            <SolidColorBrush x:Key="PossiblesVerticalBrush" Color="Green"/>
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
 

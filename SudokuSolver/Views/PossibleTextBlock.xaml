@@ -1,0 +1,33 @@
+﻿<UserControl x:Class="Sudoku.Views.PossibleTextBlock"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="using:Sudoku.Views"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{ThemeResource CellPossiblesBrush}"/>
+        </Style>
+    </UserControl.Resources>
+    <Canvas>
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="PossiblesIndicatorStates">
+                <VisualState x:Name="Horizontal">
+                    <VisualState.Setters>
+                        <Setter Target="PossibleValue.Foreground" Value="{ThemeResource PossiblesHorizontalBrush}"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Vertical">
+                    <VisualState.Setters>
+                        <Setter Target="PossibleValue.Foreground" Value="{ThemeResource PossiblesVerticalBrush}"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="None"/>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
+        <!-- wrap this TextBlock in a Control otherwise the visual states can't be set -->
+        <TextBlock x:Name="PossibleValue"/>
+    </Canvas>
+</UserControl>

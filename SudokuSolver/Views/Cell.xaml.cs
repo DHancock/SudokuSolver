@@ -9,10 +9,7 @@ internal sealed partial class Cell : UserControl
 {
     private static readonly string[] sLookUp = new[] { string.Empty, "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 
-    private readonly TextBlock[] possibleTBs;
-
-    private Origins origin = Origins.NotDefined;
-
+    private readonly PossibleTextBlock[] possibleTBs;
 
     public Cell()
     {
@@ -21,11 +18,10 @@ internal sealed partial class Cell : UserControl
         IsTabStop = true;
         IsHitTestVisible = true;
         AllowFocusOnInteraction = true;
-        ManipulationMode = ManipulationModes.System;
 
         LosingFocus += Cell_LosingFocus;
 
-        possibleTBs = new TextBlock[9] { PossibleValue0, PossibleValue1, PossibleValue2, PossibleValue3, PossibleValue4, PossibleValue5, PossibleValue6, PossibleValue7, PossibleValue8 };
+        possibleTBs = new PossibleTextBlock[9] { PossibleValue0, PossibleValue1, PossibleValue2, PossibleValue3, PossibleValue4, PossibleValue5, PossibleValue6, PossibleValue7, PossibleValue8 };
     }
 
 
@@ -59,26 +55,6 @@ internal sealed partial class Cell : UserControl
         Debug.Assert(stateFound);
     }
 
-    // the origin of this cell's value, be it user entered, calculated etc.
-    public Origins Origin
-    {
-        get => origin;
-
-        set
-        {
-            if (value != origin)
-            {
-                origin = value;
-
-                if (origin != Origins.NotDefined) // cell isn't empty
-                {
-                    bool stateFound = VisualStateManager.GoToState(this, origin.ToString(), false);
-                    Debug.Assert(stateFound);
-                }
-            }
-        }
-    }
-
 
     public static readonly DependencyProperty DataProperty =
         DependencyProperty.Register(nameof(Data),
@@ -97,10 +73,12 @@ internal sealed partial class Cell : UserControl
         Cell cell = (Cell)d;
         ViewModels.Cell data = (ViewModels.Cell)e.NewValue;
 
-        cell.Origin = data.Origin;
-
         if (data.HasValue)
         {
+            // sets the colour of the cell value text, be it user entered, calculated or trial and error.
+            bool stateFound = VisualStateManager.GoToState(cell, data.Origin.ToString(), false);
+            Debug.Assert(stateFound); 
+
             if (((ViewModels.PuzzleViewModel)cell.DataContext).ShowSolution || (data.Origin == Origins.User))
             {
                 cell.CellValue.Text = sLookUp[data.Value];
@@ -110,37 +88,45 @@ internal sealed partial class Cell : UserControl
                 cell.CellValue.Text = string.Empty;
             }
 
-            foreach (TextBlock tb in cell.possibleTBs)
+            foreach (PossibleTextBlock tb in cell.possibleTBs)
                 tb.Text = string.Empty;
         }
         else
         {
             cell.CellValue.Text = string.Empty;
 
-            int writeIndex = 0;
-
-            for (int i = 1; i < 10; i++)
+            if (((ViewModels.PuzzleViewModel)cell.DataContext).ShowPossibles)
             {
-                if (data.Possibles[i])
+                int writeIndex = 0;
+
+                for (int i = 1; i < 10; i++)
                 {
-                    TextBlock tb = cell.possibleTBs[writeIndex++];
-                    tb.Text = sLookUp[i];
+                    if (data.Possibles[i])
+                    {
+                        PossibleTextBlock tb = cell.possibleTBs[writeIndex++];
+                        tb.Text = sLookUp[i];
 
-                    // TODO:
-                    // change the colours using a visual state?
-                    // debug only?
+                        bool stateFound;
 
-                    if (data.VerticalDirections[i])
-                        tb.Foreground = new SolidColorBrush(Colors.Green);
-                    else if (data.HorizontalDirections[i])
-                        tb.Foreground = new SolidColorBrush(Colors.Red);
-                    else
-                        tb.Foreground = new SolidColorBrush(Colors.LightGray);
+                        if (data.VerticalDirections[i])
+                            stateFound = VisualStateManager.GoToState(tb, "Vertical", false);
+                        else if (data.HorizontalDirections[i])
+                            stateFound = VisualStateManager.GoToState(tb, "Horizontal", false);
+                        else
+                            stateFound = VisualStateManager.GoToState(tb, "None", false);
+
+                        Debug.Assert(stateFound);
+                    }
                 }
-            }
 
-            while (writeIndex < 9)
-                cell.possibleTBs[writeIndex++].Text = string.Empty;
+                while (writeIndex < 9)
+                    cell.possibleTBs[writeIndex++].Text = string.Empty;
+            }
+            else
+            {
+                foreach (PossibleTextBlock tb in cell.possibleTBs)
+                    tb.Text = string.Empty;
+            }
         }
     }
 

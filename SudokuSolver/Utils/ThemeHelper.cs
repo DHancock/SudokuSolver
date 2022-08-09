@@ -4,39 +4,36 @@ internal sealed class ThemeHelper
 {
     public static readonly ThemeHelper Instance = new ThemeHelper();
 
-    // this is a single window app, with no printing
+    // this is a single window app
     private AppWindowTitleBar? titleBar;
-    private FrameworkElement? root;
+    private FrameworkElement? content;
 
     private ThemeHelper()
     {
     }
 
-    public void Register(FrameworkElement root, AppWindowTitleBar? titleBar)
+    public void Register(FrameworkElement content, AppWindowTitleBar? titleBar)
     {
-        this.root = root;
+        this.content = content;
         this.titleBar = titleBar;
     }
 
-    public void Register(FrameworkElement root)
-    {
-        Register(root, null);
-    }
+    public void Register(FrameworkElement content) => Register(content, null);
 
     public void UpdateTheme(bool isDarkThemed)
     {
         ElementTheme theme = isDarkThemed ? ElementTheme.Dark : ElementTheme.Light;
 
-        if (root is not null)
-            UpdateRoot(theme);
+        if (titleBar is not null)
+            UpdateTitleBar(theme);
 
-        UpdateTitleBar(theme);
+        UpdateContent(theme);
     }
 
-    private void UpdateRoot(ElementTheme requestedTheme)
+    private void UpdateContent(ElementTheme requestedTheme)
     {
-         if ((root is not null) && (root.RequestedTheme != requestedTheme))
-            root.RequestedTheme = requestedTheme;
+         if ((content is not null) && (content.RequestedTheme != requestedTheme))
+            content.RequestedTheme = requestedTheme;
     }
 
     private void UpdateTitleBar(ElementTheme requestedTheme)
