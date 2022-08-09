@@ -3,10 +3,10 @@
 
 internal class SubClassWindow : Window
 {
-    public const double MinWidth = 250;
-    public const double MinHeight = 300;
-    public const double InitialWidth = 500;
-    public const double InitialHeight = 560;
+    public const double MinWidth = 388;
+    public const double MinHeight = 440;
+    public const double InitialWidth = 563;
+    public const double InitialHeight = 614;
 
     protected readonly HWND hWnd;
     private readonly SUBCLASSPROC subClassDelegate;
@@ -39,7 +39,7 @@ internal class SubClassWindow : Window
         return PInvoke.DefSubclassProc(hWnd, uMsg, wParam, lParam);
     }
 
-    private Size WindowSize
+    protected Size WindowSize
     {
         set
         {
@@ -48,6 +48,16 @@ internal class SubClassWindow : Window
 
             if (!PInvoke.SetWindowPos(hWnd, (HWND)IntPtr.Zero, 0, 0, (int)(value.Width * scalingFactor), (int)(value.Height * scalingFactor), SET_WINDOW_POS_FLAGS.SWP_NOMOVE | SET_WINDOW_POS_FLAGS.SWP_NOZORDER))
                 throw new Win32Exception(Marshal.GetLastPInvokeError());
+        }
+        get 
+        {
+            uint dpi = PInvoke.GetDpiForWindow(hWnd);
+            double scalingFactor = dpi / 96.0;
+
+            if (!PInvoke.GetWindowRect(hWnd, out RECT lpRect))
+                throw new Win32Exception(Marshal.GetLastPInvokeError());
+
+            return new Size((lpRect.right - lpRect.left) / scalingFactor, (lpRect.bottom - lpRect.top) / scalingFactor);
         }
     }
 
