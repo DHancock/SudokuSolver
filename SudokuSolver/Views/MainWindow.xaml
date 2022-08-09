@@ -15,7 +15,7 @@
 
         <Grid x:Name="CustomTitleBar" Height="32" ColumnDefinitions="Auto, Auto"  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
             <ImageIcon Source="{x:Bind local:MainWindow.LoadWindowIconImage(), Mode=OneTime}" Width="16" Height="16" Margin="12,0,0,0"/>
-            <TextBlock Grid.Column="1" x:Name="CustomTitle" Margin="8,0,0,0" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="1" x:Name="WindowTitle" Margin="8,0,0,0" VerticalAlignment="Center"/>
         </Grid>
 
         <Grid Grid.Row="1" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">

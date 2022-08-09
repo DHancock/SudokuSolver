@@ -30,22 +30,19 @@ internal sealed partial class MainWindow : SubClassWindow
             SaveSettings();
         };
 
-        Activated += (s, a) =>
-        {
-            ThemeHelper.Instance.UpdateTheme(PuzzleView.ViewModel.IsDarkThemed);
-        };
+        Activated += (s, a) => ThemeHelper.Instance.UpdateTheme(PuzzleView.ViewModel.IsDarkThemed);
+
+        WindowTitle.Text = cDefaultWindowTitle;
 
         if (AppWindowTitleBar.IsCustomizationSupported() && appWindow.TitleBar is not null)
         {
-            CustomTitle.Text = cDefaultWindowTitle;
             appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
             ThemeHelper.Instance.Register(LayoutRoot, appWindow.TitleBar);
         }
         else
         {
-            CustomTitle.Text = cDefaultWindowTitle;
-            this.ExtendsContentIntoTitleBar = true;
-            this.SetTitleBar(CustomTitleBar);
+            ExtendsContentIntoTitleBar = true;
+            SetTitleBar(CustomTitleBar);
             ThemeHelper.Instance.Register(LayoutRoot);
         }
 
@@ -90,11 +87,11 @@ internal sealed partial class MainWindow : SubClassWindow
                 PuzzleView.ViewModel?.Open(stream);
             }
 
-            Title = $"{cDefaultWindowTitle} - {file.Name}";
+            WindowTitle.Text = $"{cDefaultWindowTitle} - {file.Name}";
         }
         catch (Exception ex)
         {
-            Title = cDefaultWindowTitle;
+            WindowTitle.Text = cDefaultWindowTitle;
             string heading = $"Failed to open file \"{file.Name}\"";
             ShowModalMessage(heading, ex.Message);
         }
