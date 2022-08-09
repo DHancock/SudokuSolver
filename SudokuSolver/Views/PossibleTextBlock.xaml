@@ -5,11 +5,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="using:Sudoku.Views"
              mc:Ignorable="d">
-    <UserControl.Resources>
-        <Style TargetType="TextBlock">
-            <Setter Property="Foreground" Value="{ThemeResource CellPossiblesBrush}"/>
-        </Style>
-    </UserControl.Resources>
     <Canvas>
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="PossiblesIndicatorStates">
@@ -28,6 +23,6 @@
         </VisualStateManager.VisualStateGroups>
 
         <!-- wrap this TextBlock in a Control otherwise the visual states can't be set -->
-        <TextBlock x:Name="PossibleValue"/>
+        <TextBlock x:Name="PossibleValue" Foreground="{ThemeResource CellPossiblesBrush}"/>
     </Canvas>
 </UserControl>
