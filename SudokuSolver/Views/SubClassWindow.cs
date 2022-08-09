@@ -8,8 +8,6 @@ internal class SubClassWindow : Window
     public const double InitialWidth = 500;
     public const double InitialHeight = 560;
 
-    private const int S_OK = 0;
-
     protected readonly HWND hWnd;
     private readonly SUBCLASSPROC subClassDelegate;
 
