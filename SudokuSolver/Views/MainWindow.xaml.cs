@@ -213,11 +213,13 @@ internal sealed partial class MainWindow : SubClassWindow
         await messageDialog.ShowAsync();
     }
 
-    private BitmapImage LoadWindowsIconImage()  // an embedded resource
+    public static BitmapImage LoadWindowIconImage() => LoadEmbeddedImageResource("Sudoku.Resources.app.png");
+
+    private static BitmapImage LoadEmbeddedImageResource (string resourcePath)
     {
         BitmapImage bitmapImage = new BitmapImage();
 
-        using (Stream? resourceStream = typeof(App).Assembly.GetManifestResourceStream("Sudoku.Resources.app.png"))
+        using (Stream? resourceStream = typeof(App).Assembly.GetManifestResourceStream(resourcePath))
         {
             Debug.Assert(resourceStream is not null);
 

@@ -30,11 +30,10 @@ internal sealed class PrintHelper
         printDoc.Paginate += Paginate;
         printDoc.GetPreviewPage += GetPreviewPage;
         printDoc.AddPages += AddPages;
-
     }
 
 
-    public bool IsSupported() => PrintManager.IsSupported();
+    public static bool IsSupported => PrintManager.IsSupported();  
 
 
     public async void PrintView(Control view)
@@ -91,10 +90,8 @@ internal sealed class PrintHelper
             // always print a single page
             printDoc.SetPreviewPageCount(1, PreviewPageCountType.Final);
 
-            PrintTaskOptions printingOptions = e.PrintTaskOptions;
-
             // deterimine the page size
-            PrintPageDescription pd = printingOptions.GetPageDescription(0);
+            PrintPageDescription pd = e.PrintTaskOptions.GetPageDescription(0);
             currentView.Padding = new Thickness(Math.Min(pd.PageSize.Height, pd.PageSize.Width) * (cPaddingPercentage / 100D));
         }
     }
