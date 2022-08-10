@@ -7,78 +7,84 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid x:Name="LayoutRoot" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Grid x:Name="LayoutRoot">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Grid x:Name="CustomTitleBar" Height="32">
+        <Grid x:Name="CustomTitleBar" Height="32" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            
-            <ImageIcon Source="{x:Bind local:MainWindow.LoadWindowIconImage(), Mode=OneTime}" Width="16" Height="16" Margin="12,0,0,0"/>
+
+            <ImageIcon x:Name="WindowIcon" Width="16" Height="16" Margin="12,0,0,0"/>
             <TextBlock Grid.Column="1" x:Name="WindowTitle" Margin="8,0,0,0" VerticalAlignment="Center"/>
         </Grid>
 
-        <MenuBar Grid.Row="1">
-            <MenuBarItem Title="File" AccessKey="F">
-                <MenuFlyoutItem>
-                    <MenuFlyoutItem.Command>
-                        <StandardUICommand Kind="Open" ExecuteRequested="OpenCommand_ExecuteRequested" AccessKey="N"/>
-                    </MenuFlyoutItem.Command>
-                </MenuFlyoutItem>
+        <Grid Grid.Row="1" x:Name="ClientArea" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-                <MenuFlyoutItem Text="Clear" Command="{x:Bind PuzzleView.ViewModel.ClearCommand}" AccessKey="C" KeyboardAcceleratorTextOverride ="Ctrl+C">
-                    <MenuFlyoutItem.Icon>
-                        <SymbolIcon Symbol="Clear"/>
-                    </MenuFlyoutItem.Icon>
-                </MenuFlyoutItem>
+            <MenuBar>
+                <MenuBarItem Title="File" AccessKey="F">
+                    <MenuFlyoutItem>
+                        <MenuFlyoutItem.Command>
+                            <StandardUICommand Kind="Open" ExecuteRequested="OpenCommand_ExecuteRequested" AccessKey="N"/>
+                        </MenuFlyoutItem.Command>
+                    </MenuFlyoutItem>
 
-                <MenuFlyoutSeparator />
-                <MenuFlyoutItem>
-                    <MenuFlyoutItem.Command>
-                        <StandardUICommand Kind="Save" ExecuteRequested="SaveCommand_ExecuteRequested" CanExecuteRequested="SaveCommand_CanExecuteRequested" AccessKey="S"/>
-                    </MenuFlyoutItem.Command>
-                </MenuFlyoutItem>
+                    <MenuFlyoutItem Text="Clear" Command="{x:Bind PuzzleView.ViewModel.ClearCommand}" AccessKey="C" KeyboardAcceleratorTextOverride ="Ctrl+C">
+                        <MenuFlyoutItem.Icon>
+                            <SymbolIcon Symbol="Clear"/>
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
 
-                <MenuFlyoutItem Text="Save As..." Click="SaveAsClickHandler" AccessKey="A" KeyboardAcceleratorTextOverride ="Ctrl+Shift+S"/>
+                    <MenuFlyoutSeparator />
+                    <MenuFlyoutItem>
+                        <MenuFlyoutItem.Command>
+                            <StandardUICommand Kind="Save" ExecuteRequested="SaveCommand_ExecuteRequested" CanExecuteRequested="SaveCommand_CanExecuteRequested" AccessKey="S"/>
+                        </MenuFlyoutItem.Command>
+                    </MenuFlyoutItem>
 
-                <MenuFlyoutSeparator />
-                <MenuFlyoutItem Text="Print..." Click="PrintClickHandler" IsEnabled="{x:Bind local:MainWindow.IsPrintingSupported}" AccessKey="P" KeyboardAcceleratorTextOverride ="Ctrl+P">
-                    <MenuFlyoutItem.Icon>
-                        <SymbolIcon Symbol="Print"/>
-                    </MenuFlyoutItem.Icon>
-                </MenuFlyoutItem>
+                    <MenuFlyoutItem Text="Save As..." Click="SaveAsClickHandler" AccessKey="A" KeyboardAcceleratorTextOverride ="Ctrl+Shift+S"/>
 
-                <MenuFlyoutSeparator />
-                <MenuFlyoutItem Text="Exit" Click="ExitClickHandler" AccessKey="E" KeyboardAcceleratorTextOverride ="Alt+F4">
-                    <MenuFlyoutItem.Icon>
-                        <SymbolIcon Symbol="ClosePane"/>
-                    </MenuFlyoutItem.Icon>
-                </MenuFlyoutItem>
-            </MenuBarItem>
+                    <MenuFlyoutSeparator />
+                    <MenuFlyoutItem Text="Print..." Click="PrintClickHandler" IsEnabled="{x:Bind local:MainWindow.IsPrintingSupported}" AccessKey="P" KeyboardAcceleratorTextOverride ="Ctrl+P">
+                        <MenuFlyoutItem.Icon>
+                            <SymbolIcon Symbol="Print"/>
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
 
-            <MenuBarItem Title="Options" AccessKey="O">
+                    <MenuFlyoutSeparator />
+                    <MenuFlyoutItem Text="Exit" Click="ExitClickHandler" AccessKey="E" KeyboardAcceleratorTextOverride ="Alt+F4">
+                        <MenuFlyoutItem.Icon>
+                            <SymbolIcon Symbol="ClosePane"/>
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
+                </MenuBarItem>
 
-                <ToggleMenuFlyoutItem Text="Show possibles" IsChecked="{x:Bind PuzzleView.ViewModel.ShowPossibles, Mode=TwoWay}" AccessKey="P"/>
-                <ToggleMenuFlyoutItem Text="Show solution" IsChecked="{x:Bind PuzzleView.ViewModel.ShowSolution, Mode=TwoWay}" AccessKey="S"/>
+                <MenuBarItem Title="Options" AccessKey="O">
 
-                <MenuFlyoutSeparator />
-                <ToggleMenuFlyoutItem Text="Dark theme" IsChecked="{x:Bind PuzzleView.ViewModel.IsDarkThemed, Mode=TwoWay}" AccessKey="D"/>
+                    <ToggleMenuFlyoutItem Text="Show possibles" IsChecked="{x:Bind PuzzleView.ViewModel.ShowPossibles, Mode=TwoWay}" AccessKey="P"/>
+                    <ToggleMenuFlyoutItem Text="Show solution" IsChecked="{x:Bind PuzzleView.ViewModel.ShowSolution, Mode=TwoWay}" AccessKey="S"/>
 
-                <MenuFlyoutSeparator />
-                <MenuFlyoutItem Text="About" Click="AboutClickHandler" AccessKey="A" KeyboardAcceleratorTextOverride ="Ctrl+A">
-                    <MenuFlyoutItem.Icon>
-                        <SymbolIcon Symbol="ContactInfo"/>
-                    </MenuFlyoutItem.Icon>
-                </MenuFlyoutItem>
-            </MenuBarItem>
-        </MenuBar>
+                    <MenuFlyoutSeparator />
+                    <ToggleMenuFlyoutItem Text="Dark theme" IsChecked="{x:Bind PuzzleView.ViewModel.IsDarkThemed, Mode=TwoWay}" AccessKey="D"/>
 
-        <local:PuzzleView x:Name="PuzzleView" Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="8,0,8,8"/>
+                    <MenuFlyoutSeparator />
+                    <MenuFlyoutItem Text="About" Click="AboutClickHandler" AccessKey="A" KeyboardAcceleratorTextOverride ="Ctrl+A">
+                        <MenuFlyoutItem.Icon>
+                            <SymbolIcon Symbol="ContactInfo"/>
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
+                </MenuBarItem>
+            </MenuBar>
+
+            <local:PuzzleView x:Name="PuzzleView" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="8,0,8,8"/>
+        </Grid>
     </Grid>
 </local:SubClassWindow>

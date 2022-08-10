@@ -32,40 +32,37 @@ internal sealed class ThemeHelper
 
     private void UpdateContent(ElementTheme requestedTheme)
     {
-         if ((content is not null) && (content.RequestedTheme != requestedTheme))
+        Debug.Assert(content != null);
+
+        if (content.RequestedTheme != requestedTheme)
             content.RequestedTheme = requestedTheme;
     }
 
     private void UpdateTitleBar(ElementTheme requestedTheme)
     {
-        if (titleBar is not null)
+        Debug.Assert(titleBar != null);
+        Debug.Assert(AppWindowTitleBar.IsCustomizationSupported());
+
+        titleBar.ButtonBackgroundColor = Colors.Transparent;
+        titleBar.ButtonHoverBackgroundColor = Colors.Transparent;
+        titleBar.ButtonPressedBackgroundColor = Colors.Transparent;
+        titleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+
+        if (requestedTheme == ElementTheme.Light)
         {
-            Debug.Assert(AppWindowTitleBar.IsCustomizationSupported());
-
-            if (requestedTheme == ElementTheme.Default)
-                requestedTheme = (App.Current.RequestedTheme == ApplicationTheme.Light) ? ElementTheme.Light : ElementTheme.Dark;
-
-            titleBar.ButtonBackgroundColor = Colors.Transparent;
-            titleBar.ButtonHoverBackgroundColor = Colors.Transparent;
-            titleBar.ButtonPressedBackgroundColor = Colors.Transparent;
-            titleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
-
-            if (requestedTheme == ElementTheme.Light)
-            {
-                titleBar.ButtonForegroundColor = Colors.Black;
-                titleBar.ButtonPressedForegroundColor = Colors.Black;
-                titleBar.ButtonHoverForegroundColor = Colors.Black;
-                titleBar.ButtonHoverBackgroundColor = Colors.White;
-                titleBar.ButtonInactiveForegroundColor = Colors.DarkGray;
-            }
-            else
-            {
-                titleBar.ButtonForegroundColor = Colors.White;
-                titleBar.ButtonPressedForegroundColor = Colors.White;
-                titleBar.ButtonHoverForegroundColor = Colors.White;
-                titleBar.ButtonHoverBackgroundColor = Colors.DimGray;
-                titleBar.ButtonInactiveForegroundColor = Colors.DimGray;
-            }
+            titleBar.ButtonForegroundColor = Colors.Black;
+            titleBar.ButtonPressedForegroundColor = Colors.Black;
+            titleBar.ButtonHoverForegroundColor = Colors.Black;
+            titleBar.ButtonHoverBackgroundColor = Colors.White;
+            titleBar.ButtonInactiveForegroundColor = Colors.DarkGray;
+        }
+        else
+        {
+            titleBar.ButtonForegroundColor = Colors.White;
+            titleBar.ButtonPressedForegroundColor = Colors.White;
+            titleBar.ButtonHoverForegroundColor = Colors.White;
+            titleBar.ButtonHoverBackgroundColor = Colors.DimGray;
+            titleBar.ButtonInactiveForegroundColor = Colors.DimGray;
         }
     }
 }

@@ -78,14 +78,6 @@ internal class SubClassWindow : Window
             throw new Win32Exception(Marshal.GetLastPInvokeError());
     }
 
-    protected static string GetSettingsFilePath()
-    {
-        const string cSettingsFileName = "settings.json";
-        const string cSettingsDirName = "SudokuSolver.6D40B575-644E-43C8-9856-D74A50EA1352";
-
-        return Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), cSettingsDirName, cSettingsFileName);
-    }
-
     protected WINDOWPLACEMENT GetWindowPlacement()
     {
         WINDOWPLACEMENT placement = default;

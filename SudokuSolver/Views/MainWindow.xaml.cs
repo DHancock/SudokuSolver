@@ -30,21 +30,26 @@ internal sealed partial class MainWindow : SubClassWindow
             SaveSettings();
         };
 
-        Activated += (s, a) => ThemeHelper.Instance.UpdateTheme(PuzzleView.ViewModel.IsDarkThemed);
-
         WindowTitle.Text = cDefaultWindowTitle;
 
-        if (AppWindowTitleBar.IsCustomizationSupported() && appWindow.TitleBar is not null)
+        if (AppWindowTitleBar.IsCustomizationSupported())
         {
             appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
             ThemeHelper.Instance.Register(LayoutRoot, appWindow.TitleBar);
+
+            // update the custom title bar's default button backgrounds (minimise, close etc.) 
+            Activated += (s, a) => ThemeHelper.Instance.UpdateTheme(PuzzleView.ViewModel.IsDarkThemed);
         }
         else
         {
             ExtendsContentIntoTitleBar = true;
             SetTitleBar(CustomTitleBar);
-            ThemeHelper.Instance.Register(LayoutRoot);
+
+            // if title bar customisation isn't supported only update the client area 
+            ThemeHelper.Instance.Register(ClientArea);
         }
+
+        LoadWindowIconImage();
 
         printHelper = new PrintHelper(hWnd, Content.XamlRoot);
 
@@ -173,7 +178,7 @@ internal sealed partial class MainWindow : SubClassWindow
         return string.Empty;
     }
 
-    private async void SaveSettings()
+    private void SaveSettings()
     {
         try
         {
@@ -184,12 +189,20 @@ internal sealed partial class MainWindow : SubClassWindow
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
 
-            await File.WriteAllTextAsync(path, PuzzleView.ViewModel?.SerializeSettings(), Encoding.Unicode, CancellationToken.None);
+            File.WriteAllText(path, PuzzleView.ViewModel?.SerializeSettings(), Encoding.Unicode);
         }
         catch (Exception ex)
         {
             Debug.Fail(ex.ToString());
         }
+    }
+
+    private static string GetSettingsFilePath()
+    {
+        const string cFileName = "settings.json";
+        const string cDirName = "SudokuSolver.6D40B575-644E-43C8-9856-D74A50EA1352";
+
+        return Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), cDirName, cFileName);
     }
 
     private void AboutClickHandler(object sender, RoutedEventArgs e)
@@ -210,9 +223,12 @@ internal sealed partial class MainWindow : SubClassWindow
         await messageDialog.ShowAsync();
     }
 
-    public static BitmapImage LoadWindowIconImage() => LoadEmbeddedImageResource("Sudoku.Resources.app.png");
+    private async void LoadWindowIconImage()
+    {
+        WindowIcon.Source = await LoadEmbeddedImageResource("Sudoku.Resources.app.png");
+    }
 
-    private static BitmapImage LoadEmbeddedImageResource (string resourcePath)
+    private static async Task<BitmapImage> LoadEmbeddedImageResource(string resourcePath)
     {
         BitmapImage bitmapImage = new BitmapImage();
 
@@ -222,7 +238,7 @@ internal sealed partial class MainWindow : SubClassWindow
 
             using (IRandomAccessStream stream = resourceStream.AsRandomAccessStream())
             {
-                bitmapImage.SetSource(stream);
+                await bitmapImage.SetSourceAsync(stream);
             }
         }
 
