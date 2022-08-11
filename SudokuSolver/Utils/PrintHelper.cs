@@ -2,7 +2,6 @@
 // https://github.com/marb2000/PrintSample/blob/master/MainWindow.xaml.cs
 // https://github.com/microsoft/Windows-universal-samples/blob/main/Samples/Printing/cs/PrintHelper.cs
 
-
 namespace Sudoku.Utils;
 
 internal sealed class PrintHelper
@@ -29,22 +28,20 @@ internal sealed class PrintHelper
 
         // Build a PrintDocument and register for callbacks
         printDocument = new PrintDocument();
-        printDocumentSource = printDocument.DocumentSource;
         printDocument.Paginate += Paginate;
         printDocument.GetPreviewPage += GetPreviewPage;
         printDocument.AddPages += AddPages;
+
+        printDocumentSource = printDocument.DocumentSource;
     }
 
-
     public static bool IsSupported => PrintManager.IsSupported();  
-
 
     public async void PrintView(FrameworkElement view)
     {
         try
         {
             Debug.Assert(PrintManager.IsSupported());
-            Debug.Assert(view != null);
             Debug.Assert(printCanvas == null);
 
             currentView = view;
@@ -56,8 +53,6 @@ internal sealed class PrintHelper
             Dialogs.ShowModalMessage("A printing error occured", ex.Message, xamlRoot);
         }
     }
-
-
 
     private void PrintTaskRequested(PrintManager sender, PrintTaskRequestedEventArgs e)
     {
@@ -75,9 +70,6 @@ internal sealed class PrintHelper
                 dispatcherQueue.TryEnqueue(() => Dialogs.ShowModalMessage("A printing error occured", string.Empty, xamlRoot));
         };
     }
-
-
-
 
     private void Paginate(object sender, PaginateEventArgs e)
     {
@@ -106,7 +98,6 @@ internal sealed class PrintHelper
 
         Canvas.SetLeft(currentView, pd.ImageableRect.Left + inset);
         Canvas.SetTop(currentView, pd.ImageableRect.Top + inset);
-
     }
     
     private void GetPreviewPage(object sender, GetPreviewPageEventArgs e)
@@ -114,7 +105,6 @@ internal sealed class PrintHelper
         // the same canvas as the printed view
         printDocument.SetPreviewPage(e.PageNumber, printCanvas); 
     }
-
 
     private void AddPages(object sender, AddPagesEventArgs e)
     {
