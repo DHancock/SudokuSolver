@@ -46,7 +46,7 @@
                     <MenuFlyoutSeparator />
                     <MenuFlyoutItem>
                         <MenuFlyoutItem.Command>
-                            <StandardUICommand Kind="Save" ExecuteRequested="SaveCommand_ExecuteRequested" CanExecuteRequested="SaveCommand_CanExecuteRequested" AccessKey="S"/>
+                            <StandardUICommand Kind="Save" ExecuteRequested="SaveCommand_ExecuteRequested" AccessKey="S"/>
                         </MenuFlyoutItem.Command>
                     </MenuFlyoutItem>
 

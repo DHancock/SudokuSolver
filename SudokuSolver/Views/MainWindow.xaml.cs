@@ -15,6 +15,7 @@ internal sealed partial class MainWindow : SubClassWindow
 
     private readonly AppWindow appWindow;
     private readonly PrintHelper printHelper;
+    private StorageFile? SourceFile { get; set; }
 
     public MainWindow()
     {
@@ -89,44 +90,51 @@ internal sealed partial class MainWindow : SubClassWindow
                 PuzzleView.ViewModel?.Open(stream);
             }
 
-            WindowTitle.Text = $"{cDefaultWindowTitle} - {file.Name}";
+            SourceFile = file;
+            WindowTitle.Text = $"{cDefaultWindowTitle} - {file.DisplayName}";
         }
         catch (Exception ex)
         {
             WindowTitle.Text = cDefaultWindowTitle;
-            string heading = $"Failed to open file \"{file.Name}\"";
-            ShowModalMessage(heading, ex.Message);
+            string heading = $"Failed to open file \"{file.DisplayName}\"";
+            ShowModalMessage(heading, ex.Message, Content.XamlRoot);
         }
     }
 
     private async void OpenCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
     {
         FileOpenPicker openPicker = new FileOpenPicker();
-
         InitializeWithWindow.Initialize(openPicker, hWnd);
 
         openPicker.FileTypeFilter.Add(cDefaultFileExt);
-
+        
         StorageFile file = await openPicker.PickSingleFileAsync();
 
-        if (file is not null)
+        if (file != null)
             OpenFile(file);
     }
 
-    private void SaveCommand_CanExecuteRequested(XamlUICommand sender, CanExecuteRequestedEventArgs args)
+    private async void SaveCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
     {
-        args.CanExecute = true;  // TODO: need a dirty flag, can only save if the source was a file
-    }
-
-    private void SaveCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
-    {
-        // TODO:
+        if (SourceFile != null)
+        {
+            try
+            {
+                await SaveFile(SourceFile);
+            }
+            catch (Exception ex)
+            {
+                string heading = $"Failed to save the puzzle as \"{SourceFile.DisplayName}\"";
+                ShowModalMessage(heading, ex.Message, Content.XamlRoot);
+            }
+        }  
+        else
+            SaveAsClickHandler(sender, new RoutedEventArgs());
     }
 
     private async void SaveAsClickHandler(object sender, RoutedEventArgs e)
     {
         FileSavePicker savePicker = new FileSavePicker();
-
         InitializeWithWindow.Initialize(savePicker, hWnd);
 
         savePicker.FileTypeChoices.Add(cDefaultFilterName, new List<string>() { cDefaultFileExt });
@@ -134,27 +142,35 @@ internal sealed partial class MainWindow : SubClassWindow
 
         StorageFile file = await savePicker.PickSaveFileAsync();
 
-        if (file is not null)
+        if (file != null)
         {
             try
             {
-                using (StorageStreamTransaction transaction = await file.OpenTransactedWriteAsync())
-                {
-                    using (Stream stream = transaction.Stream.AsStreamForWrite())
-                    {
-                        PuzzleView.ViewModel?.Save(stream);
-                    }
-
-                    await transaction.CommitAsync();
-                }
+                await SaveFile(file);
+                SourceFile = file;
+                WindowTitle.Text = $"{cDefaultWindowTitle} - {file.DisplayName}";
             }
             catch (Exception ex)
             {
-                string heading = $"Failed to save file \"{file.Name}\"";
-                ShowModalMessage(heading, ex.Message);
+                string heading = $"Failed to save the puzzle as \"{file.DisplayName}\"";
+                ShowModalMessage(heading, ex.Message, Content.XamlRoot);
             }
         }
     }
+
+    private async Task SaveFile (StorageFile file)
+    {
+        using (StorageStreamTransaction transaction = await file.OpenTransactedWriteAsync())
+        {
+            using (Stream stream = transaction.Stream.AsStreamForWrite())
+            {
+                PuzzleView.ViewModel?.Save(stream);
+            }
+
+            await transaction.CommitAsync();
+        }
+    }
+
 
     private static string ReadSettings()
     {
@@ -207,11 +223,11 @@ internal sealed partial class MainWindow : SubClassWindow
         // TODO:
     }
 
-    public async void ShowModalMessage(string heading, string message)
+    public async static void ShowModalMessage(string heading, string message, XamlRoot xamlRoot)
     {
         ContentDialog messageDialog = new ContentDialog()
         {
-            XamlRoot = this.Content.XamlRoot,
+            XamlRoot = xamlRoot,
             Title = heading,
             Content = message,
             PrimaryButtonText = "OK"
