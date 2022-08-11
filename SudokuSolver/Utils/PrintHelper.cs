@@ -2,6 +2,7 @@
 // https://github.com/marb2000/PrintSample/blob/master/MainWindow.xaml.cs
 // https://github.com/microsoft/Windows-universal-samples/blob/main/Samples/Printing/cs/PrintHelper.cs
 
+
 namespace Sudoku.Utils;
 
 internal sealed class PrintHelper
@@ -10,10 +11,11 @@ internal sealed class PrintHelper
     private readonly XamlRoot xamlRoot;
     private readonly DispatcherQueue dispatcherQueue;
     private readonly PrintManager printManager;
-    private readonly PrintDocument printDoc;
-    private readonly IPrintDocumentSource printDocSource;
+    private readonly PrintDocument printDocument;
+    private readonly IPrintDocumentSource printDocumentSource;
 
-    private Control? currentView;
+    private FrameworkElement? currentView;
+    private Canvas? printCanvas;
 
     public PrintHelper(IntPtr hWnd, XamlRoot xamlRoot)
     {
@@ -26,57 +28,52 @@ internal sealed class PrintHelper
         printManager.PrintTaskRequested += PrintTaskRequested;
 
         // Build a PrintDocument and register for callbacks
-        printDoc = new PrintDocument();
-        printDocSource = printDoc.DocumentSource;
-        printDoc.Paginate += Paginate;
-        printDoc.GetPreviewPage += GetPreviewPage;
-        printDoc.AddPages += AddPages;
+        printDocument = new PrintDocument();
+        printDocumentSource = printDocument.DocumentSource;
+        printDocument.Paginate += Paginate;
+        printDocument.GetPreviewPage += GetPreviewPage;
+        printDocument.AddPages += AddPages;
     }
 
 
     public static bool IsSupported => PrintManager.IsSupported();  
 
 
-    public async void PrintView(Control view)
+    public async void PrintView(FrameworkElement view)
     {
         try
         {
             Debug.Assert(PrintManager.IsSupported());
-            Debug.Assert(view is not null);
+            Debug.Assert(view != null);
+            Debug.Assert(printCanvas == null);
 
             currentView = view;
+
             await PrintManagerInterop.ShowPrintUIForWindowAsync(hWnd);
         }
-        catch
+        catch (Exception ex)
         {
-            // Printing cannot proceed at this time
-            ContentDialog noPrintingDialog = new ContentDialog()
-            {
-                XamlRoot = xamlRoot,
-                Title = "Printing error",
-                Content = "\nSorry, printing can' t proceed at this time.",
-                PrimaryButtonText = "OK"
-            };
-
-            await noPrintingDialog.ShowAsync();
+            Dialogs.ShowModalMessage("A printing error occured", ex.Message, xamlRoot);
         }
     }
 
 
-    private void PrintTaskRequested(PrintManager sender, PrintTaskRequestedEventArgs args)
-    {
-        // Create the PrintTask.
-        // Defines the title and delegate for PrintTaskSourceRequested
-        var printTask = args.Request.CreatePrintTask("Print", PrintTaskSourceRequrested);
 
-        // Handle PrintTask.Completed to catch failed print jobs
-        printTask.Completed += PrintTaskCompleted;
-    }
-
-    private void PrintTaskSourceRequrested(PrintTaskSourceRequestedArgs args)
+    private void PrintTaskRequested(PrintManager sender, PrintTaskRequestedEventArgs e)
     {
-        // Set the document source.
-        args.SetSource(printDocSource);
+        PrintTask printTask = e.Request.CreatePrintTask("Print Sudoku Puzzle", (args) =>
+        {
+            args.SetSource(printDocumentSource);
+        });
+
+        printTask.Completed += (s, args) =>
+        {
+            printCanvas = null;
+            currentView = null;
+
+            if (args.Completion == PrintTaskCompletion.Failed)
+                dispatcherQueue.TryEnqueue(() => Dialogs.ShowModalMessage("A printing error occured", string.Empty, xamlRoot));
+        };
     }
 
 
@@ -85,53 +82,43 @@ internal sealed class PrintHelper
     private void Paginate(object sender, PaginateEventArgs e)
     {
         const double cPaddingPercentage = 10;
+        Debug.Assert(currentView != null);
 
-        if (currentView is not null)
+        // print a single page
+        printDocument.SetPreviewPageCount(1, PreviewPageCountType.Final);
+
+        // deterimine the page size
+        PrintPageDescription pd = e.PrintTaskOptions.GetPageDescription(0);
+
+        double inset = Math.Min(pd.ImageableRect.Height, pd.ImageableRect.Width) * (cPaddingPercentage / 100D);
+
+        if (printCanvas == null)
         {
-            // always print a single page
-            printDoc.SetPreviewPageCount(1, PreviewPageCountType.Final);
-
-            // deterimine the page size
-            PrintPageDescription pd = e.PrintTaskOptions.GetPageDescription(0);
-            currentView.Padding = new Thickness(Math.Min(pd.PageSize.Height, pd.PageSize.Width) * (cPaddingPercentage / 100D));
+            printCanvas = new Canvas();
+            printCanvas.Children.Add(currentView);
         }
-    }
 
+        printCanvas.Width = pd.PageSize.Width;
+        printCanvas.Height = pd.PageSize.Height;
+
+        currentView.Width = pd.ImageableRect.Width - (inset * 2.0);
+        currentView.Height = pd.ImageableRect.Height - (inset * 2.0);
+
+        Canvas.SetLeft(currentView, pd.ImageableRect.Left + inset);
+        Canvas.SetTop(currentView, pd.ImageableRect.Top + inset);
+
+    }
+    
     private void GetPreviewPage(object sender, GetPreviewPageEventArgs e)
     {
-        try
-        {
-            // the same print view
-            printDoc.SetPreviewPage(e.PageNumber, currentView);
-        }
-        catch
-        {
-        }
+        // the same canvas as the printed view
+        printDocument.SetPreviewPage(e.PageNumber, printCanvas); 
     }
 
 
     private void AddPages(object sender, AddPagesEventArgs e)
     {
-        printDoc.AddPage(currentView);
-        printDoc.AddPagesComplete();
-    }
-
-
-    private void PrintTaskCompleted(PrintTask sender, PrintTaskCompletedEventArgs args)
-    {
-        if (args.Completion == PrintTaskCompletion.Failed)
-        {
-            dispatcherQueue.TryEnqueue(async () =>
-            {
-                ContentDialog noPrintingDialog = new ContentDialog()
-                {
-                    XamlRoot = xamlRoot,
-                    Title = "Printing error",
-                    Content = "\nSorry, failed to print.",
-                    PrimaryButtonText = "OK"
-                };
-                await noPrintingDialog.ShowAsync();
-            });
-        }
+        printDocument.AddPage(printCanvas);
+        printDocument.AddPagesComplete();
     }
 }

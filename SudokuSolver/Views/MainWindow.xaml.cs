@@ -97,7 +97,7 @@ internal sealed partial class MainWindow : SubClassWindow
         {
             WindowTitle.Text = cDefaultWindowTitle;
             string heading = $"Failed to open file \"{file.DisplayName}\"";
-            ShowModalMessage(heading, ex.Message, Content.XamlRoot);
+            Dialogs.ShowModalMessage(heading, ex.Message, Content.XamlRoot);
         }
     }
 
@@ -125,7 +125,7 @@ internal sealed partial class MainWindow : SubClassWindow
             catch (Exception ex)
             {
                 string heading = $"Failed to save the puzzle as \"{SourceFile.DisplayName}\"";
-                ShowModalMessage(heading, ex.Message, Content.XamlRoot);
+                Dialogs.ShowModalMessage(heading, ex.Message, Content.XamlRoot);
             }
         }  
         else
@@ -153,7 +153,7 @@ internal sealed partial class MainWindow : SubClassWindow
             catch (Exception ex)
             {
                 string heading = $"Failed to save the puzzle as \"{file.DisplayName}\"";
-                ShowModalMessage(heading, ex.Message, Content.XamlRoot);
+                Dialogs.ShowModalMessage(heading, ex.Message, Content.XamlRoot);
             }
         }
     }
@@ -223,18 +223,7 @@ internal sealed partial class MainWindow : SubClassWindow
         // TODO:
     }
 
-    public async static void ShowModalMessage(string heading, string message, XamlRoot xamlRoot)
-    {
-        ContentDialog messageDialog = new ContentDialog()
-        {
-            XamlRoot = xamlRoot,
-            Title = heading,
-            Content = message,
-            PrimaryButtonText = "OK"
-        };
-
-        await messageDialog.ShowAsync();
-    }
+    
 
     private async void LoadWindowIconImage()
     {
