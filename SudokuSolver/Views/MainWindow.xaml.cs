@@ -36,18 +36,15 @@ internal sealed partial class MainWindow : SubClassWindow
         {
             appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
             ThemeHelper.Instance.Register(LayoutRoot, appWindow.TitleBar);
-
-            // update the custom title bar's default button backgrounds (minimise, close etc.) 
-            Activated += (s, a) => ThemeHelper.Instance.UpdateTheme(PuzzleView.ViewModel.IsDarkThemed);
         }
         else
         {
             ExtendsContentIntoTitleBar = true;
             SetTitleBar(CustomTitleBar);
-
-            // if title bar customisation isn't supported only update the client area 
             ThemeHelper.Instance.Register(ClientArea);
         }
+        
+        ThemeHelper.Instance.UpdateTheme(PuzzleView.ViewModel.IsDarkThemed);
 
         LoadWindowIconImage();
 

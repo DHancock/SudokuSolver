@@ -1,5 +1,6 @@
 ﻿// based largely on the following:
 // https://github.com/marb2000/PrintSample/blob/master/MainWindow.xaml.cs
+// https://github.com/microsoft/Windows-universal-samples/blob/main/Samples/Printing/cs/PrintHelper.cs
 
 namespace Sudoku.Utils;
 
