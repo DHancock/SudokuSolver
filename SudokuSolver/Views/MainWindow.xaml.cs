@@ -110,13 +110,13 @@ internal sealed partial class MainWindow : SubClassWindow
         
         StorageFile file = await openPicker.PickSingleFileAsync();
 
-        if (file != null)
+        if (file is not null)
             OpenFile(file);
     }
 
     private async void SaveCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
     {
-        if (SourceFile != null)
+        if (SourceFile is not null)
         {
             try
             {
@@ -142,7 +142,7 @@ internal sealed partial class MainWindow : SubClassWindow
 
         StorageFile file = await savePicker.PickSaveFileAsync();
 
-        if (file != null)
+        if (file is not null)
         {
             try
             {

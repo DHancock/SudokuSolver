@@ -43,7 +43,7 @@ internal sealed class PrintHelper
         try
         {
             Debug.Assert(PrintManager.IsSupported());
-            Debug.Assert(printCanvas == null);
+            Debug.Assert(printCanvas is null);
 
             currentView = view;
 
@@ -77,7 +77,7 @@ internal sealed class PrintHelper
     private void Paginate(object sender, PaginateEventArgs e)
     {
         const double cPaddingPercentage = 10;
-        Debug.Assert(currentView != null);
+        Debug.Assert(currentView is not null);
 
         // print a single page
         printDocument.SetPreviewPageCount(1, PreviewPageCountType.Final);
@@ -87,7 +87,7 @@ internal sealed class PrintHelper
 
         double inset = Math.Min(pd.ImageableRect.Height, pd.ImageableRect.Width) * (cPaddingPercentage / 100D);
 
-        if (printCanvas == null)
+        if (printCanvas is null)
         {
             printCanvas = new Canvas();
             printCanvas.Children.Add(currentView);

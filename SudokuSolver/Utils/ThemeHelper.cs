@@ -32,7 +32,7 @@ internal sealed class ThemeHelper
 
     private void UpdateContent(ElementTheme requestedTheme)
     {
-        Debug.Assert(content != null);
+        Debug.Assert(content is not null);
 
         if (content.RequestedTheme != requestedTheme)
             content.RequestedTheme = requestedTheme;
@@ -40,7 +40,7 @@ internal sealed class ThemeHelper
 
     private void UpdateTitleBar(ElementTheme requestedTheme)
     {
-        Debug.Assert(titleBar != null);
+        Debug.Assert(titleBar is not null);
         Debug.Assert(AppWindowTitleBar.IsCustomizationSupported());
 
         titleBar.ButtonBackgroundColor = Colors.Transparent;
