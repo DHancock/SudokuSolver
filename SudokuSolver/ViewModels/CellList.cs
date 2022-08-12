@@ -7,12 +7,12 @@ internal sealed class CellList : ObservableCollection<Cell>
     private Cell TempStore { get; set; }
 
 
-    public CellList(PropertyChangedEventHandler cellChangedEventHandler) : base()
+    public CellList() : base()
     {
         for (int index = 0; index < Length; index++)
-            this.Add(new Cell(index, cellChangedEventHandler));
+            this.Add(new Cell(index));
 
-        TempStore = new Cell(0, cellChangedEventHandler);
+        TempStore = new Cell(-1);
     }
 
 

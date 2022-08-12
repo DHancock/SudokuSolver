@@ -10,20 +10,18 @@ internal sealed partial class Cell : UserControl
     private static readonly string[] sLookUp = new[] { string.Empty, "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 
     private readonly PossibleTextBlock[] possibleTBs;
-
+    
     public Cell()
     {
         this.InitializeComponent();
 
         IsTabStop = true;
         IsHitTestVisible = true;
-        AllowFocusOnInteraction = true;
 
         LosingFocus += Cell_LosingFocus;
 
         possibleTBs = new PossibleTextBlock[9] { PossibleValue0, PossibleValue1, PossibleValue2, PossibleValue3, PossibleValue4, PossibleValue5, PossibleValue6, PossibleValue7, PossibleValue8 };
     }
-
 
     protected override void OnPointerPressed(PointerRoutedEventArgs e)
     {
@@ -54,7 +52,6 @@ internal sealed partial class Cell : UserControl
         bool stateFound = VisualStateManager.GoToState(this, "Focused", false);
         Debug.Assert(stateFound);
     }
-
 
     public static readonly DependencyProperty DataProperty =
         DependencyProperty.Register(nameof(Data),
@@ -130,26 +127,32 @@ internal sealed partial class Cell : UserControl
         }
     }
 
-
-
-    // The view's cell.Data is bound to a view model's cell. When it's value
-    // changes the view model passes the cell to the model which recalculates the puzzle.
-    // After the models finished recalculating the view model's observable collection
-    // of cells is compared to the model's cells and updated as required forcing
-    // the UI to be updated.
+    // The new value for the cell is forwarded by the view model to the model 
+    // which recalculates the puzzle. After that each model cell is compared to
+    // the view models cell and updated if different. That updates the ui as
+    // the view model cell list is an observable collection bound to ui cells.
     protected override void OnKeyDown(KeyRoutedEventArgs e)
     {
+        int newValue = -1;
+
         if ((e.Key > VirtualKey.Number0) && (e.Key <= VirtualKey.Number9))
         {
-            Data.Value = e.Key - VirtualKey.Number0;
+            newValue = e.Key - VirtualKey.Number0;
         }
         else if ((e.Key > VirtualKey.NumberPad0) && (e.Key <= VirtualKey.NumberPad9))
         {
-            Data.Value = e.Key - VirtualKey.NumberPad0;
+            newValue = e.Key - VirtualKey.NumberPad0;
         }
         else if ((e.Key == VirtualKey.Delete) || (e.Key == VirtualKey.Back))
         {
-            Data.Value = 0;
+            newValue = 0;
+        }
+
+        if (newValue >= 0)
+        {
+            e.Handled = true;
+            Cell cell = (Cell)e.OriginalSource;
+            ((ViewModels.PuzzleViewModel)this.DataContext).UpdateCellForKeyDown(cell.Data.Index, newValue);
         }
     }
 }

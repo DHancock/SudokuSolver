@@ -15,7 +15,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
     {
         Model = new PuzzleModel();
         Settings = DeserializeSettings(settingsText);
-        Cells = new CellList(CellChanged_EventHandler);
+        Cells = new CellList();
         ClearCommand = new RelayCommand(ClearCommandHandler, o => !Model.PuzzleIsEmpty); // TODO: move to view?
     }
 
@@ -26,30 +26,30 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
     private static bool NoOp(int index, int value) => throw new NotImplementedException();
 
 
-    private Func<int, int, bool> DetermineChange(Cell changedCell, int previousValue)
+    private Func<int, int, bool> DetermineChange(Cell cell, int newValue)
     {
-        int newValue = changedCell.Value;
-        Origins origin = changedCell.Origin;
+        int currentValue = cell.Value;
+        Origins currentOrigin = cell.Origin;
 
         if (newValue > 0)
         {
-            if (previousValue == 0)
+            if (currentValue == 0)
                 return Model.Add;
 
-            if (previousValue != newValue)
+            if (currentValue != newValue)
             {
-                if (origin == Origins.User)
+                if (currentOrigin == Origins.User)
                     return Model.Edit;
 
-                if ((origin == Origins.Trial) || (origin == Origins.Calculated))
+                if ((currentOrigin == Origins.Trial) || (currentOrigin == Origins.Calculated))
                     return Model.EditForced;
             }
 
-            if ((previousValue == newValue) && ((origin == Origins.Trial) || (origin == Origins.Calculated)))
+            if ((currentValue == newValue) && ((currentOrigin == Origins.Trial) || (currentOrigin == Origins.Calculated)))
                 return Model.SetOrigin;
         }
 
-        if ((newValue == 0) && (previousValue > 0) && (origin == Origins.User))
+        if ((newValue == 0) && (currentValue > 0) && (currentOrigin == Origins.User))
             return Model.Delete;
 
         // typical changes that require no action are deleting an empty cell, 
@@ -58,38 +58,26 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         return NoOp;
     }
 
-
     // the user typed a value into a cell
-    private void CellChanged_EventHandler(object? sender, PropertyChangedEventArgs e)
+    public void UpdateCellForKeyDown(int index, int newValue)   
     {
-        if (sender == null)
-            return;
-
-        Cell changedCell = (Cell)sender;
-        int previousValue = Model.Cells[changedCell.Index].Value;
-
-        Func<int, int, bool> modelFunction = DetermineChange(changedCell, previousValue);
+        Func<int, int, bool> modelFunction = DetermineChange(Cells[index], newValue);
 
         if (modelFunction != NoOp)
         {
-            if (modelFunction(changedCell.Index, changedCell.Value))
+            if (modelFunction(index, newValue))
             {
-                Cells.UpdateFromModelCell(Model.Cells[changedCell.Index]);  
                 UpdateView();
                 ClearCommand.RaiseCanExecuteChanged();
             }
             else
             {
-                changedCell.RevertValue(previousValue); // avoids another cell changed event
                 User32Sound.PlayExclamation();
             }
 
             Debug.Assert(Model.CompletedCellCountIsValid);
         }
-        else
-            changedCell.RevertValue(previousValue);
     }
-
 
     public void Save(Stream stream) => Model.Save(stream);
 
