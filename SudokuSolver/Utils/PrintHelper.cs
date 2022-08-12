@@ -26,12 +26,13 @@ internal sealed class PrintHelper
         printManager = PrintManagerInterop.GetForWindow(hWnd);
         printManager.PrintTaskRequested += PrintTaskRequested;
 
-        // Build a PrintDocument and register for callbacks
         printDocument = new PrintDocument();
         printDocument.Paginate += Paginate;
         printDocument.GetPreviewPage += GetPreviewPage;
         printDocument.AddPages += AddPages;
 
+        // if a local copy of the document source isn't used a ComException is thrown
+        // marshalled on a different thread error (RPC_E_WRONG_THREAD)
         printDocumentSource = printDocument.DocumentSource;
     }
 
@@ -63,6 +64,8 @@ internal sealed class PrintHelper
 
         printTask.Completed += (s, args) =>
         {
+            // this is called after the data is copied to the os spooler, not actually printed
+            // it will be called before the awaited print ui returns
             printCanvas = null;
             currentView = null;
 
