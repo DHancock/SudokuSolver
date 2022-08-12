@@ -35,7 +35,7 @@ internal sealed partial class Cell : UserControl
         Debug.Assert(stateFound);
     }
 
-    // Above the every thing else in the visual tree is a scroll viewer
+    // Above every thing else in the visual tree is a scroll viewer that's
     // provided by Microsoft. It steals focus immediately after a User
     // Control receives focus. This cancels that focus change.
     private void Cell_LosingFocus(UIElement sender, LosingFocusEventArgs args)

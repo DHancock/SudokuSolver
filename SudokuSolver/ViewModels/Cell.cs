@@ -7,5 +7,4 @@ internal sealed class Cell : CellBase
     public Cell(int index) : base(index)
     {
     }
-
 }
