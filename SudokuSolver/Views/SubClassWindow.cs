@@ -18,7 +18,7 @@ internal class SubClassWindow : Window
         subClassDelegate = new SUBCLASSPROC(NewSubWindowProc);
 
         if (!PInvoke.SetWindowSubclass(hWnd, subClassDelegate, 0, 0))
-            throw new Win32Exception(Marshal.GetLastPInvokeError());
+            throw new Win32Exception(Marshal.GetLastWin32Error());
     }
 
     private LRESULT NewSubWindowProc(HWND hWnd, uint uMsg, WPARAM wParam, LPARAM lParam, nuint uIdSubclass, nuint dwRefData)
@@ -47,7 +47,7 @@ internal class SubClassWindow : Window
             double scalingFactor = dpi / 96.0;
 
             if (!PInvoke.SetWindowPos(hWnd, (HWND)IntPtr.Zero, 0, 0, (int)(value.Width * scalingFactor), (int)(value.Height * scalingFactor), SET_WINDOW_POS_FLAGS.SWP_NOMOVE | SET_WINDOW_POS_FLAGS.SWP_NOZORDER))
-                throw new Win32Exception(Marshal.GetLastPInvokeError());
+                throw new Win32Exception(Marshal.GetLastWin32Error());
         }
         get 
         {
@@ -55,7 +55,7 @@ internal class SubClassWindow : Window
             double scalingFactor = dpi / 96.0;
 
             if (!PInvoke.GetWindowRect(hWnd, out RECT lpRect))
-                throw new Win32Exception(Marshal.GetLastPInvokeError());
+                throw new Win32Exception(Marshal.GetLastWin32Error());
 
             return new Size((lpRect.right - lpRect.left) / scalingFactor, (lpRect.bottom - lpRect.top) / scalingFactor);
         }
@@ -64,7 +64,7 @@ internal class SubClassWindow : Window
     protected void CenterInPrimaryDisplay()
     {
         if (!PInvoke.GetWindowRect(hWnd, out RECT lpRect))
-            throw new Win32Exception(Marshal.GetLastPInvokeError());
+            throw new Win32Exception(Marshal.GetLastWin32Error());
 
         DisplayArea primary = DisplayArea.Primary;
 
@@ -75,7 +75,7 @@ internal class SubClassWindow : Window
         left = Math.Max(left, 0);
 
         if (!PInvoke.SetWindowPos(hWnd, (HWND)IntPtr.Zero, left, top, 0, 0, SET_WINDOW_POS_FLAGS.SWP_NOSIZE | SET_WINDOW_POS_FLAGS.SWP_NOZORDER))
-            throw new Win32Exception(Marshal.GetLastPInvokeError());
+            throw new Win32Exception(Marshal.GetLastWin32Error());
     }
 
     protected WINDOWPLACEMENT GetWindowPlacement()
@@ -83,7 +83,7 @@ internal class SubClassWindow : Window
         WINDOWPLACEMENT placement = default;
 
         if (!PInvoke.GetWindowPlacement(hWnd, ref placement))
-            throw new Win32Exception(Marshal.GetLastPInvokeError());
+            throw new Win32Exception(Marshal.GetLastWin32Error());
 
         return placement;
     }
@@ -102,7 +102,7 @@ internal class SubClassWindow : Window
                 placement.showCmd = SHOW_WINDOW_CMD.SW_SHOWNORMAL;
 
             if (!PInvoke.SetWindowPlacement(hWnd, placement))
-                throw new Win32Exception(Marshal.GetLastPInvokeError());
+                throw new Win32Exception(Marshal.GetLastWin32Error());
         }
     }
 }
