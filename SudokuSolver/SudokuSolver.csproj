@@ -24,9 +24,14 @@
 
 	
   <ItemGroup>
+    <None Remove="Resources\about_dark.png" />
+    <None Remove="Resources\about_light.png" />
     <None Remove="Resources\app.png" />
+    <None Remove="Resources\app_about.png" />
+    <None Remove="Views\AboutBox.xaml" />
   </ItemGroup>
 
+	
 
   <ItemGroup>
     <Content Include="Resources\app.ico" />
@@ -34,6 +39,8 @@
 
 
   <ItemGroup>
+    <EmbeddedResource Include="Resources\about_dark.png" />
+    <EmbeddedResource Include="Resources\about_light.png" />
     <EmbeddedResource Include="Resources\app.png" />
   </ItemGroup>
 
@@ -69,6 +76,9 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+    <Page Update="Views\AboutBox.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 	
 	

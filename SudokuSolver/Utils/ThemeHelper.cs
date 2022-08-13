@@ -65,4 +65,17 @@ internal sealed class ThemeHelper
             titleBar.ButtonInactiveForegroundColor = Colors.DimGray;
         }
     }
+
+    public ElementTheme CurrentTheme
+    {
+        get
+        {
+            Debug.Assert(content is not null);
+
+            if (content is not null)
+                return content.RequestedTheme;
+
+            return App.Current.RequestedTheme == ApplicationTheme.Light ? ElementTheme.Light : ElementTheme.Dark;
+        }
+    }
 }

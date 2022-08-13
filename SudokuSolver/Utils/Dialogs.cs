@@ -7,6 +7,7 @@ internal static class Dialogs
         ContentDialog messageDialog = new ContentDialog()
         {
             XamlRoot = xamlRoot,
+            RequestedTheme = ThemeHelper.Instance.CurrentTheme,
             Title = heading,
             Content = message,
             PrimaryButtonText = "OK"

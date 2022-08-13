@@ -218,19 +218,22 @@ internal sealed partial class MainWindow : SubClassWindow
         return Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), cDirName, cFileName);
     }
 
-    private void AboutClickHandler(object sender, RoutedEventArgs e)
+    private async void AboutClickHandler(object sender, RoutedEventArgs e)
     {
-        // TODO:
-    }
+        ContentDialog aboutBox = new AboutBox()
+        {
+            XamlRoot = this.Content.XamlRoot,
+        };
 
-    
+        await aboutBox.ShowAsync();
+    }
 
     private async void LoadWindowIconImage()
     {
         WindowIcon.Source = await LoadEmbeddedImageResource("Sudoku.Resources.app.png");
     }
 
-    private static async Task<BitmapImage> LoadEmbeddedImageResource(string resourcePath)
+    public static async Task<BitmapImage> LoadEmbeddedImageResource(string resourcePath)
     {
         BitmapImage bitmapImage = new BitmapImage();
 
