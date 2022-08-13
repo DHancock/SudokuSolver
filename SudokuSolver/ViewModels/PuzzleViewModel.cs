@@ -19,12 +19,8 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         ClearCommand = new RelayCommand(ClearCommandHandler, o => !Model.PuzzleIsEmpty); // TODO: move to view?
     }
 
-
     // an empty implementation used to indicate no action is required
-    // when the user changes a cell. As the code supports nullable using
-    // this avoids the need to return a null function delegate.
     private static bool NoOp(int index, int value) => throw new NotImplementedException();
-
 
     private Func<int, int, bool> DetermineChange(Cell cell, int newValue)
     {
@@ -68,19 +64,15 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
             if (modelFunction(index, newValue))
             {
                 UpdateView();
-                ClearCommand.RaiseCanExecuteChanged();
             }
             else
             {
                 User32Sound.PlayExclamation();
             }
-
-            Debug.Assert(Model.CompletedCellCountIsValid);
         }
     }
 
     public void Save(Stream stream) => Model.Save(stream);
-
 
     public void Open(Stream stream)
     {
@@ -100,17 +92,18 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         }
     }
 
-
     private void UpdateView()
     {
-        // update the view model observable collection Cells from the model, causing a ui update
+        // update the view model's observable collection, causing a ui update
         foreach (Models.Cell cell in Model.Cells) 
         {
             if (!cell.Equals(Cells[cell.Index]))
                 Cells.UpdateFromModelCell(cell);
         }
-    }
 
+        Debug.Assert(Model.CompletedCellCountIsValid);
+        ClearCommand.RaiseCanExecuteChanged();
+    }
 
     private void ClearCommandHandler(object? _)
     {
@@ -126,8 +119,8 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
             if (value != Settings.ShowPossibles)
             {
                 Settings.ShowPossibles = value;
-                NotifyPropertyChanged();
                 UpdateViewForShowPossiblesStateChange();
+                NotifyPropertyChanged();
             }
         }
     }
@@ -146,8 +139,6 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         }
     }
 
-
-
     public bool ShowSolution
     {
         get => Settings.ShowSolution;
@@ -155,13 +146,12 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         {
             if (value != Settings.ShowSolution)
             {
-                Settings.ShowSolution = value;
-                NotifyPropertyChanged(); 
+                Settings.ShowSolution = value; 
                 UpdateViewForShowSolutionStateChange();
+                NotifyPropertyChanged();
             }
         }
     }
-
 
     private void UpdateViewForShowPossiblesStateChange()
     {
@@ -180,7 +170,6 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
                 Cells.UpdateFromModelCell(cell);
         }
     }
-
 
     private static Settings DeserializeSettings(string data)
     {
@@ -203,7 +192,6 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
     }
 
     public string SerializeSettings() => JsonSerializer.Serialize(Settings, GetSerializerOptions());
-
 
     public WINDOWPLACEMENT WindowPlacement
     {
