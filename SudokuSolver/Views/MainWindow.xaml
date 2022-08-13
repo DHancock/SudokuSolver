@@ -76,10 +76,7 @@
                     <ToggleMenuFlyoutItem Text="Dark theme" IsChecked="{x:Bind PuzzleView.ViewModel.IsDarkThemed, Mode=TwoWay}" AccessKey="D"/>
 
                     <MenuFlyoutSeparator />
-                    <MenuFlyoutItem Text="About" Click="AboutClickHandler" AccessKey="A" KeyboardAcceleratorTextOverride ="Ctrl+A">
-                        <MenuFlyoutItem.Icon>
-                            <SymbolIcon Symbol="ContactInfo"/>
-                        </MenuFlyoutItem.Icon>
+                    <MenuFlyoutItem Text="About..." Click="AboutClickHandler" AccessKey="A">
                     </MenuFlyoutItem>
                 </MenuBarItem>
             </MenuBar>
