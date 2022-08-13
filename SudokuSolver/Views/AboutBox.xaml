@@ -20,7 +20,7 @@
 
             <StackPanel Grid.Column="1" Grid.RowSpan="2">
                 <TextBlock Text="Sudoku Solver" FontSize="24"/>
-                <TextBlock Text="Version: 1.5"/>
+                <TextBlock Text="{x:Bind local:AboutBox.GetVersionString()}"/>
                 <TextBlock Text="Written by David Hancock"/>
                 <TextBlock><Hyperlink NavigateUri="https://github.com/DHancock/SudokuSolver">GitHub Repository</Hyperlink></TextBlock>
             </StackPanel>

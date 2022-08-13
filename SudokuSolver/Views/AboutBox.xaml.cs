@@ -17,4 +17,6 @@ public sealed partial class AboutBox : ContentDialog
         string path = theme == ElementTheme.Light ? "Sudoku.Resources.about_light.png" : "Sudoku.Resources.about_dark.png";
         AboutImage.Source = await MainWindow.LoadEmbeddedImageResource(path);
     }
+
+    public static string GetVersionString() => $"Verson: {typeof(App).Assembly.GetName().Version}";
 }
