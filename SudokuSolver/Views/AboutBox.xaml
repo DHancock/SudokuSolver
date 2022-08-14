@@ -7,6 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Style="{StaticResource DefaultContentDialogStyle}"
+    Title="{x:Null}"
     PrimaryButtonText = "OK">
     
     <ContentDialog.Content>
@@ -18,9 +19,9 @@
 
             <Image x:Name="AboutImage" Width="62" Height="62" Margin="0,7,20,0" VerticalAlignment="Top"/>
 
-            <StackPanel Grid.Column="1" Grid.RowSpan="2">
+            <StackPanel Grid.Column="1">
                 <TextBlock Text="Sudoku Solver" FontSize="24"/>
-                <TextBlock Text="{x:Bind local:AboutBox.GetVersionString()}"/>
+                <TextBlock Text="Version: {0}" x:Name="VersionTextBlock"/>
                 <TextBlock Text="Written by David Hancock"/>
                 <TextBlock><Hyperlink NavigateUri="https://github.com/DHancock/SudokuSolver">GitHub Repository</Hyperlink></TextBlock>
             </StackPanel>

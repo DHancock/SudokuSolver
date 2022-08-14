@@ -8,6 +8,7 @@ public sealed partial class AboutBox : ContentDialog
     {
         this.InitializeComponent();
 
+        VersionTextBlock.Text = string.Format(VersionTextBlock.Text, typeof(App).Assembly.GetName().Version);
         RequestedTheme = ThemeHelper.Instance.CurrentTheme;
         LoadWindowIconImage(RequestedTheme);
     }
@@ -17,6 +18,4 @@ public sealed partial class AboutBox : ContentDialog
         string path = theme == ElementTheme.Light ? "Sudoku.Resources.about_light.png" : "Sudoku.Resources.about_dark.png";
         AboutImage.Source = await MainWindow.LoadEmbeddedImageResource(path);
     }
-
-    public static string GetVersionString() => $"Verson: {typeof(App).Assembly.GetName().Version}";
 }
