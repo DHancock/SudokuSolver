@@ -27,32 +27,36 @@ internal class SubClassWindow : Window
 
         if (uMsg == WM_GETMINMAXINFO)
         {
-            uint dpi = PInvoke.GetDpiForWindow(hWnd);
-            double scalingFactor = dpi / 96.0;
+            double scalingFactor = GetScaleFactor();
 
             MINMAXINFO minMaxInfo = Marshal.PtrToStructure<MINMAXINFO>(lParam);
-            minMaxInfo.ptMinTrackSize.x = (int)(MinWidth * scalingFactor);
-            minMaxInfo.ptMinTrackSize.y = (int)(MinHeight * scalingFactor);
+            minMaxInfo.ptMinTrackSize.x = Convert.ToInt32(MinWidth * scalingFactor);
+            minMaxInfo.ptMinTrackSize.y = Convert.ToInt32(MinHeight * scalingFactor);
             Marshal.StructureToPtr(minMaxInfo, lParam, true);
         }
 
         return PInvoke.DefSubclassProc(hWnd, uMsg, wParam, lParam);
     }
 
+    private double GetScaleFactor()
+    {
+        uint dpi = PInvoke.GetDpiForWindow(hWnd);
+        Debug.Assert(dpi > 0);
+        return dpi / 96.0;
+    }
+
     protected Size WindowSize
     {
         set
         {
-            uint dpi = PInvoke.GetDpiForWindow(hWnd);
-            double scalingFactor = dpi / 96.0;
+            double scalingFactor = GetScaleFactor();
 
-            if (!PInvoke.SetWindowPos(hWnd, (HWND)IntPtr.Zero, 0, 0, (int)(value.Width * scalingFactor), (int)(value.Height * scalingFactor), SET_WINDOW_POS_FLAGS.SWP_NOMOVE | SET_WINDOW_POS_FLAGS.SWP_NOZORDER))
+            if (!PInvoke.SetWindowPos(hWnd, (HWND)IntPtr.Zero, 0, 0, Convert.ToInt32(value.Width * scalingFactor), Convert.ToInt32(value.Height * scalingFactor), SET_WINDOW_POS_FLAGS.SWP_NOMOVE | SET_WINDOW_POS_FLAGS.SWP_NOZORDER))
                 throw new Win32Exception(Marshal.GetLastWin32Error());
         }
         get 
         {
-            uint dpi = PInvoke.GetDpiForWindow(hWnd);
-            double scalingFactor = dpi / 96.0;
+            double scalingFactor = GetScaleFactor();
 
             if (!PInvoke.GetWindowRect(hWnd, out RECT lpRect))
                 throw new Win32Exception(Marshal.GetLastWin32Error());
