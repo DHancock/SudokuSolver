@@ -7,36 +7,57 @@
         
         <ResourceDictionary x:Key="HighContrast">
             <!-- TODO: fix these... -->
-            <SolidColorBrush x:Key="MajorGridLineBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
-            <SolidColorBrush x:Key="MinorGridLineBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
             <SolidColorBrush x:Key="CalculatedCellValueBrush" Color="Gray"/>
             <SolidColorBrush x:Key="TrialCellValueBrush" Color="Gray"/>
             <SolidColorBrush x:Key="CellFillBrush" Color="White"/>
             <SolidColorBrush x:Key="CellPossiblesBrush" Color="Gray"/>
             <SolidColorBrush x:Key="PossiblesHorizontalBrush" Color="Red"/>
             <SolidColorBrush x:Key="PossiblesVerticalBrush" Color="Green"/>
+
+            <Style x:Key="MinorGridStyle" TargetType="Line">
+                <Setter Property="Stroke" Value="{ThemeResource SystemColorButtonTextColor}"/>
+                <Setter Property="StrokeThickness" Value="2"/>
+            </Style>
+            <Style x:Key="MajorGridStyle" TargetType="Line">
+                <Setter Property="Stroke" Value="{ThemeResource SystemColorButtonTextColor}"/>
+                <Setter Property="StrokeThickness" Value="4"/>
+            </Style>
         </ResourceDictionary>
 
         <ResourceDictionary x:Key="Dark">
-            <SolidColorBrush x:Key="MajorGridLineBrush" Color="LightGray"/>
-            <SolidColorBrush x:Key="MinorGridLineBrush" Color="Gray"/>
             <SolidColorBrush x:Key="CalculatedCellValueBrush" Color="Blue"/>
             <SolidColorBrush x:Key="TrialCellValueBrush" Color="DarkGreen"/>
             <SolidColorBrush x:Key="CellFillBrush" Color="Black"/>
             <SolidColorBrush x:Key="CellPossiblesBrush" Color="Gray"/>
             <SolidColorBrush x:Key="PossiblesHorizontalBrush" Color="Red"/>
             <SolidColorBrush x:Key="PossiblesVerticalBrush" Color="Green"/>
+
+            <Style x:Key="MinorGridStyle" TargetType="Line">
+                <Setter Property="Stroke" Value="Gray"/>
+                <Setter Property="StrokeThickness" Value="1"/>
+            </Style>
+            <Style x:Key="MajorGridStyle" TargetType="Line">
+                <Setter Property="Stroke" Value="LightGray"/>
+                <Setter Property="StrokeThickness" Value="2"/>
+            </Style>
         </ResourceDictionary>
 
         <ResourceDictionary x:Key="Light">
-            <SolidColorBrush x:Key="MajorGridLineBrush" Color="Black"/>
-            <SolidColorBrush x:Key="MinorGridLineBrush" Color="Gray"/>
             <SolidColorBrush x:Key="CalculatedCellValueBrush" Color="LightBlue"/>
             <SolidColorBrush x:Key="TrialCellValueBrush" Color="LightGreen"/>
             <SolidColorBrush x:Key="CellFillBrush" Color="White"/>
             <SolidColorBrush x:Key="CellPossiblesBrush" Color="LightGray"/>
             <SolidColorBrush x:Key="PossiblesHorizontalBrush" Color="Red"/>
             <SolidColorBrush x:Key="PossiblesVerticalBrush" Color="Green"/>
+
+            <Style x:Key="MinorGridStyle" TargetType="Line">
+                <Setter Property="Stroke" Value="Gray"/>
+                <Setter Property="StrokeThickness" Value="1"/>
+            </Style>
+            <Style x:Key="MajorGridStyle" TargetType="Line">
+                <Setter Property="Stroke" Value="Black"/>
+                <Setter Property="StrokeThickness" Value="2"/>
+            </Style>
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
 
