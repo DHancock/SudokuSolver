@@ -133,26 +133,40 @@ internal sealed partial class Cell : UserControl
     // the view model cell list is an observable collection bound to ui cells.
     protected override void OnKeyDown(KeyRoutedEventArgs e)
     {
+        Cell? nextCell = null;
         int newValue = -1;
 
-        if ((e.Key > VirtualKey.Number0) && (e.Key <= VirtualKey.Number9))
+        switch (e.Key)
         {
-            newValue = e.Key - VirtualKey.Number0;
-        }
-        else if ((e.Key > VirtualKey.NumberPad0) && (e.Key <= VirtualKey.NumberPad9))
-        {
-            newValue = e.Key - VirtualKey.NumberPad0;
-        }
-        else if ((e.Key == VirtualKey.Delete) || (e.Key == VirtualKey.Back))
-        {
-            newValue = 0;
+            case VirtualKey.Left:   nextCell = (Cell)XYFocusLeft; break;
+            case VirtualKey.Right:  nextCell = (Cell)XYFocusRight; break;
+            case VirtualKey.Up:     nextCell = (Cell)XYFocusUp; break;
+            case VirtualKey.Down:   nextCell = (Cell)XYFocusDown; break;
+
+            case > VirtualKey.Number0 and <= VirtualKey.Number9:
+                newValue = e.Key - VirtualKey.Number0;
+                break;
+
+            case > VirtualKey.NumberPad0 and <= VirtualKey.NumberPad9:
+                newValue = e.Key - VirtualKey.NumberPad0;
+                break;
+
+            case VirtualKey.Delete: newValue = 0; break;
+            case VirtualKey.Back:   newValue = 0; break;
+
+            default:break;
         }
 
-        if (newValue >= 0)
+        if (nextCell is not null)
         {
             e.Handled = true;
-            Cell cell = (Cell)e.OriginalSource;
-            ((ViewModels.PuzzleViewModel)this.DataContext).UpdateCellForKeyDown(cell.Data.Index, newValue);
+            bool focused = nextCell.Focus(FocusState.Programmatic);
+            Debug.Assert(focused);
+        }
+        else if (newValue >= 0)
+        {
+            e.Handled = true;
+            ((ViewModels.PuzzleViewModel)this.DataContext).UpdateCellForKeyDown(this.Data.Index, newValue);
         }
     }
 }

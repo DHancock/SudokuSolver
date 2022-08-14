@@ -9,7 +9,8 @@ internal sealed class SudokuGrid : Panel
     private double totalWidthOfBorders = 0.0;
     private double cellSize = 0.0;
 
-    private const int cCellCount = 81;
+    private const int cCellsInRow = 9;
+    private const int cCellCount = cCellsInRow * cCellsInRow;
     private const int cMinorGridLineCount = 12;
     private const int cMajorGridLineCount = 8;
 
@@ -48,7 +49,7 @@ internal sealed class SudokuGrid : Panel
             cellSize = Children[0].DesiredSize.Width;
 
             Size desiredSize = new Size();
-            desiredSize.Width = desiredSize.Height = (cellSize * 9.0) + totalWidthOfBorders;
+            desiredSize.Width = desiredSize.Height = (cellSize * cCellsInRow) + totalWidthOfBorders;
 
             return desiredSize;
         }
@@ -72,7 +73,7 @@ internal sealed class SudokuGrid : Panel
 
     private void ArrangeCells()
     {
-        double[] offsets = new double[9];
+        double[] offsets = new double[cCellsInRow];
 
         offsets[0] = majorGridLineWidth;
         offsets[1] = offsets[0] + minorGridLineWidth + cellSize;
@@ -88,22 +89,48 @@ internal sealed class SudokuGrid : Panel
 
         for (int index = 0; index < cCellCount; index++) 
         {
-            int x = index % 9;
-            int y = index / 9;
+            int x = index % cCellsInRow;
+            int y = index / cCellsInRow;
 
             finalRect.X = offsets[x];
             finalRect.Y = offsets[y];
 
             Children[index].Arrange(finalRect);
+
+            // set up the next cell to receive focus when handling arrow key events
+            Children[index].XYFocusUp = Children[ClampVerticalIndex(index - cCellsInRow)];
+            Children[index].XYFocusDown = Children[ClampVerticalIndex(index + cCellsInRow)];
+            Children[index].XYFocusLeft = Children[ClampHorizontalIndex(index - 1)];
+            Children[index].XYFocusRight = Children[ClampHorizontalIndex(index + 1)];
         }
     }
 
+    private static int ClampHorizontalIndex(int index)
+    {
+        int remainder = index % cCellCount;
+
+        if (index < 0)
+            return (remainder == 0) ? 0 : cCellCount + remainder;
+
+        return remainder;
+    }
+
+    private int ClampVerticalIndex(int index)
+    {
+        if (index < 0) // moving up from the top row, select the last cell in the next column to the right
+            return index == -1 ? cCellCount - cCellsInRow : (cCellCount + index + 1);
+
+        if (index >= cCellCount)  // moving down from the bottom row, select the first cell in the next column to the left
+            return index == cCellCount ? cCellsInRow - 1 : (index - cCellCount - 1);
+       
+        return index;
+    }
 
     private void ArrangeGridLines(Size arrangeSize)
     {
         Rect finalRect = new Rect(0, 0, arrangeSize.Width, arrangeSize.Height);
 
-        for (int index = 0; index < 20; index += 2)
+        for (int index = 0; index < cMinorGridLineCount + cMajorGridLineCount; index += 2)
         {
             Line horizontalLine = (Line)Children[cCellCount + index];
 
