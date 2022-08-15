@@ -37,7 +37,7 @@
                         </MenuFlyoutItem.Command>
                     </MenuFlyoutItem>
 
-                    <MenuFlyoutItem Text="Clear" Command="{x:Bind PuzzleView.ViewModel.ClearCommand}" AccessKey="C" KeyboardAcceleratorTextOverride ="Ctrl+C">
+                    <MenuFlyoutItem Text="Clear" Command="{x:Bind puzzleView.ViewModel.ClearCommand}" AccessKey="C" KeyboardAcceleratorTextOverride ="Ctrl+C">
                         <MenuFlyoutItem.Icon>
                             <SymbolIcon Symbol="Clear"/>
                         </MenuFlyoutItem.Icon>
@@ -69,11 +69,11 @@
 
                 <MenuBarItem Title="Options" AccessKey="O">
 
-                    <ToggleMenuFlyoutItem Text="Show possibles" IsChecked="{x:Bind PuzzleView.ViewModel.ShowPossibles, Mode=TwoWay}" AccessKey="P"/>
-                    <ToggleMenuFlyoutItem Text="Show solution" IsChecked="{x:Bind PuzzleView.ViewModel.ShowSolution, Mode=TwoWay}" AccessKey="S"/>
+                    <ToggleMenuFlyoutItem Text="Show possibles" IsChecked="{x:Bind puzzleView.ViewModel.ShowPossibles, Mode=TwoWay}" AccessKey="P"/>
+                    <ToggleMenuFlyoutItem Text="Show solution" IsChecked="{x:Bind puzzleView.ViewModel.ShowSolution, Mode=TwoWay}" AccessKey="S"/>
 
                     <MenuFlyoutSeparator />
-                    <ToggleMenuFlyoutItem Text="Dark theme" IsChecked="{x:Bind PuzzleView.ViewModel.IsDarkThemed, Mode=TwoWay}" AccessKey="D"/>
+                    <ToggleMenuFlyoutItem Text="Dark theme" IsChecked="{x:Bind puzzleView.ViewModel.IsDarkThemed, Mode=TwoWay}" AccessKey="D"/>
 
                     <MenuFlyoutSeparator />
                     <MenuFlyoutItem Text="About..." Click="AboutClickHandler" AccessKey="A">
@@ -81,7 +81,7 @@
                 </MenuBarItem>
             </MenuBar>
 
-            <local:PuzzleView x:Name="PuzzleView" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="8,0,8,8"/>
+            <local:PuzzleView x:Name="puzzleView" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="8,0,8,8"/>
         </Grid>
     </Grid>
 </local:SubClassWindow>

@@ -21,13 +21,13 @@ internal sealed partial class MainWindow : SubClassWindow
     {
         InitializeComponent();
 
-        PuzzleView.ViewModel = new PuzzleViewModel(ReadSettings());
+        puzzleView.ViewModel = new PuzzleViewModel(ReadSettings());
 
         appWindow = AppWindow.GetFromWindowId(Win32Interop.GetWindowIdFromWindow(hWnd));
 
         appWindow.Closing += (s, a) =>
         {
-            PuzzleView.ViewModel.WindowPlacement = GetWindowPlacement();
+            puzzleView.ViewModel.WindowPlacement = GetWindowPlacement();
             SaveSettings();
         };
 
@@ -45,13 +45,13 @@ internal sealed partial class MainWindow : SubClassWindow
             ThemeHelper.Instance.Register(ClientArea);
         }
         
-        ThemeHelper.Instance.UpdateTheme(PuzzleView.ViewModel.IsDarkThemed);
+        ThemeHelper.Instance.UpdateTheme(puzzleView.ViewModel.IsDarkThemed);
 
         LoadWindowIconImage();
 
         printHelper = new PrintHelper(hWnd, Content.XamlRoot);
 
-        SetWindowPlacement(PuzzleView.ViewModel.WindowPlacement);
+        SetWindowPlacement(puzzleView.ViewModel.WindowPlacement);
 
         ProcessCommandLine(Environment.GetCommandLineArgs());
     }
@@ -73,7 +73,7 @@ internal sealed partial class MainWindow : SubClassWindow
         PuzzleView printView = new PuzzleView
         {
             RequestedTheme = ElementTheme.Light,
-            ViewModel = PuzzleView.ViewModel,
+            ViewModel = puzzleView.ViewModel,
         };
 
         printHelper.PrintView(printView);
@@ -87,7 +87,7 @@ internal sealed partial class MainWindow : SubClassWindow
         {
             using (Stream stream = await file.OpenStreamForReadAsync())
             {
-                PuzzleView.ViewModel?.Open(stream);
+                puzzleView.ViewModel?.Open(stream);
             }
 
             SourceFile = file;
@@ -164,7 +164,7 @@ internal sealed partial class MainWindow : SubClassWindow
         {
             using (Stream stream = transaction.Stream.AsStreamForWrite())
             {
-                PuzzleView.ViewModel?.Save(stream);
+                puzzleView.ViewModel?.Save(stream);
             }
 
             await transaction.CommitAsync();
@@ -202,7 +202,7 @@ internal sealed partial class MainWindow : SubClassWindow
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
 
-            File.WriteAllText(path, PuzzleView.ViewModel?.SerializeSettings(), Encoding.Unicode);
+            File.WriteAllText(path, puzzleView.ViewModel?.SerializeSettings(), Encoding.Unicode);
         }
         catch (Exception ex)
         {
