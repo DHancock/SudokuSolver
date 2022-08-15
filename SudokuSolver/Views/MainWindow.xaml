@@ -53,7 +53,7 @@
                     <MenuFlyoutItem Text="Save As..." Click="SaveAsClickHandler" AccessKey="A" KeyboardAcceleratorTextOverride ="Ctrl+Shift+S"/>
 
                     <MenuFlyoutSeparator />
-                    <MenuFlyoutItem Text="Print..." Click="PrintClickHandler" IsEnabled="{x:Bind local:MainWindow.IsPrintingSupported}" AccessKey="P" KeyboardAcceleratorTextOverride ="Ctrl+P">
+                    <MenuFlyoutItem Text="Print..." Click="PrintClickHandler" IsEnabled="{x:Bind IsPrintingAvailable}" AccessKey="P" KeyboardAcceleratorTextOverride ="Ctrl+P">
                         <MenuFlyoutItem.Icon>
                             <SymbolIcon Symbol="Print"/>
                         </MenuFlyoutItem.Icon>

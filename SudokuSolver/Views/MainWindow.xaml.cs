@@ -79,7 +79,7 @@ internal sealed partial class MainWindow : SubClassWindow
         printHelper.PrintView(printView);
     }
 
-    public static bool IsPrintingSupported => PrintHelper.IsSupported;
+    public bool IsPrintingAvailable => printHelper.IsPrintingAvailable;
 
     private async void OpenFile(StorageFile file)
     {

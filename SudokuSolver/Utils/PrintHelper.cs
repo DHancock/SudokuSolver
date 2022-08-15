@@ -15,6 +15,7 @@ internal sealed class PrintHelper
 
     private FrameworkElement? currentView;
     private Canvas? printCanvas;
+    private bool currentlyPrinting;
 
     public PrintHelper(IntPtr hWnd, XamlRoot xamlRoot)
     {
@@ -36,15 +37,16 @@ internal sealed class PrintHelper
         printDocumentSource = printDocument.DocumentSource;
     }
 
-    public static bool IsSupported => PrintManager.IsSupported();  
+    public bool IsPrintingAvailable => PrintManager.IsSupported() && !currentlyPrinting;  
 
     public async void PrintView(FrameworkElement view)
     {
         try
         {
-            Debug.Assert(PrintManager.IsSupported());
+            Debug.Assert(IsPrintingAvailable);
             Debug.Assert(printCanvas is null);
 
+            currentlyPrinting = true; // prevent printing being reentrant 
             currentView = view;
 
             await PrintManagerInterop.ShowPrintUIForWindowAsync(hWnd);
@@ -64,13 +66,16 @@ internal sealed class PrintHelper
 
         printTask.Completed += (s, args) =>
         {
-            // this is called after the data is copied to the os spooler, not actually printed
-            // it will be called before the awaited print ui returns
+            // this is called after the data is handed off to whatever, not actually printed
+            // it could be called before, or after the async print ui has returned
             printCanvas = null;
             currentView = null;
 
             if (args.Completion == PrintTaskCompletion.Failed)
                 dispatcherQueue.TryEnqueue(() => Dialogs.ShowModalMessage("A printing error occured", string.Empty, xamlRoot));
+
+            // allow further print attempts
+            currentlyPrinting = false;
         };
     }
 
