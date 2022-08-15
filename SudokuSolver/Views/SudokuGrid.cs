@@ -18,7 +18,8 @@ internal sealed class SudokuGrid : Panel
 
     public SudokuGrid() : base()
     {
-        UseLayoutRounding = false; 
+        UseLayoutRounding = false;
+        Loading += SudokuGrid_Loading;
     }
 
     private void InitializeGridSizes()
@@ -57,7 +58,6 @@ internal sealed class SudokuGrid : Panel
         return Size.Empty;  // for design time only
     }
 
-
     // Define the layout of the child elements within the grid
     protected override Size ArrangeOverride(Size arrangeSize)
     {
@@ -69,7 +69,6 @@ internal sealed class SudokuGrid : Panel
 
         return arrangeSize;
     }
-
 
     private void ArrangeCells()
     {
@@ -96,34 +95,7 @@ internal sealed class SudokuGrid : Panel
             finalRect.Y = offsets[y];
 
             Children[index].Arrange(finalRect);
-
-            // set up the next cell to receive focus when handling arrow key events
-            Children[index].XYFocusUp = Children[ClampVerticalIndex(index - cCellsInRow)];
-            Children[index].XYFocusDown = Children[ClampVerticalIndex(index + cCellsInRow)];
-            Children[index].XYFocusLeft = Children[ClampHorizontalIndex(index - 1)];
-            Children[index].XYFocusRight = Children[ClampHorizontalIndex(index + 1)];
         }
-    }
-
-    private static int ClampHorizontalIndex(int index)
-    {
-        int remainder = index % cCellCount;
-
-        if (index < 0)
-            return (remainder == 0) ? 0 : cCellCount + remainder;
-
-        return remainder;
-    }
-
-    private int ClampVerticalIndex(int index)
-    {
-        if (index < 0) // moving up from the top row, select the last cell in the next column to the right
-            return index == -1 ? cCellCount - cCellsInRow : (cCellCount + index + 1);
-
-        if (index >= cCellCount)  // moving down from the bottom row, select the first cell in the next column to the left
-            return index == cCellCount ? cCellsInRow - 1 : (index - cCellCount - 1);
-       
-        return index;
     }
 
     private void ArrangeGridLines(Size arrangeSize)
@@ -156,7 +128,6 @@ internal sealed class SudokuGrid : Panel
         }
     }
 
-
     private double CalculateOffset(int index)
     {
         double CalculateOffset(int majorGridLines, int cells, int minorGridLines, double lineWidth)
@@ -184,5 +155,40 @@ internal sealed class SudokuGrid : Panel
         }
 
         throw new ArgumentOutOfRangeException(nameof(index));
+    }
+
+    private void SudokuGrid_Loading(FrameworkElement sender, object args)
+    {
+        for (int index = 0; index < cCellCount; index++)
+        {
+            UIElement child = Children[index];
+
+            // set up the next cell to receive focus when handling arrow key events
+            child.XYFocusUp = Children[ClampVerticalIndex(index - cCellsInRow)];
+            child.XYFocusDown = Children[ClampVerticalIndex(index + cCellsInRow)];
+            child.XYFocusLeft = Children[ClampHorizontalIndex(index - 1)];
+            child.XYFocusRight = Children[ClampHorizontalIndex(index + 1)];
+        }
+    }
+
+    private static int ClampHorizontalIndex(int index)
+    {
+        int remainder = index % cCellCount;
+
+        if (index < 0)
+            return (remainder == 0) ? 0 : cCellCount + remainder;
+
+        return remainder;
+    }
+
+    private static int ClampVerticalIndex(int index)
+    {
+        if (index < 0) // moving up from the top row, select the last cell in the next column to the right
+            return index == -1 ? cCellCount - cCellsInRow : (cCellCount + index + 1);
+
+        if (index >= cCellCount) // moving down from the bottom row, select the first cell in the next column to the left
+            return index == cCellCount ? cCellsInRow - 1 : (index - cCellCount - 1);
+
+        return index;
     }
 }
