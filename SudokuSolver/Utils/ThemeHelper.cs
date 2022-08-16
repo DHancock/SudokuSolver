@@ -25,7 +25,7 @@ internal sealed class ThemeHelper
         ElementTheme theme = isDarkThemed ? ElementTheme.Dark : ElementTheme.Light;
 
         if (titleBar is not null)
-            UpdateTitleBar(theme);
+            UpdateTitleBarCaptionButtons(theme);
 
         UpdateContent(theme);
     }
@@ -38,7 +38,12 @@ internal sealed class ThemeHelper
             content.RequestedTheme = requestedTheme;
     }
 
-    private void UpdateTitleBar(ElementTheme requestedTheme)
+
+    // Updates the minimise, maximise and close button colours.
+    // This is the reason that the themes cannot be changed just
+    // using data binding from the view model. Sort of breaks MVVM
+    // principals but is a pragmatic solution.
+    private void UpdateTitleBarCaptionButtons(ElementTheme requestedTheme)
     {
         Debug.Assert(titleBar is not null);
         Debug.Assert(AppWindowTitleBar.IsCustomizationSupported());
