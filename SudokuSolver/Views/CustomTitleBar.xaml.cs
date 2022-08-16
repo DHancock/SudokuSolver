@@ -21,7 +21,7 @@
             set => windowTitle.Text = value;
         }
 
-        public static readonly DependencyProperty DataProperty =
+        public static readonly DependencyProperty TitleBarThemeProperty =
             DependencyProperty.Register(nameof(TitleBarTheme),
                 typeof(ElementTheme),
                 typeof(CustomTitleBar),
@@ -29,8 +29,8 @@
 
         public ElementTheme TitleBarTheme
         {
-            get { return (ElementTheme)GetValue(DataProperty); }
-            set { base.SetValue(DataProperty, value); }
+            get { return (ElementTheme)GetValue(TitleBarThemeProperty); }
+            set { base.SetValue(TitleBarThemeProperty, value); }
         }
 
         private static void ThemeChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
