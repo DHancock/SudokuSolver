@@ -2,12 +2,12 @@
 
 internal static class Dialogs
 {
-    public async static void ShowModalMessage(string heading, string message, XamlRoot xamlRoot)
+    public async static void ShowModalMessage(string heading, string message, XamlRoot xamlRoot, ElementTheme theme)
     {
         ContentDialog messageDialog = new ContentDialog()
         {
             XamlRoot = xamlRoot,
-            RequestedTheme = ThemeHelper.Instance.CurrentTheme,
+            RequestedTheme = theme,
             Title = heading,
             Content = message,
             PrimaryButtonText = "OK"

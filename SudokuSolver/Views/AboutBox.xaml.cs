@@ -4,18 +4,18 @@ namespace Sudoku.Views;
 
 public sealed partial class AboutBox : ContentDialog
 {
-    public AboutBox()
+    public AboutBox(XamlRoot xamlRoot, ElementTheme requestedTheme)
     {
         this.InitializeComponent();
-
+        XamlRoot = xamlRoot;
+        RequestedTheme = requestedTheme;
         VersionTextBlock.Text = string.Format(VersionTextBlock.Text, typeof(App).Assembly.GetName().Version);
-        RequestedTheme = ThemeHelper.Instance.CurrentTheme;
-        LoadWindowIconImage(RequestedTheme);
+        LoadWindowIconImage();
     }
 
-    private async void LoadWindowIconImage(ElementTheme theme)
+    private async void LoadWindowIconImage()
     {
-        string path = theme == ElementTheme.Light ? "Sudoku.Resources.about_light.png" : "Sudoku.Resources.about_dark.png";
+        string path = RequestedTheme == ElementTheme.Light ? "Sudoku.Resources.about_light.png" : "Sudoku.Resources.about_dark.png";
         AboutImage.Source = await MainWindow.LoadEmbeddedImageResource(path);
     }
 }

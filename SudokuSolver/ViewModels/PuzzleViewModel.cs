@@ -16,7 +16,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         Model = new PuzzleModel();
         Settings = DeserializeSettings(settingsText);
         Cells = new CellList();
-        ClearCommand = new RelayCommand(ClearCommandHandler, o => !Model.PuzzleIsEmpty); // TODO: move to view?
+        ClearCommand = new RelayCommand(ClearCommandHandler, o => !Model.PuzzleIsEmpty);
     }
 
     // an empty implementation used to indicate no action is required
@@ -125,6 +125,11 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         }
     }
     
+    public ElementTheme Theme
+    {
+        get => Settings.IsDarkThemed ? ElementTheme.Dark : ElementTheme.Light;
+    }
+
     public bool IsDarkThemed
     {
         get => Settings.IsDarkThemed;
@@ -133,7 +138,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
             if (value != Settings.IsDarkThemed)
             {
                 Settings.IsDarkThemed = value;
-                ThemeHelper.Instance.UpdateTheme(value);
+                NotifyPropertyChanged(nameof(Theme));
                 NotifyPropertyChanged();
             }
         }

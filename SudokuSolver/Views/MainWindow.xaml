@@ -7,23 +7,15 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid x:Name="LayoutRoot">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Grid x:Name="CustomTitleBar" Height="32" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
+        <local:CustomTitleBar x:Name="customTitleBar" TitleBarTheme="{x:Bind puzzleView.ViewModel.Theme, Mode=OneWay}"/>
 
-            <ImageIcon x:Name="WindowIcon" Width="16" Height="16" Margin="12,0,0,0"/>
-            <TextBlock Grid.Column="1" x:Name="WindowTitle" Margin="8,0,0,0" VerticalAlignment="Center"/>
-        </Grid>
-
-        <Grid Grid.Row="1" x:Name="ClientArea" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid Grid.Row="1" x:Name="clientArea" RequestedTheme ="{x:Bind puzzleView.ViewModel.Theme, Mode=OneWay}" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>

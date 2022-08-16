@@ -31,23 +31,19 @@ internal sealed partial class MainWindow : SubClassWindow
             SaveSettings();
         };
 
-        WindowTitle.Text = cDefaultWindowTitle;
+        customTitleBar.AppWindow = appWindow;
+        customTitleBar.Title = cDefaultWindowTitle;
 
         if (AppWindowTitleBar.IsCustomizationSupported())
         {
             appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
-            ThemeHelper.Instance.Register(LayoutRoot, appWindow.TitleBar);
         }
         else
         {
             ExtendsContentIntoTitleBar = true;
-            SetTitleBar(CustomTitleBar);
-            ThemeHelper.Instance.Register(ClientArea);
+            SetTitleBar(customTitleBar);
         }
         
-        ThemeHelper.Instance.UpdateTheme(puzzleView.ViewModel.IsDarkThemed);
-
-        LoadWindowIconImage();
 
         printHelper = new PrintHelper(hWnd, Content.XamlRoot);
 
@@ -76,7 +72,7 @@ internal sealed partial class MainWindow : SubClassWindow
             ViewModel = puzzleView.ViewModel,
         };
 
-        printHelper.PrintView(printView);
+        printHelper.PrintView(printView, clientArea.RequestedTheme);
     }
 
     public bool IsPrintingAvailable => printHelper.IsPrintingAvailable;
@@ -91,13 +87,13 @@ internal sealed partial class MainWindow : SubClassWindow
             }
 
             SourceFile = file;
-            WindowTitle.Text = $"{cDefaultWindowTitle} - {file.DisplayName}";
+            customTitleBar.Title = $"{cDefaultWindowTitle} - {file.DisplayName}";
         }
         catch (Exception ex)
         {
-            WindowTitle.Text = cDefaultWindowTitle;
+            customTitleBar.Title = cDefaultWindowTitle;
             string heading = $"Failed to open file \"{file.DisplayName}\"";
-            Dialogs.ShowModalMessage(heading, ex.Message, Content.XamlRoot);
+            Dialogs.ShowModalMessage(heading, ex.Message, Content.XamlRoot, clientArea.RequestedTheme);
         }
     }
 
@@ -125,7 +121,7 @@ internal sealed partial class MainWindow : SubClassWindow
             catch (Exception ex)
             {
                 string heading = $"Failed to save the puzzle as \"{SourceFile.DisplayName}\"";
-                Dialogs.ShowModalMessage(heading, ex.Message, Content.XamlRoot);
+                Dialogs.ShowModalMessage(heading, ex.Message, Content.XamlRoot, clientArea.RequestedTheme);
             }
         }  
         else
@@ -148,12 +144,12 @@ internal sealed partial class MainWindow : SubClassWindow
             {
                 await SaveFile(file);
                 SourceFile = file;
-                WindowTitle.Text = $"{cDefaultWindowTitle} - {file.DisplayName}";
+                customTitleBar.Title = $"{cDefaultWindowTitle} - {file.DisplayName}";
             }
             catch (Exception ex)
             {
                 string heading = $"Failed to save the puzzle as \"{file.DisplayName}\"";
-                Dialogs.ShowModalMessage(heading, ex.Message, Content.XamlRoot);
+                Dialogs.ShowModalMessage(heading, ex.Message, Content.XamlRoot, clientArea.RequestedTheme);
             }
         }
     }
@@ -220,17 +216,7 @@ internal sealed partial class MainWindow : SubClassWindow
 
     private async void AboutClickHandler(object sender, RoutedEventArgs e)
     {
-        ContentDialog aboutBox = new AboutBox()
-        {
-            XamlRoot = this.Content.XamlRoot,
-        };
-
-        await aboutBox.ShowAsync();
-    }
-
-    private async void LoadWindowIconImage()
-    {
-        WindowIcon.Source = await LoadEmbeddedImageResource("Sudoku.Resources.app.png");
+        await new AboutBox(Content.XamlRoot, clientArea.RequestedTheme).ShowAsync();
     }
 
     public static async Task<BitmapImage> LoadEmbeddedImageResource(string resourcePath)

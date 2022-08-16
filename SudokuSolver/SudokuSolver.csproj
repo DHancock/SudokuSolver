@@ -29,6 +29,7 @@
     <None Remove="Resources\app.png" />
     <None Remove="Resources\app_about.png" />
     <None Remove="Views\AboutBox.xaml" />
+    <None Remove="Views\CustomTitleBar.xaml" />
   </ItemGroup>
 
 	
@@ -76,6 +77,9 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+    <Page Update="Views\CustomTitleBar.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="Views\AboutBox.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
