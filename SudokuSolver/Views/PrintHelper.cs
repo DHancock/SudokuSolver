@@ -2,7 +2,7 @@
 // https://github.com/marb2000/PrintSample/blob/master/MainWindow.xaml.cs
 // https://github.com/microsoft/Windows-universal-samples/blob/main/Samples/Printing/cs/PrintHelper.cs
 
-namespace Sudoku.Utils;
+namespace Sudoku.Views;
 
 internal sealed class PrintHelper
 {
@@ -38,7 +38,7 @@ internal sealed class PrintHelper
         printDocumentSource = printDocument.DocumentSource;
     }
 
-    public bool IsPrintingAvailable => PrintManager.IsSupported() && !currentlyPrinting;  
+    public bool IsPrintingAvailable => PrintManager.IsSupported() && !currentlyPrinting;
 
     public async void PrintView(FrameworkElement view, ElementTheme theme)
     {
@@ -103,17 +103,17 @@ internal sealed class PrintHelper
         printCanvas.Width = pd.PageSize.Width;
         printCanvas.Height = pd.PageSize.Height;
 
-        currentView.Width = pd.ImageableRect.Width - (inset * 2.0);
-        currentView.Height = pd.ImageableRect.Height - (inset * 2.0);
+        currentView.Width = pd.ImageableRect.Width - inset * 2.0;
+        currentView.Height = pd.ImageableRect.Height - inset * 2.0;
 
         Canvas.SetLeft(currentView, pd.ImageableRect.Left + inset);
         Canvas.SetTop(currentView, pd.ImageableRect.Top + inset);
     }
-    
+
     private void GetPreviewPage(object sender, GetPreviewPageEventArgs e)
     {
         // the same canvas as the printed view
-        printDocument.SetPreviewPage(e.PageNumber, printCanvas); 
+        printDocument.SetPreviewPage(e.PageNumber, printCanvas);
     }
 
     private void AddPages(object sender, AddPagesEventArgs e)

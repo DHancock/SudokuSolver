@@ -1,4 +1,4 @@
-﻿namespace Sudoku.Utils;
+﻿namespace Sudoku.Views;
 
 internal static class Dialogs
 {
