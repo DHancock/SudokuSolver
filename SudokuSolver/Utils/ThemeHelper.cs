@@ -40,7 +40,7 @@ internal sealed class ThemeHelper
 
 
     // Updates the minimise, maximise and close button colours.
-    // This is the reason that the themes cannot be changed just
+    // This is the reason that the themes cannot be easily changed just
     // using data binding from the view model. Sort of breaks MVVM
     // principals but is a pragmatic solution.
     private void UpdateTitleBarCaptionButtons(ElementTheme requestedTheme)
