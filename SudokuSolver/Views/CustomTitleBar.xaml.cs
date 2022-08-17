@@ -21,16 +21,17 @@
             set => windowTitle.Text = value;
         }
 
-        public static readonly DependencyProperty TitleBarThemeProperty =
-            DependencyProperty.Register(nameof(TitleBarTheme),
+        // use method hiding to replace the base property
+        public new static readonly DependencyProperty RequestedThemeProperty =
+            DependencyProperty.Register(nameof(RequestedTheme),
                 typeof(ElementTheme),
                 typeof(CustomTitleBar),
                 new PropertyMetadata(ElementTheme.Default, ThemeChangedCallback));
 
-        public ElementTheme TitleBarTheme
+        public new ElementTheme RequestedTheme
         {
-            get { return (ElementTheme)GetValue(TitleBarThemeProperty); }
-            set { base.SetValue(TitleBarThemeProperty, value); }
+            get { return (ElementTheme)GetValue(RequestedThemeProperty); }
+            set { base.SetValue(RequestedThemeProperty, value); }
         }
 
         private static void ThemeChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -39,7 +40,7 @@
             {
                 CustomTitleBar ctb = (CustomTitleBar)d;
 
-                ctb.RequestedTheme = (ElementTheme)e.NewValue;
+                ctb.layoutRoot.RequestedTheme = (ElementTheme)e.NewValue;
                 ctb.UpdateTitleBarCaptionButtons();
             }
         }

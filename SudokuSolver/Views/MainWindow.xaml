@@ -13,9 +13,9 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <local:CustomTitleBar x:Name="customTitleBar" TitleBarTheme="{x:Bind puzzleView.ViewModel.Theme, Mode=OneWay}"/>
+        <local:CustomTitleBar x:Name="customTitleBar" RequestedTheme="{x:Bind puzzleView.ViewModel.Theme, Mode=OneWay}"/>
 
-        <Grid Grid.Row="1" x:Name="clientArea" RequestedTheme ="{x:Bind puzzleView.ViewModel.Theme, Mode=OneWay}" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid Grid.Row="1" x:Name="clientArea" RequestedTheme="{x:Bind puzzleView.ViewModel.Theme, Mode=OneWay}" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
