@@ -165,10 +165,10 @@ internal sealed partial class MainWindow : SubClassWindow
                 puzzleView.ViewModel?.Save(stream);
 
                 // delete any existing file data beyond the end of the stream
-                transaction.Stream.Size = (ulong)stream.Position;
-            }
+                transaction.Stream.Size = transaction.Stream.Position;
 
-            await transaction.CommitAsync();
+                await transaction.CommitAsync();
+            }
         }
     }
 
