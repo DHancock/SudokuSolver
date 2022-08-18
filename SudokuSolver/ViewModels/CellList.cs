@@ -2,30 +2,11 @@
 
 internal sealed class CellList : ObservableCollection<Cell>
 {
-    private const int Length = 81;
-
-    private Cell TempStore { get; set; }
-
+    private const int cLength = 81;
 
     public CellList() : base()
     {
-        for (int index = 0; index < Length; index++)
+        for (int index = 0; index < cLength; index++)
             this.Add(new Cell(index));
-
-        TempStore = new Cell(-1);
-    }
-
-
-
-    public void UpdateFromModelCell(Models.Cell modelCell)
-    {
-        int index = modelCell.Index;
-
-        Cell temp = TempStore;
-        TempStore = this[index];
-
-        temp.CopyFrom(modelCell);
-
-        this[index] = temp;
     }
 }

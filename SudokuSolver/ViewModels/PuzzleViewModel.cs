@@ -96,10 +96,12 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
     private void UpdateView()
     {
         // update the view model's observable collection, causing a ui update
-        foreach (Models.Cell cell in Model.Cells) 
+        foreach (Models.Cell modelCell in Model.Cells) 
         {
-            if (!cell.Equals(Cells[cell.Index]))
-                Cells.UpdateFromModelCell(cell);
+            int index = modelCell.Index;
+
+            if (!modelCell.Equals(Cells[index]))
+                Cells[index] = new Cell(modelCell);
         }
 
         Debug.Assert(Model.CompletedCellCountIsValid);
@@ -161,19 +163,22 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
 
     private void UpdateViewForShowPossiblesStateChange()
     {
-        foreach (Models.Cell cell in Model.Cells)
-        {
-            if (!cell.HasValue)
-                Cells.UpdateFromModelCell(cell);
-        }
+        UpdateViewWhere(cell => !cell.HasValue);
     }
 
     private void UpdateViewForShowSolutionStateChange()
     {
-        foreach (Models.Cell cell in Model.Cells)
+        UpdateViewWhere(cell => cell.Origin == Origins.Calculated || cell.Origin == Origins.Trial);
+    }
+
+    private void UpdateViewWhere(Func<Cell, bool> test)
+    {
+        for (int index = 0; index < Cells.Count; index++)
         {
-            if ((cell.Origin == Origins.Calculated) || (cell.Origin == Origins.Trial))
-                Cells.UpdateFromModelCell(cell);
+            Cell cell = Cells[index];
+
+            if (test(cell))
+                Cells[index] = new Cell(cell);
         }
     }
 
