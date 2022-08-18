@@ -163,6 +163,9 @@ internal sealed partial class MainWindow : SubClassWindow
             using (Stream stream = transaction.Stream.AsStreamForWrite())
             {
                 puzzleView.ViewModel?.Save(stream);
+
+                // delete any existing file data beyond the end of the stream
+                transaction.Stream.Size = (ulong)stream.Position;
             }
 
             await transaction.CommitAsync();
