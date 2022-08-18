@@ -1,6 +1,4 @@
-﻿using Sudoku.Utils;
-
-namespace Sudoku.Views;
+﻿namespace Sudoku.Views;
 
 public sealed partial class AboutBox : ContentDialog
 {

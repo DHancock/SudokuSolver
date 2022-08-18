@@ -1,5 +1,4 @@
 ﻿using Sudoku.ViewModels;
-using Sudoku.Utils;
 
 namespace Sudoku.Views;
 

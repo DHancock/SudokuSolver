@@ -22,8 +22,9 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
     // an empty implementation used to indicate no action is required
     private static bool NoOp(int index, int value) => throw new NotImplementedException();
 
-    private Func<int, int, bool> DetermineChange(Cell cell, int newValue)
+    private Func<int, int, bool> DetermineChange(int index, int newValue)
     {
+        Cell cell = Cells[index];
         int currentValue = cell.Value;
         Origins currentOrigin = cell.Origin;
 
@@ -57,7 +58,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
     // the user typed a value into a cell
     public void UpdateCellForKeyDown(int index, int newValue)   
     {
-        Func<int, int, bool> modelFunction = DetermineChange(Cells[index], newValue);
+        Func<int, int, bool> modelFunction = DetermineChange(index, newValue);
 
         if (modelFunction != NoOp)
         {
