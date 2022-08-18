@@ -55,7 +55,7 @@ internal sealed class PrintHelper
         }
         catch (Exception ex)
         {
-            Dialogs.ShowModalMessage("A printing error occured", ex.Message, xamlRoot, currentTheme);
+            await new ErrorDialog("A printing error occured", ex.Message, xamlRoot, currentTheme).ShowAsync();
         }
     }
 
@@ -74,7 +74,7 @@ internal sealed class PrintHelper
             currentView = null;
 
             if (args.Completion == PrintTaskCompletion.Failed)
-                dispatcherQueue.TryEnqueue(() => Dialogs.ShowModalMessage("A printing error occured", string.Empty, xamlRoot, currentTheme));
+                dispatcherQueue.TryEnqueue(async () => await new ErrorDialog("A printing error occured", string.Empty, xamlRoot, currentTheme).ShowAsync());
 
             // allow further print attempts
             currentlyPrinting = false;

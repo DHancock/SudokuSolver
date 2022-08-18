@@ -28,6 +28,7 @@
     <None Remove="Resources\about_light.png" />
     <None Remove="Resources\app.png" />
     <None Remove="Resources\app_about.png" />
+    <None Remove="Resources\error.png" />
     <None Remove="Views\AboutBox.xaml" />
     <None Remove="Views\CustomTitleBar.xaml" />
   </ItemGroup>
@@ -43,6 +44,7 @@
     <EmbeddedResource Include="Resources\about_dark.png" />
     <EmbeddedResource Include="Resources\about_light.png" />
     <EmbeddedResource Include="Resources\app.png" />
+    <EmbeddedResource Include="Resources\error.png" />
   </ItemGroup>
 
   

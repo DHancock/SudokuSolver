@@ -1,4 +1,6 @@
-﻿using Sudoku.ViewModels;
+﻿using Microsoft.UI.Xaml;
+
+using Sudoku.ViewModels;
 
 namespace Sudoku.Views;
 
@@ -92,7 +94,7 @@ internal sealed partial class MainWindow : SubClassWindow
         {
             customTitleBar.Title = cDefaultWindowTitle;
             string heading = $"Failed to open file \"{file.DisplayName}\"";
-            Dialogs.ShowModalMessage(heading, ex.Message, Content.XamlRoot, clientArea.RequestedTheme);
+            await new ErrorDialog(heading, ex.Message, Content.XamlRoot, clientArea.RequestedTheme).ShowAsync();
         }
     }
 
@@ -120,7 +122,8 @@ internal sealed partial class MainWindow : SubClassWindow
             catch (Exception ex)
             {
                 string heading = $"Failed to save the puzzle as \"{SourceFile.DisplayName}\"";
-                Dialogs.ShowModalMessage(heading, ex.Message, Content.XamlRoot, clientArea.RequestedTheme);
+                await new ErrorDialog(heading, ex.Message, Content.XamlRoot, clientArea.RequestedTheme).ShowAsync();
+
             }
         }  
         else
@@ -148,7 +151,7 @@ internal sealed partial class MainWindow : SubClassWindow
             catch (Exception ex)
             {
                 string heading = $"Failed to save the puzzle as \"{file.DisplayName}\"";
-                Dialogs.ShowModalMessage(heading, ex.Message, Content.XamlRoot, clientArea.RequestedTheme);
+                await new ErrorDialog(heading, ex.Message, Content.XamlRoot, clientArea.RequestedTheme).ShowAsync();
             }
         }
     }
