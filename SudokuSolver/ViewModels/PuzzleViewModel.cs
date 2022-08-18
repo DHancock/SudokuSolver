@@ -171,13 +171,13 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         UpdateViewWhere(cell => cell.Origin == Origins.Calculated || cell.Origin == Origins.Trial);
     }
 
-    private void UpdateViewWhere(Func<Cell, bool> test)
+    private void UpdateViewWhere(Func<Cell, bool> predicate)
     {
         for (int index = 0; index < Cells.Count; index++)
         {
             Cell cell = Cells[index];
 
-            if (test(cell))
+            if (predicate(cell))
                 Cells[index] = new Cell(cell);
         }
     }
