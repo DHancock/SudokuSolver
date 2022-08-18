@@ -29,10 +29,13 @@
                         </MenuFlyoutItem.Command>
                     </MenuFlyoutItem>
 
-                    <MenuFlyoutItem Text="Clear" Command="{x:Bind puzzleView.ViewModel.ClearCommand}" AccessKey="C" KeyboardAcceleratorTextOverride ="Ctrl+C">
+                    <MenuFlyoutItem Text="Clear" Command="{x:Bind puzzleView.ViewModel.ClearCommand}" AccessKey="C">
                         <MenuFlyoutItem.Icon>
                             <SymbolIcon Symbol="Clear"/>
                         </MenuFlyoutItem.Icon>
+                        <MenuFlyoutItem.KeyboardAccelerators>
+                            <KeyboardAccelerator Key="C" Modifiers="Control" />
+                        </MenuFlyoutItem.KeyboardAccelerators>
                     </MenuFlyoutItem>
 
                     <MenuFlyoutSeparator />
@@ -42,13 +45,20 @@
                         </MenuFlyoutItem.Command>
                     </MenuFlyoutItem>
 
-                    <MenuFlyoutItem Text="Save As..." Click="SaveAsClickHandler" AccessKey="A" KeyboardAcceleratorTextOverride ="Ctrl+Shift+S"/>
+                    <MenuFlyoutItem Text="Save As..." Click="SaveAsClickHandler" AccessKey="A">
+                        <MenuFlyoutItem.KeyboardAccelerators>
+                            <KeyboardAccelerator Key="S" Modifiers="Control,Shift"/>
+                        </MenuFlyoutItem.KeyboardAccelerators>
+                    </MenuFlyoutItem>
 
-                    <MenuFlyoutSeparator />
-                    <MenuFlyoutItem Text="Print..." Click="PrintClickHandler" IsEnabled="{x:Bind IsPrintingAvailable}" AccessKey="P" KeyboardAcceleratorTextOverride ="Ctrl+P">
+                        <MenuFlyoutSeparator />
+                    <MenuFlyoutItem Text="Print..." Click="PrintClickHandler" IsEnabled="{x:Bind IsPrintingAvailable}" AccessKey="P">
                         <MenuFlyoutItem.Icon>
                             <SymbolIcon Symbol="Print"/>
                         </MenuFlyoutItem.Icon>
+                        <MenuFlyoutItem.KeyboardAccelerators>
+                            <KeyboardAccelerator Key="P" Modifiers="Control"/>
+                        </MenuFlyoutItem.KeyboardAccelerators>
                     </MenuFlyoutItem>
 
                     <MenuFlyoutSeparator />
