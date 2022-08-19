@@ -1,4 +1,6 @@
-﻿namespace Sudoku.Views;
+﻿using Sudoku.Utils;
+
+namespace Sudoku.Views;
 
 public sealed partial class ErrorDialog : ContentDialog
 {
@@ -9,6 +11,8 @@ public sealed partial class ErrorDialog : ContentDialog
         RequestedTheme = requestedTheme;
         this.title.Text = title;
         this.message.Text = message;
+        Loaded += (s, e) => User32Sound.PlayExclamation();
+
         LoadWindowIconImage();
     }
 

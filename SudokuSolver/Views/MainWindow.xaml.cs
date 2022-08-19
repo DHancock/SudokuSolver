@@ -214,7 +214,7 @@ internal sealed partial class MainWindow : SubClassWindow
     private static string GetSettingsFilePath()
     {
         const string cFileName = "settings.json";
-        const string cDirName = "SudokuSolver.6D40B575-644E-43C8-9856-D74A50EA1352";
+        const string cDirName = "SudokuSolver.davidhancock.net";
 
         return Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), cDirName, cFileName);
     }
