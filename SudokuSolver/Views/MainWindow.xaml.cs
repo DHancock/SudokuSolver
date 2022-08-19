@@ -1,6 +1,4 @@
-﻿using Microsoft.UI.Xaml;
-
-using Sudoku.ViewModels;
+﻿using Sudoku.ViewModels;
 
 namespace Sudoku.Views;
 
@@ -46,7 +44,7 @@ internal sealed partial class MainWindow : SubClassWindow
         }
         
 
-        printHelper = new PrintHelper(hWnd, Content.XamlRoot);
+        printHelper = new PrintHelper(hWnd, Content.XamlRoot, DispatcherQueue);
 
         SetWindowPlacement(puzzleView.ViewModel.WindowPlacement);
 

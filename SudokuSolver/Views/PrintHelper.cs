@@ -4,6 +4,8 @@
 
 namespace Sudoku.Views;
 
+using DispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue;
+
 internal sealed class PrintHelper
 {
     private readonly IntPtr hWnd;
@@ -18,12 +20,11 @@ internal sealed class PrintHelper
     private bool currentlyPrinting;
     private ElementTheme currentTheme;
 
-    public PrintHelper(IntPtr hWnd, XamlRoot xamlRoot)
+    public PrintHelper(IntPtr hWnd, XamlRoot xamlRoot, DispatcherQueue dispatcherQueue)
     {
         this.hWnd = hWnd;
         this.xamlRoot = xamlRoot;
-
-        dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+        this.dispatcherQueue = dispatcherQueue;
 
         printManager = PrintManagerInterop.GetForWindow(hWnd);
         printManager.PrintTaskRequested += PrintTaskRequested;
