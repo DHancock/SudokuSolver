@@ -24,6 +24,7 @@ global using Microsoft.UI.Xaml.Printing;
 
 global using Windows.Foundation;
 global using Windows.Graphics.Printing;
+global using Windows.Graphics.Printing.OptionDetails;
 global using Windows.Storage;
 global using Windows.Storage.Streams;
 global using Windows.Storage.Pickers;

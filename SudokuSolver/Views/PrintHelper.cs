@@ -15,6 +15,9 @@ internal sealed class PrintHelper
     private readonly PrintDocument printDocument;
     private readonly IPrintDocumentSource printDocumentSource;
 
+    private PrintTask? printTask;
+    private PrintSize printSize = PrintSize.Size_80;   // TODO: save these in settings?
+    private Alignment printAlignment = Alignment.MiddleCenter;   
     private FrameworkElement? currentView;
     private Canvas? printCanvas;
     private bool currentlyPrinting;
@@ -58,14 +61,11 @@ internal sealed class PrintHelper
         {
             await new ErrorDialog("A printing error occured", ex.Message, xamlRoot, currentTheme).ShowAsync();
         }
-    }
+    }   
 
     private void PrintTaskRequested(PrintManager sender, PrintTaskRequestedEventArgs e)
     {
-        PrintTask printTask = e.Request.CreatePrintTask("Print Sudoku Puzzle", (args) =>
-        {
-            args.SetSource(printDocumentSource);
-        });
+        printTask = e.Request.CreatePrintTask("Sudoku Puzzle", PrintTaskSourceRequestedHandler);
 
         printTask.Completed += (s, args) =>
         {
@@ -82,9 +82,111 @@ internal sealed class PrintHelper
         };
     }
 
+    private void PrintTaskSourceRequestedHandler(PrintTaskSourceRequestedArgs args)
+    {
+        Debug.Assert(printTask is not null);
+
+        args.SetSource(printDocumentSource);
+
+        PrintTaskOptionDetails printDetailedOptions = PrintTaskOptionDetails.GetFromPrintTaskOptions(printTask.Options);
+        IList<string> displayedOptions = printDetailedOptions.DisplayedOptions;
+
+        // remove the colour or monochrome option from the default option set
+        displayedOptions.Clear();
+        displayedOptions.Add(StandardPrintTaskOptions.Copies);
+        displayedOptions.Add(StandardPrintTaskOptions.Orientation);
+
+        // add custom size option
+        PrintCustomItemListOptionDetails sizeOption;
+        sizeOption = printDetailedOptions.CreateItemListOption(CustomOptions.PrintSize.ToString(), "Puzzle size");
+        sizeOption.AddItem(PrintSize.Size_100.ToString(), "Fit to page");
+        sizeOption.AddItem(PrintSize.Size_90.ToString(), "90%");
+        sizeOption.AddItem(PrintSize.Size_80.ToString(), "80%");
+        sizeOption.AddItem(PrintSize.Size_70.ToString(), "70%");
+        sizeOption.AddItem(PrintSize.Size_60.ToString(), "60%");
+        sizeOption.AddItem(PrintSize.Size_50.ToString(), "50%");
+        sizeOption.AddItem(PrintSize.Size_40.ToString(), "40%"); 
+        sizeOption.AddItem(PrintSize.Size_30.ToString(), "30%");
+        sizeOption.AddItem(PrintSize.Size_20.ToString(), "20%");
+        sizeOption.AddItem(PrintSize.Size_10.ToString(), "10%");
+
+        sizeOption.TrySetValue(printSize.ToString());
+        displayedOptions.Add(sizeOption.OptionId);
+
+        // add custom alignment option
+        PrintCustomItemListOptionDetails alignOption;
+        alignOption = printDetailedOptions.CreateItemListOption(CustomOptions.Alignment.ToString(), "Position on page");
+        alignOption.AddItem(Alignment.TopLeft.ToString(), "top left");
+        alignOption.AddItem(Alignment.TopCenter.ToString(), "top center");
+        alignOption.AddItem(Alignment.TopRight.ToString(), "top right");
+        alignOption.AddItem(Alignment.MiddleLeft.ToString(), "left of center");
+        alignOption.AddItem(Alignment.MiddleCenter.ToString(), "centered");
+        alignOption.AddItem(Alignment.MiddleRight.ToString(), "right of center");
+        alignOption.AddItem(Alignment.BottomLeft.ToString(), "bottom left");
+        alignOption.AddItem(Alignment.BottomCenter.ToString(), "bottom center");
+        alignOption.AddItem(Alignment.BottomRight.ToString(), "bottom right");
+
+        alignOption.TrySetValue(printAlignment.ToString());
+        displayedOptions.Add(alignOption.OptionId);
+
+        printDetailedOptions.OptionChanged += (sender, args) =>
+        {
+            bool invalidatePreview = false;
+            string optionId = (string)args.OptionId;
+
+            if (CustomOptions.PrintSize.ToString() == optionId)
+            {
+                PrintCustomItemListOptionDetails option = (PrintCustomItemListOptionDetails)sender.Options[optionId];
+                printSize = Enum.Parse<PrintSize>((string)option.Value);
+                invalidatePreview = true;
+            }
+            else if (CustomOptions.Alignment.ToString() == optionId)
+            {
+                PrintCustomItemListOptionDetails option = (PrintCustomItemListOptionDetails)sender.Options[optionId];
+                printAlignment = Enum.Parse<Alignment>((string)option.Value);
+                invalidatePreview = true;
+            }
+
+            if (invalidatePreview)
+                dispatcherQueue.TryEnqueue(() => printDocument.InvalidatePreview());
+        };
+    }
+
+    private enum PrintSize
+    {
+        Size_100 = 100,
+        Size_90 = 90,
+        Size_80 = 80,
+        Size_70 = 70,
+        Size_60 = 60,
+        Size_50 = 50,
+        Size_40 = 40,
+        Size_30 = 30,
+        Size_20 = 20,
+        Size_10 = 10,
+    }
+
+    private enum Alignment
+    {
+        TopLeft,
+        TopCenter,
+        TopRight,
+        MiddleLeft,
+        MiddleCenter,
+        MiddleRight,
+        BottomLeft,
+        BottomCenter,
+        BottomRight,
+    }
+
+    private enum CustomOptions
+    {
+        PrintSize,
+        Alignment,
+    }
+
     private void Paginate(object sender, PaginateEventArgs e)
     {
-        const double cPaddingPercentage = 10;
         Debug.Assert(currentView is not null);
 
         // print a single page
@@ -92,8 +194,6 @@ internal sealed class PrintHelper
 
         // deterimine the page size
         PrintPageDescription pd = e.PrintTaskOptions.GetPageDescription(0);
-
-        double inset = Math.Min(pd.ImageableRect.Height, pd.ImageableRect.Width) * (cPaddingPercentage / 100D);
 
         if (printCanvas is null)
         {
@@ -104,16 +204,62 @@ internal sealed class PrintHelper
         printCanvas.Width = pd.PageSize.Width;
         printCanvas.Height = pd.PageSize.Height;
 
-        currentView.Width = pd.ImageableRect.Width - inset * 2.0;
-        currentView.Height = pd.ImageableRect.Height - inset * 2.0;
+        double viewSize = Math.Min(pd.ImageableRect.Height, pd.ImageableRect.Width) * ((double)printSize / 100D);
 
-        Canvas.SetLeft(currentView, pd.ImageableRect.Left + inset);
-        Canvas.SetTop(currentView, pd.ImageableRect.Top + inset);
+        currentView.Width = viewSize;
+        currentView.Height = viewSize;
+
+        switch (printAlignment)
+        {
+            case Alignment.TopLeft:
+                Canvas.SetLeft(currentView, pd.ImageableRect.Left);
+                Canvas.SetTop(currentView, pd.ImageableRect.Top);
+                break;
+
+            case Alignment.TopCenter:
+                Canvas.SetLeft(currentView, pd.ImageableRect.Left + (pd.ImageableRect.Width - currentView.Width) / 2);
+                Canvas.SetTop(currentView, pd.ImageableRect.Top);
+                break;
+
+            case Alignment.TopRight:
+                Canvas.SetLeft(currentView, pd.ImageableRect.Right - currentView.Width);
+                Canvas.SetTop(currentView, pd.ImageableRect.Top);
+                break;
+
+            case Alignment.MiddleLeft:
+                Canvas.SetLeft(currentView, pd.ImageableRect.Left);
+                Canvas.SetTop(currentView, pd.ImageableRect.Top + (pd.ImageableRect.Height - currentView.Height) / 2);
+                break;
+
+            case Alignment.MiddleCenter:
+                Canvas.SetLeft(currentView, pd.ImageableRect.Left + (pd.ImageableRect.Width - currentView.Width) / 2);
+                Canvas.SetTop(currentView, pd.ImageableRect.Top + (pd.ImageableRect.Height - currentView.Height) / 2);
+                break;
+
+            case Alignment.MiddleRight:
+                Canvas.SetLeft(currentView, pd.ImageableRect.Right - currentView.Width);
+                Canvas.SetTop(currentView, pd.ImageableRect.Top + (pd.ImageableRect.Height - currentView.Height) / 2);
+                break;
+
+            case Alignment.BottomLeft:
+                Canvas.SetLeft(currentView, pd.ImageableRect.Left);
+                Canvas.SetTop(currentView, pd.ImageableRect.Bottom - currentView.Height);
+                break;
+
+            case Alignment.BottomCenter:
+                Canvas.SetLeft(currentView, pd.ImageableRect.Left + (pd.ImageableRect.Width - currentView.Width) / 2);
+                Canvas.SetTop(currentView, pd.ImageableRect.Bottom - currentView.Height);
+                break;
+
+            case Alignment.BottomRight:
+                Canvas.SetLeft(currentView, pd.ImageableRect.Right - currentView.Width);
+                Canvas.SetTop(currentView, pd.ImageableRect.Bottom - currentView.Height);
+                break;
+        }
     }
 
     private void GetPreviewPage(object sender, GetPreviewPageEventArgs e)
     {
-        // the same canvas as the printed view
         printDocument.SetPreviewPage(e.PageNumber, printCanvas);
     }
 
