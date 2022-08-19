@@ -1,10 +1,12 @@
-﻿using Microsoft.UI.Xaml.Shapes;  // there is a name conflict with file path and shape path types
+﻿namespace Sudoku.Views;
 
-namespace Sudoku.Views;
+// if Microsoft.UI.Xaml.Shapes is added to the global usings there will be a
+// name conflict between Shapes.Path and System.IO.Path
+using Line = Microsoft.UI.Xaml.Shapes.Line;
 
 internal sealed class SudokuGrid : Panel
 {
-    private double minorGridLineWidth = 0.0;   
+    private double minorGridLineWidth = 0.0;
     private double majorGridLineWidth = 0.0;
     private double totalWidthOfBorders = 0.0;
     private double cellSize = 0.0;
