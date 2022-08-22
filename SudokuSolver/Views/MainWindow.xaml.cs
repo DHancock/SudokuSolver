@@ -64,14 +64,14 @@ internal sealed partial class MainWindow : SubClassWindow
 
     private async void PrintClickHandler(object sender, RoutedEventArgs e)
     {
-        PuzzleView printView = new PuzzleView
-        {
-            RequestedTheme = ElementTheme.Light,
-            ViewModel = puzzleView.ViewModel,
-        };
-
         try
         {
+            PuzzleView printView = new PuzzleView
+            {
+                RequestedTheme = ElementTheme.Light,
+                ViewModel = puzzleView.ViewModel,
+            };
+
             await printHelper.PrintViewAsync(printView);
         }
         catch (Exception ex)

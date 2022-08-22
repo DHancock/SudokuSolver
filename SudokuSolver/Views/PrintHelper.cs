@@ -69,19 +69,17 @@ internal sealed class PrintHelper
     private void PrintTaskRequested(PrintManager sender, PrintTaskRequestedEventArgs e)
     {
         printTask = e.Request.CreatePrintTask("Sudoku Puzzle", PrintTaskSourceRequestedHandler);
-
+        
         printTask.Completed += (s, args) =>
         {
             // this is called after the data is handed off to whatever, not actually printed
-            printCanvas = null;
-            currentView = null;
-            currentlyPrinting = false;
+            Debug.Assert(taskCompletionSource is not null);
 
             // notify the PrintViewAsync() function that the print task has completed
             if (args.Completion == PrintTaskCompletion.Failed)
-                taskCompletionSource!.SetException(new Exception(string.Empty));
+                taskCompletionSource.SetException(new Exception(string.Empty));
             else
-                taskCompletionSource!.SetResult();
+                taskCompletionSource.SetResult();
         };
     }
 
