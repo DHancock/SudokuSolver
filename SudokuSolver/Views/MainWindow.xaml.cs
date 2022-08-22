@@ -42,9 +42,8 @@ internal sealed partial class MainWindow : SubClassWindow
             ExtendsContentIntoTitleBar = true;
             SetTitleBar(customTitleBar);
         }
-        
 
-        printHelper = new PrintHelper(hWnd, Content.XamlRoot, DispatcherQueue);
+        printHelper = new PrintHelper(hWnd, DispatcherQueue);
 
         SetWindowPlacement(puzzleView.ViewModel.WindowPlacement);
 
@@ -63,7 +62,7 @@ internal sealed partial class MainWindow : SubClassWindow
 
     private void ExitClickHandler(object sender, RoutedEventArgs e) => Close();
 
-    private void PrintClickHandler(object sender, RoutedEventArgs e)
+    private async void PrintClickHandler(object sender, RoutedEventArgs e)
     {
         PuzzleView printView = new PuzzleView
         {
@@ -71,7 +70,14 @@ internal sealed partial class MainWindow : SubClassWindow
             ViewModel = puzzleView.ViewModel,
         };
 
-        printHelper.PrintView(printView, clientArea.RequestedTheme);
+        try
+        {
+            await printHelper.PrintViewAsync(printView);
+        }
+        catch (Exception ex)
+        {
+            await new ErrorDialog("A printing error occured", ex.Message, Content.XamlRoot, clientArea.RequestedTheme).ShowAsync();
+        }
     }
 
     public bool IsPrintingAvailable => printHelper.IsPrintingAvailable;

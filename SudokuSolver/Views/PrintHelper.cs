@@ -9,7 +9,6 @@ using DispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue;
 internal sealed class PrintHelper
 {
     private readonly IntPtr hWnd;
-    private readonly XamlRoot xamlRoot;
     private readonly DispatcherQueue dispatcherQueue;
     private readonly PrintManager printManager;
     private readonly PrintDocument printDocument;
@@ -21,12 +20,11 @@ internal sealed class PrintHelper
     private FrameworkElement? currentView;
     private Canvas? printCanvas;
     private bool currentlyPrinting;
-    private ElementTheme currentTheme;
+    private TaskCompletionSource? taskCompletionSource;
 
-    public PrintHelper(IntPtr hWnd, XamlRoot xamlRoot, DispatcherQueue dispatcherQueue)
+    public PrintHelper(IntPtr hWnd, DispatcherQueue dispatcherQueue)
     {
         this.hWnd = hWnd;
-        this.xamlRoot = xamlRoot;
         this.dispatcherQueue = dispatcherQueue;
 
         printManager = PrintManagerInterop.GetForWindow(hWnd);
@@ -44,22 +42,27 @@ internal sealed class PrintHelper
 
     public bool IsPrintingAvailable => PrintManager.IsSupported() && !currentlyPrinting;
 
-    public async void PrintView(FrameworkElement view, ElementTheme theme)
+    public async Task PrintViewAsync(FrameworkElement view)
     {
         try
         {
-            Debug.Assert(IsPrintingAvailable);
+            Debug.Assert(IsPrintingAvailable);  // printing isn't reentrant
             Debug.Assert(printCanvas is null);
 
-            currentlyPrinting = true; // prevent printing being reentrant 
-            currentTheme = theme;
+            currentlyPrinting = true;
             currentView = view;
+            taskCompletionSource = new TaskCompletionSource();
 
             await PrintManagerInterop.ShowPrintUIForWindowAsync(hWnd);
+
+            // and wait for the print task to complete (from a different thread)
+            await taskCompletionSource.Task;
         }
-        catch (Exception ex)
+        finally
         {
-            await new ErrorDialog("A printing error occured", ex.Message, xamlRoot, currentTheme).ShowAsync();
+            printCanvas = null;
+            currentView = null;
+            currentlyPrinting = false;
         }
     }   
 
@@ -70,15 +73,15 @@ internal sealed class PrintHelper
         printTask.Completed += (s, args) =>
         {
             // this is called after the data is handed off to whatever, not actually printed
-            // it could be called before, or after the async print ui has returned
             printCanvas = null;
             currentView = null;
-
-            if (args.Completion == PrintTaskCompletion.Failed)
-                dispatcherQueue.TryEnqueue(async () => await new ErrorDialog("A printing error occured", string.Empty, xamlRoot, currentTheme).ShowAsync());
-
-            // allow further print attempts
             currentlyPrinting = false;
+
+            // notify the PrintViewAsync() function that the print task has completed
+            if (args.Completion == PrintTaskCompletion.Failed)
+                taskCompletionSource!.SetException(new Exception(string.Empty));
+            else
+                taskCompletionSource!.SetResult();
         };
     }
 
