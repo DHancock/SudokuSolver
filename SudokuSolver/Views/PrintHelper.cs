@@ -62,6 +62,7 @@ internal sealed class PrintHelper
         {
             printCanvas = null;
             currentView = null;
+            taskCompletionSource = null;
             currentlyPrinting = false;
         }
     }   
@@ -76,10 +77,19 @@ internal sealed class PrintHelper
             Debug.Assert(taskCompletionSource is not null);
 
             // notify the PrintViewAsync() function that the print task has completed
-            if (args.Completion == PrintTaskCompletion.Failed)
-                taskCompletionSource.SetException(new Exception(string.Empty));
-            else
-                taskCompletionSource.SetResult();
+            if (taskCompletionSource is not null)
+            {
+                if (args.Completion == PrintTaskCompletion.Failed)
+                {
+                    bool success = taskCompletionSource.TrySetException(new Exception(string.Empty));
+                    Debug.Assert(success);
+                }
+                else
+                {
+                    bool success = taskCompletionSource.TrySetResult();
+                    Debug.Assert(success);
+                }
+            }
         };
     }
 
