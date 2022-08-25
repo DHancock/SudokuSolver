@@ -7,3 +7,7 @@ GetWindowPlacement
 SetWindowPlacement
 SetWindowSubclass
 DefSubclassProc
+GetModuleHandleEx
+GetSystemMetrics
+LoadImage
+SendMessage

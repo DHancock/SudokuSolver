@@ -30,17 +30,17 @@ internal sealed partial class MainWindow : SubClassWindow
             SaveSettings();
         };
 
-        customTitleBar.AppWindow = appWindow;
-        customTitleBar.Title = cDefaultWindowTitle;
+        WindowTitle = cDefaultWindowTitle;
 
         if (AppWindowTitleBar.IsCustomizationSupported())
         {
+            customTitleBar.AppWindow = appWindow;
             appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
         }
         else
         {
-            ExtendsContentIntoTitleBar = true;
-            SetTitleBar(customTitleBar);
+            customTitleBar.Visibility = Visibility.Collapsed;
+            SetWindowIconFromAppIcon();
         }
 
         printHelper = new PrintHelper(hWnd, DispatcherQueue);
@@ -92,11 +92,11 @@ internal sealed partial class MainWindow : SubClassWindow
             }
 
             SourceFile = file;
-            customTitleBar.Title = $"{cDefaultWindowTitle} - {file.DisplayName}";
+            WindowTitle = $"{cDefaultWindowTitle} - {file.DisplayName}";
         }
         catch (Exception ex)
         {
-            customTitleBar.Title = cDefaultWindowTitle;
+            WindowTitle = cDefaultWindowTitle;
             string heading = $"Failed to open file \"{file.DisplayName}\"";
             await new ErrorDialog(heading, ex.Message, Content.XamlRoot, clientArea.RequestedTheme).ShowAsync();
         }
@@ -150,7 +150,7 @@ internal sealed partial class MainWindow : SubClassWindow
             {
                 await SaveFile(file);
                 SourceFile = file;
-                customTitleBar.Title = $"{cDefaultWindowTitle} - {file.DisplayName}";
+                WindowTitle = $"{cDefaultWindowTitle} - {file.DisplayName}";
             }
             catch (Exception ex)
             {
@@ -243,5 +243,16 @@ internal sealed partial class MainWindow : SubClassWindow
         }
 
         return bitmapImage;
+    }
+
+    private string WindowTitle
+    {
+        set
+        {
+            if (AppWindowTitleBar.IsCustomizationSupported())
+                customTitleBar.Title = value;
+            else
+                Title = value;
+        }
     }
 }

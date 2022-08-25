@@ -1,12 +1,11 @@
 ﻿namespace Sudoku.Views;
 
-
 internal class SubClassWindow : Window
 {
-    public const double MinWidth = 388;
-    public const double MinHeight = 440;
-    public const double InitialWidth = 563;
-    public const double InitialHeight = 614;
+    private const double MinWidth = 388;
+    private const double MinHeight = 440;
+    private const double InitialWidth = 563;
+    private const double InitialHeight = 614;
 
     protected readonly HWND hWnd;
     private readonly SUBCLASSPROC subClassDelegate;
@@ -107,6 +106,39 @@ internal class SubClassWindow : Window
 
             if (!PInvoke.SetWindowPlacement(hWnd, placement))
                 throw new Win32Exception(Marshal.GetLastWin32Error());
+        }
+    }
+
+    protected void SetWindowIconFromAppIcon()
+    {
+        if (!PInvoke.GetModuleHandleEx(0, null, out FreeLibrarySafeHandle module))
+            throw new Win32Exception(Marshal.GetLastWin32Error());
+
+        WPARAM ICON_SMALL = 0;
+        WPARAM ICON_BIG = 1;
+        const string cAppIconResourceId = "#32512";
+
+        SetWindowIcon(module, cAppIconResourceId, ICON_SMALL, PInvoke.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXSMICON));
+        SetWindowIcon(module, cAppIconResourceId, ICON_BIG, PInvoke.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXICON));
+    }
+
+    private void SetWindowIcon(FreeLibrarySafeHandle module, string iconId, WPARAM iconType, int size)
+    {
+        const uint WM_SETICON = 0x0080;
+
+        SafeFileHandle hIcon = PInvoke.LoadImage(module, iconId, GDI_IMAGE_TYPE.IMAGE_ICON, size, size, IMAGE_FLAGS.LR_DEFAULTCOLOR);
+
+        if (hIcon.IsInvalid)
+            throw new Win32Exception(Marshal.GetLastWin32Error());
+
+        try
+        {
+            LRESULT previousIcon = PInvoke.SendMessage(hWnd, WM_SETICON, iconType, hIcon.DangerousGetHandle());
+            Debug.Assert(previousIcon == (LRESULT)0);
+        }
+        finally
+        {
+            hIcon.SetHandleAsInvalid(); // SafeFileHandle must not release the shared icon
         }
     }
 }
