@@ -81,7 +81,7 @@ internal sealed class PrintHelper
             {
                 if (args.Completion == PrintTaskCompletion.Failed)
                 {
-                    bool success = taskCompletionSource.TrySetException(new Exception(string.Empty));
+                    bool success = taskCompletionSource.TrySetException(new Exception("PrintTaskCompletion.Failed"));
                     Debug.Assert(success);
                 }
                 else
