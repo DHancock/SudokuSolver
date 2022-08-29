@@ -14,14 +14,14 @@
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition MaxWidth="325"/>
             </Grid.ColumnDefinitions>
 
             <Image x:Name="errorImage" Width="62" Height="62" Margin="0,7,20,0" VerticalAlignment="Top"/>
 
             <StackPanel Grid.Column="1">
-                <TextBlock x:Name="title" FontSize="24"/>
-                <TextBlock x:Name="message"/>
+                <TextBlock x:Name="title" FontSize="24" TextWrapping="Wrap"/>
+                <TextBlock x:Name="message" TextWrapping="Wrap"/>
             </StackPanel>
         </Grid>
     </ContentDialog.Content>
