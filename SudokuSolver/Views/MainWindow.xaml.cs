@@ -128,7 +128,6 @@ internal sealed partial class MainWindow : SubClassWindow
             {
                 string heading = $"Failed to save the puzzle as \"{SourceFile.DisplayName}\"";
                 await new ErrorDialog(heading, ex.Message, Content.XamlRoot, clientArea.RequestedTheme).ShowAsync();
-
             }
         }  
         else

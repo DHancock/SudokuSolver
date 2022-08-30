@@ -57,7 +57,6 @@
             }
         }
 
-        
         private void UpdateTitleBarCaptionButtons()
         {
             Debug.Assert(AppWindow is not null);
