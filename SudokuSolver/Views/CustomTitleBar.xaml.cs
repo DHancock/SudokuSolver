@@ -2,19 +2,31 @@
 {
     public sealed partial class CustomTitleBar : UserControl
     {
+        public AppWindow? AppWindow { set; private get; }
+        public double ScaleFactor { set; private get; }
+
         public CustomTitleBar()
         {
             this.InitializeComponent();
-
+            
             LoadWindowIconImage();
+
+            SizeChanged += (s, e) =>
+            {
+                Debug.Assert(AppWindow is not null);
+                Debug.Assert(ScaleFactor > 0.0);
+
+                LeftPaddingColumn.Width = new GridLength(AppWindow.TitleBar.LeftInset / ScaleFactor);
+                RightPaddingColumn.Width = new GridLength(AppWindow.TitleBar.RightInset / ScaleFactor);
+
+                windowTitle.Width = e.NewSize.Width - (LeftPaddingColumn.Width.Value + IconColumn.Width.Value + RightPaddingColumn.Width.Value);
+            };
         }
 
         private async void LoadWindowIconImage()
         {
             windowIcon.Source = await MainWindow.LoadEmbeddedImageResource("Sudoku.Resources.app.png");
         }
-
-        public AppWindow? AppWindow { set; private get; }
 
         public string Title
         {
@@ -45,6 +57,7 @@
             }
         }
 
+        
         private void UpdateTitleBarCaptionButtons()
         {
             Debug.Assert(AppWindow is not null);

@@ -37,7 +37,7 @@ internal class SubClassWindow : Window
         return PInvoke.DefSubclassProc(hWnd, uMsg, wParam, lParam);
     }
 
-    private double GetScaleFactor()
+    protected double GetScaleFactor()
     {
         uint dpi = PInvoke.GetDpiForWindow(hWnd);
         Debug.Assert(dpi > 0);

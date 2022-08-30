@@ -35,8 +35,9 @@ internal sealed partial class MainWindow : SubClassWindow
         if (AppWindowTitleBar.IsCustomizationSupported())
         {
             customTitleBar.AppWindow = appWindow;
+            customTitleBar.ScaleFactor = GetScaleFactor();
             appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
-        }
+        } 
         else
         {
             customTitleBar.Visibility = Visibility.Collapsed;
