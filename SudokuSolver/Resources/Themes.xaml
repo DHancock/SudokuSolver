@@ -32,6 +32,9 @@
             <SolidColorBrush x:Key="PossiblesHorizontalBrush" Color="Red"/>
             <SolidColorBrush x:Key="PossiblesVerticalBrush" Color="Green"/>
 
+            <!-- replace the black chrome default brush colour, the contrast is too low to see -->
+            <SolidColorBrush x:Key="WindowCaptionForegroundDisabled" Color="Gray"/>
+            
             <Style x:Key="MinorGridStyle" TargetType="Line">
                 <Setter Property="Stroke" Value="Gray"/>
                 <Setter Property="StrokeThickness" Value="1"/>

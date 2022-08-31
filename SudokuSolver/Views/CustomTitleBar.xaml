@@ -7,7 +7,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Canvas Height="32">
+    <Grid Height="32" x:Name="layoutRoot" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="ActivationStates">
                 <VisualState x:Name="Deactivated">
@@ -20,16 +21,14 @@
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
-        <Grid Height="32" x:Name="layoutRoot" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition x:Name="LeftPaddingColumn" Width="0"/>
-                <ColumnDefinition x:Name="IconColumn" Width="36"/>
-                <ColumnDefinition x:Name="TitleColumn" Width="Auto"/>
-                <ColumnDefinition x:Name="RightPaddingColumn" Width="0"/>
-            </Grid.ColumnDefinitions>
-
-            <ImageIcon Grid.Column="1" x:Name="windowIcon" Width="16" Height="16" HorizontalAlignment="Left" Margin="12,0,0,0"/>
-            <TextBlock Grid.Column="2" x:Name="windowTitle" VerticalAlignment="Center" Foreground="{ThemeResource WindowCaptionForeground}" TextTrimming="CharacterEllipsis"/>
-        </Grid>
-    </Canvas>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition x:Name="LeftPaddingColumn" Width="0"/>
+            <ColumnDefinition x:Name="IconColumn" Width="36"/>
+            <ColumnDefinition x:Name="TitleColumn" Width="Auto"/>
+            <ColumnDefinition x:Name="RightPaddingColumn" Width="0"/>
+        </Grid.ColumnDefinitions>
+        
+        <ImageIcon Grid.Column="1" x:Name="windowIcon" Width="16" Height="16" HorizontalAlignment="Left" Margin="12,0,0,0"/>
+        <TextBlock Grid.Column="2" x:Name="windowTitle" VerticalAlignment="Center" Foreground="{ThemeResource WindowCaptionForeground}" TextTrimming="CharacterEllipsis"/>
+    </Grid>
 </UserControl>
