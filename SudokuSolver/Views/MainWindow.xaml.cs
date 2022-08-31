@@ -36,6 +36,7 @@ internal sealed partial class MainWindow : SubClassWindow
         {
             customTitleBar.AppWindow = appWindow;
             customTitleBar.ScaleFactor = GetScaleFactor();
+            Activated += customTitleBar.ParentWindow_Activated;
             appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
         } 
         else
