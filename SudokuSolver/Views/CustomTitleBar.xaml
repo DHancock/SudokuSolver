@@ -14,6 +14,7 @@
                 <VisualState x:Name="Deactivated">
                     <VisualState.Setters>
                         <Setter Target="windowTitle.Foreground" Value="{ThemeResource WindowCaptionForegroundDisabled}"/>
+                        <Setter Target="windowIcon.Opacity" Value="0.25"/>
                     </VisualState.Setters>
                 </VisualState>
 
