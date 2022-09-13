@@ -22,9 +22,7 @@ internal class SubClassWindow : Window
 
     private LRESULT NewSubWindowProc(HWND hWnd, uint uMsg, WPARAM wParam, LPARAM lParam, nuint uIdSubclass, nuint dwRefData)
     {
-        const uint WM_GETMINMAXINFO = 0x0024;
-
-        if (uMsg == WM_GETMINMAXINFO)
+        if (uMsg == PInvoke.WM_GETMINMAXINFO)
         {
             double scalingFactor = GetScaleFactor();
 
