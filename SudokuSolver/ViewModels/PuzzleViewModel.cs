@@ -212,14 +212,11 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
 
     private static JsonSerializerOptions GetSerializerOptions()
     {
-        JsonSerializerOptions serializerOptions = new JsonSerializerOptions();
-        serializerOptions.WriteIndented = true;
-
-        serializerOptions.Converters.Add(new WINDOWPLACEMENTConverter());
-        serializerOptions.Converters.Add(new POINTConverter());
-        serializerOptions.Converters.Add(new RECTConverter());
-
-        return serializerOptions;
+        return new JsonSerializerOptions()
+        {
+            WriteIndented = true,
+            IncludeFields = true,
+        };
     }
 
     private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")

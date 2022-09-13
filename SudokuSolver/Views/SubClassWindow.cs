@@ -27,8 +27,8 @@ internal class SubClassWindow : Window
             double scalingFactor = GetScaleFactor();
 
             MINMAXINFO minMaxInfo = Marshal.PtrToStructure<MINMAXINFO>(lParam);
-            minMaxInfo.ptMinTrackSize.x = Convert.ToInt32(MinWidth * scalingFactor);
-            minMaxInfo.ptMinTrackSize.y = Convert.ToInt32(MinHeight * scalingFactor);
+            minMaxInfo.ptMinTrackSize.X = Convert.ToInt32(MinWidth * scalingFactor);
+            minMaxInfo.ptMinTrackSize.Y = Convert.ToInt32(MinHeight * scalingFactor);
             Marshal.StructureToPtr(minMaxInfo, lParam, true);
         }
 
