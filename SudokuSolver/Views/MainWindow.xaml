@@ -46,12 +46,15 @@
                     </MenuFlyoutItem>
 
                     <MenuFlyoutItem Text="Save As..." Click="SaveAsClickHandler" AccessKey="A">
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xe792;"/>
+                        </MenuFlyoutItem.Icon>
                         <MenuFlyoutItem.KeyboardAccelerators>
                             <KeyboardAccelerator Key="S" Modifiers="Control,Shift"/>
                         </MenuFlyoutItem.KeyboardAccelerators>
                     </MenuFlyoutItem>
 
-                        <MenuFlyoutSeparator />
+                    <MenuFlyoutSeparator />
                     <MenuFlyoutItem Text="Print..." Click="PrintClickHandler" IsEnabled="{x:Bind IsPrintingAvailable}" AccessKey="P">
                         <MenuFlyoutItem.Icon>
                             <SymbolIcon Symbol="Print"/>
