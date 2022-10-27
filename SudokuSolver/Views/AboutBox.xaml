@@ -20,9 +20,8 @@
             <Image x:Name="AboutImage" Width="62" Height="62" Margin="0,7,20,0" VerticalAlignment="Top"/>
 
             <StackPanel Grid.Column="1">
-                <TextBlock Text="Sudoku Solver" FontSize="24"/>
+                <TextBlock Text="Sudoku Solver" FontSize="20"/>
                 <TextBlock Text="Version: {0}" x:Name="VersionTextBlock"/>
-                <TextBlock Text="Written by David Hancock"/>
                 <TextBlock><Hyperlink NavigateUri="https://github.com/DHancock/SudokuSolver">GitHub Repository</Hyperlink></TextBlock>
             </StackPanel>
         </Grid>
