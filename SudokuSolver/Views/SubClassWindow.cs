@@ -1,6 +1,4 @@
-﻿using Windows.Graphics;
-
-namespace Sudoku.Views;
+﻿namespace Sudoku.Views;
 
 public enum WindowState { Normal, Minimized, Maximized } 
 
@@ -66,10 +64,7 @@ internal class SubClassWindow : Window
             Debug.Assert(Enum.IsDefined(typeof(WindowState), value));
             windowState = value;
             
-            Debug.Assert(appWindow.Presenter.Kind == AppWindowPresenterKind.Overlapped);
-            OverlappedPresenter? op = appWindow.Presenter as OverlappedPresenter;
-
-            if (op is not null)
+            if (appWindow.Presenter is OverlappedPresenter op)
             {
                 switch (windowState)
                 {

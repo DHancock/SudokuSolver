@@ -67,32 +67,22 @@ internal sealed partial class MainWindow : SubClassWindow
 
     private RectInt32 ValidateRestoreBounds(Rect windowArea)
     {
-        try
-        {
-            Rect workingArea = GetWorkingAreaOfClosestMonitor(windowArea);
+        Rect workingArea = GetWorkingAreaOfClosestMonitor(windowArea);
+        Point topLeft = new Point(windowArea.X, windowArea.Y);
 
-            Point topLeft = new Point(windowArea.X, windowArea.Y);
+        if ((topLeft.Y + windowArea.Height) > workingArea.Bottom)
+            topLeft.Y = workingArea.Bottom - windowArea.Height;
 
-            if ((topLeft.Y + windowArea.Height) > workingArea.Bottom)
-                topLeft.Y = workingArea.Bottom - windowArea.Height;
+        if (topLeft.Y < workingArea.Top)
+            topLeft.Y = workingArea.Top;
 
-            if (topLeft.Y < workingArea.Top)
-                topLeft.Y = workingArea.Top;
+        if ((topLeft.X + windowArea.Width) > workingArea.Right)
+            topLeft.X = workingArea.Right - windowArea.Width;
 
-            if ((topLeft.X + windowArea.Width) > workingArea.Right)
-                topLeft.X = workingArea.Right - windowArea.Width;
+        if (topLeft.X < workingArea.Left)
+            topLeft.X = workingArea.Left;
 
-            if (topLeft.X < workingArea.Left)
-                topLeft.X = workingArea.Left;
-
-            return ConvertToRectInt32(new Rect(topLeft.X, topLeft.Y, windowArea.Width, windowArea.Height));
-        }
-        catch (Exception ex)
-        {
-            Trace.WriteLine(ex.ToString());
-        }
-
-        return ConvertToRectInt32(windowArea);
+        return ConvertToRectInt32(new Rect(topLeft.X, topLeft.Y, windowArea.Width, windowArea.Height));
     }
 
     private async void ProcessCommandLine(string[] args)
