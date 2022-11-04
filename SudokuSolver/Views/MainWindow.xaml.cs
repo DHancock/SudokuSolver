@@ -12,7 +12,7 @@ internal sealed partial class MainWindow : SubClassWindow
     private const string cDefaultFileExt = ".sdku";
     private const string cDefaultWindowTitle = "Sudoku Solver";
 
-    private readonly AppWindow appWindow;
+    
     private readonly PrintHelper printHelper;
     private StorageFile? SourceFile { get; set; }
 
@@ -22,11 +22,11 @@ internal sealed partial class MainWindow : SubClassWindow
 
         puzzleView.ViewModel = new PuzzleViewModel(ReadSettings());
 
-        appWindow = AppWindow.GetFromWindowId(Win32Interop.GetWindowIdFromWindow(hWnd));
 
         appWindow.Closing += (s, a) =>
         {
-            puzzleView.ViewModel.WindowPlacement = GetWindowPlacement();
+            puzzleView.ViewModel.Settings.RestoreBounds = RestoreBounds;
+            puzzleView.ViewModel.Settings.WindowState = WindowState;
             SaveSettings();
         };
 
@@ -47,9 +47,52 @@ internal sealed partial class MainWindow : SubClassWindow
 
         printHelper = new PrintHelper(hWnd, DispatcherQueue);
 
-        SetWindowPlacement(puzzleView.ViewModel.WindowPlacement);
+        if (puzzleView.ViewModel.Settings.RestoreBounds == Rect.Empty)
+        {
+            appWindow.MoveAndResize(CenterInPrimaryDisplay());
+            WindowState = WindowState.Normal;
+        }
+        else
+        {
+            appWindow.MoveAndResize(ValidateRestoreBounds(puzzleView.ViewModel.Settings.RestoreBounds));
+
+            if (puzzleView.ViewModel.Settings.WindowState == WindowState.Minimized)
+                WindowState = WindowState.Normal;
+            else
+                WindowState = puzzleView.ViewModel.Settings.WindowState;
+        }
 
         ProcessCommandLine(Environment.GetCommandLineArgs());
+    }
+
+    private RectInt32 ValidateRestoreBounds(Rect windowArea)
+    {
+        try
+        {
+            Rect workingArea = GetWorkingAreaOfClosestMonitor(windowArea);
+
+            Point topLeft = new Point(windowArea.X, windowArea.Y);
+
+            if ((topLeft.Y + windowArea.Height) > workingArea.Bottom)
+                topLeft.Y = workingArea.Bottom - windowArea.Height;
+
+            if (topLeft.Y < workingArea.Top)
+                topLeft.Y = workingArea.Top;
+
+            if ((topLeft.X + windowArea.Width) > workingArea.Right)
+                topLeft.X = workingArea.Right - windowArea.Width;
+
+            if (topLeft.X < workingArea.Left)
+                topLeft.X = workingArea.Left;
+
+            return ConvertToRectInt32(new Rect(topLeft.X, topLeft.Y, windowArea.Width, windowArea.Height));
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine(ex.ToString());
+        }
+
+        return ConvertToRectInt32(windowArea);
     }
 
     private async void ProcessCommandLine(string[] args)
@@ -176,7 +219,6 @@ internal sealed partial class MainWindow : SubClassWindow
             }
         }
     }
-
 
     private static string ReadSettings()
     {

@@ -12,3 +12,13 @@ GetSystemMetrics
 LoadImage
 SendMessage
 WM_GETMINMAXINFO
+WM_SIZE
+SIZE_MAXIMIZED
+SIZE_MINIMIZED
+SIZE_RESTORED
+GetWindowLong
+WINDOW_LONG_PTR_INDEX
+MonitorFromWindow
+MonitorFromRect
+GetMonitorInfo
+MONITOR_FROM_FLAGS

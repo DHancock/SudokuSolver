@@ -6,7 +6,7 @@ namespace Sudoku.ViewModels;
 
 internal sealed class PuzzleViewModel : INotifyPropertyChanged
 {
-    private Settings Settings { get; }
+    public Settings Settings { get; }
     private PuzzleModel Model { get; }
     public CellList Cells { get; }
     public RelayCommand ClearCommand { get; }
@@ -203,12 +203,6 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
     }
 
     public string SerializeSettings() => JsonSerializer.Serialize(Settings, GetSerializerOptions());
-
-    public WINDOWPLACEMENT WindowPlacement
-    {
-        get => Settings.WindowPlacement;
-        set => Settings.WindowPlacement = value;
-    }
 
     private static JsonSerializerOptions GetSerializerOptions()
     {

@@ -1,4 +1,6 @@
-﻿namespace Sudoku.ViewModels;
+﻿using Sudoku.Views;
+
+namespace Sudoku.ViewModels;
 
 // These settings are serialized to a json text file.
 // Adding or deleting properties is safe. The missing, or extra data is ignored.
@@ -13,6 +15,8 @@ internal class Settings
 
     public bool IsDarkThemed { get; set; } = Application.Current.RequestedTheme == ApplicationTheme.Dark;
 
-    public WINDOWPLACEMENT WindowPlacement { get; set; } = default;
+    public WindowState WindowState { get; set; } = WindowState.Normal;
+
+    public Rect RestoreBounds { get; set; } = Rect.Empty;
 }
 
