@@ -219,7 +219,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         };
     }
 
-    private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+    private void NotifyPropertyChanged([CallerMemberName] string? propertyName = default)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
