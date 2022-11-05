@@ -9,7 +9,7 @@ namespace Sudoku.ViewModels;
 
 internal class Settings
 {
-    public static Settings Data = Settings.Inner.Load();
+    public static Settings Data = Inner.Load();
 
     private Settings()
     {
@@ -25,11 +25,11 @@ internal class Settings
 
     public Rect RestoreBounds { get; set; } = Rect.Empty;
 
-    public bool IsFirstRun { get; set; } = true;
+    [JsonIgnore]
+    public bool IsFirstRun { get; private set; } = true;
 
     public async Task Save()
     {
-        IsFirstRun = false;
         await Inner.Save(this);
     }
 
@@ -75,7 +75,10 @@ internal class Settings
                         Settings? settings = JsonSerializer.Deserialize<Inner>(data, GetSerializerOptions());
 
                         if (settings is not null)
+                        {
+                            settings.IsFirstRun = false;
                             return settings;
+                        }
                     }
                 }
                 catch (Exception ex)
