@@ -80,7 +80,9 @@ internal sealed partial class MainWindow : SubClassWindow
         if (topLeft.X < workingArea.Left)
             topLeft.X = workingArea.Left;
 
-        return ConvertToRectInt32(new Rect(topLeft.X, topLeft.Y, windowArea.Width, windowArea.Height));
+        Size size = new Size(Math.Min(windowArea.Width, workingArea.Width), Math.Min(windowArea.Height, workingArea.Height));
+
+        return ConvertToRectInt32(new Rect(topLeft, size));
     }
 
     private async void ProcessCommandLine(string[] args)
