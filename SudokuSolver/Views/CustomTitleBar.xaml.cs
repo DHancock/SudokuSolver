@@ -8,21 +8,24 @@ public sealed partial class CustomTitleBar : UserControl
     public CustomTitleBar()
     {
         this.InitializeComponent();
-        
-        LoadWindowIconImage();
 
-        RegisterPropertyChangedCallback(RequestedThemeProperty, ThemeChangedCallback);
-
-        SizeChanged += (s, e) =>
+        if (AppWindowTitleBar.IsCustomizationSupported())
         {
-            Debug.Assert(AppWindow is not null);
-            Debug.Assert(ScaleFactor > 0.0);
+            LoadWindowIconImage();
 
-            LeftPaddingColumn.Width = new GridLength(AppWindow.TitleBar.LeftInset / ScaleFactor);
-            RightPaddingColumn.Width = new GridLength(AppWindow.TitleBar.RightInset / ScaleFactor);
+            RegisterPropertyChangedCallback(RequestedThemeProperty, ThemeChangedCallback);
 
-            windowTitle.Width = e.NewSize.Width - (LeftPaddingColumn.Width.Value + IconColumn.Width.Value + RightPaddingColumn.Width.Value);
-        };
+            SizeChanged += (s, e) =>
+            {
+                Debug.Assert(AppWindow is not null);
+                Debug.Assert(ScaleFactor > 0.0);
+
+                LeftPaddingColumn.Width = new GridLength(AppWindow.TitleBar.LeftInset / ScaleFactor);
+                RightPaddingColumn.Width = new GridLength(AppWindow.TitleBar.RightInset / ScaleFactor);
+
+                windowTitle.Width = e.NewSize.Width - (LeftPaddingColumn.Width.Value + IconColumn.Width.Value + RightPaddingColumn.Width.Value);
+            };
+        }
     }
 
     private async void LoadWindowIconImage()
@@ -37,13 +40,7 @@ public sealed partial class CustomTitleBar : UserControl
 
     private void ThemeChangedCallback(DependencyObject sender, DependencyProperty dp)
     {
-        if (AppWindowTitleBar.IsCustomizationSupported())
-        {
-            CustomTitleBar ctb = (CustomTitleBar)sender;
-
-            ctb.layoutRoot.RequestedTheme = RequestedTheme;
-            ctb.UpdateTitleBarCaptionButtons();
-        }
+        UpdateTitleBarCaptionButtons();
     }
 
     private void UpdateTitleBarCaptionButtons()
