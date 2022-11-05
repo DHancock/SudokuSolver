@@ -11,6 +11,8 @@ public sealed partial class CustomTitleBar : UserControl
         
         LoadWindowIconImage();
 
+        RegisterPropertyChangedCallback(RequestedThemeProperty, ThemeChangedCallback);
+
         SizeChanged += (s, e) =>
         {
             Debug.Assert(AppWindow is not null);
@@ -33,26 +35,13 @@ public sealed partial class CustomTitleBar : UserControl
         set => windowTitle.Text = value;
     }
 
-    // use method hiding to replace the base property
-    public new static readonly DependencyProperty RequestedThemeProperty =
-        DependencyProperty.Register(nameof(RequestedTheme),
-            typeof(ElementTheme),
-            typeof(CustomTitleBar),
-            new PropertyMetadata(ElementTheme.Default, ThemeChangedCallback));
-
-    public new ElementTheme RequestedTheme
-    {
-        get { return (ElementTheme)GetValue(RequestedThemeProperty); }
-        set { base.SetValue(RequestedThemeProperty, value); }
-    }
-
-    private static void ThemeChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    private void ThemeChangedCallback(DependencyObject sender, DependencyProperty dp)
     {
         if (AppWindowTitleBar.IsCustomizationSupported())
         {
-            CustomTitleBar ctb = (CustomTitleBar)d;
+            CustomTitleBar ctb = (CustomTitleBar)sender;
 
-            ctb.layoutRoot.RequestedTheme = (ElementTheme)e.NewValue;
+            ctb.layoutRoot.RequestedTheme = RequestedTheme;
             ctb.UpdateTitleBarCaptionButtons();
         }
     }
