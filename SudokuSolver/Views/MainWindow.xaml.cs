@@ -22,7 +22,6 @@ internal sealed partial class MainWindow : SubClassWindow
 
         puzzleView.ViewModel = new PuzzleViewModel(ReadSettings());
 
-
         appWindow.Closing += (s, a) =>
         {
             puzzleView.ViewModel.Settings.RestoreBounds = RestoreBounds;
@@ -50,7 +49,6 @@ internal sealed partial class MainWindow : SubClassWindow
         if (puzzleView.ViewModel.Settings.RestoreBounds == Rect.Empty)
         {
             appWindow.MoveAndResize(CenterInPrimaryDisplay());
-            WindowState = WindowState.Normal;
         }
         else
         {
@@ -65,7 +63,7 @@ internal sealed partial class MainWindow : SubClassWindow
         ProcessCommandLine(Environment.GetCommandLineArgs());
     }
 
-    private RectInt32 ValidateRestoreBounds(Rect windowArea)
+    private static RectInt32 ValidateRestoreBounds(Rect windowArea)
     {
         Rect workingArea = GetWorkingAreaOfClosestMonitor(windowArea);
         Point topLeft = new Point(windowArea.X, windowArea.Y);

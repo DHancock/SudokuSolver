@@ -1,10 +1,7 @@
 ﻿MessageBeep
 GetDpiForWindow
 MINMAXINFO
-SetWindowPos
-GetWindowRect
 GetWindowPlacement
-SetWindowPlacement
 SetWindowSubclass
 DefSubclassProc
 GetModuleHandleEx
@@ -12,10 +9,6 @@ GetSystemMetrics
 LoadImage
 SendMessage
 WM_GETMINMAXINFO
-WM_SIZE
-SIZE_MAXIMIZED
-SIZE_MINIMIZED
-SIZE_RESTORED
 GetWindowLong
 WINDOW_LONG_PTR_INDEX
 MonitorFromWindow

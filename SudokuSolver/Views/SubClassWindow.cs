@@ -36,32 +36,29 @@ internal class SubClassWindow : Window
             minMaxInfo.ptMinTrackSize.Y = Convert.ToInt32(cMinHeight * scalingFactor);
             Marshal.StructureToPtr(minMaxInfo, lParam, true);
         }
-        else if (uMsg == PInvoke.WM_SIZE)
-        {
-            if (wParam == PInvoke.SIZE_RESTORED)
-            {
-                windowState = WindowState.Normal;
-            }
-            else if (wParam == PInvoke.SIZE_MAXIMIZED)
-            {
-                windowState = WindowState.Maximized;
-            }
-            else if (wParam == PInvoke.SIZE_MINIMIZED)
-            {
-                windowState = WindowState.Minimized;
-            }
-        }
 
         return PInvoke.DefSubclassProc(hWnd, uMsg, wParam, lParam);
     }
 
     public WindowState WindowState
     {
-        get => windowState;
+        get
+        {
+            if (appWindow.Presenter is OverlappedPresenter op)
+            {
+                switch (op.State)
+                {
+                    case OverlappedPresenterState.Minimized: return WindowState.Minimized;
+                    case OverlappedPresenterState.Maximized: return WindowState.Maximized;
+                    case OverlappedPresenterState.Restored: return WindowState.Normal;
+                }
+            }
+
+            return WindowState.Normal;
+        }
 
         set
         {
-            Debug.Assert(Enum.IsDefined(typeof(WindowState), value));
             windowState = value;
             
             if (appWindow.Presenter is OverlappedPresenter op)
@@ -71,7 +68,6 @@ internal class SubClassWindow : Window
                     case WindowState.Minimized: op.Minimize(); break;
                     case WindowState.Maximized: op.Maximize(); break;
                     case WindowState.Normal: op.Restore(); break;
-                    default: throw new ArgumentOutOfRangeException(nameof(WindowState));
                 }
             }
         }
@@ -82,12 +78,7 @@ internal class SubClassWindow : Window
         get
         {
             if (WindowState == WindowState.Normal)
-            {
-                if (!PInvoke.GetWindowRect(hWnd, out RECT bounds))
-                    throw new Win32Exception(Marshal.GetLastPInvokeError());
-
-                return new Rect(bounds.X, bounds.Y, bounds.Width, bounds.Height);
-            }
+                return new Rect(appWindow.Position.X, appWindow.Position.Y, appWindow.Size.Width, appWindow.Size.Height);
 
             const int WS_EX_TOOLWINDOW = 0x00000080;
 
@@ -185,8 +176,12 @@ internal class SubClassWindow : Window
 
         DisplayArea primary = DisplayArea.Primary;
 
-        pos.Y = Math.Max((primary.WorkArea.Height - pos.Height) / 2, 0);
-        pos.X = Math.Max((primary.WorkArea.Width - pos.Width) / 2, 0);
+        pos.Y = (primary.WorkArea.Height - pos.Height) / 2;
+        pos.X = (primary.WorkArea.Width - pos.Width) / 2;
+
+        // guarantee title bar is visible
+        pos.Y = Math.Max(pos.Y, primary.WorkArea.Y);
+        pos.X = Math.Max(pos.X, primary.WorkArea.X);
 
         return pos;
     }
