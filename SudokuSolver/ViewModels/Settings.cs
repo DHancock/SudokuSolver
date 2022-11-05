@@ -33,7 +33,7 @@ internal class Settings
         await Inner.Save(this);
     }
 
-    private class Inner : Settings
+    private sealed class Inner : Settings
     {
         // Json deserialization requires a public parameterless constructor.
         // That breaks the singleton pattern, so use a private inner inherited class

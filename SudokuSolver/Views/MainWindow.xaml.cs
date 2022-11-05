@@ -63,8 +63,11 @@ internal sealed partial class MainWindow : SubClassWindow
         ProcessCommandLine(Environment.GetCommandLineArgs());
     }
 
-    private static RectInt32 ValidateRestoreBounds(Rect windowArea)
+    private RectInt32 ValidateRestoreBounds(Rect windowArea)
     {
+        if (windowArea == Rect.Empty)
+            return CenterInPrimaryDisplay();
+
         Rect workingArea = GetWorkingAreaOfClosestMonitor(windowArea);
         Point topLeft = new Point(windowArea.X, windowArea.Y);
 

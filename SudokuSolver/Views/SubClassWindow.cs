@@ -11,7 +11,6 @@ internal class SubClassWindow : Window
 
     protected readonly HWND hWnd;
     private readonly SUBCLASSPROC subClassDelegate;
-    private WindowState windowState;
     protected readonly AppWindow appWindow;
 
     public SubClassWindow()
@@ -59,11 +58,9 @@ internal class SubClassWindow : Window
 
         set
         {
-            windowState = value;
-            
             if (appWindow.Presenter is OverlappedPresenter op)
             {
-                switch (windowState)
+                switch (value)
                 {
                     case WindowState.Minimized: op.Minimize(); break;
                     case WindowState.Maximized: op.Maximize(); break;
