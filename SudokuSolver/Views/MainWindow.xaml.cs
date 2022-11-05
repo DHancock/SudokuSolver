@@ -46,7 +46,7 @@ internal sealed partial class MainWindow : SubClassWindow
 
         printHelper = new PrintHelper(hWnd, DispatcherQueue);
 
-        if (Settings.Data.RestoreBounds == Rect.Empty)
+        if (Settings.Data.IsFirstRun)
         {
             appWindow.MoveAndResize(CenterInPrimaryDisplay());
         }

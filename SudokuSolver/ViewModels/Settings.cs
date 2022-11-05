@@ -25,8 +25,11 @@ internal class Settings
 
     public Rect RestoreBounds { get; set; } = Rect.Empty;
 
+    public bool IsFirstRun { get; set; } = true;
+
     public async Task Save()
     {
+        IsFirstRun = false;
         await Inner.Save(this);
     }
 
