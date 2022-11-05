@@ -6,15 +6,13 @@ namespace Sudoku.ViewModels;
 
 internal sealed class PuzzleViewModel : INotifyPropertyChanged
 {
-    public Settings Settings { get; }
     private PuzzleModel Model { get; }
     public CellList Cells { get; }
     public RelayCommand ClearCommand { get; }
 
-    public PuzzleViewModel(string settingsText)
+    public PuzzleViewModel()
     {
         Model = new PuzzleModel();
-        Settings = DeserializeSettings(settingsText);
         Cells = new CellList();
         ClearCommand = new RelayCommand(ClearCommandHandler, o => !Model.PuzzleIsEmpty);
     }
@@ -116,12 +114,12 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
 
     public bool ShowPossibles
     {                                                        
-        get => Settings.ShowPossibles;
+        get => Settings.Data.ShowPossibles;
         set
         {
-            if (value != Settings.ShowPossibles)
+            if (value != Settings.Data.ShowPossibles)
             {
-                Settings.ShowPossibles = value;
+                Settings.Data.ShowPossibles = value;
                 UpdateViewForShowPossiblesStateChange();
                 NotifyPropertyChanged();
             }
@@ -130,17 +128,17 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
     
     public ElementTheme Theme
     {
-        get => Settings.IsDarkThemed ? ElementTheme.Dark : ElementTheme.Light;
+        get => Settings.Data.IsDarkThemed ? ElementTheme.Dark : ElementTheme.Light;
     }
 
     public bool IsDarkThemed
     {
-        get => Settings.IsDarkThemed;
+        get => Settings.Data.IsDarkThemed;
         set
         {
-            if (value != Settings.IsDarkThemed)
+            if (value != Settings.Data.IsDarkThemed)
             {
-                Settings.IsDarkThemed = value;
+                Settings.Data.IsDarkThemed = value;
                 NotifyPropertyChanged(nameof(Theme));
                 NotifyPropertyChanged();
             }
@@ -149,12 +147,12 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
 
     public bool ShowSolution
     {
-        get => Settings.ShowSolution;
+        get => Settings.Data.ShowSolution;
         set
         {
-            if (value != Settings.ShowSolution)
+            if (value != Settings.Data.ShowSolution)
             {
-                Settings.ShowSolution = value; 
+                Settings.Data.ShowSolution = value; 
                 UpdateViewForShowSolutionStateChange();
                 NotifyPropertyChanged();
             }
@@ -180,37 +178,6 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
             if (predicate(cell))
                 Cells[index] = new Cell(cell);
         }
-    }
-
-    private static Settings DeserializeSettings(string data)
-    {
-        if (!string.IsNullOrWhiteSpace(data))
-        {
-            try
-            {
-                Settings? settings = JsonSerializer.Deserialize<Settings>(data, GetSerializerOptions());
-
-                if (settings is not null)
-                    return settings;
-            }
-            catch (Exception ex)
-            {
-                Debug.Fail(ex.Message);
-            }
-        }
-
-        return new Settings();
-    }
-
-    public string SerializeSettings() => JsonSerializer.Serialize(Settings, GetSerializerOptions());
-
-    private static JsonSerializerOptions GetSerializerOptions()
-    {
-        return new JsonSerializerOptions()
-        {
-            WriteIndented = true,
-            IncludeFields = true,
-        };
     }
 
     private void NotifyPropertyChanged([CallerMemberName] string? propertyName = default)

@@ -9,6 +9,12 @@ namespace Sudoku.ViewModels;
 
 internal class Settings
 {
+    public static Settings Data = Settings.Inner.Load();
+
+    private Settings()
+    {
+    }
+
     public bool ShowPossibles { get; set; } = false;
 
     public bool ShowSolution { get; set; } = true;
@@ -18,5 +24,83 @@ internal class Settings
     public WindowState WindowState { get; set; } = WindowState.Normal;
 
     public Rect RestoreBounds { get; set; } = Rect.Empty;
+
+    public async Task Save()
+    {
+        await Inner.Save(this);
+    }
+
+    private class Inner : Settings
+    {
+        // Json deserialization requires a public parameterless constructor.
+        // That breaks the singleton pattern, so use a private inner inherited class
+        public Inner()
+        {
+        }
+
+        public static async Task Save(Settings settings)
+        {
+            try
+            {
+                string path = GetSettingsFilePath();
+                string? directory = Path.GetDirectoryName(path);
+                Debug.Assert(!string.IsNullOrWhiteSpace(directory));
+
+                if (!Directory.Exists(directory))
+                    Directory.CreateDirectory(directory);
+
+                await File.WriteAllTextAsync(path, JsonSerializer.Serialize(settings, GetSerializerOptions()));
+            }
+            catch (Exception ex)
+            {
+                Debug.Fail(ex.ToString());
+            }
+        }
+
+        public static Settings Load()
+        {
+            string path = GetSettingsFilePath();
+
+            if (File.Exists(path))
+            {
+                try
+                {
+                    string data = File.ReadAllText(path);
+
+                    if (!string.IsNullOrWhiteSpace(data))
+                    {
+                        Settings? settings = JsonSerializer.Deserialize<Inner>(data, GetSerializerOptions());
+
+                        if (settings is not null)
+                            return settings;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.Fail(ex.Message);
+                }
+            }
+
+            return new Settings();
+        }
+
+        private static string GetSettingsFilePath()
+        {
+            const string cFileName = "settings.json";
+            const string cDirName = "SudokuSolver.davidhancock.net";
+            string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+
+            return Path.Join(localAppData, cDirName, cFileName);
+        }
+
+        private static JsonSerializerOptions GetSerializerOptions()
+        {
+            return new JsonSerializerOptions()
+            {
+                WriteIndented = true,
+                IncludeFields = true,
+            };
+        }
+    }
 }
 

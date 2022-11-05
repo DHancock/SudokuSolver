@@ -20,13 +20,13 @@ internal sealed partial class MainWindow : SubClassWindow
     {
         InitializeComponent();
 
-        puzzleView.ViewModel = new PuzzleViewModel(ReadSettings());
+        puzzleView.ViewModel = new PuzzleViewModel();
 
-        appWindow.Closing += (s, a) =>
+        appWindow.Closing += async (s, a) =>
         {
-            puzzleView.ViewModel.Settings.RestoreBounds = RestoreBounds;
-            puzzleView.ViewModel.Settings.WindowState = WindowState;
-            SaveSettings();
+            Settings.Data.RestoreBounds = RestoreBounds;
+            Settings.Data.WindowState = WindowState;
+            await Settings.Data.Save();
         };
 
         WindowTitle = cDefaultWindowTitle;
@@ -46,18 +46,18 @@ internal sealed partial class MainWindow : SubClassWindow
 
         printHelper = new PrintHelper(hWnd, DispatcherQueue);
 
-        if (puzzleView.ViewModel.Settings.RestoreBounds == Rect.Empty)
+        if (Settings.Data.RestoreBounds == Rect.Empty)
         {
             appWindow.MoveAndResize(CenterInPrimaryDisplay());
         }
         else
         {
-            appWindow.MoveAndResize(ValidateRestoreBounds(puzzleView.ViewModel.Settings.RestoreBounds));
+            appWindow.MoveAndResize(ValidateRestoreBounds(Settings.Data.RestoreBounds));
 
-            if (puzzleView.ViewModel.Settings.WindowState == WindowState.Minimized)
+            if (Settings.Data.WindowState == WindowState.Minimized)
                 WindowState = WindowState.Normal;
             else
-                WindowState = puzzleView.ViewModel.Settings.WindowState;
+                WindowState = Settings.Data.WindowState;
         }
 
         ProcessCommandLine(Environment.GetCommandLineArgs());
@@ -206,52 +206,6 @@ internal sealed partial class MainWindow : SubClassWindow
                 await transaction.CommitAsync();
             }
         }
-    }
-
-    private static string ReadSettings()
-    {
-        string path = GetSettingsFilePath();
-
-        if (File.Exists(path))
-        {
-            try
-            {
-                return File.ReadAllText(path, Encoding.Unicode);
-            }
-            catch (Exception ex)
-            {
-                Debug.Fail(ex.ToString());
-            }
-        }
-
-        return string.Empty;
-    }
-
-    private void SaveSettings()
-    {
-        try
-        {
-            string path = GetSettingsFilePath();
-            string? directory = Path.GetDirectoryName(path);
-            Debug.Assert(!string.IsNullOrWhiteSpace(directory));
-
-            if (!Directory.Exists(directory))
-                Directory.CreateDirectory(directory);
-
-            File.WriteAllText(path, puzzleView.ViewModel?.SerializeSettings(), Encoding.Unicode);
-        }
-        catch (Exception ex)
-        {
-            Debug.Fail(ex.ToString());
-        }
-    }
-
-    private static string GetSettingsFilePath()
-    {
-        const string cFileName = "settings.json";
-        const string cDirName = "SudokuSolver.davidhancock.net";
-
-        return Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), cDirName, cFileName);
     }
 
     private async void AboutClickHandler(object sender, RoutedEventArgs e)
