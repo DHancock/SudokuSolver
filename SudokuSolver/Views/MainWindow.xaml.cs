@@ -65,7 +65,7 @@ internal sealed partial class MainWindow : SubClassWindow
 
     private RectInt32 ValidateRestoreBounds(Rect windowArea)
     {
-        if (windowArea == Rect.Empty)
+        if (windowArea.IsEmpty)
             return CenterInPrimaryDisplay();
 
         Rect workingArea = GetWorkingAreaOfClosestMonitor(windowArea);
