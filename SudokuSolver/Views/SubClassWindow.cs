@@ -17,7 +17,7 @@ internal class SubClassWindow : Window
     {
         hWnd = (HWND)WindowNative.GetWindowHandle(this);
         appWindow = AppWindow.GetFromWindowId(Win32Interop.GetWindowIdFromWindow(hWnd));
-
+        
         subClassDelegate = new SUBCLASSPROC(NewSubWindowProc);
 
         if (!PInvoke.SetWindowSubclass(hWnd, subClassDelegate, 0, 0))
@@ -77,33 +77,17 @@ internal class SubClassWindow : Window
             if (WindowState == WindowState.Normal)
                 return new Rect(appWindow.Position.X, appWindow.Position.Y, appWindow.Size.Width, appWindow.Size.Height);
 
-            const int WS_EX_TOOLWINDOW = 0x00000080;
-
-            int styleEx = PInvoke.GetWindowLong(hWnd, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE);
-
-            if (styleEx == 0)
-                throw new Win32Exception(Marshal.GetLastPInvokeError());
-
             int deltaX = 0, deltaY = 0;
 
             // unless it's a tool window, the normal position is relative to the working area
-            if ((styleEx & WS_EX_TOOLWINDOW) == 0)
+            if (!IsToolWindow)
             {
-                HMONITOR hMonitor = PInvoke.MonitorFromWindow(hWnd, MONITOR_FROM_FLAGS.MONITOR_DEFAULTTONULL);
+                DisplayArea? display = DisplayArea.GetFromWindowId(appWindow.Id, DisplayAreaFallback.None);
 
-                if (hMonitor != 0)
+                if (display is not null)
                 {
-                    MONITORINFO monitorInfo = default;
-                    monitorInfo.cbSize = (uint)Unsafe.SizeOf<MONITORINFO>();
-
-                    if (!PInvoke.GetMonitorInfo(hMonitor, ref monitorInfo))
-                        throw new Win32Exception(Marshal.GetLastPInvokeError());
-
-                    RECT workAreaRect = monitorInfo.rcWork;
-                    RECT screenAreaRect = monitorInfo.rcMonitor;
-
-                    deltaX = workAreaRect.left - screenAreaRect.left;
-                    deltaY = workAreaRect.top - screenAreaRect.top;
+                    deltaX = display.WorkArea.X - display.OuterBounds.X;
+                    deltaY = display.WorkArea.Y - display.OuterBounds.Y;
                 }
             }
 
@@ -117,17 +101,25 @@ internal class SubClassWindow : Window
         }
     }
 
+    private bool IsToolWindow => ((uint)StyleEx & (uint)WINDOW_EX_STYLE.WS_EX_TOOLWINDOW) > 0;
+
+    public int StyleEx
+    {
+        get
+        {
+            int styleEx = PInvoke.GetWindowLong(hWnd, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE);
+
+            if (styleEx == 0)
+                throw new Win32Exception(Marshal.GetLastPInvokeError());
+
+            return styleEx;
+        }
+    }
+
     public static Rect GetWorkingAreaOfClosestMonitor(Rect windowBounds)
     {
-        HMONITOR hMonitor = PInvoke.MonitorFromRect(ConvertToRECT(windowBounds), MONITOR_FROM_FLAGS.MONITOR_DEFAULTTONEAREST);
-
-        MONITORINFO monitorInfo = new MONITORINFO();
-        monitorInfo.cbSize = (uint)Unsafe.SizeOf<MONITORINFO>();
-
-        if (!PInvoke.GetMonitorInfo(hMonitor, ref monitorInfo))
-            throw new Win32Exception(Marshal.GetLastPInvokeError());
-
-        return new Rect(monitorInfo.rcWork.X, monitorInfo.rcWork.Y, monitorInfo.rcWork.Width, monitorInfo.rcWork.Height);
+        DisplayArea area = DisplayArea.GetFromRect(ConvertToRectInt32(windowBounds), DisplayAreaFallback.Nearest);
+        return new Rect(area.WorkArea.X, area.WorkArea.Y, area.WorkArea.Width, area.WorkArea.Height);
     }
 
     private static RECT ConvertToRECT(Rect input)
@@ -145,15 +137,8 @@ internal class SubClassWindow : Window
 
     protected static RectInt32 ConvertToRectInt32(Rect input)
     {
-        RectInt32 output = new RectInt32();
         RECT intermediate = ConvertToRECT(input);
-
-        output.X = intermediate.left;
-        output.Y = intermediate.top;
-        output.Width = intermediate.Width;
-        output.Height = intermediate.Height;
-
-        return output;
+        return new RectInt32(intermediate.X, intermediate.Y, intermediate.Width, intermediate.Height);
     }
 
     protected double GetScaleFactor()

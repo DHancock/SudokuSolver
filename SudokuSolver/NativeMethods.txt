@@ -11,7 +11,4 @@ SendMessage
 WM_GETMINMAXINFO
 GetWindowLong
 WINDOW_LONG_PTR_INDEX
-MonitorFromWindow
-MonitorFromRect
-GetMonitorInfo
-MONITOR_FROM_FLAGS
+WINDOW_EX_STYLE

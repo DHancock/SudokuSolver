@@ -30,7 +30,6 @@ global using Windows.Storage.Streams;
 global using Windows.System;
 global using Windows.Win32;
 global using Windows.Win32.Foundation;
-global using Windows.Win32.Graphics.Gdi;
 global using Windows.Win32.UI.Shell;
 global using Windows.Win32.UI.WindowsAndMessaging;
 
