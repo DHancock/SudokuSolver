@@ -103,22 +103,22 @@ internal class SubClassWindow : Window
         RectInt32 workArea = DisplayArea.Primary.WorkArea;
 
         double scalingFactor = GetScaleFactor();
-        RectInt32 position;
+        RectInt32 windowArea;
 
-        position.Width = Convert.ToInt32(cInitialWidth * scalingFactor);
-        position.Height = Convert.ToInt32(cInitialHeight * scalingFactor);
+        windowArea.Width = Convert.ToInt32(cInitialWidth * scalingFactor);
+        windowArea.Height = Convert.ToInt32(cInitialHeight * scalingFactor);
 
-        position.Width = Math.Min(position.Width, workArea.Width);
-        position.Height = Math.Max(position.Height, workArea.Height);
+        windowArea.Width = Math.Min(windowArea.Width, workArea.Width);
+        windowArea.Height = Math.Min(windowArea.Height, workArea.Height);
 
-        position.Y = (workArea.Height - position.Height) / 2;
-        position.X = (workArea.Width - position.Width) / 2;
+        windowArea.Y = (workArea.Height - windowArea.Height) / 2;
+        windowArea.X = (workArea.Width - windowArea.Width) / 2;
 
         // guarantee title bar is visible, the minimum window size may trump working area
-        position.Y = Math.Max(position.Y, workArea.Y);
-        position.X = Math.Max(position.X, workArea.X);
+        windowArea.Y = Math.Max(windowArea.Y, workArea.Y);
+        windowArea.X = Math.Max(windowArea.X, workArea.X);
 
-        return position;
+        return windowArea;
     }
 
     protected void SetWindowIconFromAppIcon()
@@ -136,8 +136,6 @@ internal class SubClassWindow : Window
 
     private void SetWindowIcon(FreeLibrarySafeHandle module, string iconId, WPARAM iconType, int size)
     {
-        const uint WM_SETICON = 0x0080;
-
         SafeFileHandle hIcon = PInvoke.LoadImage(module, iconId, GDI_IMAGE_TYPE.IMAGE_ICON, size, size, IMAGE_FLAGS.LR_DEFAULTCOLOR);
 
         if (hIcon.IsInvalid)
@@ -145,8 +143,7 @@ internal class SubClassWindow : Window
 
         try
         {
-            LRESULT previousIcon = PInvoke.SendMessage(hWnd, WM_SETICON, iconType, hIcon.DangerousGetHandle());
-            Debug.Assert(previousIcon == (LRESULT)0);
+            appWindow.SetIcon(Win32Interop.GetIconIdFromIcon(hIcon.DangerousGetHandle()));
         }
         finally
         {

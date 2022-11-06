@@ -6,6 +6,5 @@ DefSubclassProc
 GetModuleHandleEx
 GetSystemMetrics
 LoadImage
-SendMessage
 WM_GETMINMAXINFO
 
