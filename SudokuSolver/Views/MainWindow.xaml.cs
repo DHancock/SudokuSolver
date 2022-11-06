@@ -63,29 +63,30 @@ internal sealed partial class MainWindow : SubClassWindow
         ProcessCommandLine(Environment.GetCommandLineArgs());
     }
 
-    private RectInt32 ValidateRestoreBounds(Rect windowArea)
+    private RectInt32 ValidateRestoreBounds(RectInt32 windowArea)
     {
-        if (windowArea.IsEmpty)
+        if (windowArea == default)
             return CenterInPrimaryDisplay();
 
-        Rect workingArea = GetWorkingAreaOfClosestMonitor(windowArea);
-        Point topLeft = new Point(windowArea.X, windowArea.Y);
+        RectInt32 workArea = DisplayArea.GetFromRect(windowArea, DisplayAreaFallback.Nearest).WorkArea;
+        PointInt32 position = new PointInt32(windowArea.X, windowArea.Y);
 
-        if ((topLeft.Y + windowArea.Height) > workingArea.Bottom)
-            topLeft.Y = workingArea.Bottom - windowArea.Height;
+        if ((position.Y + windowArea.Height) > (workArea.Y + workArea.Height))
+            position.Y = (workArea.Y + workArea.Height) - windowArea.Height;
 
-        if (topLeft.Y < workingArea.Top)
-            topLeft.Y = workingArea.Top;
+        if (position.Y < workArea.Y)
+            position.Y = workArea.Y;
 
-        if ((topLeft.X + windowArea.Width) > workingArea.Right)
-            topLeft.X = workingArea.Right - windowArea.Width;
+        if ((position.X + windowArea.Width) > (workArea.X + workArea.Width))
+            position.X = (workArea.X + workArea.Width) - windowArea.Width;
 
-        if (topLeft.X < workingArea.Left)
-            topLeft.X = workingArea.Left;
+        if (position.X < workArea.X)
+            position.X = workArea.X;
 
-        Size size = new Size(Math.Min(windowArea.Width, workingArea.Width), Math.Min(windowArea.Height, workingArea.Height));
+        SizeInt32 size = new SizeInt32(Math.Min(windowArea.Width, workArea.Width), 
+                                        Math.Min(windowArea.Height, workArea.Height));
 
-        return ConvertToRectInt32(new Rect(topLeft, size));
+        return new RectInt32(position.X, position.Y, size.Width, size.Height);
     }
 
     private async void ProcessCommandLine(string[] args)

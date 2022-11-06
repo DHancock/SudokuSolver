@@ -12,16 +12,32 @@ internal class SubClassWindow : Window
     protected readonly HWND hWnd;
     private readonly SUBCLASSPROC subClassDelegate;
     protected readonly AppWindow appWindow;
+    private PointInt32 restorePosition;
+    private SizeInt32 restoreSize;
 
     public SubClassWindow()
     {
         hWnd = (HWND)WindowNative.GetWindowHandle(this);
+
         appWindow = AppWindow.GetFromWindowId(Win32Interop.GetWindowIdFromWindow(hWnd));
-        
+        appWindow.Changed += AppWindow_Changed;
+
         subClassDelegate = new SUBCLASSPROC(NewSubWindowProc);
 
         if (!PInvoke.SetWindowSubclass(hWnd, subClassDelegate, 0, 0))
             throw new Win32Exception(Marshal.GetLastPInvokeError());
+    }
+
+    private void AppWindow_Changed(AppWindow sender, AppWindowChangedEventArgs args)
+    {
+        if (WindowState == WindowState.Normal)
+        {
+            if (args.DidPositionChange)
+                restorePosition = appWindow.Position;
+
+            if (args.DidSizeChange)
+                restoreSize = appWindow.Size;
+        }
     }
 
     private LRESULT NewSubWindowProc(HWND hWnd, uint uMsg, WPARAM wParam, LPARAM lParam, nuint uIdSubclass, nuint dwRefData)
@@ -70,75 +86,9 @@ internal class SubClassWindow : Window
         }
     }
 
-    public Rect RestoreBounds
+    public RectInt32 RestoreBounds
     {
-        get
-        {
-            if (WindowState == WindowState.Normal)
-                return new Rect(appWindow.Position.X, appWindow.Position.Y, appWindow.Size.Width, appWindow.Size.Height);
-
-            int deltaX = 0, deltaY = 0;
-
-            // unless it's a tool window, the normal position is relative to the working area
-            if (!IsToolWindow)
-            {
-                DisplayArea? display = DisplayArea.GetFromWindowId(appWindow.Id, DisplayAreaFallback.None);
-
-                if (display is not null)
-                {
-                    deltaX = display.WorkArea.X - display.OuterBounds.X;
-                    deltaY = display.WorkArea.Y - display.OuterBounds.Y;
-                }
-            }
-
-            WINDOWPLACEMENT wp = default;
-
-            if (!PInvoke.GetWindowPlacement(hWnd, ref wp))
-                throw new Win32Exception(Marshal.GetLastPInvokeError());
-
-            return new Rect(wp.rcNormalPosition.left + deltaX, wp.rcNormalPosition.top + deltaY, 
-                            wp.rcNormalPosition.Width, wp.rcNormalPosition.Height);
-        }
-    }
-
-    private bool IsToolWindow => ((uint)StyleEx & (uint)WINDOW_EX_STYLE.WS_EX_TOOLWINDOW) > 0;
-
-    public int StyleEx
-    {
-        get
-        {
-            int styleEx = PInvoke.GetWindowLong(hWnd, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE);
-
-            if (styleEx == 0)
-                throw new Win32Exception(Marshal.GetLastPInvokeError());
-
-            return styleEx;
-        }
-    }
-
-    public static Rect GetWorkingAreaOfClosestMonitor(Rect windowBounds)
-    {
-        DisplayArea area = DisplayArea.GetFromRect(ConvertToRectInt32(windowBounds), DisplayAreaFallback.Nearest);
-        return new Rect(area.WorkArea.X, area.WorkArea.Y, area.WorkArea.Width, area.WorkArea.Height);
-    }
-
-    private static RECT ConvertToRECT(Rect input)
-    {
-        RECT output = new RECT();
-
-        // avoids accumulating rounding errors
-        output.top = Convert.ToInt32(input.Y);
-        output.left = Convert.ToInt32(input.X);
-        output.bottom = output.top + Convert.ToInt32(input.Height);
-        output.right = output.left + Convert.ToInt32(input.Width);
-
-        return output;
-    }
-
-    protected static RectInt32 ConvertToRectInt32(Rect input)
-    {
-        RECT intermediate = ConvertToRECT(input);
-        return new RectInt32(intermediate.X, intermediate.Y, intermediate.Width, intermediate.Height);
+        get => new RectInt32(restorePosition.X, restorePosition.Y, restoreSize.Width, restoreSize.Height);
     }
 
     protected double GetScaleFactor()
@@ -150,22 +100,25 @@ internal class SubClassWindow : Window
 
     protected RectInt32 CenterInPrimaryDisplay()
     {
+        RectInt32 workArea = DisplayArea.Primary.WorkArea;
+
         double scalingFactor = GetScaleFactor();
-        RectInt32 pos = new RectInt32();
+        RectInt32 position;
 
-        pos.Width = Convert.ToInt32(cInitialWidth * scalingFactor);
-        pos.Height = Convert.ToInt32(cInitialHeight * scalingFactor);
+        position.Width = Convert.ToInt32(cInitialWidth * scalingFactor);
+        position.Height = Convert.ToInt32(cInitialHeight * scalingFactor);
 
-        DisplayArea primary = DisplayArea.Primary;
+        position.Width = Math.Min(position.Width, workArea.Width);
+        position.Height = Math.Max(position.Height, workArea.Height);
 
-        pos.Y = (primary.WorkArea.Height - pos.Height) / 2;
-        pos.X = (primary.WorkArea.Width - pos.Width) / 2;
+        position.Y = (workArea.Height - position.Height) / 2;
+        position.X = (workArea.Width - position.Width) / 2;
 
-        // guarantee title bar is visible
-        pos.Y = Math.Max(pos.Y, primary.WorkArea.Y);
-        pos.X = Math.Max(pos.X, primary.WorkArea.X);
+        // guarantee title bar is visible, the minimum window size may trump working area
+        position.Y = Math.Max(position.Y, workArea.Y);
+        position.X = Math.Max(position.X, workArea.X);
 
-        return pos;
+        return position;
     }
 
     protected void SetWindowIconFromAppIcon()

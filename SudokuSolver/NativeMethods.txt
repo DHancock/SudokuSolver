@@ -1,7 +1,6 @@
 ﻿MessageBeep
 GetDpiForWindow
 MINMAXINFO
-GetWindowPlacement
 SetWindowSubclass
 DefSubclassProc
 GetModuleHandleEx
@@ -9,6 +8,4 @@ GetSystemMetrics
 LoadImage
 SendMessage
 WM_GETMINMAXINFO
-GetWindowLong
-WINDOW_LONG_PTR_INDEX
-WINDOW_EX_STYLE
+
