@@ -4,10 +4,12 @@ public enum WindowState { Normal, Minimized, Maximized }
 
 internal class SubClassWindow : Window
 {
-    private const double cMinWidth = 388;
-    private const double cMinHeight = 440;
-    private const double cInitialWidth = 563;
-    private const double cInitialHeight = 614;
+    private const double cMaxClientSize = 65536;
+
+    private int minClientWidth;
+    private int minClientHeight;
+    private int initialClientWidth;
+    private int initialClientHeight;
 
     protected readonly HWND hWnd;
     private readonly SUBCLASSPROC subClassDelegate;
@@ -44,11 +46,9 @@ internal class SubClassWindow : Window
     {
         if (uMsg == PInvoke.WM_GETMINMAXINFO)
         {
-            double scalingFactor = GetScaleFactor();
-
             MINMAXINFO minMaxInfo = Marshal.PtrToStructure<MINMAXINFO>(lParam);
-            minMaxInfo.ptMinTrackSize.X = Convert.ToInt32(cMinWidth * scalingFactor);
-            minMaxInfo.ptMinTrackSize.Y = Convert.ToInt32(cMinHeight * scalingFactor);
+            minMaxInfo.ptMinTrackSize.X = minClientWidth;
+            minMaxInfo.ptMinTrackSize.Y = minClientHeight;
             Marshal.StructureToPtr(minMaxInfo, lParam, true);
         }
 
@@ -91,6 +91,28 @@ internal class SubClassWindow : Window
         get => new RectInt32(restorePosition.X, restorePosition.Y, restoreSize.Width, restoreSize.Height);
     }
 
+    public double MinWidth
+    {
+        set => minClientWidth = ClampClientSize(value);
+    }
+
+    public double MinHeight
+    {
+        set => minClientHeight = ClampClientSize(value);
+    }
+
+    public double InitialWidth
+    {
+        set => initialClientWidth = ClampClientSize(value);
+    }
+
+    public double InitialHeight
+    {
+        set => initialClientHeight = ClampClientSize(value);
+    }
+
+    private int ClampClientSize(double value) => Convert.ToInt32(Math.Clamp(value * GetScaleFactor(), 0, cMaxClientSize));
+
     protected double GetScaleFactor()
     {
         uint dpi = PInvoke.GetDpiForWindow(hWnd);
@@ -105,8 +127,8 @@ internal class SubClassWindow : Window
         double scalingFactor = GetScaleFactor();
         RectInt32 windowArea;
 
-        windowArea.Width = Convert.ToInt32(cInitialWidth * scalingFactor);
-        windowArea.Height = Convert.ToInt32(cInitialHeight * scalingFactor);
+        windowArea.Width = initialClientWidth;
+        windowArea.Height = initialClientHeight;
 
         windowArea.Width = Math.Min(windowArea.Width, workArea.Width);
         windowArea.Height = Math.Min(windowArea.Height, workArea.Height);
