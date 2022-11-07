@@ -125,7 +125,8 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
             }
         }
     }
-    
+
+    [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Breaks auto generated binding code")]
     public ElementTheme Theme
     {
         get => Settings.Data.IsDarkThemed ? ElementTheme.Dark : ElementTheme.Light;
