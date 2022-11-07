@@ -20,7 +20,6 @@ internal sealed class SudokuGrid : Panel
 
     public SudokuGrid() : base()
     {
-        UseLayoutRounding = false;
         Loading += SudokuGrid_Loading;
     }
 
