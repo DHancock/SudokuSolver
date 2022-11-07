@@ -4,8 +4,6 @@ public enum WindowState { Normal, Minimized, Maximized }
 
 internal class SubClassWindow : Window
 {
-    private const double cMaxClientSize = 65536;
-
     private int minClientWidth;
     private int minClientHeight;
     private int initialClientWidth;
@@ -47,8 +45,8 @@ internal class SubClassWindow : Window
         if (uMsg == PInvoke.WM_GETMINMAXINFO)
         {
             MINMAXINFO minMaxInfo = Marshal.PtrToStructure<MINMAXINFO>(lParam);
-            minMaxInfo.ptMinTrackSize.X = minClientWidth;
-            minMaxInfo.ptMinTrackSize.Y = minClientHeight;
+            minMaxInfo.ptMinTrackSize.X = Math.Max(minClientWidth, minMaxInfo.ptMinTrackSize.X);
+            minMaxInfo.ptMinTrackSize.Y = Math.Max(minClientHeight, minMaxInfo.ptMinTrackSize.Y);
             Marshal.StructureToPtr(minMaxInfo, lParam, true);
         }
 
@@ -111,7 +109,7 @@ internal class SubClassWindow : Window
         set => initialClientHeight = ClampClientSize(value);
     }
 
-    private int ClampClientSize(double value) => Convert.ToInt32(Math.Clamp(value * GetScaleFactor(), 0, cMaxClientSize));
+    private int ClampClientSize(double value) => Convert.ToInt32(Math.Clamp(value * GetScaleFactor(), 0, short.MaxValue));
 
     protected double GetScaleFactor()
     {
