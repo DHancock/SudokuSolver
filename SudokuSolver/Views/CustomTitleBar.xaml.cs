@@ -17,13 +17,16 @@ public sealed partial class CustomTitleBar : UserControl
 
             SizeChanged += (s, e) =>
             {
+                windowTitle.Width = Math.Max(e.NewSize.Width - (LeftPaddingColumn.Width.Value + IconColumn.Width.Value + RightPaddingColumn.Width.Value), 0);
+            };
+
+            Loaded += (s, e) =>
+            {
                 Debug.Assert(AppWindow is not null);
                 Debug.Assert(ScaleFactor > 0.0);
 
                 LeftPaddingColumn.Width = new GridLength(AppWindow.TitleBar.LeftInset / ScaleFactor);
                 RightPaddingColumn.Width = new GridLength(AppWindow.TitleBar.RightInset / ScaleFactor);
-
-                windowTitle.Width = e.NewSize.Width - (LeftPaddingColumn.Width.Value + IconColumn.Width.Value + RightPaddingColumn.Width.Value);
             };
         }
     }
