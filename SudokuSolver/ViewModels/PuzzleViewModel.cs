@@ -127,6 +127,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
     }
 
     [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Breaks auto generated binding code")]
+    [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "It is necessary")]
     public ElementTheme Theme
     {
         get => Settings.Data.IsDarkThemed ? ElementTheme.Dark : ElementTheme.Light;
