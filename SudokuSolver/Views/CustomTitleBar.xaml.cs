@@ -2,8 +2,7 @@
 
 public sealed partial class CustomTitleBar : UserControl
 {
-    public AppWindow? AppWindow { set; private get; }
-    public double ScaleFactor { set; private get; }
+    public AppWindow? ParentWindow { set; private get; }
 
     public CustomTitleBar()
     {
@@ -22,11 +21,12 @@ public sealed partial class CustomTitleBar : UserControl
 
             Loaded += (s, e) =>
             {
-                Debug.Assert(AppWindow is not null);
-                Debug.Assert(ScaleFactor > 0.0);
+                Debug.Assert(ParentWindow is not null);
 
-                LeftPaddingColumn.Width = new GridLength(AppWindow.TitleBar.LeftInset / ScaleFactor);
-                RightPaddingColumn.Width = new GridLength(AppWindow.TitleBar.RightInset / ScaleFactor);
+                double scaleFactor = GetScaleFactor();
+
+                LeftPaddingColumn.Width = new GridLength(ParentWindow.TitleBar.LeftInset / scaleFactor);
+                RightPaddingColumn.Width = new GridLength(ParentWindow.TitleBar.RightInset / scaleFactor);
             };
         }
     }
@@ -48,10 +48,10 @@ public sealed partial class CustomTitleBar : UserControl
 
     private void UpdateTitleBarCaptionButtons()
     {
-        Debug.Assert(AppWindow is not null);
-        Debug.Assert(AppWindow.TitleBar is not null);
+        Debug.Assert(ParentWindow is not null);
+        Debug.Assert(ParentWindow.TitleBar is not null);
 
-        AppWindowTitleBar titleBar = AppWindow.TitleBar;
+        AppWindowTitleBar titleBar = ParentWindow.TitleBar;
 
         titleBar.ButtonBackgroundColor = Colors.Transparent;
         titleBar.ButtonHoverBackgroundColor = Colors.Transparent;
@@ -88,5 +88,13 @@ public sealed partial class CustomTitleBar : UserControl
             bool stateFound = VisualStateManager.GoToState(this, "Activated", false);
             Debug.Assert(stateFound);
         }
+    }
+
+    private double GetScaleFactor()
+    {
+        Debug.Assert(ParentWindow is not null);
+        uint dpi = PInvoke.GetDpiForWindow((HWND)Win32Interop.GetWindowFromWindowId(ParentWindow.Id));
+        Debug.Assert(dpi > 0);
+        return dpi / 96.0;
     }
 }

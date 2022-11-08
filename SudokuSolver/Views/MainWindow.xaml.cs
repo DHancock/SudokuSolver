@@ -33,8 +33,7 @@ internal sealed partial class MainWindow : SubClassWindow
 
         if (AppWindowTitleBar.IsCustomizationSupported())
         {
-            customTitleBar.AppWindow = appWindow;
-            customTitleBar.ScaleFactor = GetScaleFactor();
+            customTitleBar.ParentWindow = appWindow;
             Activated += customTitleBar.ParentWindow_Activated;
             appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
         } 

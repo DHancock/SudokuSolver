@@ -121,8 +121,6 @@ internal class SubClassWindow : Window
     protected RectInt32 CenterInPrimaryDisplay()
     {
         RectInt32 workArea = DisplayArea.Primary.WorkArea;
-
-        double scalingFactor = GetScaleFactor();
         RectInt32 windowArea;
 
         windowArea.Width = initialClientWidth;
