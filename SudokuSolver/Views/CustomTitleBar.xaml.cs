@@ -18,16 +18,6 @@ public sealed partial class CustomTitleBar : UserControl
             {
                 windowTitle.Width = Math.Max(e.NewSize.Width - (LeftPaddingColumn.Width.Value + IconColumn.Width.Value + RightPaddingColumn.Width.Value), 0);
             };
-
-            Loaded += (s, e) =>
-            {
-                Debug.Assert(ParentWindow is not null);
-
-                double scaleFactor = GetScaleFactor();
-
-                LeftPaddingColumn.Width = new GridLength(ParentWindow.TitleBar.LeftInset / scaleFactor);
-                RightPaddingColumn.Width = new GridLength(ParentWindow.TitleBar.RightInset / scaleFactor);
-            };
         }
     }
 
@@ -90,11 +80,13 @@ public sealed partial class CustomTitleBar : UserControl
         }
     }
 
-    private double GetScaleFactor()
+    public void ParentWindow_DpiChanged(object sender, DpiChangedEventArgs args)
     {
         Debug.Assert(ParentWindow is not null);
-        uint dpi = PInvoke.GetDpiForWindow((HWND)Win32Interop.GetWindowFromWindowId(ParentWindow.Id));
-        Debug.Assert(dpi > 0);
-        return dpi / 96.0;
+
+        double scaleFactor = args.NewDpi / 96.0;
+
+        LeftPaddingColumn.Width = new GridLength(ParentWindow.TitleBar.LeftInset / scaleFactor);
+        RightPaddingColumn.Width = new GridLength(ParentWindow.TitleBar.RightInset / scaleFactor);
     }
 }

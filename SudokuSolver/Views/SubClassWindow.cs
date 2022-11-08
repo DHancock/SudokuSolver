@@ -1,13 +1,16 @@
 ﻿namespace Sudoku.Views;
 
-public enum WindowState { Normal, Minimized, Maximized } 
+public enum WindowState { Normal, Minimized, Maximized }
 
 internal class SubClassWindow : Window
 {
     private int minDeviceWidth;
     private int minDeviceHeight;
-    private int initialDeviceWidth;
-    private int initialDeviceHeight;
+    private double initialWidth;
+    private double initialHeight;
+
+    public event DpiChangedEventHandler? DpiChanged;
+    private double currentDpi;
 
     protected readonly HWND hWnd;
     private readonly SUBCLASSPROC subClassDelegate;
@@ -21,6 +24,9 @@ internal class SubClassWindow : Window
 
         appWindow = AppWindow.GetFromWindowId(Win32Interop.GetWindowIdFromWindow(hWnd));
         appWindow.Changed += AppWindow_Changed;
+
+        currentDpi = PInvoke.GetDpiForWindow(hWnd);
+        DpiChanged += SubClassWindow_DpiChanged;
 
         subClassDelegate = new SUBCLASSPROC(NewSubWindowProc);
 
@@ -48,6 +54,14 @@ internal class SubClassWindow : Window
             minMaxInfo.ptMinTrackSize.X = Math.Max(minDeviceWidth, minMaxInfo.ptMinTrackSize.X);
             minMaxInfo.ptMinTrackSize.Y = Math.Max(minDeviceHeight, minMaxInfo.ptMinTrackSize.Y);
             Marshal.StructureToPtr(minMaxInfo, lParam, true);
+        }
+        else if (uMsg == PInvoke.WM_DPICHANGED)
+        {
+            double newDpi = wParam & 0x0000FFFF;
+            double oldDpi = currentDpi;
+            currentDpi = newDpi;
+
+            DpiChanged?.Invoke(this, new DpiChangedEventArgs(oldDpi, newDpi));
         }
 
         return PInvoke.DefSubclassProc(hWnd, uMsg, wParam, lParam);
@@ -101,30 +115,30 @@ internal class SubClassWindow : Window
 
     public double InitialWidth
     {
-        set => initialDeviceWidth = ConvertToDeviceSize(value);
+        set => initialWidth = value;
     }
 
     public double InitialHeight
     {
-        set => initialDeviceHeight = ConvertToDeviceSize(value);
+        set => initialHeight = value;
     }
 
-    private int ConvertToDeviceSize(double value) => Convert.ToInt32(Math.Clamp(value * GetScaleFactor(), 0, short.MaxValue));
+    private int ConvertToDeviceSize(double value) => Convert.ToInt32(Math.Clamp(value * (currentDpi / 96.0), 0, short.MaxValue));
 
-    protected double GetScaleFactor()
+    private void SubClassWindow_DpiChanged(object sender, DpiChangedEventArgs args)
     {
-        uint dpi = PInvoke.GetDpiForWindow(hWnd);
-        Debug.Assert(dpi > 0);
-        return dpi / 96.0;
+        minDeviceWidth = Convert.ToInt32((minDeviceWidth / args.OldDpi) * args.NewDpi);
+        minDeviceHeight = Convert.ToInt32((minDeviceHeight / args.OldDpi) * args.NewDpi);
     }
+
 
     protected RectInt32 CenterInPrimaryDisplay()
     {
         RectInt32 workArea = DisplayArea.Primary.WorkArea;
         RectInt32 windowArea;
 
-        windowArea.Width = initialDeviceWidth;
-        windowArea.Height = initialDeviceHeight;
+        windowArea.Width = ConvertToDeviceSize(initialWidth);
+        windowArea.Height = ConvertToDeviceSize(initialHeight);
 
         windowArea.Width = Math.Min(windowArea.Width, workArea.Width);
         windowArea.Height = Math.Min(windowArea.Height, workArea.Height);
@@ -144,7 +158,7 @@ internal class SubClassWindow : Window
         if (!PInvoke.GetModuleHandleEx(0, null, out FreeLibrarySafeHandle module))
             throw new Win32Exception(Marshal.GetLastPInvokeError());
 
-        int size = PInvoke.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXICON); 
+        int size = PInvoke.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXICON);
 
         if (size == 0)
             throw new Win32Exception(); // get last error doesn't provide any extra information 
@@ -165,3 +179,18 @@ internal class SubClassWindow : Window
         }
     }
 }
+
+public delegate void DpiChangedEventHandler(object sender, DpiChangedEventArgs e);
+
+public class DpiChangedEventArgs
+{
+    public double OldDpi { get; init; }
+    public double NewDpi { get; init; }
+
+    public DpiChangedEventArgs(double oldDpi, double newDpi)
+    {
+        OldDpi = oldDpi;
+        NewDpi = newDpi;
+    }
+}
+
