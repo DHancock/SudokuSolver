@@ -144,17 +144,13 @@ internal class SubClassWindow : Window
         if (!PInvoke.GetModuleHandleEx(0, null, out FreeLibrarySafeHandle module))
             throw new Win32Exception(Marshal.GetLastPInvokeError());
 
-        WPARAM ICON_SMALL = 0;
-        WPARAM ICON_BIG = 1;
+        int size = PInvoke.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXICON); 
+
+        if (size == 0)
+            throw new Win32Exception(); // get last error doesn't provide any extra information 
+
         const string cAppIconResourceId = "#32512";
-
-        SetWindowIcon(module, cAppIconResourceId, ICON_SMALL, PInvoke.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXSMICON));
-        SetWindowIcon(module, cAppIconResourceId, ICON_BIG, PInvoke.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXICON));
-    }
-
-    private void SetWindowIcon(FreeLibrarySafeHandle module, string iconId, WPARAM iconType, int size)
-    {
-        SafeFileHandle hIcon = PInvoke.LoadImage(module, iconId, GDI_IMAGE_TYPE.IMAGE_ICON, size, size, IMAGE_FLAGS.LR_DEFAULTCOLOR);
+        SafeFileHandle hIcon = PInvoke.LoadImage(module, cAppIconResourceId, GDI_IMAGE_TYPE.IMAGE_ICON, size, size, IMAGE_FLAGS.LR_DEFAULTCOLOR);
 
         if (hIcon.IsInvalid)
             throw new Win32Exception(Marshal.GetLastPInvokeError());
