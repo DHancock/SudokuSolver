@@ -4,10 +4,10 @@ public enum WindowState { Normal, Minimized, Maximized }
 
 internal class SubClassWindow : Window
 {
-    private int minClientWidth;
-    private int minClientHeight;
-    private int initialClientWidth;
-    private int initialClientHeight;
+    private int minDeviceWidth;
+    private int minDeviceHeight;
+    private int initialDeviceWidth;
+    private int initialDeviceHeight;
 
     protected readonly HWND hWnd;
     private readonly SUBCLASSPROC subClassDelegate;
@@ -45,8 +45,8 @@ internal class SubClassWindow : Window
         if (uMsg == PInvoke.WM_GETMINMAXINFO)
         {
             MINMAXINFO minMaxInfo = Marshal.PtrToStructure<MINMAXINFO>(lParam);
-            minMaxInfo.ptMinTrackSize.X = Math.Max(minClientWidth, minMaxInfo.ptMinTrackSize.X);
-            minMaxInfo.ptMinTrackSize.Y = Math.Max(minClientHeight, minMaxInfo.ptMinTrackSize.Y);
+            minMaxInfo.ptMinTrackSize.X = Math.Max(minDeviceWidth, minMaxInfo.ptMinTrackSize.X);
+            minMaxInfo.ptMinTrackSize.Y = Math.Max(minDeviceHeight, minMaxInfo.ptMinTrackSize.Y);
             Marshal.StructureToPtr(minMaxInfo, lParam, true);
         }
 
@@ -91,25 +91,25 @@ internal class SubClassWindow : Window
 
     public double MinWidth
     {
-        set => minClientWidth = ClampClientSize(value);
+        set => minDeviceWidth = ConvertToDeviceSize(value);
     }
 
     public double MinHeight
     {
-        set => minClientHeight = ClampClientSize(value);
+        set => minDeviceHeight = ConvertToDeviceSize(value);
     }
 
     public double InitialWidth
     {
-        set => initialClientWidth = ClampClientSize(value);
+        set => initialDeviceWidth = ConvertToDeviceSize(value);
     }
 
     public double InitialHeight
     {
-        set => initialClientHeight = ClampClientSize(value);
+        set => initialDeviceHeight = ConvertToDeviceSize(value);
     }
 
-    private int ClampClientSize(double value) => Convert.ToInt32(Math.Clamp(value * GetScaleFactor(), 0, short.MaxValue));
+    private int ConvertToDeviceSize(double value) => Convert.ToInt32(Math.Clamp(value * GetScaleFactor(), 0, short.MaxValue));
 
     protected double GetScaleFactor()
     {
@@ -123,8 +123,8 @@ internal class SubClassWindow : Window
         RectInt32 workArea = DisplayArea.Primary.WorkArea;
         RectInt32 windowArea;
 
-        windowArea.Width = initialClientWidth;
-        windowArea.Height = initialClientHeight;
+        windowArea.Width = initialDeviceWidth;
+        windowArea.Height = initialDeviceHeight;
 
         windowArea.Width = Math.Min(windowArea.Width, workArea.Width);
         windowArea.Height = Math.Min(windowArea.Height, workArea.Height);
