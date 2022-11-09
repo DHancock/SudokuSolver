@@ -3,7 +3,6 @@
 public sealed partial class CustomTitleBar : UserControl
 {
     public AppWindow? ParentAppWindow { get; set; }
-    private bool adjustPadding = true;
 
     public CustomTitleBar()
     {
@@ -17,16 +16,11 @@ public sealed partial class CustomTitleBar : UserControl
 
             SizeChanged += (s, e) =>
             {
-                if (adjustPadding)
-                {
-                    adjustPadding = false;
+                Debug.Assert(ParentAppWindow is not null);
+                double scaleFactor = PInvoke.GetDpiForWindow((HWND)Win32Interop.GetWindowFromWindowId(ParentAppWindow.Id)) / 96.0;
 
-                    Debug.Assert(ParentAppWindow is not null);
-                    double scaleFactor = PInvoke.GetDpiForWindow((HWND)Win32Interop.GetWindowFromWindowId(ParentAppWindow.Id)) / 96.0;
-
-                    LeftPaddingColumn.Width = new GridLength(ParentAppWindow.TitleBar.LeftInset / scaleFactor);
-                    RightPaddingColumn.Width = new GridLength(ParentAppWindow.TitleBar.RightInset / scaleFactor);
-                }
+                LeftPaddingColumn.Width = new GridLength(ParentAppWindow.TitleBar.LeftInset / scaleFactor);
+                RightPaddingColumn.Width = new GridLength(ParentAppWindow.TitleBar.RightInset / scaleFactor);
 
                 windowTitle.Width = Math.Max(e.NewSize.Width - (LeftPaddingColumn.Width.Value + IconColumn.Width.Value + RightPaddingColumn.Width.Value), 0);
             };
@@ -90,11 +84,5 @@ public sealed partial class CustomTitleBar : UserControl
             bool stateFound = VisualStateManager.GoToState(this, "Activated", false);
             Debug.Assert(stateFound);
         }
-    }
-
-    public void ParentWindow_DpiChanged(object sender, DpiChangedEventArgs args)
-    {
-        // the title bar insets haven't been updated yet, so just flag the change
-        adjustPadding = true;
     }
 }

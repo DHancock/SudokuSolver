@@ -4,13 +4,10 @@ public enum WindowState { Normal, Minimized, Maximized }
 
 internal class SubClassWindow : Window
 {
-    private int minDeviceWidth;
-    private int minDeviceHeight;
-    private double initialWidth;
-    private double initialHeight;
-
-    public event DpiChangedEventHandler? DpiChanged;
-    private double currentDpi;
+    public double MinWidth { get; set; }
+    public double MinHeight { get; set; }
+    public double InitialWidth { get; set; }
+    public double InitialHeight { get; set; }
 
     protected readonly HWND hWnd;
     private readonly SUBCLASSPROC subClassDelegate;
@@ -24,9 +21,6 @@ internal class SubClassWindow : Window
 
         appWindow = AppWindow.GetFromWindowId(Win32Interop.GetWindowIdFromWindow(hWnd));
         appWindow.Changed += AppWindow_Changed;
-
-        currentDpi = PInvoke.GetDpiForWindow(hWnd);
-        DpiChanged += SubClassWindow_DpiChanged;
 
         subClassDelegate = new SUBCLASSPROC(NewSubWindowProc);
 
@@ -51,17 +45,10 @@ internal class SubClassWindow : Window
         if (uMsg == PInvoke.WM_GETMINMAXINFO)
         {
             MINMAXINFO minMaxInfo = Marshal.PtrToStructure<MINMAXINFO>(lParam);
-            minMaxInfo.ptMinTrackSize.X = Math.Max(minDeviceWidth, minMaxInfo.ptMinTrackSize.X);
-            minMaxInfo.ptMinTrackSize.Y = Math.Max(minDeviceHeight, minMaxInfo.ptMinTrackSize.Y);
+            double scaleFactor = GetScaleFacor();
+            minMaxInfo.ptMinTrackSize.X = Math.Max(ConvertToDeviceSize(MinWidth, scaleFactor), minMaxInfo.ptMinTrackSize.X);
+            minMaxInfo.ptMinTrackSize.Y = Math.Max(ConvertToDeviceSize(MinHeight, scaleFactor), minMaxInfo.ptMinTrackSize.Y);
             Marshal.StructureToPtr(minMaxInfo, lParam, true);
-        }
-        else if (uMsg == PInvoke.WM_DPICHANGED)
-        {
-            double newDpi = wParam & 0x0000FFFF;
-            double oldDpi = currentDpi;
-            currentDpi = newDpi;
-
-            DpiChanged?.Invoke(this, new DpiChangedEventArgs(oldDpi, newDpi));
         }
 
         return PInvoke.DefSubclassProc(hWnd, uMsg, wParam, lParam);
@@ -103,42 +90,22 @@ internal class SubClassWindow : Window
         get => new RectInt32(restorePosition.X, restorePosition.Y, restoreSize.Width, restoreSize.Height);
     }
 
-    public double MinWidth
+    private static int ConvertToDeviceSize(double value, double scalefactor) => Convert.ToInt32(Math.Clamp(value * scalefactor, 0, short.MaxValue));
+
+    private double GetScaleFacor()
     {
-        set => minDeviceWidth = ConvertToDeviceSize(value);
+        double dpi = PInvoke.GetDpiForWindow(hWnd);
+        return dpi / 96.0;
     }
-
-    public double MinHeight
-    {
-        set => minDeviceHeight = ConvertToDeviceSize(value);
-    }
-
-    public double InitialWidth
-    {
-        set => initialWidth = value;
-    }
-
-    public double InitialHeight
-    {
-        set => initialHeight = value;
-    }
-
-    private int ConvertToDeviceSize(double value) => Convert.ToInt32(Math.Clamp(value * (currentDpi / 96.0), 0, short.MaxValue));
-
-    private void SubClassWindow_DpiChanged(object sender, DpiChangedEventArgs args)
-    {
-        minDeviceWidth = Convert.ToInt32((minDeviceWidth / args.OldDpi) * args.NewDpi);
-        minDeviceHeight = Convert.ToInt32((minDeviceHeight / args.OldDpi) * args.NewDpi);
-    }
-
 
     protected RectInt32 CenterInPrimaryDisplay()
     {
         RectInt32 workArea = DisplayArea.Primary.WorkArea;
         RectInt32 windowArea;
 
-        windowArea.Width = ConvertToDeviceSize(initialWidth);
-        windowArea.Height = ConvertToDeviceSize(initialHeight);
+        double scaleFactor = GetScaleFacor();
+        windowArea.Width = ConvertToDeviceSize(InitialWidth, scaleFactor);
+        windowArea.Height = ConvertToDeviceSize(InitialHeight, scaleFactor);
 
         windowArea.Width = Math.Min(windowArea.Width, workArea.Width);
         windowArea.Height = Math.Min(windowArea.Height, workArea.Height);
@@ -179,18 +146,3 @@ internal class SubClassWindow : Window
         }
     }
 }
-
-public delegate void DpiChangedEventHandler(object sender, DpiChangedEventArgs e);
-
-public class DpiChangedEventArgs
-{
-    public double OldDpi { get; init; }
-    public double NewDpi { get; init; }
-
-    public DpiChangedEventArgs(double oldDpi, double newDpi)
-    {
-        OldDpi = oldDpi;
-        NewDpi = newDpi;
-    }
-}
-
