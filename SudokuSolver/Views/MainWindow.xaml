@@ -90,7 +90,11 @@
                 </MenuBarItem>
             </MenuBar>
 
-            <local:PuzzleView x:Name="puzzleView" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="8,0,8,8"/>
+            <local:PuzzleView x:Name="puzzleView" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="8,0,8,8">
+                <local:PuzzleView.Transitions>
+                    <EntranceThemeTransition FromHorizontalOffset="20" FromVerticalOffset="20"/>
+                </local:PuzzleView.Transitions>
+            </local:PuzzleView>
         </Grid>
     </Grid>
 </local:SubClassWindow>
