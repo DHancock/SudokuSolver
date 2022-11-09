@@ -21,6 +21,10 @@ internal sealed class SudokuGrid : Panel
     public SudokuGrid() : base()
     {
         Loading += SudokuGrid_Loading;
+
+        // Set layout rounding to false, otherwise the grid lines don't always align correctly, depending
+        // on the screen scale factor. It's most noticeable on the bounding major grid lines when set to 125%. 
+        UseLayoutRounding = false;
     }
 
     private void InitializeGridSizes()
