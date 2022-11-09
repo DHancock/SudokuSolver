@@ -45,7 +45,7 @@ internal class SubClassWindow : Window
         if (uMsg == PInvoke.WM_GETMINMAXINFO)
         {
             MINMAXINFO minMaxInfo = Marshal.PtrToStructure<MINMAXINFO>(lParam);
-            double scaleFactor = GetScaleFacor();
+            double scaleFactor = GetScaleFactor();
             minMaxInfo.ptMinTrackSize.X = Math.Max(ConvertToDeviceSize(MinWidth, scaleFactor), minMaxInfo.ptMinTrackSize.X);
             minMaxInfo.ptMinTrackSize.Y = Math.Max(ConvertToDeviceSize(MinHeight, scaleFactor), minMaxInfo.ptMinTrackSize.Y);
             Marshal.StructureToPtr(minMaxInfo, lParam, true);
@@ -92,7 +92,7 @@ internal class SubClassWindow : Window
 
     private static int ConvertToDeviceSize(double value, double scalefactor) => Convert.ToInt32(Math.Clamp(value * scalefactor, 0, short.MaxValue));
 
-    private double GetScaleFacor()
+    private double GetScaleFactor()
     {
         double dpi = PInvoke.GetDpiForWindow(hWnd);
         return dpi / 96.0;
@@ -103,7 +103,7 @@ internal class SubClassWindow : Window
         RectInt32 workArea = DisplayArea.Primary.WorkArea;
         RectInt32 windowArea;
 
-        double scaleFactor = GetScaleFacor();
+        double scaleFactor = GetScaleFactor();
         windowArea.Width = ConvertToDeviceSize(InitialWidth, scaleFactor);
         windowArea.Height = ConvertToDeviceSize(InitialHeight, scaleFactor);
 
