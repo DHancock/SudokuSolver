@@ -2,7 +2,8 @@
 
 public sealed partial class CustomTitleBar : UserControl
 {
-    public AppWindow? ParentWindow { set; private get; }
+    public AppWindow? ParentAppWindow { get; set; }
+    private bool adjustPadding = true;
 
     public CustomTitleBar()
     {
@@ -16,6 +17,17 @@ public sealed partial class CustomTitleBar : UserControl
 
             SizeChanged += (s, e) =>
             {
+                if (adjustPadding)
+                {
+                    adjustPadding = false;
+
+                    Debug.Assert(ParentAppWindow is not null);
+                    double scaleFactor = PInvoke.GetDpiForWindow((HWND)Win32Interop.GetWindowFromWindowId(ParentAppWindow.Id)) / 96.0;
+
+                    LeftPaddingColumn.Width = new GridLength(ParentAppWindow.TitleBar.LeftInset / scaleFactor);
+                    RightPaddingColumn.Width = new GridLength(ParentAppWindow.TitleBar.RightInset / scaleFactor);
+                }
+
                 windowTitle.Width = Math.Max(e.NewSize.Width - (LeftPaddingColumn.Width.Value + IconColumn.Width.Value + RightPaddingColumn.Width.Value), 0);
             };
         }
@@ -38,10 +50,10 @@ public sealed partial class CustomTitleBar : UserControl
 
     private void UpdateTitleBarCaptionButtons()
     {
-        Debug.Assert(ParentWindow is not null);
-        Debug.Assert(ParentWindow.TitleBar is not null);
+        Debug.Assert(ParentAppWindow is not null);
+        Debug.Assert(ParentAppWindow.TitleBar is not null);
 
-        AppWindowTitleBar titleBar = ParentWindow.TitleBar;
+        AppWindowTitleBar titleBar = ParentAppWindow.TitleBar;
 
         titleBar.ButtonBackgroundColor = Colors.Transparent;
         titleBar.ButtonHoverBackgroundColor = Colors.Transparent;
@@ -82,11 +94,7 @@ public sealed partial class CustomTitleBar : UserControl
 
     public void ParentWindow_DpiChanged(object sender, DpiChangedEventArgs args)
     {
-        Debug.Assert(ParentWindow is not null);
-
-        double scaleFactor = args.NewDpi / 96.0;
-
-        LeftPaddingColumn.Width = new GridLength(ParentWindow.TitleBar.LeftInset / scaleFactor);
-        RightPaddingColumn.Width = new GridLength(ParentWindow.TitleBar.RightInset / scaleFactor);
+        // the title bar insets haven't been updated yet, so just flag the change
+        adjustPadding = true;
     }
 }
