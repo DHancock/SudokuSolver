@@ -7,7 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid Height="32" x:Name="layoutRoot" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Grid Height="32" x:Name="layoutRoot">
         
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="ActivationStates">
@@ -19,6 +19,16 @@
                 </VisualState>
 
                 <VisualState x:Name="Activated"/>
+            </VisualStateGroup>
+
+            <VisualStateGroup x:Name="DesktopBackdropStates">
+                <VisualState x:Name="BackdropInvalid">
+                    <VisualState.Setters>
+                        <Setter Target="layoutRoot.Background" Value="{ThemeResource ApplicationPageBackgroundThemeBrush}"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState x:Name="BackdropValid"/>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 

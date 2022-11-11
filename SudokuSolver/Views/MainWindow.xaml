@@ -11,7 +11,34 @@
     InitialHeight="614"
     mc:Ignorable="d">
 
-    <Grid>
+    <Grid x:Name="layoutRoot" RequestedTheme="{x:Bind puzzleView.ViewModel.Theme, Mode=OneWay}">
+        <Grid.Resources>
+            <Style x:Key="ClientAreaStyle" TargetType="ContentControl">
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ContentControl">
+                            <ContentPresenter x:Name="cp" Content="{TemplateBinding Content}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup x:Name="DesktopBackdropStates">
+                                        <VisualState x:Name="BackdropInvalid">
+                                            <VisualState.Setters>
+                                                <Setter Target="cp.Background" Value="{ThemeResource ApplicationPageBackgroundThemeBrush}"/>
+                                            </VisualState.Setters>
+                                        </VisualState>
+
+                                        <VisualState x:Name="BackdropValid"/>
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+                            </ContentPresenter>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </Grid.Resources>
+        
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -19,79 +46,82 @@
 
         <local:CustomTitleBar x:Name="customTitleBar" RequestedTheme="{x:Bind puzzleView.ViewModel.Theme, Mode=OneWay}"/>
 
-        <Grid Grid.Row="1" x:Name="clientArea" RequestedTheme="{x:Bind puzzleView.ViewModel.Theme, Mode=OneWay}" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+        <!-- visual states can only be set on controls, wrap the client content -->
+        <ContentControl x:Name="clientArea" Grid.Row="1"  Style="{StaticResource ClientAreaStyle}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-            <MenuBar>
-                <MenuBarItem Title="File" AccessKey="F">
-                    <MenuFlyoutItem>
-                        <MenuFlyoutItem.Command>
-                            <StandardUICommand Kind="Open" ExecuteRequested="OpenCommand_ExecuteRequested" AccessKey="N"/>
-                        </MenuFlyoutItem.Command>
-                    </MenuFlyoutItem>
+                <MenuBar>
+                    <MenuBarItem Title="File" AccessKey="F">
+                        <MenuFlyoutItem>
+                            <MenuFlyoutItem.Command>
+                                <StandardUICommand Kind="Open" ExecuteRequested="OpenCommand_ExecuteRequested" AccessKey="N"/>
+                            </MenuFlyoutItem.Command>
+                        </MenuFlyoutItem>
 
-                    <MenuFlyoutItem Text="Clear" Command="{x:Bind puzzleView.ViewModel.ClearCommand}" AccessKey="C">
-                        <MenuFlyoutItem.Icon>
-                            <SymbolIcon Symbol="Clear"/>
-                        </MenuFlyoutItem.Icon>
-                        <MenuFlyoutItem.KeyboardAccelerators>
-                            <KeyboardAccelerator Key="C" Modifiers="Control" />
-                        </MenuFlyoutItem.KeyboardAccelerators>
-                    </MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Clear" Command="{x:Bind puzzleView.ViewModel.ClearCommand}" AccessKey="C">
+                            <MenuFlyoutItem.Icon>
+                                <SymbolIcon Symbol="Clear"/>
+                            </MenuFlyoutItem.Icon>
+                            <MenuFlyoutItem.KeyboardAccelerators>
+                                <KeyboardAccelerator Key="C" Modifiers="Control" />
+                            </MenuFlyoutItem.KeyboardAccelerators>
+                        </MenuFlyoutItem>
 
-                    <MenuFlyoutSeparator />
-                    <MenuFlyoutItem>
-                        <MenuFlyoutItem.Command>
-                            <StandardUICommand Kind="Save" ExecuteRequested="SaveCommand_ExecuteRequested" AccessKey="S"/>
-                        </MenuFlyoutItem.Command>
-                    </MenuFlyoutItem>
+                        <MenuFlyoutSeparator />
+                        <MenuFlyoutItem>
+                            <MenuFlyoutItem.Command>
+                                <StandardUICommand Kind="Save" ExecuteRequested="SaveCommand_ExecuteRequested" AccessKey="S"/>
+                            </MenuFlyoutItem.Command>
+                        </MenuFlyoutItem>
 
-                    <MenuFlyoutItem Text="Save As..." Click="SaveAsClickHandler" AccessKey="A">
-                        <MenuFlyoutItem.KeyboardAccelerators>
-                            <KeyboardAccelerator Key="S" Modifiers="Control,Shift"/>
-                        </MenuFlyoutItem.KeyboardAccelerators>
-                    </MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Save As..." Click="SaveAsClickHandler" AccessKey="A">
+                            <MenuFlyoutItem.KeyboardAccelerators>
+                                <KeyboardAccelerator Key="S" Modifiers="Control,Shift"/>
+                            </MenuFlyoutItem.KeyboardAccelerators>
+                        </MenuFlyoutItem>
 
-                    <MenuFlyoutSeparator />
-                    <MenuFlyoutItem Text="Print..." Click="PrintClickHandler" IsEnabled="{x:Bind IsPrintingAvailable}" AccessKey="P">
-                        <MenuFlyoutItem.Icon>
-                            <SymbolIcon Symbol="Print"/>
-                        </MenuFlyoutItem.Icon>
-                        <MenuFlyoutItem.KeyboardAccelerators>
-                            <KeyboardAccelerator Key="P" Modifiers="Control"/>
-                        </MenuFlyoutItem.KeyboardAccelerators>
-                    </MenuFlyoutItem>
+                        <MenuFlyoutSeparator />
+                        <MenuFlyoutItem Text="Print..." Click="PrintClickHandler" IsEnabled="{x:Bind IsPrintingAvailable}" AccessKey="P">
+                            <MenuFlyoutItem.Icon>
+                                <SymbolIcon Symbol="Print"/>
+                            </MenuFlyoutItem.Icon>
+                            <MenuFlyoutItem.KeyboardAccelerators>
+                                <KeyboardAccelerator Key="P" Modifiers="Control"/>
+                            </MenuFlyoutItem.KeyboardAccelerators>
+                        </MenuFlyoutItem>
 
-                    <MenuFlyoutSeparator />
-                    <MenuFlyoutItem Text="Exit" Click="ExitClickHandler" AccessKey="E" KeyboardAcceleratorTextOverride ="Alt+F4">
-                        <MenuFlyoutItem.Icon>
-                            <SymbolIcon Symbol="ClosePane"/>
-                        </MenuFlyoutItem.Icon>
-                    </MenuFlyoutItem>
-                </MenuBarItem>
+                        <MenuFlyoutSeparator />
+                        <MenuFlyoutItem Text="Exit" Click="ExitClickHandler" AccessKey="E" KeyboardAcceleratorTextOverride ="Alt+F4">
+                            <MenuFlyoutItem.Icon>
+                                <SymbolIcon Symbol="ClosePane"/>
+                            </MenuFlyoutItem.Icon>
+                        </MenuFlyoutItem>
+                    </MenuBarItem>
 
-                <MenuBarItem Title="Options" AccessKey="O">
+                    <MenuBarItem Title="Options" AccessKey="O">
 
-                    <ToggleMenuFlyoutItem Text="Show possibles" IsChecked="{x:Bind puzzleView.ViewModel.ShowPossibles, Mode=TwoWay}" AccessKey="P"/>
-                    <ToggleMenuFlyoutItem Text="Show solution" IsChecked="{x:Bind puzzleView.ViewModel.ShowSolution, Mode=TwoWay}" AccessKey="S"/>
+                        <ToggleMenuFlyoutItem Text="Show possibles" IsChecked="{x:Bind puzzleView.ViewModel.ShowPossibles, Mode=TwoWay}" AccessKey="P"/>
+                        <ToggleMenuFlyoutItem Text="Show solution" IsChecked="{x:Bind puzzleView.ViewModel.ShowSolution, Mode=TwoWay}" AccessKey="S"/>
 
-                    <MenuFlyoutSeparator />
-                    <ToggleMenuFlyoutItem Text="Dark theme" IsChecked="{x:Bind puzzleView.ViewModel.IsDarkThemed, Mode=TwoWay}" AccessKey="D"/>
+                        <MenuFlyoutSeparator />
+                        <ToggleMenuFlyoutItem Text="Dark theme" IsChecked="{x:Bind puzzleView.ViewModel.IsDarkThemed, Mode=TwoWay}" AccessKey="D"/>
 
-                    <MenuFlyoutSeparator />
-                    <MenuFlyoutItem Text="About..." Click="AboutClickHandler" AccessKey="A">
-                    </MenuFlyoutItem>
-                </MenuBarItem>
-            </MenuBar>
+                        <MenuFlyoutSeparator />
+                        <MenuFlyoutItem Text="About..." Click="AboutClickHandler" AccessKey="A">
+                        </MenuFlyoutItem>
+                    </MenuBarItem>
+                </MenuBar>
 
-            <local:PuzzleView x:Name="puzzleView" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="8,0,8,8">
-                <local:PuzzleView.Transitions>
-                    <EntranceThemeTransition FromHorizontalOffset="20" FromVerticalOffset="20"/>
-                </local:PuzzleView.Transitions>
-            </local:PuzzleView>
-        </Grid>
+                <local:PuzzleView x:Name="puzzleView" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="8,0,8,8">
+                    <local:PuzzleView.Transitions>
+                        <EntranceThemeTransition FromHorizontalOffset="20" FromVerticalOffset="20"/>
+                    </local:PuzzleView.Transitions>
+                </local:PuzzleView>
+            </Grid>
+        </ContentControl>
     </Grid>
 </local:SubClassWindow>

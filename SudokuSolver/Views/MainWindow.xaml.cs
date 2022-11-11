@@ -12,13 +12,28 @@ internal sealed partial class MainWindow : SubClassWindow
     private const string cDefaultFileExt = ".sdku";
     private const string cDefaultWindowTitle = "Sudoku Solver";
 
-    
     private readonly PrintHelper printHelper;
     private StorageFile? SourceFile { get; set; }
 
     public MainWindow()
     {
         InitializeComponent();
+
+        if (!TrySetMicaBackdrop())  // acrylic also works, but isn't recommended according to the UI guidelines
+        {
+            layoutRoot.Loaded += (s, e) =>
+            {
+                if (AppWindowTitleBar.IsCustomizationSupported())
+                {
+                    bool titleBarState = VisualStateManager.GoToState(customTitleBar, "BackdropInvalid", false);
+                    Debug.Assert(titleBarState);
+                }
+
+                // the visual states won't exist until OnApplyTemplate() has completed
+                bool clientState = VisualStateManager.GoToState(clientArea, "BackdropInvalid", false);
+                Debug.Assert(clientState);
+            };
+        }
 
         puzzleView.ViewModel = new PuzzleViewModel();
 
@@ -36,7 +51,7 @@ internal sealed partial class MainWindow : SubClassWindow
             customTitleBar.ParentAppWindow = appWindow;
             Activated += customTitleBar.ParentWindow_Activated;
             appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
-        } 
+        }
         else
         {
             customTitleBar.Visibility = Visibility.Collapsed;

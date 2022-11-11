@@ -8,3 +8,4 @@ GetSystemMetrics
 LoadImage
 WM_GETMINMAXINFO
 WM_DPICHANGED
+CreateDispatcherQueueController
