@@ -23,7 +23,7 @@
 
                                 <VisualStateManager.VisualStateGroups>
                                     <VisualStateGroup x:Name="DesktopBackdropStates">
-                                        <VisualState x:Name="BackdropInvalid">
+                                        <VisualState x:Name="BackdropNotSupported">
                                             <VisualState.Setters>
                                                 <Setter Target="cp.Background" Value="{ThemeResource ApplicationPageBackgroundThemeBrush}"/>
                                             </VisualState.Setters>

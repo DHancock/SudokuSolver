@@ -25,12 +25,12 @@ internal sealed partial class MainWindow : SubClassWindow
             {
                 if (AppWindowTitleBar.IsCustomizationSupported())
                 {
-                    bool titleBarState = VisualStateManager.GoToState(customTitleBar, "BackdropInvalid", false);
+                    bool titleBarState = VisualStateManager.GoToState(customTitleBar, "BackdropNotSupported", false);
                     Debug.Assert(titleBarState);
                 }
 
-                // the visual states won't exist until OnApplyTemplate() has completed
-                bool clientState = VisualStateManager.GoToState(clientArea, "BackdropInvalid", false);
+                // the visual states won't exist until after OnApplyTemplate() has completed
+                bool clientState = VisualStateManager.GoToState(clientArea, "BackdropNotSupported", false);
                 Debug.Assert(clientState);
             };
         }

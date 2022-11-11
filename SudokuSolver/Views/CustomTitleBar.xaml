@@ -22,7 +22,7 @@
             </VisualStateGroup>
 
             <VisualStateGroup x:Name="DesktopBackdropStates">
-                <VisualState x:Name="BackdropInvalid">
+                <VisualState x:Name="BackdropNotSupported">
                     <VisualState.Setters>
                         <Setter Target="layoutRoot.Background" Value="{ThemeResource ApplicationPageBackgroundThemeBrush}"/>
                     </VisualState.Setters>
