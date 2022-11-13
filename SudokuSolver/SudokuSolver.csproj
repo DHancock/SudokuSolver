@@ -31,6 +31,7 @@
     <None Remove="Resources\error.png" />
     <None Remove="Views\AboutBox.xaml" />
     <None Remove="Views\CustomTitleBar.xaml" />
+    <None Remove="Views\PrintPage.xaml" />
   </ItemGroup>
 
 	
@@ -79,6 +80,9 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+    <Page Update="Views\PrintPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="Views\CustomTitleBar.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

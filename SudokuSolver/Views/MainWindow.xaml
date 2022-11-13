@@ -54,6 +54,9 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
+                <!-- used to add print and preview pages to the visual tree -->
+                <Canvas x:Name="PrintCanvas" Opacity="0"/>
+                
                 <MenuBar>
                     <MenuBarItem Title="File" AccessKey="F">
                         <MenuFlyoutItem>

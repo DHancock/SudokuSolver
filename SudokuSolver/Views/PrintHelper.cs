@@ -8,7 +8,7 @@ using DispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue;
 
 internal sealed class PrintHelper
 {
-    private readonly IntPtr hWnd;
+    private readonly Window window;
     private readonly DispatcherQueue dispatcherQueue;
     private readonly PrintManager printManager;
     private readonly PrintDocument printDocument;
@@ -17,17 +17,17 @@ internal sealed class PrintHelper
     private PrintTask? printTask;
     private PrintSize printSize = PrintSize.Size_80;   // TODO: save these in settings?
     private Alignment printAlignment = Alignment.MiddleCenter;   
-    private FrameworkElement? currentView;
-    private Canvas? printCanvas;
+    private Panel? rootVisual;
+    private PrintPage? printPage;
     private bool currentlyPrinting;
-    private TaskCompletionSource? taskCompletionSource;
+    
 
-    public PrintHelper(IntPtr hWnd, DispatcherQueue dispatcherQueue)
+    public PrintHelper(Window window, DispatcherQueue dispatcherQueue)
     {
-        this.hWnd = hWnd;
+        this.window = window;
         this.dispatcherQueue = dispatcherQueue;
 
-        printManager = PrintManagerInterop.GetForWindow(hWnd);
+        printManager = PrintManagerInterop.GetForWindow(WindowNative.GetWindowHandle(window));
         printManager.PrintTaskRequested += PrintTaskRequested;
 
         printDocument = new PrintDocument();
@@ -40,30 +40,32 @@ internal sealed class PrintHelper
         printDocumentSource = printDocument.DocumentSource;
     }
 
-    public bool IsPrintingAvailable => PrintManager.IsSupported() && !currentlyPrinting;
-
-    public async Task PrintViewAsync(FrameworkElement view)
+    public async Task PrintViewAsync(Canvas printCanvas, FrameworkElement puzzleView)
     {
         try
         {
-            Debug.Assert(IsPrintingAvailable);  // printing isn't reentrant
-            Debug.Assert(printCanvas is null);
+            Debug.Assert(PrintManager.IsSupported());
+            Debug.Assert(!currentlyPrinting);  
 
-            currentlyPrinting = true;
-            currentView = view;
-            taskCompletionSource = new TaskCompletionSource();
+            if (PrintManager.IsSupported() && !currentlyPrinting) // printing isn't reentrant
+            {
+                currentlyPrinting = true;
 
-            await PrintManagerInterop.ShowPrintUIForWindowAsync(hWnd);
+                // a container for the puzzle
+                printPage = new PrintPage();
+                printPage.AddChild(puzzleView);
 
-            // and wait for the print task to complete (from a different thread)
-            await taskCompletionSource.Task;
+                // the printed object must be part of the visual tree
+                rootVisual = printCanvas;
+                rootVisual.Children.Clear();
+                rootVisual.Children.Add(printPage);
+
+                await PrintManagerInterop.ShowPrintUIForWindowAsync(WindowNative.GetWindowHandle(window));
+            }
         }
-        finally
+        catch (Exception ex)
         {
-            printCanvas = null;
-            currentView = null;
-            taskCompletionSource = null;
-            currentlyPrinting = false;
+            Debug.WriteLine(ex.ToString());
         }
     }   
 
@@ -73,23 +75,15 @@ internal sealed class PrintHelper
         
         printTask.Completed += (s, args) =>
         {
-            // this is called after the data is handed off to whatever, not actually printed
-            Debug.Assert(taskCompletionSource is not null);
-
-            // notify the PrintViewAsync() function that the print task has completed
-            if (taskCompletionSource is not null)
+            // this is called after the data is handed off to the spooler(?), not actually printed
+            bool success = dispatcherQueue.TryEnqueue(() =>
             {
-                if (args.Completion == PrintTaskCompletion.Failed)
-                {
-                    bool success = taskCompletionSource.TrySetException(new Exception("PrintTaskCompletion.Failed"));
-                    Debug.Assert(success);
-                }
-                else
-                {
-                    bool success = taskCompletionSource.TrySetResult();
-                    Debug.Assert(success);
-                }
-            }
+                rootVisual?.Children.Clear();
+                printPage = null;
+                currentlyPrinting = false;
+                Debug.WriteLine($"print task completed, status: {args.Completion}");
+            });
+            Debug.Assert(success);
         };
     }
 
@@ -102,8 +96,9 @@ internal sealed class PrintHelper
         PrintTaskOptionDetails printDetailedOptions = PrintTaskOptionDetails.GetFromPrintTaskOptions(printTask.Options);
         IList<string> displayedOptions = printDetailedOptions.DisplayedOptions;
 
-        // remove the colour or monochrome option from the default option set
+        // define the default option set
         displayedOptions.Clear();
+        displayedOptions.Add(StandardPrintTaskOptions.ColorMode);
         displayedOptions.Add(StandardPrintTaskOptions.Copies);
         displayedOptions.Add(StandardPrintTaskOptions.Orientation);
 
@@ -159,7 +154,10 @@ internal sealed class PrintHelper
             }
 
             if (invalidatePreview)
-                dispatcherQueue.TryEnqueue(() => printDocument.InvalidatePreview());
+            {
+                bool success = dispatcherQueue.TryEnqueue(() => printDocument.InvalidatePreview());
+                Debug.Assert(success);
+            }
         };
     }
 
@@ -198,85 +196,109 @@ internal sealed class PrintHelper
 
     private void Paginate(object sender, PaginateEventArgs e)
     {
-        Debug.Assert(currentView is not null);
-
-        // print a single page
-        printDocument.SetPreviewPageCount(1, PreviewPageCountType.Final);
-
-        // deterimine the page size
-        PrintPageDescription pd = e.PrintTaskOptions.GetPageDescription(0);
-
-        if (printCanvas is null)
+        try
         {
-            printCanvas = new Canvas();
-            printCanvas.Children.Add(currentView);
+            Debug.Assert(rootVisual is not null);
+            Debug.Assert(printPage is not null);
+
+            bool layoutInvalid = false;
+
+            PrintPageDescription pd = e.PrintTaskOptions.GetPageDescription(0);
+            layoutInvalid |= printPage.SetPageSize(pd.PageSize);
+
+            double viewSize = Math.Min(pd.ImageableRect.Height, pd.ImageableRect.Width) * ((double)printSize / 100D);
+            layoutInvalid |= printPage.SetImageSize(viewSize);
+
+            Point position = default;
+
+            switch (printAlignment)
+            {
+                case Alignment.TopLeft:
+                    position.X = pd.ImageableRect.Left;
+                    position.Y = pd.ImageableRect.Top;
+                    break;
+
+                case Alignment.TopCenter:
+                    position.X = pd.ImageableRect.Left + (pd.ImageableRect.Width - viewSize) / 2;
+                    position.Y = pd.ImageableRect.Top;
+                    break;
+
+                case Alignment.TopRight:
+                    position.X = pd.ImageableRect.Right - viewSize;
+                    position.Y = pd.ImageableRect.Top;
+                    break;
+
+                case Alignment.MiddleLeft:
+                    position.X = pd.ImageableRect.Left;
+                    position.Y = pd.ImageableRect.Top + (pd.ImageableRect.Height - viewSize) / 2;
+                    break;
+
+                case Alignment.MiddleCenter:
+                    position.X = pd.ImageableRect.Left + (pd.ImageableRect.Width - viewSize) / 2;
+                    position.Y = pd.ImageableRect.Top + (pd.ImageableRect.Height - viewSize) / 2;
+                    break;
+
+                case Alignment.MiddleRight:
+                    position.X = pd.ImageableRect.Right - viewSize;
+                    position.Y = pd.ImageableRect.Top + (pd.ImageableRect.Height - viewSize) / 2;
+                    break;
+
+                case Alignment.BottomLeft:
+                    position.X = pd.ImageableRect.Left;
+                    position.Y = pd.ImageableRect.Bottom - viewSize;
+                    break;
+
+                case Alignment.BottomCenter:
+                    position.X = pd.ImageableRect.Left + (pd.ImageableRect.Width - viewSize) / 2;
+                    position.Y = pd.ImageableRect.Bottom - viewSize;
+                    break;
+
+                case Alignment.BottomRight:
+                    position.X = pd.ImageableRect.Right - viewSize;
+                    position.Y = pd.ImageableRect.Bottom - viewSize;
+                    break;
+            }
+
+            if (printPage.SetImageLocation(position) || layoutInvalid)
+            {
+                rootVisual.InvalidateMeasure();
+                rootVisual.UpdateLayout();
+            }
+
+            printDocument.SetPreviewPageCount(1, PreviewPageCountType.Final);
         }
-
-        printCanvas.Width = pd.PageSize.Width;
-        printCanvas.Height = pd.PageSize.Height;
-
-        double viewSize = Math.Min(pd.ImageableRect.Height, pd.ImageableRect.Width) * ((double)printSize / 100D);
-
-        currentView.Width = viewSize;
-        currentView.Height = viewSize;
-
-        switch (printAlignment)
+        catch (Exception ex)
         {
-            case Alignment.TopLeft:
-                Canvas.SetLeft(currentView, pd.ImageableRect.Left);
-                Canvas.SetTop(currentView, pd.ImageableRect.Top);
-                break;
-
-            case Alignment.TopCenter:
-                Canvas.SetLeft(currentView, pd.ImageableRect.Left + (pd.ImageableRect.Width - currentView.Width) / 2);
-                Canvas.SetTop(currentView, pd.ImageableRect.Top);
-                break;
-
-            case Alignment.TopRight:
-                Canvas.SetLeft(currentView, pd.ImageableRect.Right - currentView.Width);
-                Canvas.SetTop(currentView, pd.ImageableRect.Top);
-                break;
-
-            case Alignment.MiddleLeft:
-                Canvas.SetLeft(currentView, pd.ImageableRect.Left);
-                Canvas.SetTop(currentView, pd.ImageableRect.Top + (pd.ImageableRect.Height - currentView.Height) / 2);
-                break;
-
-            case Alignment.MiddleCenter:
-                Canvas.SetLeft(currentView, pd.ImageableRect.Left + (pd.ImageableRect.Width - currentView.Width) / 2);
-                Canvas.SetTop(currentView, pd.ImageableRect.Top + (pd.ImageableRect.Height - currentView.Height) / 2);
-                break;
-
-            case Alignment.MiddleRight:
-                Canvas.SetLeft(currentView, pd.ImageableRect.Right - currentView.Width);
-                Canvas.SetTop(currentView, pd.ImageableRect.Top + (pd.ImageableRect.Height - currentView.Height) / 2);
-                break;
-
-            case Alignment.BottomLeft:
-                Canvas.SetLeft(currentView, pd.ImageableRect.Left);
-                Canvas.SetTop(currentView, pd.ImageableRect.Bottom - currentView.Height);
-                break;
-
-            case Alignment.BottomCenter:
-                Canvas.SetLeft(currentView, pd.ImageableRect.Left + (pd.ImageableRect.Width - currentView.Width) / 2);
-                Canvas.SetTop(currentView, pd.ImageableRect.Bottom - currentView.Height);
-                break;
-
-            case Alignment.BottomRight:
-                Canvas.SetLeft(currentView, pd.ImageableRect.Right - currentView.Width);
-                Canvas.SetTop(currentView, pd.ImageableRect.Bottom - currentView.Height);
-                break;
+            Debug.WriteLine(ex.ToString());
         }
     }
 
     private void GetPreviewPage(object sender, GetPreviewPageEventArgs e)
     {
-        printDocument.SetPreviewPage(e.PageNumber, printCanvas);
+        Debug.Assert(printPage is not null);
+
+        try
+        {
+            printDocument.SetPreviewPage(e.PageNumber, printPage);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex.ToString());
+        }
     }
 
     private void AddPages(object sender, AddPagesEventArgs e)
     {
-        printDocument.AddPage(printCanvas);
-        printDocument.AddPagesComplete();
+        Debug.Assert(printPage is not null);
+
+        try
+        {
+            printDocument.AddPage(printPage);
+            printDocument.AddPagesComplete();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex.ToString());
+        }
     }
 }
