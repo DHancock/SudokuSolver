@@ -5,7 +5,7 @@ namespace Sudoku.Views;
 /// <summary>
 /// Interaction logic for MainWindow.xaml
 /// </summary>
-internal sealed partial class MainWindow : SubClassWindow, INotifyPropertyChanged
+internal sealed partial class MainWindow : SubClassWindow
 {
     // according to https://fileinfo.com this extension isn't in use (at least by a popular program)
     private const string cDefaultFilterName = "Sudoku files";
@@ -133,7 +133,9 @@ internal sealed partial class MainWindow : SubClassWindow, INotifyPropertyChange
         }
     }
 
+#pragma warning disable CA1822 // Mark members as static
     public bool IsPrintingAvailable => PrintManager.IsSupported();
+#pragma warning restore CA1822 // Mark members as static
 
     private async void OpenFile(StorageFile file)
     {
@@ -260,12 +262,4 @@ internal sealed partial class MainWindow : SubClassWindow, INotifyPropertyChange
                 Title = value;
         }
     }
-
-
-    public void NotifyPropertyChanged([CallerMemberName] string? propertyName = default)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
 }
