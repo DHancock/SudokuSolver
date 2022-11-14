@@ -8,15 +8,16 @@ using DispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue;
 
 internal sealed class PrintHelper
 {
-    private readonly Window window;
+    private readonly IntPtr hWnd;
     private readonly DispatcherQueue dispatcherQueue;
     private readonly PrintManager printManager;
     private readonly PrintDocument printDocument;
     private readonly IPrintDocumentSource printDocumentSource;
 
-    private PrintTask? printTask;
     private PrintSize printSize = PrintSize.Size_80;   // TODO: save these in settings?
-    private Alignment printAlignment = Alignment.MiddleCenter;   
+    private Alignment printAlignment = Alignment.MiddleCenter;
+
+    private PrintTask? printTask;
     private Panel? rootVisual;
     private PrintPage? printPage;
     private bool currentlyPrinting;
@@ -24,10 +25,10 @@ internal sealed class PrintHelper
 
     public PrintHelper(Window window, DispatcherQueue dispatcherQueue)
     {
-        this.window = window;
+        hWnd = WindowNative.GetWindowHandle(window);
         this.dispatcherQueue = dispatcherQueue;
 
-        printManager = PrintManagerInterop.GetForWindow(WindowNative.GetWindowHandle(window));
+        printManager = PrintManagerInterop.GetForWindow(hWnd);
         printManager.PrintTaskRequested += PrintTaskRequested;
 
         printDocument = new PrintDocument();
@@ -47,8 +48,9 @@ internal sealed class PrintHelper
             Debug.Assert(PrintManager.IsSupported());
             Debug.Assert(!currentlyPrinting);  
 
-            if (PrintManager.IsSupported() && !currentlyPrinting) // printing isn't reentrant
+            if (PrintManager.IsSupported() && !currentlyPrinting) 
             {
+                // printing isn't reentrant
                 currentlyPrinting = true;
 
                 // a container for the puzzle
@@ -60,7 +62,7 @@ internal sealed class PrintHelper
                 rootVisual.Children.Clear();
                 rootVisual.Children.Add(printPage);
 
-                await PrintManagerInterop.ShowPrintUIForWindowAsync(WindowNative.GetWindowHandle(window));
+                await PrintManagerInterop.ShowPrintUIForWindowAsync(hWnd);
             }
         }
         catch (Exception ex)
@@ -76,12 +78,13 @@ internal sealed class PrintHelper
         printTask.Completed += (s, args) =>
         {
             // this is called after the data is handed off to the spooler(?), not actually printed
+            Debug.WriteLine($"print task completed, status: {args.Completion}");
+
             bool success = dispatcherQueue.TryEnqueue(() =>
             {
                 rootVisual?.Children.Clear();
                 printPage = null;
                 currentlyPrinting = false;
-                Debug.WriteLine($"print task completed, status: {args.Completion}");
             });
             Debug.Assert(success);
         };
@@ -203,11 +206,11 @@ internal sealed class PrintHelper
 
             bool layoutInvalid = false;
 
-            PrintPageDescription pd = e.PrintTaskOptions.GetPageDescription(0);
+            PrintPageDescription pd = e.PrintTaskOptions.GetPageDescription(jobPageNumber: 0);
             layoutInvalid |= printPage.SetPageSize(pd.PageSize);
 
-            double viewSize = Math.Min(pd.ImageableRect.Height, pd.ImageableRect.Width) * ((double)printSize / 100D);
-            layoutInvalid |= printPage.SetImageSize(viewSize);
+            double imageSize = Math.Min(pd.ImageableRect.Height, pd.ImageableRect.Width) * ((double)printSize / 100D);
+            layoutInvalid |= printPage.SetImageSize(imageSize);
 
             Point position = default;
 
@@ -219,53 +222,55 @@ internal sealed class PrintHelper
                     break;
 
                 case Alignment.TopCenter:
-                    position.X = pd.ImageableRect.Left + (pd.ImageableRect.Width - viewSize) / 2;
+                    position.X = pd.ImageableRect.Left + (pd.ImageableRect.Width - imageSize) / 2;
                     position.Y = pd.ImageableRect.Top;
                     break;
 
                 case Alignment.TopRight:
-                    position.X = pd.ImageableRect.Right - viewSize;
+                    position.X = pd.ImageableRect.Right - imageSize;
                     position.Y = pd.ImageableRect.Top;
                     break;
 
                 case Alignment.MiddleLeft:
                     position.X = pd.ImageableRect.Left;
-                    position.Y = pd.ImageableRect.Top + (pd.ImageableRect.Height - viewSize) / 2;
+                    position.Y = pd.ImageableRect.Top + (pd.ImageableRect.Height - imageSize) / 2;
                     break;
 
                 case Alignment.MiddleCenter:
-                    position.X = pd.ImageableRect.Left + (pd.ImageableRect.Width - viewSize) / 2;
-                    position.Y = pd.ImageableRect.Top + (pd.ImageableRect.Height - viewSize) / 2;
+                    position.X = pd.ImageableRect.Left + (pd.ImageableRect.Width - imageSize) / 2;
+                    position.Y = pd.ImageableRect.Top + (pd.ImageableRect.Height - imageSize) / 2;
                     break;
 
                 case Alignment.MiddleRight:
-                    position.X = pd.ImageableRect.Right - viewSize;
-                    position.Y = pd.ImageableRect.Top + (pd.ImageableRect.Height - viewSize) / 2;
+                    position.X = pd.ImageableRect.Right - imageSize;
+                    position.Y = pd.ImageableRect.Top + (pd.ImageableRect.Height - imageSize) / 2;
                     break;
 
                 case Alignment.BottomLeft:
                     position.X = pd.ImageableRect.Left;
-                    position.Y = pd.ImageableRect.Bottom - viewSize;
+                    position.Y = pd.ImageableRect.Bottom - imageSize;
                     break;
 
                 case Alignment.BottomCenter:
-                    position.X = pd.ImageableRect.Left + (pd.ImageableRect.Width - viewSize) / 2;
-                    position.Y = pd.ImageableRect.Bottom - viewSize;
+                    position.X = pd.ImageableRect.Left + (pd.ImageableRect.Width - imageSize) / 2;
+                    position.Y = pd.ImageableRect.Bottom - imageSize;
                     break;
 
                 case Alignment.BottomRight:
-                    position.X = pd.ImageableRect.Right - viewSize;
-                    position.Y = pd.ImageableRect.Bottom - viewSize;
+                    position.X = pd.ImageableRect.Right - imageSize;
+                    position.Y = pd.ImageableRect.Bottom - imageSize;
                     break;
             }
 
-            if (printPage.SetImageLocation(position) || layoutInvalid)
+            layoutInvalid |= printPage.SetImageLocation(position);
+
+            if (layoutInvalid)
             {
                 rootVisual.InvalidateMeasure();
                 rootVisual.UpdateLayout();
             }
 
-            printDocument.SetPreviewPageCount(1, PreviewPageCountType.Final);
+            printDocument.SetPreviewPageCount(count: 1, PreviewPageCountType.Final);
         }
         catch (Exception ex)
         {
