@@ -5,7 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="using:Sudoku.Views"
              mc:Ignorable="d">
-    <Canvas>
+
+    <TextBlock x:Name="PossibleValue" Foreground="{ThemeResource CellPossiblesBrush}">
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="PossiblesIndicatorStates">
                 <VisualState x:Name="Horizontal">
@@ -21,8 +22,5 @@
                 <VisualState x:Name="None"/>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
-
-        <!-- wrap this TextBlock in a Control otherwise the visual states can't be set -->
-        <TextBlock x:Name="PossibleValue" Foreground="{ThemeResource CellPossiblesBrush}"/>
-    </Canvas>
+    </TextBlock>
 </UserControl>
