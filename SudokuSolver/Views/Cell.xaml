@@ -8,7 +8,7 @@
              Height="{StaticResource cell_size}"
              Width="{StaticResource cell_size}">
 
-    <Canvas x:Name="CellCanvas" Height="{StaticResource cell_size}" Width="{StaticResource cell_size}" Background="{ThemeResource CellFillBrush}">
+    <Canvas x:Name="CellCanvas" Height="{StaticResource cell_size}" Width="{StaticResource cell_size}">
 
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="CellValueStates">
