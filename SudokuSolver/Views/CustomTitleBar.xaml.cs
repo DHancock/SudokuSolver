@@ -12,8 +12,6 @@ public sealed partial class CustomTitleBar : UserControl
         {
             LoadWindowIconImage();
 
-            RegisterPropertyChangedCallback(RequestedThemeProperty, ThemeChangedCallback);
-
             SizeChanged += (s, e) =>
             {
                 Debug.Assert(ParentAppWindow is not null);
@@ -23,6 +21,16 @@ public sealed partial class CustomTitleBar : UserControl
                 RightPaddingColumn.Width = new GridLength(ParentAppWindow.TitleBar.RightInset / scaleFactor);
 
                 windowTitle.Width = Math.Max(e.NewSize.Width - (LeftPaddingColumn.Width.Value + IconColumn.Width.Value + RightPaddingColumn.Width.Value), 0);
+            };
+
+            ActualThemeChanged += (s, a) =>
+            {
+                UpdateTitleBarCaptionButtons();
+            };
+
+            Loaded += (s, e) =>
+            {
+                UpdateTitleBarCaptionButtons();
             };
         }
     }
@@ -37,15 +45,11 @@ public sealed partial class CustomTitleBar : UserControl
         set => windowTitle.Text = value;
     }
 
-    private void ThemeChangedCallback(DependencyObject sender, DependencyProperty dp)
-    {
-        UpdateTitleBarCaptionButtons();
-    }
-
     private void UpdateTitleBarCaptionButtons()
     {
         Debug.Assert(ParentAppWindow is not null);
         Debug.Assert(ParentAppWindow.TitleBar is not null);
+        Debug.Assert(ActualTheme != ElementTheme.Default);
 
         AppWindowTitleBar titleBar = ParentAppWindow.TitleBar;
 
@@ -54,7 +58,7 @@ public sealed partial class CustomTitleBar : UserControl
         titleBar.ButtonPressedBackgroundColor = Colors.Transparent;
         titleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
 
-        if (RequestedTheme == ElementTheme.Light)
+        if (ActualTheme == ElementTheme.Light)
         {
             titleBar.ButtonForegroundColor = Colors.Black;
             titleBar.ButtonPressedForegroundColor = Colors.Black;

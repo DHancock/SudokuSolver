@@ -44,8 +44,8 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <local:CustomTitleBar x:Name="customTitleBar" RequestedTheme="{x:Bind puzzleView.ViewModel.Theme, Mode=OneWay}"/>
-
+        <local:CustomTitleBar x:Name="customTitleBar"/>
+        
         <!-- visual states can only be set on controls, wrap the client content -->
         <ContentControl x:Name="clientArea" Grid.Row="1"  Style="{StaticResource ClientAreaStyle}">
             <Grid>
