@@ -1,8 +1,10 @@
-﻿namespace Sudoku.Views;
+﻿using System.Reflection.Metadata.Ecma335;
+
+namespace Sudoku.Views;
 
 public sealed partial class CustomTitleBar : UserControl
 {
-    public AppWindow? ParentAppWindow { get; set; }
+    private AppWindow? parentAppWindow;
 
     public CustomTitleBar()
     {
@@ -38,6 +40,17 @@ public sealed partial class CustomTitleBar : UserControl
     private async void LoadWindowIconImage()
     {
         windowIcon.Source = await MainWindow.LoadEmbeddedImageResource("Sudoku.Resources.app.png");
+    }
+
+    public AppWindow? ParentAppWindow
+    {
+        get => parentAppWindow;
+        set
+        {
+            Debug.Assert(value is not null);
+            Debug.Assert(PInvoke.GetDpiForWindow((HWND)(IntPtr)value.Id.Value) > 0);
+            parentAppWindow = value;
+        }
     }
 
     public string Title
