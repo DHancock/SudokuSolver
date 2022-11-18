@@ -24,8 +24,8 @@ internal sealed partial class MainWindow : SubClassWindow
             layoutRoot.Loaded += (s, e) =>
             {
                 // the visual states won't exist until after OnApplyTemplate() has completed
-                bool clientState = VisualStateManager.GoToState(layoutRoot, "BackdropNotSupported", false);
-                Debug.Assert(clientState);
+                bool stateFound = VisualStateManager.GoToState(layoutRoot, "BackdropNotSupported", false);
+                Debug.Assert(stateFound);
             };
         }
 

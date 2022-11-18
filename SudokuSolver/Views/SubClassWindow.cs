@@ -94,6 +94,7 @@ internal class SubClassWindow : Window
 
     private double GetScaleFactor()
     {
+        // The xaml may not have loaded yet, so Content.XamlRoot.RasterizationScale isn't an option here
         double dpi = PInvoke.GetDpiForWindow(hWnd);
         return dpi / 96.0;
     }

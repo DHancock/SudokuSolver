@@ -15,7 +15,7 @@ public sealed partial class CustomTitleBar : UserControl
             SizeChanged += (s, e) =>
             {
                 Debug.Assert(ParentAppWindow is not null);
-                double scaleFactor = PInvoke.GetDpiForWindow((HWND)Win32Interop.GetWindowFromWindowId(ParentAppWindow.Id)) / 96.0;
+                double scaleFactor = Content.XamlRoot.RasterizationScale;
 
                 LeftPaddingColumn.Width = new GridLength(ParentAppWindow.TitleBar.LeftInset / scaleFactor);
                 RightPaddingColumn.Width = new GridLength(ParentAppWindow.TitleBar.RightInset / scaleFactor);
@@ -41,7 +41,6 @@ public sealed partial class CustomTitleBar : UserControl
         set
         {
             Debug.Assert(value is not null);
-            Debug.Assert(PInvoke.GetDpiForWindow((HWND)(IntPtr)value.Id.Value) > 0);
             parentAppWindow = value;
             UpdateTitleBarCaptionButtons();
         }
