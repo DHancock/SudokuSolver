@@ -20,16 +20,6 @@
 
                 <VisualState x:Name="Activated"/>
             </VisualStateGroup>
-
-            <VisualStateGroup x:Name="DesktopBackdropStates">
-                <VisualState x:Name="BackdropNotSupported">
-                    <VisualState.Setters>
-                        <Setter Target="layoutRoot.Background" Value="{ThemeResource ApplicationPageBackgroundThemeBrush}"/>
-                    </VisualState.Setters>
-                </VisualState>
-
-                <VisualState x:Name="BackdropValid"/>
-            </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
         <Grid.ColumnDefinitions>

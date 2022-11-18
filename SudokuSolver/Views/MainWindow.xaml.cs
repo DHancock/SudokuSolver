@@ -23,14 +23,8 @@ internal sealed partial class MainWindow : SubClassWindow
         {
             layoutRoot.Loaded += (s, e) =>
             {
-                if (AppWindowTitleBar.IsCustomizationSupported())
-                {
-                    bool titleBarState = VisualStateManager.GoToState(customTitleBar, "BackdropNotSupported", false);
-                    Debug.Assert(titleBarState);
-                }
-
                 // the visual states won't exist until after OnApplyTemplate() has completed
-                bool clientState = VisualStateManager.GoToState(clientArea, "BackdropNotSupported", false);
+                bool clientState = VisualStateManager.GoToState(layoutRoot, "BackdropNotSupported", false);
                 Debug.Assert(clientState);
             };
         }
@@ -129,7 +123,7 @@ internal sealed partial class MainWindow : SubClassWindow
         }
         catch (Exception ex)
         {
-            await new ErrorDialog("A printing error occured", ex.Message, Content.XamlRoot, clientArea.RequestedTheme).ShowAsync();
+            await new ErrorDialog("A printing error occured", ex.Message, Content.XamlRoot, layoutRoot.ActualTheme).ShowAsync();
         }
     }
 
@@ -153,7 +147,7 @@ internal sealed partial class MainWindow : SubClassWindow
         {
             WindowTitle = cDefaultWindowTitle;
             string heading = $"Failed to open file \"{file.DisplayName}\"";
-            await new ErrorDialog(heading, ex.Message, Content.XamlRoot, clientArea.RequestedTheme).ShowAsync();
+            await new ErrorDialog(heading, ex.Message, Content.XamlRoot, layoutRoot.ActualTheme).ShowAsync();
         }
     }
 
@@ -181,7 +175,7 @@ internal sealed partial class MainWindow : SubClassWindow
             catch (Exception ex)
             {
                 string heading = $"Failed to save the puzzle as \"{SourceFile.DisplayName}\"";
-                await new ErrorDialog(heading, ex.Message, Content.XamlRoot, clientArea.RequestedTheme).ShowAsync();
+                await new ErrorDialog(heading, ex.Message, Content.XamlRoot, layoutRoot.ActualTheme).ShowAsync();
             }
         }  
         else
@@ -209,7 +203,7 @@ internal sealed partial class MainWindow : SubClassWindow
             catch (Exception ex)
             {
                 string heading = $"Failed to save the puzzle as \"{file.DisplayName}\"";
-                await new ErrorDialog(heading, ex.Message, Content.XamlRoot, clientArea.RequestedTheme).ShowAsync();
+                await new ErrorDialog(heading, ex.Message, Content.XamlRoot, layoutRoot.ActualTheme).ShowAsync();
             }
         }
     }
@@ -232,7 +226,7 @@ internal sealed partial class MainWindow : SubClassWindow
 
     private async void AboutClickHandler(object sender, RoutedEventArgs e)
     {
-        await new AboutBox(Content.XamlRoot, clientArea.RequestedTheme).ShowAsync();
+        await new AboutBox(Content.XamlRoot, layoutRoot.ActualTheme).ShowAsync();
     }
 
     public static async Task<BitmapImage> LoadEmbeddedImageResource(string resourcePath)

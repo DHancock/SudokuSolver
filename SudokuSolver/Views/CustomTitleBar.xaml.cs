@@ -1,6 +1,4 @@
-﻿using System.Reflection.Metadata.Ecma335;
-
-namespace Sudoku.Views;
+﻿namespace Sudoku.Views;
 
 public sealed partial class CustomTitleBar : UserControl
 {
@@ -29,11 +27,6 @@ public sealed partial class CustomTitleBar : UserControl
             {
                 UpdateTitleBarCaptionButtons();
             };
-
-            Loaded += (s, e) =>
-            {
-                UpdateTitleBarCaptionButtons();
-            };
         }
     }
 
@@ -50,6 +43,7 @@ public sealed partial class CustomTitleBar : UserControl
             Debug.Assert(value is not null);
             Debug.Assert(PInvoke.GetDpiForWindow((HWND)(IntPtr)value.Id.Value) > 0);
             parentAppWindow = value;
+            UpdateTitleBarCaptionButtons();
         }
     }
 
@@ -66,11 +60,12 @@ public sealed partial class CustomTitleBar : UserControl
 
         AppWindowTitleBar titleBar = ParentAppWindow.TitleBar;
 
+        titleBar.BackgroundColor = Colors.Transparent;
         titleBar.ButtonBackgroundColor = Colors.Transparent;
         titleBar.ButtonHoverBackgroundColor = Colors.Transparent;
         titleBar.ButtonPressedBackgroundColor = Colors.Transparent;
         titleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
-
+        
         if (ActualTheme == ElementTheme.Light)
         {
             titleBar.ButtonForegroundColor = Colors.Black;
