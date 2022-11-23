@@ -131,8 +131,7 @@ internal class SubClassWindow : Window
         if (size == 0)
             throw new Win32Exception(); // get last error doesn't provide any extra information 
 
-        const string cAppIconResourceId = "#32512";
-        SafeFileHandle hIcon = PInvoke.LoadImage(module, cAppIconResourceId, GDI_IMAGE_TYPE.IMAGE_ICON, size, size, IMAGE_FLAGS.LR_DEFAULTCOLOR);
+        SafeFileHandle hIcon = PInvoke.LoadImage(module, $"#{App.cAppIconResourceID}", GDI_IMAGE_TYPE.IMAGE_ICON, size, size, IMAGE_FLAGS.LR_DEFAULTCOLOR);
 
         if (hIcon.IsInvalid)
             throw new Win32Exception(Marshal.GetLastPInvokeError());

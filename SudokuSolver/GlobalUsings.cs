@@ -6,6 +6,7 @@ global using Microsoft.UI.Xaml.Input;
 global using Microsoft.UI.Xaml.Media.Imaging;
 global using Microsoft.UI.Xaml.Printing;
 global using Microsoft.Win32.SafeHandles;
+global using Microsoft.Windows.AppLifecycle;
 
 global using System.Collections;
 global using System.Collections.ObjectModel;
@@ -20,6 +21,7 @@ global using System.Text.Json.Serialization;
 global using System.Windows.Input;
 global using System.Xml.Linq;
 
+global using Windows.ApplicationModel.Activation;
 global using Windows.Foundation;
 global using Windows.Graphics;
 global using Windows.Graphics.Printing;

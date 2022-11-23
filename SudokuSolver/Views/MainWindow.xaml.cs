@@ -9,8 +9,8 @@ internal sealed partial class MainWindow : SubClassWindow
 {
     // according to https://fileinfo.com this extension isn't in use (at least by a popular program)
     private const string cDefaultFilterName = "Sudoku files";
-    private const string cDefaultFileExt = ".sdku";
-    private const string cDefaultWindowTitle = "Sudoku Solver";
+    private const string cDefaultFileExt = App.cAppFileExt;
+    private const string cDefaultWindowTitle = App.cAppDisplayName;
 
     private readonly PrintHelper printHelper;
     private StorageFile? SourceFile { get; set; }
@@ -49,8 +49,10 @@ internal sealed partial class MainWindow : SubClassWindow
         else
         {
             customTitleBar.Visibility = Visibility.Collapsed;
-            SetWindowIconFromAppIcon();
         }
+
+        // set the window icon, it's also used in the task switcher
+        SetWindowIconFromAppIcon();
 
         printHelper = new PrintHelper(this, DispatcherQueue);
 
@@ -68,7 +70,19 @@ internal sealed partial class MainWindow : SubClassWindow
                 WindowState = Settings.Data.WindowState;
         }
 
-        ProcessCommandLine(Environment.GetCommandLineArgs());
+        AppActivationArguments args = AppInstance.GetCurrent().GetActivatedEventArgs();
+
+        if (args.Kind == ExtendedActivationKind.File) 
+        {
+            if ((args.Data is IFileActivatedEventArgs fileData) && (fileData.Files.Count > 0))
+            {
+                ProcessCommandLine(new[] { string.Empty, fileData.Files[0].Path });
+            }
+        }
+        else if (args.Kind == ExtendedActivationKind.Launch)
+        {
+            ProcessCommandLine(Environment.GetCommandLineArgs());
+        }
     }
 
     private RectInt32 ValidateRestoreBounds(RectInt32 windowArea)
