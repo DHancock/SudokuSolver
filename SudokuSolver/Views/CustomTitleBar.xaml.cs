@@ -1,6 +1,6 @@
 ﻿namespace Sudoku.Views;
 
-public sealed partial class CustomTitleBar : UserControl
+internal sealed partial class CustomTitleBar : UserControl
 {
     private AppWindow? parentAppWindow;
 
