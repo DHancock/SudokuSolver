@@ -7,9 +7,9 @@ namespace Sudoku;
 /// </summary>
 public partial class App : Application
 {
-    public const string cAppFileExt = ".sdku";
-    public const string cAppDisplayName = "Sudoku Solver";
-    public const string cAppIconResourceID = "32512";
+    public const string cFileExt = ".sdku";
+    public const string cDisplayName = "Sudoku Solver";
+    public const string cIconResourceID = "32512";
 
     /// <summary>
     /// Initializes the singleton application object.  This is the first line of authored code
@@ -19,11 +19,11 @@ public partial class App : Application
     {
         InitializeComponent();
 
-        string[] fileTypes = new[]{ cAppFileExt };
+        string[] fileTypes = new[]{ cFileExt };
         string[] verbs = new[]{ "view", "edit" };
-        string logo = $"{Path.ChangeExtension(typeof(App).Assembly.Location, ".exe")},{cAppIconResourceID}";
+        string logo = $"{Path.ChangeExtension(typeof(App).Assembly.Location, ".exe")},{cIconResourceID}";
             
-        ActivationRegistrationManager.RegisterForFileTypeActivation(fileTypes, logo, cAppDisplayName, verbs, string.Empty);
+        ActivationRegistrationManager.RegisterForFileTypeActivation(fileTypes, logo, cDisplayName, verbs, string.Empty);
     }
 
     /// <summary>

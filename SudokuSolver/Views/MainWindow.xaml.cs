@@ -7,11 +7,6 @@ namespace Sudoku.Views;
 /// </summary>
 internal sealed partial class MainWindow : SubClassWindow
 {
-    // according to https://fileinfo.com this extension isn't in use (at least by a popular program)
-    private const string cDefaultFilterName = "Sudoku files";
-    private const string cDefaultFileExt = App.cAppFileExt;
-    private const string cDefaultWindowTitle = App.cAppDisplayName;
-
     private readonly PrintHelper printHelper;
     private StorageFile? SourceFile { get; set; }
 
@@ -38,7 +33,7 @@ internal sealed partial class MainWindow : SubClassWindow
             await Settings.Data.Save();
         };
 
-        WindowTitle = cDefaultWindowTitle;
+        WindowTitle = App.cDisplayName;
 
         if (AppWindowTitleBar.IsCustomizationSupported())
         {
@@ -51,7 +46,7 @@ internal sealed partial class MainWindow : SubClassWindow
             customTitleBar.Visibility = Visibility.Collapsed;
         }
 
-        // set the window icon, it's also used in the task switcher
+        // always set the window icon, it's used in the task switcher
         SetWindowIconFromAppIcon();
 
         printHelper = new PrintHelper(this, DispatcherQueue);
@@ -76,6 +71,7 @@ internal sealed partial class MainWindow : SubClassWindow
         {
             if ((args.Data is IFileActivatedEventArgs fileData) && (fileData.Files.Count > 0))
             {
+                // if multiple files are selected, a separate app instance will be started for each file
                 ProcessCommandLine(new[] { string.Empty, fileData.Files[0].Path });
             }
         }
@@ -114,7 +110,7 @@ internal sealed partial class MainWindow : SubClassWindow
     private async void ProcessCommandLine(string[] args)
     {
         // args[0] is typically the full path of the executing assembly
-        if ((args?.Length == 2) && (Path.GetExtension(args[1]).ToLower() == cDefaultFileExt) && File.Exists(args[1]))
+        if ((args?.Length == 2) && (Path.GetExtension(args[1]).ToLower() == App.cFileExt) && File.Exists(args[1]))
         {
             StorageFile file = await StorageFile.GetFileFromPathAsync(args[1]);
             OpenFile(file);
@@ -155,11 +151,11 @@ internal sealed partial class MainWindow : SubClassWindow
             }
 
             SourceFile = file;
-            WindowTitle = $"{cDefaultWindowTitle} - {file.DisplayName}";
+            WindowTitle = $"{App.cDisplayName} - {file.DisplayName}";
         }
         catch (Exception ex)
         {
-            WindowTitle = cDefaultWindowTitle;
+            WindowTitle = App.cDisplayName;
             string heading = $"Failed to open file \"{file.DisplayName}\"";
             await new ErrorDialog(heading, ex.Message, Content.XamlRoot, layoutRoot.ActualTheme).ShowAsync();
         }
@@ -170,7 +166,7 @@ internal sealed partial class MainWindow : SubClassWindow
         FileOpenPicker openPicker = new FileOpenPicker();
         InitializeWithWindow.Initialize(openPicker, hWnd);
 
-        openPicker.FileTypeFilter.Add(cDefaultFileExt);
+        openPicker.FileTypeFilter.Add(App.cFileExt);
         
         StorageFile file = await openPicker.PickSingleFileAsync();
 
@@ -201,7 +197,7 @@ internal sealed partial class MainWindow : SubClassWindow
         FileSavePicker savePicker = new FileSavePicker();
         InitializeWithWindow.Initialize(savePicker, hWnd);
 
-        savePicker.FileTypeChoices.Add(cDefaultFilterName, new List<string>() { cDefaultFileExt });
+        savePicker.FileTypeChoices.Add("Sudoku files", new List<string>() { App.cFileExt });
         savePicker.SuggestedFileName = "New Puzzle";
 
         StorageFile file = await savePicker.PickSaveFileAsync();
@@ -212,7 +208,7 @@ internal sealed partial class MainWindow : SubClassWindow
             {
                 await SaveFile(file);
                 SourceFile = file;
-                WindowTitle = $"{cDefaultWindowTitle} - {file.DisplayName}";
+                WindowTitle = $"{App.cDisplayName} - {file.DisplayName}";
             }
             catch (Exception ex)
             {
