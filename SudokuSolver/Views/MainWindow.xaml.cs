@@ -65,20 +65,23 @@ internal sealed partial class MainWindow : SubClassWindow
                 WindowState = Settings.Data.WindowState;
         }
 
-        AppActivationArguments args = AppInstance.GetCurrent().GetActivatedEventArgs();
+        layoutRoot.Loaded += async (s, e) =>
+        {
+            AppActivationArguments args = AppInstance.GetCurrent().GetActivatedEventArgs();
 
-        if (args.Kind == ExtendedActivationKind.File) 
-        {
-            if ((args.Data is IFileActivatedEventArgs fileData) && (fileData.Files.Count > 0))
+            if (args.Kind == ExtendedActivationKind.File)
             {
-                // if multiple files are selected, a separate app instance will be started for each file
-                ProcessCommandLine(new[] { string.Empty, fileData.Files[0].Path });
+                if ((args.Data is IFileActivatedEventArgs fileData) && (fileData.Files.Count > 0))
+                {
+                    // if multiple files are selected, a separate app instance will be started for each file
+                    await ProcessCommandLine(new[] { string.Empty, fileData.Files[0].Path });
+                }
             }
-        }
-        else if (args.Kind == ExtendedActivationKind.Launch)
-        {
-            ProcessCommandLine(Environment.GetCommandLineArgs());
-        }
+            else if (args.Kind == ExtendedActivationKind.Launch)
+            {
+                await ProcessCommandLine(Environment.GetCommandLineArgs());
+            }
+        };
     }
 
     private RectInt32 ValidateRestoreBounds(RectInt32 windowArea)
@@ -107,13 +110,13 @@ internal sealed partial class MainWindow : SubClassWindow
         return new RectInt32(position.X, position.Y, size.Width, size.Height);
     }
 
-    private async void ProcessCommandLine(string[] args)
+    private async Task ProcessCommandLine(string[] args)
     {
         // args[0] is typically the full path of the executing assembly
         if ((args?.Length == 2) && (Path.GetExtension(args[1]).ToLower() == App.cFileExt) && File.Exists(args[1]))
         {
             StorageFile file = await StorageFile.GetFileFromPathAsync(args[1]);
-            OpenFile(file);
+            await OpenFile(file);
         }
     }
 
@@ -141,7 +144,7 @@ internal sealed partial class MainWindow : SubClassWindow
     public bool IsPrintingAvailable => PrintManager.IsSupported();
 #pragma warning restore CA1822 // Mark members as static
 
-    private async void OpenFile(StorageFile file)
+    private async Task OpenFile(StorageFile file)
     {
         try
         {
@@ -171,7 +174,7 @@ internal sealed partial class MainWindow : SubClassWindow
         StorageFile file = await openPicker.PickSingleFileAsync();
 
         if (file is not null)
-            OpenFile(file);
+            await OpenFile(file);
     }
 
     private async void SaveCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
