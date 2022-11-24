@@ -10,8 +10,6 @@ internal sealed partial class CustomTitleBar : UserControl
 
         if (AppWindowTitleBar.IsCustomizationSupported())
         {
-            LoadWindowIconImage();
-
             SizeChanged += (s, e) =>
             {
                 Debug.Assert(ParentAppWindow is not null);
@@ -27,12 +25,12 @@ internal sealed partial class CustomTitleBar : UserControl
             {
                 UpdateTitleBarCaptionButtons();
             };
-        }
-    }
 
-    private async void LoadWindowIconImage()
-    {
-        windowIcon.Source = await MainWindow.LoadEmbeddedImageResource("Sudoku.Resources.app.png");
+            Loaded += async (s, a) =>
+            {
+                windowIcon.Source = await MainWindow.LoadEmbeddedImageResource("Sudoku.Resources.app.png");
+            };
+        }
     }
 
     public AppWindow? ParentAppWindow
