@@ -12,7 +12,7 @@ public sealed partial class AboutBox : ContentDialog
 
         Loaded += async (s, e) =>
         {
-            string path = RequestedTheme == ElementTheme.Light ? "Sudoku.Resources.about_light.png" : "Sudoku.Resources.about_dark.png";
+            string path = ActualTheme == ElementTheme.Light ? "Sudoku.Resources.about_light.png" : "Sudoku.Resources.about_dark.png";
             AboutImage.Source = await MainWindow.LoadEmbeddedImageResource(path);
         };
     }
