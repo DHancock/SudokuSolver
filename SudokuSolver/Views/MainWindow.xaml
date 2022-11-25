@@ -26,6 +26,16 @@
 
             <MenuBar Grid.Row="1">
                 <MenuBarItem Title="File" AccessKey="F">
+
+                    <MenuFlyoutItem Text="New" Click="NewClickHandler" AccessKey="N">
+                        <MenuFlyoutItem.Icon>
+                            <SymbolIcon Symbol="OpenPane"/>
+                        </MenuFlyoutItem.Icon>
+                        <MenuFlyoutItem.KeyboardAccelerators>
+                            <KeyboardAccelerator Key="N" Modifiers="Control" />
+                        </MenuFlyoutItem.KeyboardAccelerators>
+                    </MenuFlyoutItem>
+                    
                     <MenuFlyoutItem>
                         <MenuFlyoutItem.Command>
                             <StandardUICommand Kind="Open" ExecuteRequested="OpenCommand_ExecuteRequested" AccessKey="N"/>
@@ -65,10 +75,10 @@
                     </MenuFlyoutItem>
 
                     <MenuFlyoutSeparator />
-                    <MenuFlyoutItem Text="Exit" Click="ExitClickHandler" AccessKey="E" KeyboardAcceleratorTextOverride ="Alt+F4">
-                        <MenuFlyoutItem.Icon>
-                            <SymbolIcon Symbol="ClosePane"/>
-                        </MenuFlyoutItem.Icon>
+                    <MenuFlyoutItem>
+                        <MenuFlyoutItem.Command>
+                            <StandardUICommand Kind="Close" ExecuteRequested="CloseCommand_ExecuteRequested" AccessKey="E"/>
+                        </MenuFlyoutItem.Command>
                     </MenuFlyoutItem>
                 </MenuBarItem>
 

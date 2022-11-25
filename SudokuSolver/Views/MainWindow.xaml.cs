@@ -28,9 +28,14 @@ internal sealed partial class MainWindow : SubClassWindow
 
         appWindow.Closing += async (s, a) =>
         {
-            Settings.Data.RestoreBounds = RestoreBounds;
-            Settings.Data.WindowState = WindowState;
-            await Settings.Data.Save();
+            bool lastWindow = App.UnRegisterWindow(this);
+
+            if (lastWindow)
+            {
+                Settings.Data.RestoreBounds = RestoreBounds;
+                Settings.Data.WindowState = WindowState;
+                await Settings.Data.Save();
+            }
         };
 
         WindowTitle = App.cDisplayName;
@@ -120,7 +125,17 @@ internal sealed partial class MainWindow : SubClassWindow
         }
     }
 
-    private void ExitClickHandler(object sender, RoutedEventArgs e) => Close();
+    private void CloseCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args) => Close();
+
+    private async void NewClickHandler(object sender, RoutedEventArgs e)
+    {
+        if(!App.CreateNewWindow())
+        {
+            string title = "New window failed";
+            string message = "The maximum number of windows has been reached";
+            await new ErrorDialog(title, message, Content.XamlRoot, layoutRoot.ActualTheme).ShowAsync();
+        }
+    }
 
     private async void PrintClickHandler(object sender, RoutedEventArgs e)
     {
