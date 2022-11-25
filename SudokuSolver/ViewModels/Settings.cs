@@ -15,11 +15,7 @@ internal class Settings
     {
     }
 
-    public bool ShowPossibles { get; set; } = false;
-
-    public bool ShowSolution { get; set; } = true;
-
-    public bool IsDarkThemed { get; set; } = Application.Current.RequestedTheme == ApplicationTheme.Dark;
+    public PerViewSettings ViewSettings { get; set; } = new PerViewSettings();
 
     public WindowState WindowState { get; set; } = WindowState.Normal;
 
@@ -108,5 +104,21 @@ internal class Settings
             };
         }
     }
+
+    // View specific settings
+    // The clone function is used to give each view model it's own copy
+    public class PerViewSettings
+    {
+        public bool IsDarkThemed { get; set; } = Application.Current.RequestedTheme == ApplicationTheme.Dark;
+        public bool ShowPossibles { get; set; } = false;
+        public bool ShowSolution { get; set; } = true;
+
+        public PerViewSettings()
+        {
+        }
+
+        public PerViewSettings Clone() => (PerViewSettings)this.MemberwiseClone();
+    }
 }
 
+  

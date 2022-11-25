@@ -10,11 +10,14 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
     public CellList Cells { get; }
     public RelayCommand ClearCommand { get; }
 
+    public Settings.PerViewSettings ViewSettings { get; }
+
     public PuzzleViewModel()
     {
         Model = new PuzzleModel();
         Cells = new CellList();
         ClearCommand = new RelayCommand(ClearCommandHandler, o => !Model.PuzzleIsEmpty);
+        ViewSettings = Settings.Data.ViewSettings.Clone();
     }
 
     // an empty implementation used to indicate no action is required
@@ -114,33 +117,33 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
 
     public bool ShowPossibles
     {                                                        
-        get => Settings.Data.ShowPossibles;
+        get => ViewSettings.ShowPossibles;
         set
         {
-            if (value != Settings.Data.ShowPossibles)
+            if (ViewSettings.ShowPossibles != value)
             {
-                Settings.Data.ShowPossibles = value;
+                ViewSettings.ShowPossibles = value;
+                Settings.Data.ViewSettings.ShowPossibles = value;
                 UpdateViewForShowPossiblesStateChange();
                 NotifyPropertyChanged();
             }
         }
     }
 
-    [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Breaks auto generated binding code")]
-    [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "It is necessary")]
     public ElementTheme Theme
     {
-        get => Settings.Data.IsDarkThemed ? ElementTheme.Dark : ElementTheme.Light;
+        get => ViewSettings.IsDarkThemed ? ElementTheme.Dark : ElementTheme.Light;
     }
 
     public bool IsDarkThemed
     {
-        get => Settings.Data.IsDarkThemed;
+        get => ViewSettings.IsDarkThemed;
         set
         {
-            if (value != Settings.Data.IsDarkThemed)
+            if (ViewSettings.IsDarkThemed != value)
             {
-                Settings.Data.IsDarkThemed = value;
+                ViewSettings.IsDarkThemed = value;
+                Settings.Data.ViewSettings.IsDarkThemed = value;
                 NotifyPropertyChanged(nameof(Theme));
                 NotifyPropertyChanged();
             }
@@ -149,12 +152,13 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
 
     public bool ShowSolution
     {
-        get => Settings.Data.ShowSolution;
+        get => ViewSettings.ShowSolution;
         set
         {
-            if (value != Settings.Data.ShowSolution)
+            if (ViewSettings.ShowSolution != value)
             {
-                Settings.Data.ShowSolution = value; 
+                ViewSettings.ShowSolution = value;
+                Settings.Data.ViewSettings.ShowSolution = value;
                 UpdateViewForShowSolutionStateChange();
                 NotifyPropertyChanged();
             }
