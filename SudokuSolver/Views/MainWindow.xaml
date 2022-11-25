@@ -38,7 +38,7 @@
                     
                     <MenuFlyoutItem>
                         <MenuFlyoutItem.Command>
-                            <StandardUICommand Kind="Open" ExecuteRequested="OpenCommand_ExecuteRequested" AccessKey="N"/>
+                            <StandardUICommand Kind="Open" ExecuteRequested="OpenCommand_ExecuteRequested" AccessKey="O"/>
                         </MenuFlyoutItem.Command>
                     </MenuFlyoutItem>
 
@@ -77,7 +77,7 @@
                     <MenuFlyoutSeparator />
                     <MenuFlyoutItem>
                         <MenuFlyoutItem.Command>
-                            <StandardUICommand Kind="Close" ExecuteRequested="CloseCommand_ExecuteRequested" AccessKey="E"/>
+                            <StandardUICommand Kind="Close" ExecuteRequested="CloseCommand_ExecuteRequested" AccessKey="W"/>
                         </MenuFlyoutItem.Command>
                     </MenuFlyoutItem>
                 </MenuBarItem>
