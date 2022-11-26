@@ -14,7 +14,11 @@ internal sealed partial class MainWindow : SubClassWindow
     {
         InitializeComponent();
 
-        if (!TrySetMicaBackdrop())  // acrylic also works, but isn't recommended according to the UI guidelines
+        // each window needs a local copy of the common view settings
+        Settings.PerViewSettings viewSettings = Settings.Data.ViewSettings.Clone();
+
+        // acrylic also works, but isn't recommended according to the UI guidelines
+        if (!TrySetMicaBackdrop(viewSettings.IsDarkThemed ? ElementTheme.Dark : ElementTheme.Light))  
         {
             layoutRoot.Loaded += (s, e) =>
             {
@@ -24,7 +28,7 @@ internal sealed partial class MainWindow : SubClassWindow
             };
         }
 
-        puzzleView.ViewModel = new PuzzleViewModel();
+        puzzleView.ViewModel = new PuzzleViewModel(viewSettings);
 
         appWindow.Closing += async (s, a) =>
         {

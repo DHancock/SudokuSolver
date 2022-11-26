@@ -9,7 +9,7 @@
     <Viewbox>
         <local:SudokuGrid x:DefaultBindMode="OneWay" Background="{ThemeResource CellFillBrush}">
             <local:SudokuGrid.BackgroundTransition>
-                <BrushTransition Duration="00:00:00.25"/>
+                <BrushTransition x:Name="PuzzleBrushTransition" Duration="00:00:00"/>
             </local:SudokuGrid.BackgroundTransition>
             
             <local:Cell Data="{x:Bind ViewModel.Cells[0]}"/>

@@ -1,7 +1,7 @@
 ﻿using WinRT; // required to support Window.As<ICompositionSupportsSystemBackdrop>()
 
 
-// copied from: (edited for nullable)
+// copied from: (edited for nullable, and application specific theme, rather than following the system default)
 // https://github.com/microsoft/WinUI-Gallery/blob/main/WinUIGallery/SamplePages/SampleSystemBackdropsWindow.xaml.cs
 
 namespace Sudoku.Views
@@ -13,8 +13,9 @@ namespace Sudoku.Views
         Microsoft.UI.Composition.SystemBackdrops.DesktopAcrylicController? m_acrylicController;
         Microsoft.UI.Composition.SystemBackdrops.SystemBackdropConfiguration? m_configurationSource;
 
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member")]
-        bool TrySetAcrylicBackdrop()
+#pragma warning disable IDE0051 // Remove unused private members
+        bool TrySetAcrylicBackdrop(ElementTheme initialTheme)
+#pragma warning restore IDE0051 // Remove unused private members
         {
             if (Microsoft.UI.Composition.SystemBackdrops.DesktopAcrylicController.IsSupported())
             {
@@ -29,7 +30,7 @@ namespace Sudoku.Views
 
                 // Initial configuration state.
                 m_configurationSource.IsInputActive = true;
-                SetConfigurationSourceTheme();
+                SetConfigurationSourceTheme(initialTheme);
 
                 m_acrylicController = new Microsoft.UI.Composition.SystemBackdrops.DesktopAcrylicController();
 
@@ -43,7 +44,7 @@ namespace Sudoku.Views
             return false; // Acrylic is not supported on this system
         }
 
-        bool TrySetMicaBackdrop()
+        bool TrySetMicaBackdrop(ElementTheme initialTheme)
         {
             if (Microsoft.UI.Composition.SystemBackdrops.MicaController.IsSupported())
             {
@@ -58,7 +59,7 @@ namespace Sudoku.Views
 
                 // Initial configuration state.
                 m_configurationSource.IsInputActive = true;
-                SetConfigurationSourceTheme();
+                SetConfigurationSourceTheme(initialTheme);
 
                 m_micaController = new Microsoft.UI.Composition.SystemBackdrops.MicaController();
 
@@ -100,14 +101,14 @@ namespace Sudoku.Views
 
         private void Window_ThemeChanged(FrameworkElement sender, object args)
         {
-            SetConfigurationSourceTheme();
+            SetConfigurationSourceTheme(((FrameworkElement)this.Content).ActualTheme);
         }
 
-        private void SetConfigurationSourceTheme()
+        private void SetConfigurationSourceTheme(ElementTheme theme)
         {
             if (m_configurationSource != null)
             {
-                switch (((FrameworkElement)this.Content).ActualTheme)
+                switch (theme)
                 {
                     case ElementTheme.Dark: m_configurationSource.Theme = Microsoft.UI.Composition.SystemBackdrops.SystemBackdropTheme.Dark; break;
                     case ElementTheme.Light: m_configurationSource.Theme = Microsoft.UI.Composition.SystemBackdrops.SystemBackdropTheme.Light; break;

@@ -9,15 +9,14 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
     private PuzzleModel Model { get; }
     public CellList Cells { get; }
     public RelayCommand ClearCommand { get; }
-
     public Settings.PerViewSettings ViewSettings { get; }
 
-    public PuzzleViewModel()
+    public PuzzleViewModel(Settings.PerViewSettings viewSettings)
     {
         Model = new PuzzleModel();
         Cells = new CellList();
         ClearCommand = new RelayCommand(ClearCommandHandler, o => !Model.PuzzleIsEmpty);
-        ViewSettings = Settings.Data.ViewSettings.Clone();
+        ViewSettings = viewSettings;
     }
 
     // an empty implementation used to indicate no action is required
