@@ -97,7 +97,7 @@
 
             <local:PuzzleView x:Name="puzzleView" Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="8,0,8,8">
                 <local:PuzzleView.Transitions>
-                    <EntranceThemeTransition FromHorizontalOffset="20" FromVerticalOffset="20"/>
+                    <EntranceThemeTransition FromHorizontalOffset="10" FromVerticalOffset="10"/>
                 </local:PuzzleView.Transitions>
             </local:PuzzleView>
         </Grid>
