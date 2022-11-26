@@ -13,21 +13,12 @@ internal partial class PuzzleView : UserControl
     {
         InitializeComponent();
      
-        Loaded += async (s, e) => // yikes
+        Loaded += async (s, e) =>
         {
-            await Task.Run(async () =>
-            {
-                await Task.Delay(50);
-
-                bool success = this.DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () =>
-                {
-                    // switch on the brush transition animation only for user initiated theme
-                    // changes, not when the window is opened to avoid ui flashing.
-                    this.PuzzleBrushTransition.Duration = new TimeSpan(0, 0, 0, 0, 250);
-                });
-
-                Debug.Assert(success);
-            });
+            // switch on the brush transition animation only for user initiated theme
+            // changes, not when the window is opened to avoid ui flashing.
+            await Task.Delay(250);
+            ((PuzzleView)s).PuzzleBrushTransition.Duration = new TimeSpan(0, 0, 0, 0, 250);
         };
     }
 
