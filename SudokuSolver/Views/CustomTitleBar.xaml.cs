@@ -1,4 +1,6 @@
-﻿namespace Sudoku.Views;
+﻿using Sudoku.Utilities;
+
+namespace Sudoku.Views;
 
 internal sealed partial class CustomTitleBar : UserControl
 {
@@ -28,7 +30,7 @@ internal sealed partial class CustomTitleBar : UserControl
 
             Loaded += async (s, a) =>
             {
-                windowIcon.Source = await MainWindow.LoadEmbeddedImageResource("Sudoku.Resources.app.png");
+                windowIcon.Source = await Utils.LoadEmbeddedImageResource("Sudoku.Resources.app.png");
             };
         }
     }
@@ -44,9 +46,19 @@ internal sealed partial class CustomTitleBar : UserControl
         }
     }
 
+    public static readonly DependencyProperty TitleProperty =
+        DependencyProperty.Register(nameof(Title),
+            typeof(string),
+            typeof(CustomTitleBar),
+            new PropertyMetadata(string.Empty, (d, e) =>
+            {
+                ((CustomTitleBar)d).windowTitle.Text = (e.NewValue as string) ?? string.Empty;
+            }));
+
     public string Title
     {
-        set => windowTitle.Text = value;
+        get { return (string)GetValue(TitleProperty); }
+        set { SetValue(TitleProperty, value); }
     }
 
     private void UpdateTitleBarCaptionButtons()

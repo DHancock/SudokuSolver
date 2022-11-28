@@ -7,10 +7,15 @@ namespace Sudoku.Views;
 /// </summary>
 internal sealed partial class MainWindow : SubClassWindow
 {
-    private readonly PrintHelper printHelper;
-    private StorageFile? SourceFile { get; set; }
+    private enum Error { Success, Failure }
+    private enum Status { Cancelled, Continue }
+    public WindowViewModel ViewModel { get; private set; }
 
-    public MainWindow()
+    private readonly PrintHelper printHelper;
+
+    private StorageFile? sourceFile;
+
+    public MainWindow(bool openedFromActivation = false)
     {
         InitializeComponent();
 
@@ -18,7 +23,7 @@ internal sealed partial class MainWindow : SubClassWindow
         Settings.PerViewSettings viewSettings = Settings.Data.ViewSettings.Clone();
 
         // acrylic also works, but isn't recommended according to the UI guidelines
-        if (!TrySetMicaBackdrop(viewSettings.IsDarkThemed ? ElementTheme.Dark : ElementTheme.Light))  
+        if (!TrySetMicaBackdrop(viewSettings.IsDarkThemed ? ElementTheme.Dark : ElementTheme.Light))
         {
             layoutRoot.Loaded += (s, e) =>
             {
@@ -28,7 +33,9 @@ internal sealed partial class MainWindow : SubClassWindow
             };
         }
 
-        puzzleView.ViewModel = new PuzzleViewModel(viewSettings);
+        ViewModel = new WindowViewModel(viewSettings);
+        Puzzle.ViewModel = new PuzzleViewModel(viewSettings);
+        Puzzle.ViewModel.PropertyChanged += ViewModel_PropertyChanged;  // used to update the window title
 
         appWindow.Closing += async (s, a) =>
         {
@@ -42,21 +49,20 @@ internal sealed partial class MainWindow : SubClassWindow
             }
         };
 
-        WindowTitle = App.cDisplayName;
-
         if (AppWindowTitleBar.IsCustomizationSupported())
         {
-            customTitleBar.ParentAppWindow = appWindow;
-            Activated += customTitleBar.ParentWindow_Activated;
+            CustomTitleBar.ParentAppWindow = appWindow;
+            Activated += CustomTitleBar.ParentWindow_Activated;
             appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
         }
         else
         {
-            customTitleBar.Visibility = Visibility.Collapsed;
+            CustomTitleBar.Visibility = Visibility.Collapsed;
         }
 
         // always set the window icon, it's used in the task switcher
         SetWindowIconFromAppIcon();
+        UpdateWindowTitle();
 
         printHelper = new PrintHelper(this, DispatcherQueue);
 
@@ -74,23 +80,26 @@ internal sealed partial class MainWindow : SubClassWindow
                 WindowState = Settings.Data.WindowState;
         }
 
-        layoutRoot.Loaded += async (s, e) =>
+        if (openedFromActivation)
         {
-            AppActivationArguments args = AppInstance.GetCurrent().GetActivatedEventArgs();
+            layoutRoot.Loaded += async (s, e) =>
+            {
+                AppActivationArguments args = AppInstance.GetCurrent().GetActivatedEventArgs();
 
-            if (args.Kind == ExtendedActivationKind.File)
-            {
-                if ((args.Data is IFileActivatedEventArgs fileData) && (fileData.Files.Count > 0))
+                if (args.Kind == ExtendedActivationKind.File)
                 {
-                    // if multiple files are selected, a separate app instance will be started for each file
-                    await ProcessCommandLine(new[] { string.Empty, fileData.Files[0].Path });
+                    if ((args.Data is IFileActivatedEventArgs fileData) && (fileData.Files.Count > 0))
+                    {
+                        // if multiple files are selected, a separate app instance will be started for each file
+                        await ProcessCommandLine(new[] { string.Empty, fileData.Files[0].Path });
+                    }
                 }
-            }
-            else if (args.Kind == ExtendedActivationKind.Launch)
-            {
-                await ProcessCommandLine(Environment.GetCommandLineArgs());
-            }
-        };
+                else if (args.Kind == ExtendedActivationKind.Launch)
+                {
+                    await ProcessCommandLine(Environment.GetCommandLineArgs());
+                }
+            };
+        }
     }
 
     private RectInt32 ValidateRestoreBounds(RectInt32 windowArea)
@@ -113,7 +122,7 @@ internal sealed partial class MainWindow : SubClassWindow
         if (position.X < workArea.X)
             position.X = workArea.X;
 
-        SizeInt32 size = new SizeInt32(Math.Min(windowArea.Width, workArea.Width), 
+        SizeInt32 size = new SizeInt32(Math.Min(windowArea.Width, workArea.Width),
                                         Math.Min(windowArea.Height, workArea.Height));
 
         return new RectInt32(position.X, position.Y, size.Width, size.Height);
@@ -125,20 +134,64 @@ internal sealed partial class MainWindow : SubClassWindow
         if ((args?.Length == 2) && (Path.GetExtension(args[1]).ToLower() == App.cFileExt) && File.Exists(args[1]))
         {
             StorageFile file = await StorageFile.GetFileFromPathAsync(args[1]);
-            await OpenFile(file);
+            Error error = await OpenFile(file);
+
+            if (error == Error.Success)
+                SourceFile = file;
         }
     }
 
-    private void CloseCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args) => Close();
-
     private async void NewClickHandler(object sender, RoutedEventArgs e)
     {
-        if(!App.CreateNewWindow())
+        Status status = await SaveExistingFirst();
+
+        if (status != Status.Cancelled)
         {
-            string title = "New window failed";
-            string message = "The maximum number of windows has been reached";
-            await new ErrorDialog(title, message, Content.XamlRoot, layoutRoot.ActualTheme).ShowAsync();
+            Puzzle.ViewModel!.New();
+            SourceFile = null;
         }
+    }
+
+    private async void OpenClickHandler(object sender, RoutedEventArgs e)
+    {
+        Status status = await SaveExistingFirst();
+
+        if (status != Status.Cancelled)
+        {
+            FileOpenPicker openPicker = new FileOpenPicker();
+            InitializeWithWindow.Initialize(openPicker, hWnd);
+            openPicker.FileTypeFilter.Add(App.cFileExt);
+
+            StorageFile file = await openPicker.PickSingleFileAsync();
+
+            if (file is not null)
+            {
+                Error error = await OpenFile(file);
+
+                if (error == Error.Success)
+                    SourceFile = file;    
+            }
+        }
+    }
+
+    private async void NewWindowClickHandler(object sender, RoutedEventArgs e)
+    {
+        if (!App.CreateNewWindow(openedFromActivation: false))
+        {
+            string heading = "A new window couldn't be opened.";
+            string details = "The maximum number of open windows has been reached.";
+            await new ErrorDialog(heading, details, Content.XamlRoot, layoutRoot.ActualTheme).ShowAsync();
+        }
+    }
+
+    private async void SaveClickHandler(object sender, RoutedEventArgs e)
+    {
+        await Save();
+    }
+
+    private async void SaveAsClickHandler(object sender, RoutedEventArgs e)
+    {
+        await SaveAs();
     }
 
     private async void PrintClickHandler(object sender, RoutedEventArgs e)
@@ -148,105 +201,85 @@ internal sealed partial class MainWindow : SubClassWindow
             PuzzleView printView = new PuzzleView
             {
                 RequestedTheme = ElementTheme.Light,
-                ViewModel = puzzleView.ViewModel,
+                ViewModel = Puzzle.ViewModel,
             };
 
             await printHelper.PrintViewAsync(PrintCanvas, printView);
         }
         catch (Exception ex)
         {
-            await new ErrorDialog("A printing error occured", ex.Message, Content.XamlRoot, layoutRoot.ActualTheme).ShowAsync();
+            await new ErrorDialog("A printing error occurred.", ex.Message, Content.XamlRoot, layoutRoot.ActualTheme).ShowAsync();
         }
+    }
+
+    private async void CloseClickHandler(object sender, RoutedEventArgs e)
+    {
+        Status status = await SaveExistingFirst();
+
+        if (status != Status.Cancelled)
+            Close();
     }
 
 #pragma warning disable CA1822 // Mark members as static
     public bool IsPrintingAvailable => PrintManager.IsSupported();
 #pragma warning restore CA1822 // Mark members as static
 
-    private async Task OpenFile(StorageFile file)
+    private async Task<Error> OpenFile(StorageFile file)
     {
+        Error error = Error.Failure;
+
         try
         {
             using (Stream stream = await file.OpenStreamForReadAsync())
             {
-                puzzleView.ViewModel?.Open(stream);
+                Puzzle.ViewModel!.Open(stream);
+                error = Error.Success;
             }
-
-            SourceFile = file;
-            WindowTitle = $"{App.cDisplayName} - {file.DisplayName}";
         }
         catch (Exception ex)
         {
-            WindowTitle = App.cDisplayName;
-            string heading = $"Failed to open file \"{file.DisplayName}\"";
+            string heading = $"An error occurred when opening {file.DisplayName}.";
             await new ErrorDialog(heading, ex.Message, Content.XamlRoot, layoutRoot.ActualTheme).ShowAsync();
         }
+
+        return error;
     }
 
-    private async void OpenCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
+    private async Task<Status> SaveExistingFirst()
     {
-        FileOpenPicker openPicker = new FileOpenPicker();
-        InitializeWithWindow.Initialize(openPicker, hWnd);
+        Status status = Status.Continue;
 
-        openPicker.FileTypeFilter.Add(App.cFileExt);
-        
-        StorageFile file = await openPicker.PickSingleFileAsync();
-
-        if (file is not null)
-            await OpenFile(file);
-    }
-
-    private async void SaveCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
-    {
-        if (SourceFile is not null)
+        if (Puzzle.ViewModel!.PuzzleModified)
         {
-            try
+            string path;
+
+            if (SourceFile is null)
+                path = App.cNewPuzzleName;
+            else
+                path = SourceFile.Path;
+
+            ContentDialogResult result = await new ConfirmSaveDialog(path, Content.XamlRoot, layoutRoot.ActualTheme).ShowAsync();
+
+            if (result == ContentDialogResult.Primary)
             {
-                await SaveFile(SourceFile);
+                status = await Save();  // if it's a new file, the Save As picker could be cancelled
             }
-            catch (Exception ex)
+            else if (result == ContentDialogResult.None)
             {
-                string heading = $"Failed to save the puzzle as \"{SourceFile.DisplayName}\"";
-                await new ErrorDialog(heading, ex.Message, Content.XamlRoot, layoutRoot.ActualTheme).ShowAsync();
-            }
-        }  
-        else
-            SaveAsClickHandler(sender, new RoutedEventArgs());
-    }
-
-    private async void SaveAsClickHandler(object sender, RoutedEventArgs e)
-    {
-        FileSavePicker savePicker = new FileSavePicker();
-        InitializeWithWindow.Initialize(savePicker, hWnd);
-
-        savePicker.FileTypeChoices.Add("Sudoku files", new List<string>() { App.cFileExt });
-        savePicker.SuggestedFileName = "New Puzzle";
-
-        StorageFile file = await savePicker.PickSaveFileAsync();
-
-        if (file is not null)
-        {
-            try
-            {
-                await SaveFile(file);
-                SourceFile = file;
-                WindowTitle = $"{App.cDisplayName} - {file.DisplayName}";
-            }
-            catch (Exception ex)
-            {
-                string heading = $"Failed to save the puzzle as \"{file.DisplayName}\"";
-                await new ErrorDialog(heading, ex.Message, Content.XamlRoot, layoutRoot.ActualTheme).ShowAsync();
+                status = Status.Cancelled;
             }
         }
+
+        return status;
     }
 
-    private async Task SaveFile (StorageFile file)
+    private async Task SaveFile(StorageFile file)
     {
         using (StorageStreamTransaction transaction = await file.OpenTransactedWriteAsync())
         {
             using (Stream stream = transaction.Stream.AsStreamForWrite())
             {
-                puzzleView.ViewModel?.Save(stream);
+                Puzzle.ViewModel?.Save(stream);
 
                 // delete any existing file data beyond the end of the stream
                 transaction.Stream.Size = transaction.Stream.Position;
@@ -256,36 +289,100 @@ internal sealed partial class MainWindow : SubClassWindow
         }
     }
 
+    private async Task<Status> Save()
+    {
+        Status status = Status.Continue;
+
+        if (SourceFile is not null)
+        {
+            try
+            {
+                await SaveFile(SourceFile);
+            }
+            catch (Exception ex)
+            {
+                string heading = $"An error occurred when saving {SourceFile.DisplayName}.";
+                await new ErrorDialog(heading, ex.Message, Content.XamlRoot, layoutRoot.ActualTheme).ShowAsync();
+            }
+        }
+        else
+            status = await SaveAs();
+
+        return status;
+    }
+
+    private async Task<Status> SaveAs()
+    {
+        Status status = Status.Cancelled;
+        FileSavePicker savePicker = new FileSavePicker();
+        InitializeWithWindow.Initialize(savePicker, hWnd);
+
+        savePicker.FileTypeChoices.Add("Sudoku files", new List<string>() { App.cFileExt });
+
+        if (SourceFile is null)
+            savePicker.SuggestedFileName = App.cNewPuzzleName;
+        else
+            savePicker.SuggestedFileName = SourceFile.DisplayName;
+
+        StorageFile file = await savePicker.PickSaveFileAsync();
+
+        if (file is not null)
+        {
+            try
+            {
+                await SaveFile(file);
+                SourceFile = file;
+                status = Status.Continue;
+            }
+            catch (Exception ex)
+            {
+                string heading = $"An error occurred when saving {file.DisplayName}.";
+                await new ErrorDialog(heading, ex.Message, Content.XamlRoot, layoutRoot.ActualTheme).ShowAsync();
+            }
+        }
+
+        return status; 
+    }
+
     private async void AboutClickHandler(object sender, RoutedEventArgs e)
     {
         await new AboutBox(Content.XamlRoot, layoutRoot.ActualTheme).ShowAsync();
     }
 
-    public static async Task<BitmapImage> LoadEmbeddedImageResource(string resourcePath)
+    private StorageFile? SourceFile
     {
-        BitmapImage bitmapImage = new BitmapImage();
-
-        using (Stream? resourceStream = typeof(App).Assembly.GetManifestResourceStream(resourcePath))
-        {
-            Debug.Assert(resourceStream is not null);
-
-            using (IRandomAccessStream stream = resourceStream.AsRandomAccessStream())
-            {
-                await bitmapImage.SetSourceAsync(stream);
-            }
-        }
-
-        return bitmapImage;
-    }
-
-    private string WindowTitle
-    {
+        get => sourceFile;
         set
         {
-            if (AppWindowTitleBar.IsCustomizationSupported())
-                customTitleBar.Title = value;
-            else
-                Title = value;
+            if (sourceFile != value)
+            {
+                sourceFile = value;
+                UpdateWindowTitle();
+            }
         }
+    }
+
+    private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(Puzzle.ViewModel.PuzzleModified))
+            UpdateWindowTitle();
+    }
+
+    private void UpdateWindowTitle()
+    {
+        bool isModified = Puzzle.ViewModel!.PuzzleModified;
+        string filePart;
+
+        if (SourceFile is not null)
+            filePart = $"{SourceFile.DisplayName}{(isModified ? "*" : string.Empty)}";
+        else
+            filePart = $"{App.cNewPuzzleName}{(isModified ? "*" : string.Empty)}";
+
+        string title = $"{App.cDisplayName} - {filePart}";
+
+        if (AppWindowTitleBar.IsCustomizationSupported())
+            CustomTitleBar.Title = title;
+        else
+            Title = title;  // windows aren't dependency objects, so cannot be bound too.
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace Sudoku.Utils;
+﻿namespace Sudoku.Utilities;
 
 internal static class User32Sound
 {

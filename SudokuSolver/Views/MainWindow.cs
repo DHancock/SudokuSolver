@@ -101,7 +101,7 @@ namespace Sudoku.Views
 
         private void Window_ThemeChanged(FrameworkElement sender, object args)
         {
-            SetConfigurationSourceTheme(((FrameworkElement)this.Content).ActualTheme);
+            SetConfigurationSourceTheme(sender.ActualTheme);
         }
 
         private void SetConfigurationSourceTheme(ElementTheme theme)

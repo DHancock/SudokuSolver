@@ -28,8 +28,8 @@
     <None Remove="Resources\about_light.png" />
     <None Remove="Resources\app.png" />
     <None Remove="Resources\app_about.png" />
-    <None Remove="Resources\error.png" />
     <None Remove="Views\AboutBox.xaml" />
+    <None Remove="Views\ConfirmSaveDialog.xaml" />
     <None Remove="Views\CustomTitleBar.xaml" />
     <None Remove="Views\PrintPage.xaml" />
   </ItemGroup>
@@ -45,7 +45,6 @@
     <EmbeddedResource Include="Resources\about_dark.png" />
     <EmbeddedResource Include="Resources\about_light.png" />
     <EmbeddedResource Include="Resources\app.png" />
-    <EmbeddedResource Include="Resources\error.png" />
   </ItemGroup>
 
   
@@ -80,6 +79,9 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+    <Page Update="Views\ConfirmSaveDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="Views\PrintPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

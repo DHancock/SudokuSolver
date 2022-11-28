@@ -1,4 +1,4 @@
-﻿using Sudoku.Utils;
+﻿using Sudoku.Utilities;
 using Sudoku.Common;
 using Sudoku.Models;
 
@@ -8,14 +8,14 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
 {
     private PuzzleModel Model { get; }
     public CellList Cells { get; }
-    public RelayCommand ClearCommand { get; }
     public Settings.PerViewSettings ViewSettings { get; }
+
+    private bool puzzleModified = false;
 
     public PuzzleViewModel(Settings.PerViewSettings viewSettings)
     {
         Model = new PuzzleModel();
         Cells = new CellList();
-        ClearCommand = new RelayCommand(ClearCommandHandler, o => !Model.PuzzleIsEmpty);
         ViewSettings = viewSettings;
     }
 
@@ -56,7 +56,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
     }
 
     // the user typed a value into a cell
-    public void UpdateCellForKeyDown(int index, int newValue)   
+    public void UpdateCellForKeyDown(int index, int newValue)
     {
         Func<int, int, bool> modelFunction = DetermineChange(index, newValue);
 
@@ -65,6 +65,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
             if (modelFunction(index, newValue))
             {
                 UpdateView();
+                PuzzleModified = true;
             }
             else
             {
@@ -73,7 +74,11 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         }
     }
 
-    public void Save(Stream stream) => Model.Save(stream);
+    public void Save(Stream stream)
+    {
+        Model.Save(stream);
+        PuzzleModified = false;
+    }
 
     public void Open(Stream stream)
     {
@@ -81,6 +86,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         {
             Model.Clear();
             Model.Open(stream);
+            PuzzleModified = false;
         }
         catch
         {
@@ -105,13 +111,13 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         }
 
         Debug.Assert(Model.CompletedCellCountIsValid);
-        ClearCommand.RaiseCanExecuteChanged();
     }
 
-    private void ClearCommandHandler(object? _)
+    public void New()
     {
         Model.Clear();
         UpdateView();
+        PuzzleModified = false;
     }
 
     public bool ShowPossibles
@@ -124,26 +130,6 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
                 ViewSettings.ShowPossibles = value;
                 Settings.Data.ViewSettings.ShowPossibles = value;
                 UpdateViewForShowPossiblesStateChange();
-                NotifyPropertyChanged();
-            }
-        }
-    }
-
-    public ElementTheme Theme
-    {
-        get => ViewSettings.IsDarkThemed ? ElementTheme.Dark : ElementTheme.Light;
-    }
-
-    public bool IsDarkThemed
-    {
-        get => ViewSettings.IsDarkThemed;
-        set
-        {
-            if (ViewSettings.IsDarkThemed != value)
-            {
-                ViewSettings.IsDarkThemed = value;
-                Settings.Data.ViewSettings.IsDarkThemed = value;
-                NotifyPropertyChanged(nameof(Theme));
                 NotifyPropertyChanged();
             }
         }
@@ -182,6 +168,19 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
 
             if (predicate(cell))
                 Cells[index] = new Cell(cell);
+        }
+    }
+
+    public bool PuzzleModified
+    {
+        get => puzzleModified;
+        set
+        {
+            if (puzzleModified != value)
+            {
+                puzzleModified = value;
+                NotifyPropertyChanged();
+            }
         }
     }
 

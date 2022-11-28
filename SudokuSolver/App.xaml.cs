@@ -10,6 +10,7 @@ public partial class App : Application
     public const string cFileExt = ".sdku";
     public const string cDisplayName = "Sudoku Solver";
     public const string cIconResourceID = "32512";
+    public const string cNewPuzzleName = "Untitled";
     private const int cMaxWindowCount = 20;
 
     private static readonly List<MainWindow> sWindowList = new();
@@ -41,14 +42,14 @@ public partial class App : Application
     protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
     {
         Debug.Assert(sWindowList.Count < cMaxWindowCount);
-        CreateNewWindow();
+        CreateNewWindow(true);
     }
 
-    public static bool CreateNewWindow()
+    public static bool CreateNewWindow(bool openedFromActivation)
     {
         if (sWindowList.Count < cMaxWindowCount)
         {
-            MainWindow window = new MainWindow();
+            MainWindow window = new MainWindow(openedFromActivation);
             sWindowList.Add(window);
             window.Activate();
             return true;
@@ -59,7 +60,9 @@ public partial class App : Application
 
     internal static bool UnRegisterWindow(MainWindow window)
     {
-        sWindowList.Remove(window);
+        bool found = sWindowList.Remove(window);
+        Debug.Assert(found);
+
         return sWindowList.Count == 0;
     }
 }

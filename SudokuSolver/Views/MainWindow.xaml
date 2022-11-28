@@ -11,7 +11,7 @@
     InitialHeight="614"
     mc:Ignorable="d">
 
-    <ContentControl x:Name="layoutRoot" Style="{StaticResource WindowContentStyle}" RequestedTheme="{x:Bind puzzleView.ViewModel.Theme, Mode=OneWay}">
+    <ContentControl x:Name="layoutRoot" Style="{StaticResource WindowContentStyle}" RequestedTheme="{x:Bind ViewModel.Theme, Mode=OneWay}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -19,7 +19,7 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <local:CustomTitleBar x:Name="customTitleBar"/>
+            <local:CustomTitleBar x:Name="CustomTitleBar"/>
 
             <!-- used to add print preview pages to the visual tree -->
             <Canvas x:Name="PrintCanvas" Opacity="0"/>
@@ -28,34 +28,27 @@
                 <MenuBarItem Title="File" AccessKey="F">
 
                     <MenuFlyoutItem Text="New" Click="NewClickHandler" AccessKey="N">
-                        <MenuFlyoutItem.Icon>
-                            <SymbolIcon Symbol="OpenPane"/>
-                        </MenuFlyoutItem.Icon>
                         <MenuFlyoutItem.KeyboardAccelerators>
                             <KeyboardAccelerator Key="N" Modifiers="Control" />
                         </MenuFlyoutItem.KeyboardAccelerators>
                     </MenuFlyoutItem>
-                    
-                    <MenuFlyoutItem>
-                        <MenuFlyoutItem.Command>
-                            <StandardUICommand Kind="Open" ExecuteRequested="OpenCommand_ExecuteRequested" AccessKey="O"/>
-                        </MenuFlyoutItem.Command>
-                    </MenuFlyoutItem>
 
-                    <MenuFlyoutItem Text="Clear" Command="{x:Bind puzzleView.ViewModel.ClearCommand}" AccessKey="C">
-                        <MenuFlyoutItem.Icon>
-                            <SymbolIcon Symbol="Clear"/>
-                        </MenuFlyoutItem.Icon>
+                    <MenuFlyoutItem Text="New Window" Click="NewWindowClickHandler" AccessKey="W">
                         <MenuFlyoutItem.KeyboardAccelerators>
-                            <KeyboardAccelerator Key="C" Modifiers="Control" />
+                            <KeyboardAccelerator Key="N" Modifiers="Control,Shift" />
                         </MenuFlyoutItem.KeyboardAccelerators>
                     </MenuFlyoutItem>
 
-                    <MenuFlyoutSeparator />
-                    <MenuFlyoutItem>
-                        <MenuFlyoutItem.Command>
-                            <StandardUICommand Kind="Save" ExecuteRequested="SaveCommand_ExecuteRequested" AccessKey="S"/>
-                        </MenuFlyoutItem.Command>
+                    <MenuFlyoutItem Text="Open" Click="OpenClickHandler" AccessKey="0">
+                        <MenuFlyoutItem.KeyboardAccelerators>
+                            <KeyboardAccelerator Key="O" Modifiers="Control" />
+                        </MenuFlyoutItem.KeyboardAccelerators>
+                    </MenuFlyoutItem>
+
+                    <MenuFlyoutItem Text="Save" Click="SaveClickHandler" AccessKey="S">
+                        <MenuFlyoutItem.KeyboardAccelerators>
+                            <KeyboardAccelerator Key="S" Modifiers="Control" />
+                        </MenuFlyoutItem.KeyboardAccelerators>
                     </MenuFlyoutItem>
 
                     <MenuFlyoutItem Text="Save As..." Click="SaveAsClickHandler" AccessKey="A">
@@ -66,40 +59,32 @@
 
                     <MenuFlyoutSeparator />
                     <MenuFlyoutItem Text="Print..." Click="PrintClickHandler" IsEnabled="{x:Bind IsPrintingAvailable}" AccessKey="P">
-                        <MenuFlyoutItem.Icon>
-                            <SymbolIcon Symbol="Print"/>
-                        </MenuFlyoutItem.Icon>
                         <MenuFlyoutItem.KeyboardAccelerators>
                             <KeyboardAccelerator Key="P" Modifiers="Control"/>
                         </MenuFlyoutItem.KeyboardAccelerators>
                     </MenuFlyoutItem>
 
                     <MenuFlyoutSeparator />
-                    <MenuFlyoutItem>
-                        <MenuFlyoutItem.Command>
-                            <StandardUICommand Kind="Close" ExecuteRequested="CloseCommand_ExecuteRequested" AccessKey="W"/>
-                        </MenuFlyoutItem.Command>
+                    <MenuFlyoutItem Text="Close" Click="CloseClickHandler" AccessKey="X">
+                        <MenuFlyoutItem.KeyboardAccelerators>
+                            <KeyboardAccelerator Key="W" Modifiers="Control"/>
+                        </MenuFlyoutItem.KeyboardAccelerators>
                     </MenuFlyoutItem>
                 </MenuBarItem>
 
-                <MenuBarItem Title="Options" AccessKey="O">
-                    <ToggleMenuFlyoutItem Text="Show possibles" IsChecked="{x:Bind puzzleView.ViewModel.ShowPossibles, Mode=TwoWay}" AccessKey="P"/>
-                    <ToggleMenuFlyoutItem Text="Show solution" IsChecked="{x:Bind puzzleView.ViewModel.ShowSolution, Mode=TwoWay}" AccessKey="S"/>
+                <MenuBarItem Title="View" AccessKey="V">
+                    <ToggleMenuFlyoutItem Text="Show possibles" IsChecked="{x:Bind Puzzle.ViewModel.ShowPossibles, Mode=TwoWay}" AccessKey="P"/>
+                    <ToggleMenuFlyoutItem Text="Show solution" IsChecked="{x:Bind Puzzle.ViewModel.ShowSolution, Mode=TwoWay}" AccessKey="S"/>
 
                     <MenuFlyoutSeparator />
-                    <ToggleMenuFlyoutItem Text="Dark theme" IsChecked="{x:Bind puzzleView.ViewModel.IsDarkThemed, Mode=TwoWay}" AccessKey="D"/>
+                    <ToggleMenuFlyoutItem Text="Dark theme" IsChecked="{x:Bind ViewModel.IsDarkThemed, Mode=TwoWay}" AccessKey="D"/>
 
                     <MenuFlyoutSeparator />
-                    <MenuFlyoutItem Text="About..." Click="AboutClickHandler" AccessKey="A">
-                    </MenuFlyoutItem>
+                    <MenuFlyoutItem Text="About..." Click="AboutClickHandler" AccessKey="A"/>
                 </MenuBarItem>
             </MenuBar>
 
-            <local:PuzzleView x:Name="puzzleView" Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="8,0,8,8">
-                <local:PuzzleView.Transitions>
-                    <EntranceThemeTransition FromHorizontalOffset="10" FromVerticalOffset="10"/>
-                </local:PuzzleView.Transitions>
-            </local:PuzzleView>
+            <local:PuzzleView x:Name="Puzzle" Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="8,0,8,8"/>
         </Grid>
     </ContentControl>
 </local:SubClassWindow>

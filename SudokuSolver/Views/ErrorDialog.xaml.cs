@@ -1,23 +1,18 @@
-﻿using Sudoku.Utils;
+﻿using Sudoku.Utilities;
 
 namespace Sudoku.Views;
 
 public sealed partial class ErrorDialog : ContentDialog
 {
-    public ErrorDialog(string title, string message, XamlRoot xamlRoot, ElementTheme requestedTheme)
+    public ErrorDialog(string message, string details, XamlRoot xamlRoot, ElementTheme actualTheme)
     {
         this.InitializeComponent();
 
         XamlRoot = xamlRoot;
-        RequestedTheme = requestedTheme;
-        this.title.Text = title;
-        this.message.Text = message;
+        RequestedTheme = actualTheme;
+        Title = App.cDisplayName;
+        Content = $"{message}{Environment.NewLine}{Environment.NewLine}{details}";
 
         User32Sound.PlayExclamation();
-
-        Loaded += async (s, e) =>
-        {
-            errorImage.Source = await MainWindow.LoadEmbeddedImageResource("Sudoku.Resources.error.png");
-        };
     }
 }
