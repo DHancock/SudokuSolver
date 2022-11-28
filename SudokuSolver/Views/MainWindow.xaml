@@ -5,10 +5,9 @@
     xmlns:local="using:Sudoku.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    MinWidth="388"
-    MinHeight="440"
+    MinWidth="500"
+    MinHeight="560"
     InitialWidth="563"
-    Title="{x:Bind ViewModel.Title, Mode=OneWay}"
     InitialHeight="614"
     mc:Ignorable="d">
 
@@ -20,7 +19,7 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <local:CustomTitleBar x:Name="CustomTitleBar" Title="{x:Bind ViewModel.Title, Mode=OneWay}"/>
+            <local:CustomTitleBar x:Name="CustomTitleBar"/>
 
             <!-- used to add print preview pages to the visual tree -->
             <Canvas x:Name="PrintCanvas" Opacity="0"/>

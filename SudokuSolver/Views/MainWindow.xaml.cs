@@ -380,6 +380,9 @@ internal sealed partial class MainWindow : SubClassWindow
 
         string title = $"{App.cDisplayName} - {filePart}";
 
-        ViewModel.Title = title;
+        if (AppWindowTitleBar.IsCustomizationSupported())
+            CustomTitleBar.Title = title;
+        else
+            Title = title;
     }
 }
