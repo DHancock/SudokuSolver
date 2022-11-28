@@ -169,7 +169,7 @@ internal sealed partial class MainWindow : SubClassWindow
                 Error error = await OpenFile(file);
 
                 if (error == Error.Success)
-                    SourceFile = file;    
+                    SourceFile = file;
             }
         }
     }
@@ -380,9 +380,6 @@ internal sealed partial class MainWindow : SubClassWindow
 
         string title = $"{App.cDisplayName} - {filePart}";
 
-        if (AppWindowTitleBar.IsCustomizationSupported())
-            CustomTitleBar.Title = title;
-        else
-            Title = title;  // windows aren't dependency objects, so cannot be bound too.
+        ViewModel.Title = title;
     }
 }

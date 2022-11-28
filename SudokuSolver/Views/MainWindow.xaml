@@ -8,6 +8,7 @@
     MinWidth="388"
     MinHeight="440"
     InitialWidth="563"
+    Title="{x:Bind ViewModel.Title, Mode=OneWay}"
     InitialHeight="614"
     mc:Ignorable="d">
 
@@ -19,7 +20,7 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <local:CustomTitleBar x:Name="CustomTitleBar"/>
+            <local:CustomTitleBar x:Name="CustomTitleBar" Title="{x:Bind ViewModel.Title, Mode=OneWay}"/>
 
             <!-- used to add print preview pages to the visual tree -->
             <Canvas x:Name="PrintCanvas" Opacity="0"/>

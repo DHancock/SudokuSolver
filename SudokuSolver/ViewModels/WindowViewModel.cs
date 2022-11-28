@@ -4,9 +4,25 @@ internal sealed class WindowViewModel : INotifyPropertyChanged
 {
     public Settings.PerViewSettings ViewSettings { get; }
 
+    private string title = string.Empty;
+
+
     public WindowViewModel(Settings.PerViewSettings viewSettings)
     {
         ViewSettings = viewSettings;
+    }
+
+    public string Title
+    {
+        get => title;
+        set
+        {
+            if (string.CompareOrdinal(title, value) != 0)
+            {
+                title = value;
+                NotifyPropertyChanged();
+            }
+        }
     }
 
     public ElementTheme Theme
