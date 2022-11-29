@@ -91,7 +91,7 @@ internal sealed class SudokuGrid : Panel
 
         Rect finalRect = new Rect(0, 0, cellSize, cellSize);
 
-        for (int index = 0; index < cCellCount; index++) 
+        for (int index = 0; index < cCellCount; index++)
         {
             int x = index % cCellsInRow;
             int y = index / cCellsInRow;
@@ -115,7 +115,7 @@ internal sealed class SudokuGrid : Panel
 
             // the last four major grid lines have different start  
             // and end points because they form the enclosing rectangle
-            horizontalLine.X1 = (index < 16) ? majorGridLineWidth : 0.0 ;
+            horizontalLine.X1 = (index < 16) ? majorGridLineWidth : 0.0;
             horizontalLine.X2 = arrangeSize.Width - horizontalLine.X1;
 
             horizontalLine.Arrange(finalRect);
@@ -195,5 +195,41 @@ internal sealed class SudokuGrid : Panel
             return index == cCellCount ? cCellsInRow - 1 : (index - cCellCount - 1);
 
         return index;
+    }
+
+
+    // Adjust the thickness of the minor grid lines depending on the ViewBox
+    // scale factor. When the shrinking the grid, the lines can be interpolated
+    // out. Increasing their thickness ensures that they're always visible.
+    public void AdaptForScaleFactor(double containerSize)
+    {
+        const string cResourceKey = "MinorGridStrokeThickness";
+        Debug.Assert(Resources.ContainsKey(cResourceKey));
+
+        if (Resources[cResourceKey] is double defaultWidth)
+        {
+            double newWidth = defaultWidth;
+            double epsilon = 0.001;
+            double scaleFactor = containerSize / ActualSize.X;
+
+            if (scaleFactor < 1.0)  
+            {
+                newWidth = defaultWidth / scaleFactor;
+                epsilon = 0.1; // limit changes, they cause a new measure pass
+            }
+
+            if (IsDifferent(((Line)Children[cCellCount]).StrokeThickness, newWidth, epsilon))
+            {
+                for (int index = 0; index < cMinorGridLineCount; index++)
+                {
+                    ((Line)Children[cCellCount + index]).StrokeThickness = newWidth;
+                }
+            }
+        }
+    }
+
+    private static bool IsDifferent(double x, double y, double epsilon)
+    {
+        return Math.Abs(x - y) >= epsilon;
     }
 }

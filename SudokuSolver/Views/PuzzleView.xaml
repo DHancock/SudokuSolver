@@ -7,11 +7,23 @@
     mc:Ignorable="d">
     
     <Viewbox>
-        <local:SudokuGrid x:DefaultBindMode="OneWay" Background="{ThemeResource CellFillBrush}">
+        <local:SudokuGrid x:Name="Grid" x:DefaultBindMode="OneWay" Background="{ThemeResource CellFillBrush}">
             <local:SudokuGrid.BackgroundTransition>
                 <BrushTransition x:Name="PuzzleBrushTransition" Duration="00:00:00"/>
             </local:SudokuGrid.BackgroundTransition>
-            
+            <local:SudokuGrid.Resources>
+                <x:Double x:Key="MinorGridStrokeThickness">1</x:Double>
+                <x:Double x:Key="MajorGridStrokeThickness">2</x:Double>
+                
+                <Style x:Key="MinorGridStyle" TargetType="Line">
+                    <Setter Property="Stroke" Value="{ThemeResource MinorGridStroke}"/>
+                    <Setter Property="StrokeThickness" Value="{StaticResource MinorGridStrokeThickness}"/>
+                </Style>
+                <Style x:Key="MajorGridStyle" TargetType="Line">
+                    <Setter Property="Stroke" Value="{ThemeResource MajorGridStroke}"/>
+                    <Setter Property="StrokeThickness" Value="{StaticResource MajorGridStrokeThickness}"/>
+                </Style>
+            </local:SudokuGrid.Resources>
             <local:Cell Data="{x:Bind ViewModel.Cells[0]}"/>
             <local:Cell Data="{x:Bind ViewModel.Cells[1]}"/>
             <local:Cell Data="{x:Bind ViewModel.Cells[2]}"/>

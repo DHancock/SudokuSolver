@@ -5,8 +5,8 @@
     xmlns:local="using:Sudoku.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    MinWidth="500"
-    MinHeight="560"
+    MinWidth="320"
+    MinHeight="375"
     InitialWidth="563"
     InitialHeight="614"
     mc:Ignorable="d">
