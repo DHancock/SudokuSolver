@@ -370,20 +370,15 @@ internal sealed partial class MainWindow : SubClassWindow
 
     private void UpdateWindowTitle()
     {
-        bool isModified = Puzzle.ViewModel!.PuzzleModified;
-        string filePart;
-
-        if (SourceFile is not null)
-            filePart = $"{SourceFile.DisplayName}{(isModified ? "*" : string.Empty)}";
-        else
-            filePart = $"{App.cNewPuzzleName}{(isModified ? "*" : string.Empty)}";
+        string filePart = SourceFile is null ? App.cNewPuzzleName : SourceFile.DisplayName;
+        string modified = Puzzle.ViewModel!.PuzzleModified ? "*" : string.Empty;
 
         string title;
 
         if (layoutRoot.FlowDirection == FlowDirection.LeftToRight)
-            title = $"{App.cDisplayName} - {filePart}";
+            title = $"{App.cDisplayName} - {filePart}{modified}";
         else
-            title = $"{filePart} - {App.cDisplayName}";
+            title = $"{modified}{filePart} - {App.cDisplayName}";
 
         if (AppWindowTitleBar.IsCustomizationSupported())
             CustomTitleBar.Title = title;
