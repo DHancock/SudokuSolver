@@ -37,6 +37,9 @@ internal class SubClassWindow : Window
 
             if (args.DidSizeChange)
                 restoreSize = appWindow.Size;
+
+            Trace.WriteLine($"Restore size (x, y) = {restoreSize.Width}, {restoreSize.Height}");
+
         }
     }
 
@@ -48,6 +51,7 @@ internal class SubClassWindow : Window
             double scaleFactor = GetScaleFactor();
             minMaxInfo.ptMinTrackSize.X = Math.Max(ConvertToDeviceSize(MinWidth, scaleFactor), minMaxInfo.ptMinTrackSize.X);
             minMaxInfo.ptMinTrackSize.Y = Math.Max(ConvertToDeviceSize(MinHeight, scaleFactor), minMaxInfo.ptMinTrackSize.Y);
+            Trace.WriteLine($"Track size  (x, y) = {minMaxInfo.ptMinTrackSize.X}, {minMaxInfo.ptMinTrackSize.Y}");
             Marshal.StructureToPtr(minMaxInfo, lParam, true);
         }
 
