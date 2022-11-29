@@ -378,7 +378,12 @@ internal sealed partial class MainWindow : SubClassWindow
         else
             filePart = $"{App.cNewPuzzleName}{(isModified ? "*" : string.Empty)}";
 
-        string title = $"{App.cDisplayName} - {filePart}";
+        string title;
+
+        if (layoutRoot.FlowDirection == FlowDirection.LeftToRight)
+            title = $"{App.cDisplayName} - {filePart}";
+        else
+            title = $"{filePart} - {App.cDisplayName}";
 
         if (AppWindowTitleBar.IsCustomizationSupported())
             CustomTitleBar.Title = title;
