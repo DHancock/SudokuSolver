@@ -73,8 +73,8 @@
                 </MenuBarItem>
 
                 <MenuBarItem Title="View" AccessKey="V">
-                    <ToggleMenuFlyoutItem Text="Show possibles" IsChecked="{x:Bind Puzzle.ViewModel.ShowPossibles, Mode=TwoWay}" AccessKey="P"/>
-                    <ToggleMenuFlyoutItem Text="Show solution" IsChecked="{x:Bind Puzzle.ViewModel.ShowSolution, Mode=TwoWay}" AccessKey="S"/>
+                    <ToggleMenuFlyoutItem Text="Possibles" IsChecked="{x:Bind Puzzle.ViewModel.ShowPossibles, Mode=TwoWay}" AccessKey="P"/>
+                    <ToggleMenuFlyoutItem Text="Solution" IsChecked="{x:Bind Puzzle.ViewModel.ShowSolution, Mode=TwoWay}" AccessKey="S"/>
 
                     <MenuFlyoutSeparator />
                     <ToggleMenuFlyoutItem Text="Dark theme" IsChecked="{x:Bind ViewModel.IsDarkThemed, Mode=TwoWay}" AccessKey="D"/>
