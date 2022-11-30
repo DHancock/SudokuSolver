@@ -199,37 +199,35 @@ internal sealed class SudokuGrid : Panel
 
 
     // Adjust the thickness of the minor grid lines depending on the ViewBox
-    // scale factor. When the shrinking the grid, the lines can be interpolated
+    // scale factor. When the shrinking the grid, the lines could be interpolated
     // out. Increasing their thickness ensures that they're always visible.
     public void AdaptForScaleFactor(double containerSize)
     {
         const string cResourceKey = "MinorGridStrokeThickness";
-        Debug.Assert(Resources.ContainsKey(cResourceKey));
+        Debug.Assert(Resources.TryGetValue(cResourceKey, out object value) && value is double);
 
-        if (Resources[cResourceKey] is double defaultWidth)
+        double defaultWidth = (double)Resources[cResourceKey];
+        double newWidth = defaultWidth;
+        double epsilon = 0.001;
+        double scaleFactor = containerSize / ActualSize.X;
+
+        if (scaleFactor < 1.0)  
         {
-            double newWidth = defaultWidth;
-            double epsilon = 0.001;
-            double scaleFactor = containerSize / ActualSize.X;
+            newWidth = defaultWidth / scaleFactor;
+            epsilon = 0.1; // limit changes, they cause a new measure pass
+        }
 
-            if (scaleFactor < 1.0)  
+        if (IsDifferent(((Line)Children[cCellCount]).StrokeThickness, newWidth, epsilon))
+        {
+            for (int index = 0; index < cMinorGridLineCount; index++)
             {
-                newWidth = defaultWidth / scaleFactor;
-                epsilon = 0.1; // limit changes, they cause a new measure pass
-            }
-
-            if (IsDifferent(((Line)Children[cCellCount]).StrokeThickness, newWidth, epsilon))
-            {
-                for (int index = 0; index < cMinorGridLineCount; index++)
-                {
-                    ((Line)Children[cCellCount + index]).StrokeThickness = newWidth;
-                }
+                ((Line)Children[cCellCount + index]).StrokeThickness = newWidth;
             }
         }
     }
 
     private static bool IsDifferent(double x, double y, double epsilon)
     {
-        return Math.Abs(x - y) >= epsilon;
+        return Math.Abs(x - y) > epsilon;
     }
 }
