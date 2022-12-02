@@ -1,4 +1,5 @@
-﻿using Sudoku.Views;
+﻿using Sudoku.ViewModels;
+using Sudoku.Views;
 
 namespace Sudoku;
 
@@ -14,7 +15,7 @@ public partial class App : Application
     private const string cAppKey = "sudoku-app";
 
     private Microsoft.UI.Dispatching.DispatcherQueue? uiThreadDispatcher;
-
+    private readonly AppInstance appInstance;
     private static readonly List<MainWindow> sWindowList = new();
 
     /// <summary>
@@ -25,21 +26,27 @@ public partial class App : Application
     {
         InitializeComponent();
 
-        AppInstance mainInstance = AppInstance.FindOrRegisterForKey(cAppKey);
+        appInstance = AppInstance.FindOrRegisterForKey(cAppKey);
 
-        if (mainInstance.IsCurrent)
+        if (appInstance.IsCurrent)
         {
-            mainInstance.Activated += MainInstance_Activated;
+            appInstance.Activated += MainInstance_Activated;
 
-            string[] fileTypes = new[] { cFileExt };
-            string[] verbs = new[] { "view", "edit" };
+            if (Settings.Data.RegisterFileTypes)
+            {
+                // registering file types causes all the desktop icons to be reset, only do it once, if possible 
+                Settings.Data.RegisterFileTypes = false;
+
+                string[] fileTypes = new[] { cFileExt };
+                string[] verbs = new[] { "view", "edit" };
 
 #if PACKAGED
-            string logo = string.Empty;  // use default or specify a relative image path
+                string logo = string.Empty;  // use default or specify a relative image path
 #else
-            string logo = $"{Path.ChangeExtension(typeof(App).Assembly.Location, ".exe")},{cIconResourceID}";
+                string logo = $"{Path.ChangeExtension(typeof(App).Assembly.Location, ".exe")},{cIconResourceID}";
 #endif
-            ActivationRegistrationManager.RegisterForFileTypeActivation(fileTypes, logo, cDisplayName, verbs, string.Empty);
+                ActivationRegistrationManager.RegisterForFileTypeActivation(fileTypes, logo, cDisplayName, verbs, string.Empty);
+            }
         }
     }
 
@@ -48,10 +55,9 @@ public partial class App : Application
     {
         Interlocked.Exchange(ref uiThreadDispatcher, Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread());
 
-        AppInstance mainInstance = AppInstance.FindOrRegisterForKey(cAppKey);
         AppActivationArguments args = AppInstance.GetCurrent().GetActivatedEventArgs();
 
-        if (mainInstance.IsCurrent)
+        if (appInstance.IsCurrent)
         {
             if (args.Kind == ExtendedActivationKind.File)
             {
@@ -64,13 +70,13 @@ public partial class App : Application
         }
         else
         {
-            await mainInstance.RedirectActivationToAsync(args);
+            await appInstance.RedirectActivationToAsync(args);
             Process.GetCurrentProcess().Kill();
         }
     }
 
     // Invoked when a redirection request is received.
-    // Unlike OnActivated(), this isn't called on the ui thread.
+    // Unlike OnLaunched(), this isn't called on the ui thread.
     private void MainInstance_Activated(object? sender, AppActivationArguments e)
     {
         if (e.Kind == ExtendedActivationKind.File)
@@ -125,9 +131,9 @@ public partial class App : Application
             CreateNewWindow(null);
     }
 
-    public static void CreateNewWindow(StorageFile? path)
+    public static void CreateNewWindow(StorageFile? storageFile)
     {
-        MainWindow window = new MainWindow(path);
+        MainWindow window = new MainWindow(storageFile);
         sWindowList.Add(window);
         window.Activate();
     }

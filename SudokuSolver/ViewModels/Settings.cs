@@ -21,6 +21,8 @@ internal class Settings
 
     public RectInt32 RestoreBounds { get; set; } = default;
 
+    public bool RegisterFileTypes { get; set; } = true;
+
     [JsonIgnore]
     public bool IsFirstRun { get; private set; } = true;
 
