@@ -55,7 +55,7 @@ public partial class App : Application
     {
         Interlocked.Exchange(ref uiThreadDispatcher, Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread());
 
-        AppActivationArguments args = AppInstance.GetCurrent().GetActivatedEventArgs();
+        AppActivationArguments args = appInstance.GetActivatedEventArgs();
 
         if (appInstance.IsCurrent)
         {
@@ -65,7 +65,7 @@ public partial class App : Application
             }
             else if (args.Kind == ExtendedActivationKind.Launch)
             {
-                await ProcessCommandLine();
+                await ProcessCommandLine(Environment.GetCommandLineArgs());
             }
         }
         else
@@ -110,10 +110,8 @@ public partial class App : Application
         }
     }
 
-    private async static Task ProcessCommandLine()
+    private async static Task ProcessCommandLine(string[] args)
     {
-        string[] args = Environment.GetCommandLineArgs();
-
         if (args?.Length > 1)  // args[0] is typically the path to the executing assembly
         {
             for (int index = 1; index < args.Length; index++)
