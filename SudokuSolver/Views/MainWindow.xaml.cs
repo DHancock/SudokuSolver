@@ -15,7 +15,7 @@ internal sealed partial class MainWindow : SubClassWindow
 
     private StorageFile? sourceFile;
 
-    public MainWindow(bool openedFromActivation = false)
+    public MainWindow(StorageFile? storagefile)
     {
         InitializeComponent();
 
@@ -80,24 +80,14 @@ internal sealed partial class MainWindow : SubClassWindow
                 WindowState = Settings.Data.WindowState;
         }
 
-        if (openedFromActivation)
+        if (storagefile is not null)
         {
             layoutRoot.Loaded += async (s, e) =>
             {
-                AppActivationArguments args = AppInstance.GetCurrent().GetActivatedEventArgs();
+                Error error = await OpenFile(storagefile);
 
-                if (args.Kind == ExtendedActivationKind.File)
-                {
-                    if ((args.Data is IFileActivatedEventArgs fileData) && (fileData.Files.Count > 0))
-                    {
-                        // if multiple files are selected, a separate app instance will be started for each file
-                        await ProcessCommandLine(new[] { string.Empty, fileData.Files[0].Path });
-                    }
-                }
-                else if (args.Kind == ExtendedActivationKind.Launch)
-                {
-                    await ProcessCommandLine(Environment.GetCommandLineArgs());
-                }
+                if (error == Error.Success)
+                    SourceFile = storagefile;
             };
         }
     }
@@ -126,19 +116,6 @@ internal sealed partial class MainWindow : SubClassWindow
                                         Math.Min(windowArea.Height, workArea.Height));
 
         return new RectInt32(position.X, position.Y, size.Width, size.Height);
-    }
-
-    private async Task ProcessCommandLine(string[] args)
-    {
-        // args[0] is typically the full path of the executing assembly
-        if ((args?.Length == 2) && (Path.GetExtension(args[1]).ToLower() == App.cFileExt) && File.Exists(args[1]))
-        {
-            StorageFile file = await StorageFile.GetFileFromPathAsync(args[1]);
-            Error error = await OpenFile(file);
-
-            if (error == Error.Success)
-                SourceFile = file;
-        }
     }
 
     private async void NewClickHandler(object sender, RoutedEventArgs e)
@@ -174,14 +151,9 @@ internal sealed partial class MainWindow : SubClassWindow
         }
     }
 
-    private async void NewWindowClickHandler(object sender, RoutedEventArgs e)
+    private void NewWindowClickHandler(object sender, RoutedEventArgs e)
     {
-        if (!App.CreateNewWindow(openedFromActivation: false))
-        {
-            string heading = "A new window couldn't be opened.";
-            string details = "The maximum number of open windows has been reached.";
-            await new ErrorDialog(heading, details, Content.XamlRoot, layoutRoot.ActualTheme).ShowAsync();
-        }
+        App.CreateNewWindow(null);
     }
 
     private async void SaveClickHandler(object sender, RoutedEventArgs e)

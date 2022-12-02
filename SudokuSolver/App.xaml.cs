@@ -11,7 +11,9 @@ public partial class App : Application
     public const string cDisplayName = "Sudoku Solver";
     public const string cIconResourceID = "32512";
     public const string cNewPuzzleName = "Untitled";
-    private const int cMaxWindowCount = 20;
+    private const string cAppKey = "sudoku-app";
+
+    private Microsoft.UI.Dispatching.DispatcherQueue? uiThreadDispatcher;
 
     private static readonly List<MainWindow> sWindowList = new();
 
@@ -23,46 +25,117 @@ public partial class App : Application
     {
         InitializeComponent();
 
-        string[] fileTypes = new[]{ cFileExt };
-        string[] verbs = new[]{ "view", "edit" };
+        AppInstance mainInstance = AppInstance.FindOrRegisterForKey(cAppKey);
+
+        if (mainInstance.IsCurrent)
+        {
+            mainInstance.Activated += MainInstance_Activated;
+
+            string[] fileTypes = new[] { cFileExt };
+            string[] verbs = new[] { "view", "edit" };
 
 #if PACKAGED
-        string logo = string.Empty;  // use default or specify a relative image path
+            string logo = string.Empty;  // use default or specify a relative image path
 #else
-        string logo = $"{Path.ChangeExtension(typeof(App).Assembly.Location, ".exe")},{cIconResourceID}";
-#endif            
-        ActivationRegistrationManager.RegisterForFileTypeActivation(fileTypes, logo, cDisplayName, verbs, string.Empty);
-    }
-
-    /// <summary>
-    /// Invoked when the application is launched normally by the end user.  Other entry points
-    /// will be used such as when the application is launched to open a specific file.
-    /// </summary>
-    /// <param name="args">Details about the launch request and process.</param>
-    protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
-    {
-        Debug.Assert(sWindowList.Count < cMaxWindowCount);
-        CreateNewWindow(true);
-    }
-
-    public static bool CreateNewWindow(bool openedFromActivation)
-    {
-        if (sWindowList.Count < cMaxWindowCount)
-        {
-            MainWindow window = new MainWindow(openedFromActivation);
-            sWindowList.Add(window);
-            window.Activate();
-            return true;
+            string logo = $"{Path.ChangeExtension(typeof(App).Assembly.Location, ".exe")},{cIconResourceID}";
+#endif
+            ActivationRegistrationManager.RegisterForFileTypeActivation(fileTypes, logo, cDisplayName, verbs, string.Empty);
         }
+    }
 
-        return false;
+    // Invoked on the ui thread when the application is launched normally
+    protected async override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs _)
+    {
+        Interlocked.Exchange(ref uiThreadDispatcher, Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread());
+
+        AppInstance mainInstance = AppInstance.FindOrRegisterForKey(cAppKey);
+        AppActivationArguments args = AppInstance.GetCurrent().GetActivatedEventArgs();
+
+        if (mainInstance.IsCurrent)
+        {
+            if (args.Kind == ExtendedActivationKind.File)
+            {
+                ProcessFileActivation(args);
+            }
+            else if (args.Kind == ExtendedActivationKind.Launch)
+            {
+                await ProcessCommandLine();
+            }
+        }
+        else
+        {
+            await mainInstance.RedirectActivationToAsync(args);
+            Process.GetCurrentProcess().Kill();
+        }
+    }
+
+    // Invoked when a redirection request is received.
+    // Unlike OnActivated(), this isn't called on the ui thread.
+    private void MainInstance_Activated(object? sender, AppActivationArguments e)
+    {
+        if (e.Kind == ExtendedActivationKind.File)
+            ProcessFileActivation(e);
+    }
+
+    private void ProcessFileActivation(AppActivationArguments args)
+    {
+        if (uiThreadDispatcher is not null)
+        {
+            if ((args.Data is IFileActivatedEventArgs fileData) && (fileData.Files.Count > 0))
+            {
+                foreach (IStorageItem storageItem in fileData.Files)
+                {
+                    if (storageItem is StorageFile storageFile)
+                    {
+                        if (uiThreadDispatcher.HasThreadAccess)
+                            CreateNewWindow(storageFile);
+                        else
+                        {
+                            bool success = uiThreadDispatcher.TryEnqueue(() =>
+                            {
+                                CreateNewWindow(storageFile);
+                            });
+
+                            Debug.Assert(success);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private async static Task ProcessCommandLine()
+    {
+        string[] args = Environment.GetCommandLineArgs();
+
+        if (args?.Length > 1)  // args[0] is typically the path to the executing assembly
+        {
+            for (int index = 1; index < args.Length; index++)
+            {
+                string arg = args[index];
+
+                if (!string.IsNullOrEmpty(arg) && Path.GetExtension(arg.ToLower()) == App.cFileExt && File.Exists(arg))
+                {
+                    StorageFile storgeFile = await StorageFile.GetFileFromPathAsync(arg);
+                    CreateNewWindow(storgeFile);
+                }
+            }
+        }
+        else
+            CreateNewWindow(null);
+    }
+
+    public static void CreateNewWindow(StorageFile? path)
+    {
+        MainWindow window = new MainWindow(path);
+        sWindowList.Add(window);
+        window.Activate();
     }
 
     internal static bool UnRegisterWindow(MainWindow window)
     {
         bool found = sWindowList.Remove(window);
         Debug.Assert(found);
-
         return sWindowList.Count == 0;
     }
 }
