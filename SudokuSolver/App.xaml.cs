@@ -120,7 +120,7 @@ public partial class App : Application
             {
                 string arg = args[index];
 
-                if (!string.IsNullOrEmpty(arg) && Path.GetExtension(arg.ToLower()) == App.cFileExt && File.Exists(arg))
+                if (!string.IsNullOrEmpty(arg) && Path.GetExtension(arg).ToLower() == App.cFileExt && File.Exists(arg))
                 {
                     StorageFile storgeFile = await StorageFile.GetFileFromPathAsync(arg);
                     CreateNewWindow(storgeFile);
