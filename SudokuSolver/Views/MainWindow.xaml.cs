@@ -37,16 +37,12 @@ internal sealed partial class MainWindow : SubClassWindow
         Puzzle.ViewModel = new PuzzleViewModel(viewSettings);
         Puzzle.ViewModel.PropertyChanged += ViewModel_PropertyChanged;  // used to update the window title
 
-        appWindow.Closing += async (s, a) =>
+        appWindow.Closing += async (s, args) =>
         {
-            bool lastWindow = App.UnRegisterWindow(this);
-
-            if (lastWindow)
-            {
-                Settings.Data.RestoreBounds = RestoreBounds;
-                Settings.Data.WindowState = WindowState;
-                await Settings.Data.Save();
-            }
+            // the await call creates a continuation routine, so must cancel the close here
+            // and handle the actual closing explicitly when the continuation routine runs...
+            args.Cancel = true;
+            await HandleWindowClosing();
         };
 
         if (AppWindowTitleBar.IsCustomizationSupported())
@@ -89,6 +85,26 @@ internal sealed partial class MainWindow : SubClassWindow
                 if (error == Error.Success)
                     SourceFile = storagefile;
             };
+        }
+    }
+
+    private async Task HandleWindowClosing()
+    {
+        Status status = await SaveExistingFirst();
+
+        if (status != Status.Cancelled)
+        {
+            bool lastWindow = App.UnRegisterWindow(this);
+
+            if (lastWindow)
+            {
+                Settings.Data.RestoreBounds = RestoreBounds;
+                Settings.Data.WindowState = WindowState;
+                await Settings.Data.Save();
+            }
+
+            // calling Close() doesn't raise an AppWindow.Closing event
+            Close();
         }
     }
 
@@ -186,10 +202,7 @@ internal sealed partial class MainWindow : SubClassWindow
 
     private async void CloseClickHandler(object sender, RoutedEventArgs e)
     {
-        Status status = await SaveExistingFirst();
-
-        if (status != Status.Cancelled)
-            Close();
+        await HandleWindowClosing();
     }
 
 #pragma warning disable CA1822 // Mark members as static
