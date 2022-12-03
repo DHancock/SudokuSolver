@@ -8,3 +8,5 @@ GetSystemMetrics
 LoadImage
 WM_GETMINMAXINFO
 CreateDispatcherQueueController
+SetForegroundWindow
+GetForegroundWindow

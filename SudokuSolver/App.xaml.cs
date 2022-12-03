@@ -1,6 +1,9 @@
 ﻿using Sudoku.ViewModels;
 using Sudoku.Views;
 
+// not to be confused with Windows.System.DispatcherQueue
+using DispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue;
+
 namespace Sudoku;
 
 /// <summary>
@@ -14,8 +17,9 @@ public partial class App : Application
     public const string cNewPuzzleName = "Untitled";
     private const string cAppKey = "sudoku-app";
 
-    private Microsoft.UI.Dispatching.DispatcherQueue? uiThreadDispatcher;
+    private readonly DispatcherQueue uiThreadDispatcher;
     private readonly AppInstance appInstance;
+
     private static readonly List<MainWindow> sWindowList = new();
 
     /// <summary>
@@ -25,8 +29,9 @@ public partial class App : Application
     public App()
     {
         InitializeComponent();
-
+        
         appInstance = AppInstance.FindOrRegisterForKey(cAppKey);
+        uiThreadDispatcher = DispatcherQueue.GetForCurrentThread();
 
         if (appInstance.IsCurrent)
         {
@@ -53,7 +58,7 @@ public partial class App : Application
     // Invoked on the ui thread when the application is launched normally
     protected async override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs _)
     {
-        Interlocked.Exchange(ref uiThreadDispatcher, Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread());
+        Debug.Assert(uiThreadDispatcher.Equals(DispatcherQueue.GetForCurrentThread()));
 
         AppActivationArguments args = appInstance.GetActivatedEventArgs();
 
@@ -80,32 +85,24 @@ public partial class App : Application
     private void MainInstance_Activated(object? sender, AppActivationArguments e)
     {
         if (e.Kind == ExtendedActivationKind.File)
-            ProcessFileActivation(e);
+        {
+            bool success = uiThreadDispatcher.TryEnqueue(() =>
+            {
+                ProcessFileActivation(e);
+            });
+
+            Debug.Assert(success);
+        }
     }
 
-    private void ProcessFileActivation(AppActivationArguments args)
+    private static void ProcessFileActivation(AppActivationArguments args)
     {
-        if (uiThreadDispatcher is not null)
+        if ((args.Data is IFileActivatedEventArgs fileData) && (fileData.Files.Count > 0))
         {
-            if ((args.Data is IFileActivatedEventArgs fileData) && (fileData.Files.Count > 0))
+            foreach (IStorageItem storageItem in fileData.Files)
             {
-                foreach (IStorageItem storageItem in fileData.Files)
-                {
-                    if (storageItem is StorageFile storageFile)
-                    {
-                        if (uiThreadDispatcher.HasThreadAccess)
-                            CreateNewWindow(storageFile);
-                        else
-                        {
-                            bool success = uiThreadDispatcher.TryEnqueue(() =>
-                            {
-                                CreateNewWindow(storageFile);
-                            });
-
-                            Debug.Assert(success);
-                        }
-                    }
-                }
+                if (storageItem is StorageFile storageFile)
+                    CreateNewWindow(storageFile);
             }
         }
     }
@@ -134,6 +131,16 @@ public partial class App : Application
         MainWindow window = new MainWindow(storageFile);
         sWindowList.Add(window);
         window.Activate();
+        BumpWindowToFront(window);
+    }
+
+    private static void BumpWindowToFront(Window window)
+    {
+        HWND foreground = PInvoke.GetForegroundWindow();
+        HWND target = (HWND)WindowNative.GetWindowHandle(window);
+
+        if (target != foreground)
+            PInvoke.SetForegroundWindow(target);
     }
 
     internal static bool UnRegisterWindow(MainWindow window)
