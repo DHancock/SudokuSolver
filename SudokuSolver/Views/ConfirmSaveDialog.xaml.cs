@@ -9,7 +9,7 @@ public sealed partial class ConfirmSaveDialog : ContentDialog
         XamlRoot = xamlRoot;
         RequestedTheme = actualTheme;
         Title = App.cDisplayName;
-        Content = $"Do you want to save changes to {puzzleName}?";
+        Content = $"Would you like to save changes to {puzzleName}?";
         DefaultButton = ContentDialogButton.Primary;
     }
 }
