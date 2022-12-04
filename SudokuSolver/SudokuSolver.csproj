@@ -29,7 +29,6 @@
     <None Remove="Resources\app.png" />
     <None Remove="Resources\app_about.png" />
     <None Remove="Views\AboutBox.xaml" />
-    <None Remove="Views\ConfirmSaveDialog.xaml" />
     <None Remove="Views\CustomTitleBar.xaml" />
     <None Remove="Views\PrintPage.xaml" />
   </ItemGroup>
@@ -79,9 +78,6 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
-    <Page Update="Views\ConfirmSaveDialog.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Update="Views\PrintPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
