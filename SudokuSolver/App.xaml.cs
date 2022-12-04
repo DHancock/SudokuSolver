@@ -48,8 +48,11 @@ public partial class App : Application
 #if PACKAGED
                 string logo = string.Empty;  // use default or specify a relative image path
 #else
+                // The icon is used in the explorer context menu "Open with" for this app's entry
                 string logo = $"{Path.ChangeExtension(typeof(App).Assembly.Location, ".exe")},{cIconResourceID}";
 #endif
+                // This doesn't update .sdku file's icon to the app's icon, but does reset the icon to a
+                // default file icon, replacing any previous "opens with" associations
                 ActivationRegistrationManager.RegisterForFileTypeActivation(fileTypes, logo, cDisplayName, verbs, string.Empty);
             }
         }
