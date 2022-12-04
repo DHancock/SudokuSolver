@@ -73,7 +73,11 @@ public partial class App : Application
             }
             else if (args.Kind == ExtendedActivationKind.Launch)
             {
+#if PACKAGED
+                await ProcessCommandLine(null);
+#else
                 await ProcessCommandLine(Environment.GetCommandLineArgs());
+#endif
             }
         }
         else
@@ -110,7 +114,7 @@ public partial class App : Application
         }
     }
 
-    private async static Task ProcessCommandLine(string[] args)
+    private async static Task ProcessCommandLine(string[]? args)
     {
         if (args?.Length > 1)  // args[0] is typically the path to the executing assembly
         {
