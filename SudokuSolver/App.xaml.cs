@@ -74,7 +74,7 @@ public partial class App : Application
             else if (args.Kind == ExtendedActivationKind.Launch)
             {
 #if PACKAGED
-                await ProcessCommandLine(null);
+                CreateNewWindow(null);
 #else
                 await ProcessCommandLine(Environment.GetCommandLineArgs());
 #endif
