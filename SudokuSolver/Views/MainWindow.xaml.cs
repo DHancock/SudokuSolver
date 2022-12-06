@@ -1,4 +1,8 @@
-﻿using Sudoku.ViewModels;
+﻿using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Shapes;
+
+using Sudoku.Utilities;
+using Sudoku.ViewModels;
 
 namespace Sudoku.Views;
 
@@ -23,7 +27,7 @@ internal sealed partial class MainWindow : SubClassWindow
         Settings.PerViewSettings viewSettings = Settings.Data.ViewSettings.Clone();
 
         // acrylic also works, but isn't recommended according to the UI guidelines
-        if (!TrySetMicaBackdrop(viewSettings.IsDarkThemed ? ElementTheme.Dark : ElementTheme.Light))
+        if (!TrySetMicaBackdrop(viewSettings.Theme))
         {
             layoutRoot.Loaded += (s, e) =>
             {
@@ -48,8 +52,18 @@ internal sealed partial class MainWindow : SubClassWindow
         if (AppWindowTitleBar.IsCustomizationSupported())
         {
             CustomTitleBar.ParentAppWindow = appWindow;
+            CustomTitleBar.UpdateThemeAndTransparency(viewSettings.Theme);
             Activated += CustomTitleBar.ParentWindow_Activated;
             appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+
+            // the last event received will have the correct dimensions
+            layoutRoot.SizeChanged += (s, a) => SetWindowDragRegions();
+            Menu.SizeChanged += (s, a) => SetWindowDragRegions();
+            Puzzle.SizeChanged += (s, a) => SetWindowDragRegions();
+
+            layoutRoot.Loaded += (s, a) => SetWindowDragRegions();
+            Menu.Loaded += (s, a) => SetWindowDragRegions();
+            Puzzle.Loaded += (s, a) => SetWindowDragRegions();
         }
         else
         {
@@ -116,14 +130,14 @@ internal sealed partial class MainWindow : SubClassWindow
         RectInt32 workArea = DisplayArea.GetFromRect(windowArea, DisplayAreaFallback.Nearest).WorkArea;
         PointInt32 position = new PointInt32(windowArea.X, windowArea.Y);
 
-        if ((position.Y + windowArea.Height) > (workArea.Y + workArea.Height))
-            position.Y = (workArea.Y + workArea.Height) - windowArea.Height;
+        if ((position.Y + windowArea.Height) > workArea.Bottom())
+            position.Y = workArea.Bottom() - windowArea.Height;
 
         if (position.Y < workArea.Y)
             position.Y = workArea.Y;
 
-        if ((position.X + windowArea.Width) > (workArea.X + workArea.Width))
-            position.X = (workArea.X + workArea.Width) - windowArea.Width;
+        if ((position.X + windowArea.Width) > workArea.Right())
+            position.X = workArea.Right() - windowArea.Width;
 
         if (position.X < workArea.X)
             position.X = workArea.X;
@@ -369,5 +383,71 @@ internal sealed partial class MainWindow : SubClassWindow
             CustomTitleBar.Title = title;
         else
             Title = title;
+    }
+
+    private void SetWindowDragRegions()
+    {
+        if (layoutRoot.IsLoaded)
+        {
+            Debug.Assert(AppWindowTitleBar.IsCustomizationSupported());
+            Debug.Assert(appWindow.TitleBar.ExtendsContentIntoTitleBar);
+
+            double scale = layoutRoot.XamlRoot.RasterizationScale;
+
+            // make any part of the window that isn't a control, a drag area (the mica parts)
+            RectInt32 windowRect = new RectInt32(0, 0, appWindow.ClientSize.Width, appWindow.ClientSize.Height);
+            RectInt32 menuRect = ScaledRect(Menu.ActualOffset.X, Menu.ActualOffset.Y, Menu.ActualWidth, Menu.ActualHeight, scale);
+
+#if ISSUE_FIXED 
+            RectInt32 puzzleRect = ScaledRect(Puzzle.ActualOffset.X, Puzzle.ActualOffset.Y, Puzzle.ActualWidth, Puzzle.ActualHeight, scale);
+#else
+            // see https://github.com/microsoft/microsoft-ui-xaml/issues/7756
+            // Can't add the area to the left of the puzzle because the menu drop downs will
+            // intersect with the drag rectangles, and then won't respond to mouse...
+            RectInt32 puzzleRect = ScaledRect(0, Menu.ActualOffset.Y + Menu.ActualHeight, Puzzle.ActualOffset.X + Puzzle.ActualWidth, (Puzzle.ActualOffset.Y + Puzzle.ActualHeight) - (Menu.ActualOffset.Y + Menu.ActualHeight), scale);
+#endif
+
+            Utils.SimpleRegion region = new Utils.SimpleRegion(windowRect);
+            region.Subtract(menuRect);
+            region.Subtract(puzzleRect);
+
+            appWindow.TitleBar.SetDragRectangles(region.ToArray());
+
+#if false 
+            // <Canvas x:Name="DebugCanvas" Opacity="0.5" Grid.RowSpan="3"/>
+
+            DebugCanvas.Children.Clear();
+
+            SolidColorBrush[] brushes = new SolidColorBrush[4];
+            brushes[0] = new SolidColorBrush(Colors.Green);
+            brushes[1] = new SolidColorBrush(Colors.Red);
+            brushes[2] = new SolidColorBrush(Colors.Yellow);
+            brushes[3] = new SolidColorBrush(Colors.Blue);
+
+            RectInt32[] rects = region.ToArray();
+
+            for (int index = 0; index < rects.Length; index++)
+            {
+                RectInt32 rect = rects[index];
+
+                Rectangle rectangle = new Rectangle();
+                rectangle.Fill = brushes[index % 4];
+                rectangle.Width = rect.Width / scale;
+                rectangle.Height = rect.Height / scale;
+                Canvas.SetLeft(rectangle, rect.X / scale);
+                Canvas.SetTop(rectangle, rect.Y / scale);
+
+                DebugCanvas.Children.Add(rectangle);
+            }
+#endif
+        }
+    }
+
+    RectInt32 ScaledRect(double x, double y, double width, double height, double scale)
+    {
+        return new RectInt32(Convert.ToInt32(x * scale), 
+                                Convert.ToInt32(y * scale), 
+                                Convert.ToInt32(width * scale), 
+                                Convert.ToInt32(height * scale));
     }
 }

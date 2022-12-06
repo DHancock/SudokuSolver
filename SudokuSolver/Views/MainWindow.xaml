@@ -24,7 +24,7 @@
             <!-- used to add print preview pages to the visual tree -->
             <Canvas x:Name="PrintCanvas" Opacity="0"/>
 
-            <MenuBar Grid.Row="1">
+            <MenuBar x:Name="Menu" Grid.Row="1" HorizontalAlignment="Left">
                 <MenuBarItem Title="File" AccessKey="F">
 
                     <MenuFlyoutItem Text="New" Click="NewClickHandler" AccessKey="N">

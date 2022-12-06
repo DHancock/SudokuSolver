@@ -11,7 +11,7 @@ internal sealed class WindowViewModel : INotifyPropertyChanged
 
     public ElementTheme Theme
     {
-        get => ViewSettings.IsDarkThemed ? ElementTheme.Dark : ElementTheme.Light;
+        get => ViewSettings.Theme;
     }
 
     public bool IsDarkThemed

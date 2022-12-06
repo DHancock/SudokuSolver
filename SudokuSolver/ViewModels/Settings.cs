@@ -115,6 +115,9 @@ internal class Settings
         public bool ShowPossibles { get; set; } = false;
         public bool ShowSolution { get; set; } = true;
 
+        [JsonIgnore]
+        public ElementTheme Theme  => IsDarkThemed ? ElementTheme.Dark : ElementTheme.Light;
+
         public PerViewSettings()
         {
         }
