@@ -387,7 +387,7 @@ internal sealed partial class MainWindow : SubClassWindow
 
     private void SetWindowDragRegions()
     {
-        if (layoutRoot.IsLoaded)
+        if (layoutRoot.IsLoaded && Menu.IsLoaded && Puzzle.IsLoaded)
         {
             Debug.Assert(AppWindowTitleBar.IsCustomizationSupported());
             Debug.Assert(appWindow.TitleBar.ExtendsContentIntoTitleBar);
@@ -412,34 +412,6 @@ internal sealed partial class MainWindow : SubClassWindow
             region.Subtract(puzzleRect);
 
             appWindow.TitleBar.SetDragRectangles(region.ToArray());
-
-#if false 
-            // <Canvas x:Name="DebugCanvas" Opacity="0.5" Grid.RowSpan="3"/>
-
-            DebugCanvas.Children.Clear();
-
-            SolidColorBrush[] brushes = new SolidColorBrush[4];
-            brushes[0] = new SolidColorBrush(Colors.Green);
-            brushes[1] = new SolidColorBrush(Colors.Red);
-            brushes[2] = new SolidColorBrush(Colors.Yellow);
-            brushes[3] = new SolidColorBrush(Colors.Blue);
-
-            RectInt32[] rects = region.ToArray();
-
-            for (int index = 0; index < rects.Length; index++)
-            {
-                RectInt32 rect = rects[index];
-
-                Rectangle rectangle = new Rectangle();
-                rectangle.Fill = brushes[index % 4];
-                rectangle.Width = rect.Width / scale;
-                rectangle.Height = rect.Height / scale;
-                Canvas.SetLeft(rectangle, rect.X / scale);
-                Canvas.SetTop(rectangle, rect.Y / scale);
-
-                DebugCanvas.Children.Add(rectangle);
-            }
-#endif
         }
     }
 
