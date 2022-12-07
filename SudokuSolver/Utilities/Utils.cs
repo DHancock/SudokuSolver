@@ -26,62 +26,59 @@ internal static class Utils
 
         public SimpleRegion(RectInt32 rect)
         {
-            rects.Add(rect);
+            if (!rect.IsEmpty())
+                rects.Add(rect);
         }
 
-        public RectInt32[] ToArray() => rects.ToArray();
+        public RectInt32[] ToArray()
+        {
+            if (rects.Count == 0)
+                return new RectInt32[] { new RectInt32(0, 0, 0, 0) };
+
+            return rects.ToArray();
+        }
 
         public void Subtract(RectInt32 subtracted)
         {
-            List<RectInt32> results = new List<RectInt32>();
-
-            foreach (RectInt32 rect in rects)
+            if (!subtracted.IsEmpty() && (rects.Count > 0))
             {
-                IEnumerable<RectInt32> subRects = Subtract(rect, subtracted);
-                results.AddRange(subRects);
-            }
+                List<RectInt32> results = new List<RectInt32>();
 
-            rects.Clear();
-            rects.AddRange(results);
+                foreach (RectInt32 rect in rects)
+                    Subtract(rect, subtracted, results);
+
+                rects.Clear();
+                rects.AddRange(results);
+            }
         }
 
-        private static IEnumerable<RectInt32> Subtract(RectInt32 rect, RectInt32 subtracted)
+        private static void Subtract(RectInt32 rect, RectInt32 subtracted, List<RectInt32> results)
         {
-            List<RectInt32> results = new List<RectInt32>();
+            if (rect.Equals(subtracted))
+                return;
 
-            if (rect.IsEmpty() || rect.Equals(subtracted))
-            {
-                results.Add(new RectInt32(rect.X, rect.Y, 0, 0));
-                return results;
-            }
-
-            if (subtracted.IsEmpty() || !rect.Intersects(subtracted))
+            if (!rect.Intersects(subtracted))
             {
                 results.Add(rect);
-                return results;
+                return;
             }
 
-            Int32 heightA = subtracted.Y - rect.Y;
+            Int32 top = subtracted.Y - rect.Y;
+            Int32 left = subtracted.X - rect.X;
+            Int32 right = rect.Right() - subtracted.Right();
+            Int32 bottom = rect.Bottom() - subtracted.Bottom();
 
-            if (heightA > 0)
-                results.Add(new RectInt32(rect.X, rect.Y, rect.Width, heightA));
+            if (top > 0)
+                results.Add(new RectInt32(rect.X, rect.Y, rect.Width, top));
 
-            Int32 widthB = subtracted.X - rect.X;
+            if (left > 0)
+                results.Add(new RectInt32(rect.X, subtracted.Y, left, subtracted.Height));
 
-            if (widthB > 0)
-                results.Add(new RectInt32(rect.X, subtracted.Y, widthB, subtracted.Height));
+            if (right > 0)
+                results.Add(new RectInt32(subtracted.Right(), subtracted.Y, right, subtracted.Height));
 
-            Int32 widthC = rect.Right() - subtracted.Right();
-
-            if (widthC > 0)
-                results.Add(new RectInt32(subtracted.Right(), subtracted.Y, widthC, subtracted.Height));
-
-            Int32 heightD = rect.Bottom() - subtracted.Bottom();
-
-            if (heightD > 0)
-                results.Add(new RectInt32(rect.X, subtracted.Bottom(), rect.Width, heightD));
-
-            return results;
+            if (bottom > 0)
+                results.Add(new RectInt32(rect.X, subtracted.Bottom(), rect.Width, bottom));
         }
     }
 
@@ -108,23 +105,10 @@ internal static class Utils
 
             bool rightInside = (a.Right() >= b.X) && (a.Right() <= b.Right());
 
-            if (bottomInside && rightInside)  // bottom right
-                return true;
-
-            if (topInside && rightInside) // top right
-                return true;
-
-            return false;
+            // bottom right || top right
+            return (bottomInside && rightInside) || (topInside && rightInside);
         }
 
-        return Overlaps(rect, other) || Overlaps(other, rect);
-    }
-
-    public static void Scale(this RectInt32 rect, double scale)
-    {
-        rect.X = Convert.ToInt32(rect.X * scale);
-        rect.Y = Convert.ToInt32(rect.Y * scale);
-        rect.Width = Convert.ToInt32(rect.Width * scale);
-        rect.Height = Convert.ToInt32(rect.Height * scale);
+        return Overlaps(rect, other) || Overlaps(other, rect); // check for the a encloses b case
     }
 }

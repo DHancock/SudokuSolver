@@ -61,7 +61,6 @@ internal sealed partial class MainWindow : SubClassWindow
             Menu.SizeChanged += (s, a) => SetWindowDragRegions();
             Puzzle.SizeChanged += (s, a) => SetWindowDragRegions();
 
-            layoutRoot.Loaded += (s, a) => SetWindowDragRegions();
             Menu.Loaded += (s, a) => SetWindowDragRegions();
             Puzzle.Loaded += (s, a) => SetWindowDragRegions();
         }
@@ -387,12 +386,12 @@ internal sealed partial class MainWindow : SubClassWindow
 
     private void SetWindowDragRegions()
     {
-        if (layoutRoot.IsLoaded && Menu.IsLoaded && Puzzle.IsLoaded)
+        if (Menu.IsLoaded && Puzzle.IsLoaded)
         {
             Debug.Assert(AppWindowTitleBar.IsCustomizationSupported());
             Debug.Assert(appWindow.TitleBar.ExtendsContentIntoTitleBar);
 
-            double scale = layoutRoot.XamlRoot.RasterizationScale;
+            double scale = Puzzle.XamlRoot.RasterizationScale;
 
             // make any part of the window that isn't a control, a drag area (the mica parts)
             RectInt32 windowRect = new RectInt32(0, 0, appWindow.ClientSize.Width, appWindow.ClientSize.Height);
@@ -403,7 +402,7 @@ internal sealed partial class MainWindow : SubClassWindow
 #else
             // see https://github.com/microsoft/microsoft-ui-xaml/issues/7756
             // Can't add the area to the left of the puzzle because the menu drop downs will
-            // intersect with the drag rectangles, and then won't respond to mouse...
+            // intersect with the drag rectangles, and then won't respond to the mouse...
             RectInt32 puzzleRect = ScaledRect(0, Menu.ActualOffset.Y + Menu.ActualHeight, Puzzle.ActualOffset.X + Puzzle.ActualWidth, (Puzzle.ActualOffset.Y + Puzzle.ActualHeight) - (Menu.ActualOffset.Y + Menu.ActualHeight), scale);
 #endif
 
