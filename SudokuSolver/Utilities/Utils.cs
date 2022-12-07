@@ -34,16 +34,16 @@ internal static class Utils
 
         public void Subtract(RectInt32 subtracted)
         {
-            if (!subtracted.IsEmpty() && (rects.Count > 0))
-            {
-                List<RectInt32> results = new List<RectInt32>();
+            if (subtracted.IsEmpty() || (rects.Count == 0))
+                return;
 
-                foreach (RectInt32 rect in rects)
-                    Subtract(rect, subtracted, results);
+            List<RectInt32> results = new List<RectInt32>();
 
-                rects.Clear();
-                rects.AddRange(results);
-            }
+            foreach (RectInt32 rect in rects)
+                Subtract(rect, subtracted, results);
+
+            rects.Clear();
+            rects.AddRange(results);
         }
 
         private static void Subtract(RectInt32 rect, RectInt32 subtracted, List<RectInt32> results)
