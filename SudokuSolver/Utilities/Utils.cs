@@ -30,13 +30,7 @@ internal static class Utils
                 rects.Add(rect);
         }
 
-        public RectInt32[] ToArray()
-        {
-            if (rects.Count == 0)
-                return new RectInt32[] { new RectInt32(0, 0, 0, 0) };
-
-            return rects.ToArray();
-        }
+        public RectInt32[] ToArray() => rects.ToArray();
 
         public void Subtract(RectInt32 subtracted)
         {
