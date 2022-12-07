@@ -100,7 +100,7 @@ internal static class Utils
             bool rightInside = (a.Right() >= b.X) && (a.Right() <= b.Right());
 
             // bottom right || top right
-            return (bottomInside && rightInside) || (topInside && rightInside);
+            return rightInside && (bottomInside || topInside);
         }
 
         return Overlaps(rect, other) || Overlaps(other, rect); // check for the a encloses b case
