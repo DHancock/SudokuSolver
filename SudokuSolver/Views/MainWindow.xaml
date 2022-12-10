@@ -27,7 +27,7 @@
             <MenuBar x:Name="Menu" Grid.Row="1" HorizontalAlignment="Left">
                 <MenuBarItem Title="File" AccessKey="F">
 
-                    <MenuFlyoutItem Text="New" Click="NewClickHandler" AccessKey="N">
+                    <MenuFlyoutItem x:Name="FileMenuItem" Text="New" Click="NewClickHandler" AccessKey="N">
                         <MenuFlyoutItem.KeyboardAccelerators>
                             <KeyboardAccelerator Key="N" Modifiers="Control" />
                         </MenuFlyoutItem.KeyboardAccelerators>
@@ -80,7 +80,7 @@
                     <ToggleMenuFlyoutItem Text="Dark theme" IsChecked="{x:Bind ViewModel.IsDarkThemed, Mode=TwoWay}" AccessKey="D"/>
 
                     <MenuFlyoutSeparator />
-                    <MenuFlyoutItem Text="About..." Click="AboutClickHandler" AccessKey="A"/>
+                    <MenuFlyoutItem x:Name="ViewMenuItem" Text="About..." Click="AboutClickHandler" AccessKey="A"/>
                 </MenuBarItem>
             </MenuBar>
 

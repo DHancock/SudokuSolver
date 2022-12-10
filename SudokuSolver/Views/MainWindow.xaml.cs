@@ -63,6 +63,12 @@ internal sealed partial class MainWindow : SubClassWindow
 
             Menu.Loaded += (s, a) => SetWindowDragRegions();
             Puzzle.Loaded += (s, a) => SetWindowDragRegions();
+
+            // the drag regions need to be adjusted for menu flyouts
+            FileMenuItem.Loaded += (s, a) => SetWindowDragRegions(menuOpened: true);
+            ViewMenuItem.Loaded += (s, a) => SetWindowDragRegions(menuOpened: true);
+            FileMenuItem.Unloaded += (s, a) => SetWindowDragRegions();
+            ViewMenuItem.Unloaded += (s, a) => SetWindowDragRegions();
         }
         else
         {
@@ -384,37 +390,37 @@ internal sealed partial class MainWindow : SubClassWindow
             Title = title;
     }
 
-    private void SetWindowDragRegions()
+    private void SetWindowDragRegions(bool menuOpened = false)
     {
         if (Menu.IsLoaded && Puzzle.IsLoaded)
         {
             Debug.Assert(AppWindowTitleBar.IsCustomizationSupported());
             Debug.Assert(appWindow.TitleBar.ExtendsContentIntoTitleBar);
 
-            double scale = Puzzle.XamlRoot.RasterizationScale;
+            if (menuOpened)
+            {
+                // clear all drag rectangles to allow mouse interaction 
+                appWindow.TitleBar.SetDragRectangles(new[] { new RectInt32(0, 0, 0, 0) });
+            }
+            else
+            {
+                // make any part of the window, that isn't a control, a drag area
+                double scale = Puzzle.XamlRoot.RasterizationScale;
 
-            // make any part of the window that isn't a control, a drag area (the mica parts)
-            RectInt32 windowRect = new RectInt32(0, 0, appWindow.ClientSize.Width, appWindow.ClientSize.Height);
-            RectInt32 menuRect = ScaledRect(Menu.ActualOffset.X, Menu.ActualOffset.Y, Menu.ActualWidth, Menu.ActualHeight, scale);
+                RectInt32 windowRect = new RectInt32(0, 0, appWindow.ClientSize.Width, appWindow.ClientSize.Height);
+                RectInt32 menuRect = ScaledRect(Menu.ActualOffset.X, Menu.ActualOffset.Y, Menu.ActualWidth, Menu.ActualHeight, scale);
+                RectInt32 puzzleRect = ScaledRect(Puzzle.ActualOffset.X, Puzzle.ActualOffset.Y, Puzzle.ActualWidth, Puzzle.ActualHeight, scale);
 
-#if ISSUE_FIXED 
-            RectInt32 puzzleRect = ScaledRect(Puzzle.ActualOffset.X, Puzzle.ActualOffset.Y, Puzzle.ActualWidth, Puzzle.ActualHeight, scale);
-#else
-            // see https://github.com/microsoft/microsoft-ui-xaml/issues/7756
-            // Can't add the area to the left of the puzzle because the menu drop downs will
-            // intersect with the drag rectangles, and then won't respond to the mouse...
-            RectInt32 puzzleRect = ScaledRect(0, Menu.ActualOffset.Y + Menu.ActualHeight, Puzzle.ActualOffset.X + Puzzle.ActualWidth, (Puzzle.ActualOffset.Y + Puzzle.ActualHeight) - (Menu.ActualOffset.Y + Menu.ActualHeight), scale);
-#endif
+                Utils.SimpleRegion region = new Utils.SimpleRegion(windowRect);
+                region.Subtract(menuRect);
+                region.Subtract(puzzleRect);
 
-            Utils.SimpleRegion region = new Utils.SimpleRegion(windowRect);
-            region.Subtract(menuRect);
-            region.Subtract(puzzleRect);
-
-            appWindow.TitleBar.SetDragRectangles(region.ToArray());
+                appWindow.TitleBar.SetDragRectangles(region.ToArray());
+            }
         }
     }
 
-    RectInt32 ScaledRect(double x, double y, double width, double height, double scale)
+    private static RectInt32 ScaledRect(double x, double y, double width, double height, double scale)
     {
         return new RectInt32(Convert.ToInt32(x * scale), 
                                 Convert.ToInt32(y * scale), 
