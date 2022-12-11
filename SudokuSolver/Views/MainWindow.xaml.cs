@@ -64,9 +64,9 @@ internal sealed partial class MainWindow : SubClassWindow
             Menu.Loaded += (s, a) => SetWindowDragRegions();
             Puzzle.Loaded += (s, a) => SetWindowDragRegions();
 
-            // the drag regions need to be adjusted for menu flyouts
-            FileMenuItem.Loaded += (s, a) => SetWindowDragRegions(menuOpened: true);
-            ViewMenuItem.Loaded += (s, a) => SetWindowDragRegions(menuOpened: true);
+            // the drag regions need to be adjusted for menu fly outs
+            FileMenuItem.Loaded += (s, a) => ClearWindowDragRegions();
+            ViewMenuItem.Loaded += (s, a) => ClearWindowDragRegions();
             FileMenuItem.Unloaded += (s, a) => SetWindowDragRegions();
             ViewMenuItem.Unloaded += (s, a) => SetWindowDragRegions();
         }
@@ -390,34 +390,40 @@ internal sealed partial class MainWindow : SubClassWindow
             Title = title;
     }
 
-    private void SetWindowDragRegions(bool menuOpened = false)
+    private void ClearWindowDragRegions()
+    {
+        Debug.Assert(AppWindowTitleBar.IsCustomizationSupported());
+        Debug.Assert(appWindow.TitleBar.ExtendsContentIntoTitleBar);
+
+        // clear all drag rectangles to allow mouse interaction with menu fly outs,  
+        // including clicks anywhere in the window used to dismiss the menu
+        appWindow.TitleBar.SetDragRectangles(new[] { new RectInt32(0, 0, 0, 0) });
+    }
+
+    private void SetWindowDragRegions()
     {
         if (Menu.IsLoaded && Puzzle.IsLoaded)
         {
             Debug.Assert(AppWindowTitleBar.IsCustomizationSupported());
             Debug.Assert(appWindow.TitleBar.ExtendsContentIntoTitleBar);
 
-            if (menuOpened)
-            {
-                // clear all drag rectangles to allow mouse interaction 
-                appWindow.TitleBar.SetDragRectangles(new[] { new RectInt32(0, 0, 0, 0) });
-            }
-            else
-            {
-                // make any part of the window, that isn't a control, a drag area
-                double scale = Puzzle.XamlRoot.RasterizationScale;
+            double scale = Puzzle.XamlRoot.RasterizationScale;
 
-                RectInt32 windowRect = new RectInt32(0, 0, appWindow.ClientSize.Width, appWindow.ClientSize.Height);
-                RectInt32 menuRect = ScaledRect(Menu.ActualOffset.X, Menu.ActualOffset.Y, Menu.ActualWidth, Menu.ActualHeight, scale);
-                RectInt32 puzzleRect = ScaledRect(Puzzle.ActualOffset.X, Puzzle.ActualOffset.Y, Puzzle.ActualWidth, Puzzle.ActualHeight, scale);
+            RectInt32 windowRect = new RectInt32(0, 0, appWindow.ClientSize.Width, appWindow.ClientSize.Height);
+            RectInt32 menuRect = ScaledRect(Menu.ActualOffset, Menu.ActualSize, scale);
+            RectInt32 puzzleRect = ScaledRect(Puzzle.ActualOffset, Puzzle.ActualSize, scale);
 
-                Utils.SimpleRegion region = new Utils.SimpleRegion(windowRect);
-                region.Subtract(menuRect);
-                region.Subtract(puzzleRect);
+            Utils.SimpleRegion region = new Utils.SimpleRegion(windowRect);
+            region.Subtract(menuRect);
+            region.Subtract(puzzleRect);
 
-                appWindow.TitleBar.SetDragRectangles(region.ToArray());
-            }
+            appWindow.TitleBar.SetDragRectangles(region.ToArray());
         }
+    }
+
+    private static RectInt32 ScaledRect(Vector3 location, Vector2 size, double scale)
+    {
+        return ScaledRect(location.X, location.Y, size.X, size.Y, scale);
     }
 
     private static RectInt32 ScaledRect(double x, double y, double width, double height, double scale)
