@@ -78,9 +78,9 @@ internal static class Utils
 
     public static bool IsEmpty(this RectInt32 rect) => rect.Height <= 0 || rect.Width <= 0;
 
-    public static Int32 Bottom(this RectInt32 rect) => rect.Y + rect.Height;
+    public static Int32 Bottom(this RectInt32 rect) => rect.Y + Math.Max(rect.Height, 0);
 
-    public static Int32 Right(this RectInt32 rect) => rect.X + rect.Width;
+    public static Int32 Right(this RectInt32 rect) => rect.X + Math.Max(rect.Width, 0);
 
     public static bool Intersects(this RectInt32 rect, RectInt32 other)
     {
