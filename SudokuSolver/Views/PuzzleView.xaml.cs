@@ -9,7 +9,8 @@ namespace Sudoku.Views;
 /// </summary>
 internal partial class PuzzleView : UserControl
 {
-    PuzzleViewModel? viewModel;
+    private PuzzleViewModel? viewModel;
+    public bool IsPrintView { get; set; } = false;
 
     public PuzzleView()
     {
@@ -20,12 +21,14 @@ internal partial class PuzzleView : UserControl
             // switch on the brush transition animation only for user initiated theme
             // changes, not when the window is opened to avoid ui flashing.
             await Task.Delay(250);
-            ((PuzzleView)s).PuzzleBrushTransition.Duration = new TimeSpan(0, 0, 0, 0, 250);
+            PuzzleBrushTransition.Duration = new TimeSpan(0, 0, 0, 0, 250);
         };
 
         SizeChanged += (s, e) =>
         {
-            ((PuzzleView)s).Grid.AdaptForScaleFactor(e.NewSize.Width);
+            // printers generally have much higher resolutions than monitors
+            if (!IsPrintView)
+                Grid.AdaptForScaleFactor(e.NewSize.Width);
         };
     }
      
@@ -35,8 +38,8 @@ internal partial class PuzzleView : UserControl
 
         set
         {
-            viewModel = value;
-            DataContext = value;
+            Debug.Assert(value is not null);
+            DataContext = viewModel = value;
         }
     }
 }

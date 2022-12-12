@@ -207,6 +207,7 @@ internal sealed partial class MainWindow : SubClassWindow
         {
             PuzzleView printView = new PuzzleView
             {
+                IsPrintView = true,
                 RequestedTheme = ElementTheme.Light,
                 ViewModel = Puzzle.ViewModel,
             };
