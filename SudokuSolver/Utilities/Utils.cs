@@ -78,9 +78,17 @@ internal static class Utils
 
     public static bool IsEmpty(this RectInt32 rect) => rect.Height <= 0 || rect.Width <= 0;
 
-    public static Int32 Bottom(this RectInt32 rect) => rect.Y + Math.Max(rect.Height, 0);
+    public static Int32 Bottom(this RectInt32 rect)
+    {
+        Debug.Assert(rect.Height >= 0);
+        return rect.Y + Math.Max(rect.Height, 0);
+    }
 
-    public static Int32 Right(this RectInt32 rect) => rect.X + Math.Max(rect.Width, 0);
+    public static Int32 Right(this RectInt32 rect)
+    {
+        Debug.Assert(rect.Width >= 0);
+        return rect.X + Math.Max(rect.Width, 0);
+    }
 
     public static bool Intersects(this RectInt32 rect, RectInt32 other)
     {
@@ -89,17 +97,16 @@ internal static class Utils
             bool topInside = (a.Y >= b.Y) && (a.Y <= b.Bottom());
             bool leftInside = (a.X >= b.X) && (a.X <= b.Right());
 
-            if (topInside && leftInside) // top left
+            if (topInside && leftInside)
                 return true;
 
             bool bottomInside = (a.Bottom() >= b.Y) && (a.Bottom() <= b.Bottom());
 
-            if (bottomInside && leftInside)  // bottom left
+            if (bottomInside && leftInside)
                 return true;
 
             bool rightInside = (a.Right() >= b.X) && (a.Right() <= b.Right());
 
-            // bottom right || top right
             return rightInside && (bottomInside || topInside);
         }
 
