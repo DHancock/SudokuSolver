@@ -76,7 +76,12 @@ internal static class Utils
         }
     }
 
-    public static bool IsEmpty(this RectInt32 rect) => rect.Height <= 0 || rect.Width <= 0;
+    public static bool IsEmpty(this RectInt32 rect)
+    {
+        Debug.Assert(rect.Height >= 0);
+        Debug.Assert(rect.Width >= 0);
+        return rect.Height <= 0 || rect.Width <= 0;
+    }
 
     public static Int32 Bottom(this RectInt32 rect)
     {
@@ -90,26 +95,8 @@ internal static class Utils
         return rect.X + Math.Max(rect.Width, 0);
     }
 
-    public static bool Intersects(this RectInt32 rect, RectInt32 other)
+    public static bool Intersects(this RectInt32 a, RectInt32 b)
     {
-        static bool Overlaps(RectInt32 a, RectInt32 b)
-        {
-            bool topInside = (a.Y >= b.Y) && (a.Y <= b.Bottom());
-            bool leftInside = (a.X >= b.X) && (a.X <= b.Right());
-
-            if (topInside && leftInside)
-                return true;
-
-            bool bottomInside = (a.Bottom() >= b.Y) && (a.Bottom() <= b.Bottom());
-
-            if (bottomInside && leftInside)
-                return true;
-
-            bool rightInside = (a.Right() >= b.X) && (a.Right() <= b.Right());
-
-            return rightInside && (bottomInside || topInside);
-        }
-
-        return Overlaps(rect, other) || Overlaps(other, rect); // check for the a encloses b case
+        return a.X < b.Right() && a.Right() > b.X && a.Y < b.Bottom() && a.Bottom() > b.Y;
     }
 }
