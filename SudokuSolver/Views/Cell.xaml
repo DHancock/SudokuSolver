@@ -45,8 +45,8 @@
         <local:PossibleTextBlock x:Name="PossibleValue3" Canvas.Top="15" Canvas.Left="4"/>
         <local:PossibleTextBlock x:Name="PossibleValue4" Canvas.Top="15" Canvas.Left="22"/>
         <local:PossibleTextBlock x:Name="PossibleValue5" Canvas.Top="15" Canvas.Left="39"/>
-        <local:PossibleTextBlock x:Name="PossibleValue6" Canvas.Top="33" Canvas.Left="4"/>
-        <local:PossibleTextBlock x:Name="PossibleValue7" Canvas.Top="33" Canvas.Left="22"/>
-        <local:PossibleTextBlock x:Name="PossibleValue8" Canvas.Top="33" Canvas.Left="39"/>
+        <local:PossibleTextBlock x:Name="PossibleValue6" Canvas.Top="31" Canvas.Left="4"/>
+        <local:PossibleTextBlock x:Name="PossibleValue7" Canvas.Top="31" Canvas.Left="22"/>
+        <local:PossibleTextBlock x:Name="PossibleValue8" Canvas.Top="31" Canvas.Left="39"/>
     </Canvas>
 </UserControl>
