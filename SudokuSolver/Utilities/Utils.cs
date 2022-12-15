@@ -51,7 +51,7 @@ internal static class Utils
             if (rect.Equals(subtracted))
                 return;
 
-            if (!rect.Intersects(subtracted))
+            if (rect.DoesNotIntersect(subtracted))
             {
                 results.Add(rect);
                 return;
@@ -78,8 +78,7 @@ internal static class Utils
 
     public static bool IsEmpty(this RectInt32 rect)
     {
-        Debug.Assert(rect.Height >= 0);
-        Debug.Assert(rect.Width >= 0);
+        Debug.Assert(rect.Height >= 0 && rect.Width >= 0);
         return rect.Height <= 0 || rect.Width <= 0;
     }
 
@@ -95,8 +94,17 @@ internal static class Utils
         return rect.X + Math.Max(rect.Width, 0);
     }
 
-    public static bool Intersects(this RectInt32 a, RectInt32 b)
+
+    // intersection algorithm from https://stackoverflow.com/a/306332
+    // the trick is not to detect an intersection, but to prove they cannot
+
+    public static bool Intersects(this RectInt32 a, RectInt32 b)  // !(a || b) == !a && !b
     {
         return a.X < b.Right() && a.Right() > b.X && a.Y < b.Bottom() && a.Bottom() > b.Y;
+    }
+
+    public static bool DoesNotIntersect(this RectInt32 a, RectInt32 b)
+    {
+        return a.X > b.Right() || a.Right() < b.X || a.Y > b.Bottom() || a.Bottom() < b.Y;
     }
 }
