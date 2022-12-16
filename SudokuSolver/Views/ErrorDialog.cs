@@ -12,7 +12,7 @@ namespace Sudoku.Views
             PrimaryButtonText = "OK";
             Content = $"{message}{Environment.NewLine}{Environment.NewLine}{details}";
 
-            User32Sound.PlayExclamation();
+            Utils.PlayExclamation();
         }
     }
 }

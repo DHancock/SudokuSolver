@@ -414,7 +414,7 @@ internal sealed partial class MainWindow : SubClassWindow
             RectInt32 menuRect = ScaledRect(Menu.ActualOffset, Menu.ActualSize, scale);
             RectInt32 puzzleRect = ScaledRect(Puzzle.ActualOffset, Puzzle.ActualSize, scale);
 
-            Utils.SimpleRegion region = new Utils.SimpleRegion(windowRect);
+            SimpleRegion region = new SimpleRegion(windowRect);
             region.Subtract(menuRect);
             region.Subtract(puzzleRect);
 

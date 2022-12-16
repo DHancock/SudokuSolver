@@ -69,7 +69,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
             }
             else
             {
-                User32Sound.PlayExclamation();
+                Utils.PlayExclamation();
             }
         }
     }
