@@ -28,8 +28,6 @@ public partial class App : Application
     /// </summary>
     public App()
     {
-        InitializeComponent();
-        
         appInstance = AppInstance.FindOrRegisterForKey(cAppKey);
         uiThreadDispatcher = DispatcherQueue.GetForCurrentThread();
 
@@ -56,13 +54,13 @@ public partial class App : Application
                 ActivationRegistrationManager.RegisterForFileTypeActivation(fileTypes, logo, cDisplayName, verbs, string.Empty);
             }
         }
+
+        InitializeComponent();
     }
 
     // Invoked on the ui thread when the application is launched normally
     protected async override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs _)
     {
-        Debug.Assert(uiThreadDispatcher.Equals(DispatcherQueue.GetForCurrentThread()));
-
         AppActivationArguments args = appInstance.GetActivatedEventArgs();
 
         if (appInstance.IsCurrent)
