@@ -188,7 +188,7 @@ internal sealed partial class MainWindow : SubClassWindow
 
     private void NewWindowClickHandler(object sender, RoutedEventArgs e)
     {
-        App.CreateNewWindow(null);
+        App.CreateNewWindow(storageFile: null);
     }
 
     private async void SaveClickHandler(object sender, RoutedEventArgs e)
@@ -208,11 +208,10 @@ internal sealed partial class MainWindow : SubClassWindow
             PuzzleView printView = new PuzzleView
             {
                 IsPrintView = true,
-                RequestedTheme = ElementTheme.Light,
                 ViewModel = Puzzle.ViewModel,
             };
 
-            await printHelper.PrintViewAsync(PrintCanvas, printView);
+            await printHelper.PrintViewAsync(PrintCanvas, printView, SourceFile);
         }
         catch (Exception ex)
         {

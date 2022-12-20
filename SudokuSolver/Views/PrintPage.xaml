@@ -10,6 +10,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Background="Transparent">
-
-    <Canvas x:Name="PrintableArea"/>
+    <Canvas x:Name="PageCanvas">
+        <TextBlock x:Name="Header" Height="20" FontSize="14" TextTrimming="CharacterEllipsis"/>
+    </Canvas>
 </Page>
