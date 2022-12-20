@@ -26,10 +26,10 @@ internal sealed class PrintHelper
     private string? headerText;
     
 
-    public PrintHelper(Window window, DispatcherQueue dispatcherQueue)
+    public PrintHelper(Window window)
     {
         hWnd = WindowNative.GetWindowHandle(window);
-        this.dispatcherQueue = dispatcherQueue;
+        dispatcherQueue = window.DispatcherQueue;
 
         printManager = PrintManagerInterop.GetForWindow(hWnd);
         printManager.PrintTaskRequested += PrintTaskRequested;
@@ -44,7 +44,7 @@ internal sealed class PrintHelper
         printDocumentSource = printDocument.DocumentSource;
     }
 
-    public async Task PrintViewAsync(Canvas printCanvas, FrameworkElement puzzleView, StorageFile? file)
+    public async Task PrintViewAsync(Canvas printCanvas, PuzzleView puzzleView, StorageFile? file)
     {
         try
         {
@@ -108,7 +108,7 @@ internal sealed class PrintHelper
         PrintCustomItemListOptionDetails sizeOption;
         sizeOption = printDetailedOptions.CreateItemListOption(CustomOption.PrintSize.ToString(), "Scale");
 
-        foreach (PrintSize size in Enum.GetValues<PrintSize>())
+        foreach (PrintSize size in Enum.GetValues<PrintSize>().Reverse())
         {
             sizeOption.AddItem(size.ToString(), size == PrintSize.Size_100 ? "Fit to page" : $"{(int)size}%");
         }
@@ -243,14 +243,14 @@ internal sealed class PrintHelper
             layoutInvalid |= printPage.SetPageSize(pd.PageSize);
 
             // adjust the imageable areas for the selected margins
-            const double marginPercentageStep = 2.5;
+            const double cMarginPercentageStep = 2.5;
             double marginPercentage = 0.0;
 
             switch (printMargin)
             {
-                case Margin.Small: marginPercentage = marginPercentageStep; break;
-                case Margin.Medium: marginPercentage = marginPercentageStep * 2; break;
-                case Margin.Large: marginPercentage = marginPercentageStep * 3; break;
+                case Margin.Small: marginPercentage = cMarginPercentageStep; break;
+                case Margin.Medium: marginPercentage = cMarginPercentageStep * 2; break;
+                case Margin.Large: marginPercentage = cMarginPercentageStep * 3; break;
             }
 
             double margin = Math.Min(pd.ImageableRect.Height, pd.ImageableRect.Width) * (marginPercentage / 100D);

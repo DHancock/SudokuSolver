@@ -79,7 +79,7 @@ internal sealed partial class MainWindow : SubClassWindow
         SetWindowIconFromAppIcon();
         UpdateWindowTitle();
 
-        printHelper = new PrintHelper(this, DispatcherQueue);
+        printHelper = new PrintHelper(this);
 
         if (Settings.Data.IsFirstRun)
         {

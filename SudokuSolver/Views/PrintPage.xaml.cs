@@ -12,7 +12,7 @@ public sealed partial class PrintPage : Page
     }
 
 
-    public bool SetLocation(UIElement element, Point location)
+    private static bool SetLocation(UIElement element, Point location)
     {
         if ((Canvas.GetLeft(element) != location.X) || (Canvas.GetTop(element) != location.Y))
         {
@@ -24,16 +24,9 @@ public sealed partial class PrintPage : Page
         return false;
     }
 
-    public bool SetPuzzleLocation(Point location) 
-    {
-        Debug.Assert(PageCanvas.Children.Count == 2);
-        return SetLocation(PageCanvas.Children[1], location);
-    }
+    public bool SetPuzzleLocation(Point location) => SetLocation(Puzzle, location);
 
-    public bool SetHeadingLocation(Point location)
-    {
-        return SetLocation(Header, location);
-    }
+    public bool SetHeadingLocation(Point location) => SetLocation(Header, location);
 
     public bool SetHeadingWidth(double width)
     {
@@ -46,37 +39,36 @@ public sealed partial class PrintPage : Page
         return false;
     }
 
-    public void AddChild(FrameworkElement child)
+    internal void AddChild(PuzzleView child)
     {
         Debug.Assert(PageCanvas.Children.Count == 1);
         PageCanvas.Children.Add(child);
     }
 
-    public bool SetPageSize(Size size)
+    private static bool SetSize(FrameworkElement element, Size size)
     {
-        if ((Width != size.Width) || (Height != size.Height))
+        if ((element.Width != size.Width) || (element.Height != size.Height))
         {
-            Width = size.Width;
-            Height = size.Height;
+            element.Width = size.Width;
+            element.Height = size.Height;
             return true;
         }
 
         return false;
     }
 
-    public bool SetPuzzleSize(double size)
+    public bool SetPageSize(Size size) => SetSize(this, size);
+
+    public bool SetPuzzleSize(double size) => SetSize(Puzzle, new Size(size, size));
+
+    private PuzzleView Puzzle
     {
-        Debug.Assert(PageCanvas.Children.Count == 2);
-        FrameworkElement child = (FrameworkElement)PageCanvas.Children[1];
-
-        if ((child.Width != size) || (child.Height != size))
+        get
         {
-            child.Width = size;
-            child.Height = size;
-            return true;
+            Debug.Assert(PageCanvas.Children.Count == 2);
+            Debug.Assert(PageCanvas.Children[1] is PuzzleView);
+            return (PuzzleView)PageCanvas.Children[1];
         }
-
-        return false;
     }
 
     public bool ShowHeader(bool showHeader)
