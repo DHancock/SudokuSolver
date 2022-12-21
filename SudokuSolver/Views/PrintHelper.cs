@@ -2,9 +2,11 @@
 // https://github.com/marb2000/PrintSample/blob/master/MainWindow.xaml.cs
 // https://github.com/microsoft/Windows-universal-samples/blob/main/Samples/Printing/cs/PrintHelper.cs
 
-namespace Sudoku.Views;
+using Sudoku.ViewModels;
 
 using DispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue;
+
+namespace Sudoku.Views;
 
 internal sealed class PrintHelper
 {
@@ -14,10 +16,7 @@ internal sealed class PrintHelper
     private readonly PrintDocument printDocument;
     private readonly IPrintDocumentSource printDocumentSource;
 
-    private PrintSize printSize = PrintSize.Size_80;   // TODO: save these in settings?
-    private Alignment printAlignment = Alignment.MiddleCenter;
-    private Margin printMargin = Margin.None;
-    private bool showHeader = false;
+    private Settings.PerPrintSettings? settings;
 
     private PrintTask? printTask;
     private Panel? rootVisual;
@@ -30,7 +29,7 @@ internal sealed class PrintHelper
     {
         hWnd = WindowNative.GetWindowHandle(window);
         dispatcherQueue = window.DispatcherQueue;
-
+        
         printManager = PrintManagerInterop.GetForWindow(hWnd);
         printManager.PrintTaskRequested += PrintTaskRequested;
 
@@ -44,7 +43,7 @@ internal sealed class PrintHelper
         printDocumentSource = printDocument.DocumentSource;
     }
 
-    public async Task PrintViewAsync(Canvas printCanvas, PuzzleView puzzleView, StorageFile? file)
+    public async Task PrintViewAsync(Canvas printCanvas, PuzzleView puzzleView, StorageFile? file, Settings.PerPrintSettings printSettings)
     {
         try
         {
@@ -57,6 +56,7 @@ internal sealed class PrintHelper
                 currentlyPrinting = true;
 
                 headerText = file is null ? App.cNewPuzzleName : file.Path;
+                settings = printSettings;
 
                 // a container for the puzzle
                 printPage = new PrintPage();
@@ -98,6 +98,7 @@ internal sealed class PrintHelper
     private void PrintTaskSourceRequestedHandler(PrintTaskSourceRequestedArgs args)
     {
         Debug.Assert(printTask is not null);
+        Debug.Assert(settings is not null);
 
         args.SetSource(printDocumentSource);
 
@@ -113,7 +114,7 @@ internal sealed class PrintHelper
             sizeOption.AddItem(size.ToString(), size == PrintSize.Size_100 ? "Fit to page" : $"{(int)size}%");
         }
 
-        sizeOption.TrySetValue(printSize.ToString());
+        sizeOption.TrySetValue(settings.PrintSize.ToString());
         displayedOptions.Add(sizeOption.OptionId);
 
         // add custom alignment option
@@ -129,9 +130,8 @@ internal sealed class PrintHelper
         alignOption.AddItem(Alignment.BottomCenter.ToString(), "bottom center");
         alignOption.AddItem(Alignment.BottomRight.ToString(), "bottom right");
 
-        alignOption.TrySetValue(printAlignment.ToString());
+        alignOption.TrySetValue(settings.PrintAlignment.ToString());
         displayedOptions.Add(alignOption.OptionId);
-
 
         // add margin option
         PrintCustomItemListOptionDetails marginOption;
@@ -141,12 +141,12 @@ internal sealed class PrintHelper
         marginOption.AddItem(Margin.Medium.ToString(), "medium");
         marginOption.AddItem(Margin.Large.ToString(), "large");
 
-        marginOption.TrySetValue(printMargin.ToString());
+        marginOption.TrySetValue(settings.PrintMargin.ToString());
         displayedOptions.Add(marginOption.OptionId);
 
         // add heading (file name) option
         PrintCustomToggleOptionDetails header = printDetailedOptions.CreateToggleOption(CustomOption.ShowHeader.ToString(), "Print file name");
-        header.TrySetValue(showHeader);
+        header.TrySetValue(settings.ShowHeader);
         displayedOptions.Add(header.OptionId);
 
         printDetailedOptions.OptionChanged += (sender, args) =>
@@ -157,25 +157,29 @@ internal sealed class PrintHelper
             if (CustomOption.PrintSize.ToString() == optionId)
             {
                 PrintCustomItemListOptionDetails option = (PrintCustomItemListOptionDetails)sender.Options[optionId];
-                printSize = Enum.Parse<PrintSize>((string)option.Value);
+                settings.PrintSize = Enum.Parse<PrintSize>((string)option.Value);
+                Settings.Data.PrintSettings.PrintSize = settings.PrintSize;
                 invalidatePreview = true;
             }
             else if (CustomOption.Alignment.ToString() == optionId)
             {
                 PrintCustomItemListOptionDetails option = (PrintCustomItemListOptionDetails)sender.Options[optionId];
-                printAlignment = Enum.Parse<Alignment>((string)option.Value);
+                settings.PrintAlignment = Enum.Parse<Alignment>((string)option.Value);
+                Settings.Data.PrintSettings.PrintAlignment = settings.PrintAlignment;
                 invalidatePreview = true;
             }
             else if (CustomOption.Margin.ToString() == optionId)
             {
                 PrintCustomItemListOptionDetails option = (PrintCustomItemListOptionDetails)sender.Options[optionId];
-                printMargin = Enum.Parse<Margin>((string)option.Value);
+                settings.PrintMargin = Enum.Parse<Margin>((string)option.Value);
+                Settings.Data.PrintSettings.PrintMargin = settings.PrintMargin;
                 invalidatePreview = true;
             }
             else if (CustomOption.ShowHeader.ToString() == optionId)
             {
                 PrintCustomToggleOptionDetails option = (PrintCustomToggleOptionDetails)sender.Options[optionId];
-                showHeader = (bool)option.Value;
+                settings.ShowHeader = (bool)option.Value;
+                Settings.Data.PrintSettings.ShowHeader = settings.ShowHeader;
                 invalidatePreview = true;
             }
 
@@ -187,7 +191,7 @@ internal sealed class PrintHelper
         };
     }
 
-    private enum PrintSize
+    public enum PrintSize
     {
         Size_10 = 10,
         Size_20 = 20,
@@ -201,7 +205,7 @@ internal sealed class PrintHelper
         Size_100 = 100,
     }
 
-    private enum Alignment
+    public enum Alignment
     {
         TopLeft,
         TopCenter,
@@ -214,7 +218,7 @@ internal sealed class PrintHelper
         BottomRight,
     }
 
-    private enum Margin
+    public enum Margin
     {
         None,
         Small,
@@ -236,6 +240,7 @@ internal sealed class PrintHelper
         {
             Debug.Assert(rootVisual is not null);
             Debug.Assert(printPage is not null);
+            Debug.Assert(settings is not null);
 
             bool layoutInvalid = false;
             PrintPageDescription pd = e.PrintTaskOptions.GetPageDescription(jobPageNumber: 0);
@@ -243,42 +248,33 @@ internal sealed class PrintHelper
             layoutInvalid |= printPage.SetPageSize(pd.PageSize);
 
             // adjust the imageable areas for the selected margins
-            const double cMarginPercentageStep = 2.5;
-            double marginPercentage = 0.0;
-
-            switch (printMargin)
-            {
-                case Margin.Small: marginPercentage = cMarginPercentageStep; break;
-                case Margin.Medium: marginPercentage = cMarginPercentageStep * 2; break;
-                case Margin.Large: marginPercentage = cMarginPercentageStep * 3; break;
-            }
-
-            double margin = Math.Min(pd.ImageableRect.Height, pd.ImageableRect.Width) * (marginPercentage / 100D);
-
-            double x = Math.Max(margin, pd.ImageableRect.X);
-            double y = Math.Max(margin, pd.ImageableRect.Y);
+            double marginPercentage = 0.025 * (int)settings.PrintMargin ;
+            double margin = Math.Min(pd.ImageableRect.Height, pd.ImageableRect.Width) * marginPercentage;
 
             // the custom margins are uniform, the printer's may not be
+            double leftMargin = Math.Max(margin, pd.ImageableRect.X);
+            double topMargin = Math.Max(margin, pd.ImageableRect.Y);
             double rightMargin = Math.Max(margin, pd.PageSize.Width - (pd.ImageableRect.X + pd.ImageableRect.Width));
             double bottomMargin = Math.Max(margin, pd.PageSize.Height - (pd.ImageableRect.Y + pd.ImageableRect.Height));
 
-            Rect imagableArea = new Rect(x, y, pd.PageSize.Width - (x + rightMargin), pd.PageSize.Height - (y + bottomMargin));
+            Rect imagableArea = new Rect(leftMargin, topMargin, pd.PageSize.Width - (leftMargin + rightMargin), pd.PageSize.Height - (topMargin + bottomMargin));
 
             // set header if required
             double headerHeight = 0;
 
-            if (showHeader)
+            if (settings.ShowHeader)
             {
                 printPage.SetHeaderText(headerText);
                 headerHeight = printPage.GetHeaderHeight();
-                printPage.SetHeadingLocation(new Point(x, y));
-                printPage.SetHeadingWidth(pd.PageSize.Width - (x + rightMargin));
+                layoutInvalid |= printPage.SetHeadingLocation(new Point(leftMargin, topMargin));
+                layoutInvalid |= printPage.SetHeadingWidth(pd.PageSize.Width - (leftMargin + rightMargin));
             }
 
-            layoutInvalid |= printPage.ShowHeader(showHeader);
+            layoutInvalid |= printPage.ShowHeader(settings.ShowHeader);
 
-            // adjust the size of the puzzle depending on the imageable area, margins and header
-            double imageSize = Math.Min(imagableArea.Height - headerHeight, imagableArea.Width) * ((double)printSize / 100D);
+            // adjust the size of the puzzle depending on the margins and header
+            double printSizeRatio = (int)settings.PrintSize / 100.0;
+            double imageSize = Math.Min(imagableArea.Height - headerHeight, imagableArea.Width) * printSizeRatio;
             layoutInvalid |= printPage.SetPuzzleSize(imageSize);
 
             // set the position of the puzzle with in the imageable area taking into account the heading 
@@ -286,7 +282,7 @@ internal sealed class PrintHelper
             double puzzleAreaHeight = imagableArea.Height - headerHeight;
             Point position = default;
 
-            switch (printAlignment)
+            switch (settings.PrintAlignment)
             {
                 case Alignment.TopLeft:
                     position.X = imagableArea.Left;

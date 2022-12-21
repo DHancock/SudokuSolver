@@ -17,6 +17,8 @@ internal class Settings
 
     public PerViewSettings ViewSettings { get; set; } = new PerViewSettings();
 
+    public PerPrintSettings PrintSettings { get; set; } = new PerPrintSettings();
+
     public WindowState WindowState { get; set; } = WindowState.Normal;
 
     public RectInt32 RestoreBounds { get; set; } = default;
@@ -109,7 +111,7 @@ internal class Settings
 
     // View specific settings
     // The clone function is used to give each view model it's own copy
-    public class PerViewSettings
+    internal sealed class PerViewSettings
     {
         public bool IsDarkThemed { get; set; } = Application.Current.RequestedTheme == ApplicationTheme.Dark;
         public bool ShowPossibles { get; set; } = false;
@@ -118,11 +120,17 @@ internal class Settings
         [JsonIgnore]
         public ElementTheme Theme  => IsDarkThemed ? ElementTheme.Dark : ElementTheme.Light;
 
-        public PerViewSettings()
-        {
-        }
-
         public PerViewSettings Clone() => (PerViewSettings)this.MemberwiseClone();
+    }
+
+    internal sealed class PerPrintSettings
+    {
+        public PrintHelper.PrintSize PrintSize { get; set; } = PrintHelper.PrintSize.Size_80;
+        public PrintHelper.Alignment PrintAlignment { get; set; } = PrintHelper.Alignment.MiddleCenter;
+        public PrintHelper.Margin PrintMargin { get; set; } = PrintHelper.Margin.None;
+        public bool ShowHeader { get; set; } = false;
+
+        public PerPrintSettings Clone() => (PerPrintSettings)this.MemberwiseClone();
     }
 }
 

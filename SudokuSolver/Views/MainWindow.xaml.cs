@@ -211,7 +211,7 @@ internal sealed partial class MainWindow : SubClassWindow
                 ViewModel = Puzzle.ViewModel,
             };
 
-            await printHelper.PrintViewAsync(PrintCanvas, printView, SourceFile);
+            await printHelper.PrintViewAsync(PrintCanvas, printView, SourceFile, Settings.Data.PrintSettings.Clone());
         }
         catch (Exception ex)
         {
