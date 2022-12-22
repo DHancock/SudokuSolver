@@ -253,7 +253,7 @@ internal sealed partial class MainWindow : SubClassWindow
     {
         Status status = Status.Continue;
 
-        if (Puzzle.ViewModel!.PuzzleModified)
+        if (Puzzle.ViewModel!.Modified)
         {
             string path;
 
@@ -368,14 +368,14 @@ internal sealed partial class MainWindow : SubClassWindow
 
     private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(Puzzle.ViewModel.PuzzleModified))
+        if (e.PropertyName == nameof(Puzzle.ViewModel.Modified))
             UpdateWindowTitle();
     }
 
     private void UpdateWindowTitle()
     {
         string filePart = SourceFile is null ? App.cNewPuzzleName : SourceFile.DisplayName;
-        string modified = Puzzle.ViewModel!.PuzzleModified ? "*" : string.Empty;
+        string modified = Puzzle.ViewModel!.Modified ? "*" : string.Empty;
 
         string title;
 
