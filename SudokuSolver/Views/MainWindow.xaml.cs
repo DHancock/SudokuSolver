@@ -83,7 +83,7 @@ internal sealed partial class MainWindow : SubClassWindow
 
         if (Settings.Data.RestoreBounds.IsEmpty()) // first run
         {
-            appWindow.MoveAndResize(CenterInPrimaryDisplay());
+            appWindow.MoveAndResize(ValidateRestoreBounds(CenterInPrimaryDisplay()));
             Settings.Data.RestoreBounds = RestoreBounds;
         }
         else if (creator is not null)
@@ -155,19 +155,19 @@ internal sealed partial class MainWindow : SubClassWindow
 
     private RectInt32 CenterInPrimaryDisplay()
     {
-        RectInt32 workArea = DisplayArea.Primary.WorkArea;
-        RectInt32 windowArea;
-
         double scaleFactor = GetScaleFactor();
         int width = ConvertToDeviceSize(InitialWidth, scaleFactor);
         int height = ConvertToDeviceSize(InitialHeight, scaleFactor);
 
+        RectInt32 windowArea;
+        RectInt32 workArea = DisplayArea.Primary.WorkArea;
+        
         windowArea.X = (workArea.Width - width) / 2;
         windowArea.Y = (workArea.Height - height) / 2;
         windowArea.Width = width;
         windowArea.Height = height;
 
-        return ValidateRestoreBounds(windowArea);
+        return windowArea;
     }
 
     private async void NewClickHandler(object sender, RoutedEventArgs e)
