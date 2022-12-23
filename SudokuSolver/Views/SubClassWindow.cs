@@ -90,35 +90,13 @@ internal class SubClassWindow : Window
         get => new RectInt32(restorePosition.X, restorePosition.Y, restoreSize.Width, restoreSize.Height);
     }
 
-    private static int ConvertToDeviceSize(double value, double scalefactor) => Convert.ToInt32(Math.Clamp(value * scalefactor, 0, short.MaxValue));
+    protected static int ConvertToDeviceSize(double value, double scalefactor) => Convert.ToInt32(Math.Clamp(value * scalefactor, 0, short.MaxValue));
 
-    private double GetScaleFactor()
+    protected double GetScaleFactor()
     {
         // The xaml may not have loaded yet, so Content.XamlRoot.RasterizationScale isn't an option here
         double dpi = PInvoke.GetDpiForWindow(hWnd);
         return dpi / 96.0;
-    }
-
-    protected RectInt32 CenterInPrimaryDisplay()
-    {
-        RectInt32 workArea = DisplayArea.Primary.WorkArea;
-        RectInt32 windowArea;
-
-        double scaleFactor = GetScaleFactor();
-        windowArea.Width = ConvertToDeviceSize(InitialWidth, scaleFactor);
-        windowArea.Height = ConvertToDeviceSize(InitialHeight, scaleFactor);
-
-        windowArea.Width = Math.Min(windowArea.Width, workArea.Width);
-        windowArea.Height = Math.Min(windowArea.Height, workArea.Height);
-
-        windowArea.Y = (workArea.Height - windowArea.Height) / 2;
-        windowArea.X = (workArea.Width - windowArea.Width) / 2;
-
-        // guarantee title bar is visible, the minimum window size may trump working area
-        windowArea.Y = Math.Max(windowArea.Y, workArea.Y);
-        windowArea.X = Math.Max(windowArea.X, workArea.X);
-
-        return windowArea;
     }
 
     protected void SetWindowIconFromAppIcon()

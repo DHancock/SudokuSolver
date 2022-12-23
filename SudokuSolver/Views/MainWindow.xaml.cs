@@ -19,7 +19,7 @@ internal sealed partial class MainWindow : SubClassWindow
 
     private StorageFile? sourceFile;
 
-    public MainWindow(StorageFile? storagefile)
+    public MainWindow(StorageFile? storagefile, MainWindow? creator)
     {
         InitializeComponent();
 
@@ -81,19 +81,20 @@ internal sealed partial class MainWindow : SubClassWindow
 
         printHelper = new PrintHelper(this);
 
-        if (Settings.Data.IsFirstRun)
+        if (Settings.Data.RestoreBounds.IsEmpty()) // first run
         {
             appWindow.MoveAndResize(CenterInPrimaryDisplay());
+            Settings.Data.RestoreBounds = RestoreBounds;
         }
+        else if (creator is not null)
+            appWindow.MoveAndResize(ValidateRestoreBounds(creator.RestoreBounds));
         else
-        {
             appWindow.MoveAndResize(ValidateRestoreBounds(Settings.Data.RestoreBounds));
 
-            if (Settings.Data.WindowState == WindowState.Minimized)
-                WindowState = WindowState.Normal;
-            else
-                WindowState = Settings.Data.WindowState;
-        }
+        if (Settings.Data.WindowState == WindowState.Minimized)
+            WindowState = WindowState.Normal;
+        else
+            WindowState = Settings.Data.WindowState;
 
         if (storagefile is not null)
         {
@@ -113,7 +114,7 @@ internal sealed partial class MainWindow : SubClassWindow
 
         if (status != Status.Cancelled)
         {
-            bool lastWindow = App.UnRegisterWindow(this);
+            bool lastWindow = ((App)Application.Current).UnRegisterWindow(this);
 
             if (lastWindow)
             {
@@ -127,30 +128,46 @@ internal sealed partial class MainWindow : SubClassWindow
         }
     }
 
-    private RectInt32 ValidateRestoreBounds(RectInt32 windowArea)
+    private RectInt32 ValidateRestoreBounds(RectInt32 restoreBounds)
     {
-        if (windowArea == default)
-            return CenterInPrimaryDisplay();
+        Debug.Assert(!restoreBounds.IsEmpty());
 
-        RectInt32 workArea = DisplayArea.GetFromRect(windowArea, DisplayAreaFallback.Nearest).WorkArea;
-        PointInt32 position = new PointInt32(windowArea.X, windowArea.Y);
+        RectInt32 workArea = DisplayArea.GetFromRect(restoreBounds, DisplayAreaFallback.Nearest).WorkArea;
+        PointInt32 position = ((App)Application.Current).AdjustPositionForOtherWindows(restoreBounds.TopLeft());
 
-        if ((position.Y + windowArea.Height) > workArea.Bottom())
-            position.Y = workArea.Bottom() - windowArea.Height;
+        if ((position.Y + restoreBounds.Height) > workArea.Bottom())
+            position.Y = workArea.Bottom() - restoreBounds.Height;
 
         if (position.Y < workArea.Y)
             position.Y = workArea.Y;
 
-        if ((position.X + windowArea.Width) > workArea.Right())
-            position.X = workArea.Right() - windowArea.Width;
+        if ((position.X + restoreBounds.Width) > workArea.Right())
+            position.X = workArea.Right() - restoreBounds.Width;
 
         if (position.X < workArea.X)
             position.X = workArea.X;
 
-        SizeInt32 size = new SizeInt32(Math.Min(windowArea.Width, workArea.Width),
-                                        Math.Min(windowArea.Height, workArea.Height));
+        SizeInt32 size = new SizeInt32(Math.Min(restoreBounds.Width, workArea.Width),
+                                        Math.Min(restoreBounds.Height, workArea.Height));
 
         return new RectInt32(position.X, position.Y, size.Width, size.Height);
+    }
+
+    private RectInt32 CenterInPrimaryDisplay()
+    {
+        RectInt32 workArea = DisplayArea.Primary.WorkArea;
+        RectInt32 windowArea;
+
+        double scaleFactor = GetScaleFactor();
+        int width = ConvertToDeviceSize(InitialWidth, scaleFactor);
+        int height = ConvertToDeviceSize(InitialHeight, scaleFactor);
+
+        windowArea.X = (workArea.Width - width) / 2;
+        windowArea.Y = (workArea.Height - height) / 2;
+        windowArea.Width = width;
+        windowArea.Height = height;
+
+        return ValidateRestoreBounds(windowArea);
     }
 
     private async void NewClickHandler(object sender, RoutedEventArgs e)
@@ -188,7 +205,7 @@ internal sealed partial class MainWindow : SubClassWindow
 
     private void NewWindowClickHandler(object sender, RoutedEventArgs e)
     {
-        App.CreateNewWindow(storageFile: null);
+        ((App)Application.Current).CreateNewWindow(storageFile: null, creator: this);
     }
 
     private async void SaveClickHandler(object sender, RoutedEventArgs e)

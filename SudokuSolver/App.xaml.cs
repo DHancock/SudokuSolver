@@ -1,4 +1,5 @@
-﻿using Sudoku.ViewModels;
+﻿using Sudoku.Utilities;
+using Sudoku.ViewModels;
 using Sudoku.Views;
 
 // not to be confused with Windows.System.DispatcherQueue
@@ -19,8 +20,7 @@ public partial class App : Application
 
     private readonly DispatcherQueue uiThreadDispatcher;
     private readonly AppInstance appInstance;
-
-    private static readonly List<MainWindow> sWindowList = new();
+    private readonly List<MainWindow> windowList = new List<MainWindow>();
 
     /// <summary>
     /// Initializes the singleton application object.  This is the first line of authored code
@@ -100,7 +100,7 @@ public partial class App : Application
         }
     }
 
-    private static void ProcessFileActivation(AppActivationArguments args)
+    private void ProcessFileActivation(AppActivationArguments args)
     {
         if ((args.Data is IFileActivatedEventArgs fileData) && (fileData.Files.Count > 0))
         {
@@ -112,7 +112,7 @@ public partial class App : Application
         }
     }
 
-    private async static Task ProcessCommandLine(string[]? args)
+    private async Task ProcessCommandLine(string[]? args)
     {
         if (args?.Length > 1)  // args[0] is typically the path to the executing assembly
         {
@@ -128,30 +128,63 @@ public partial class App : Application
             }
         }
         else
-            CreateNewWindow(null);
+            CreateNewWindow(storageFile: null);
     }
 
-    public static void CreateNewWindow(StorageFile? storageFile)
+    internal void CreateNewWindow(StorageFile? storageFile, MainWindow? creator = null)
     {
-        MainWindow window = new MainWindow(storageFile);
-        sWindowList.Add(window);
-        window.Activate();
-        BumpWindowToFront(window);
+        MainWindow window = new MainWindow(storageFile, creator);
+        windowList.Add(window);
+        TryBumpWindowToFront(window);
     }
 
-    private static void BumpWindowToFront(Window window)
+    private static bool TryBumpWindowToFront(Window window)
     {
         HWND foreground = PInvoke.GetForegroundWindow();
         HWND target = (HWND)WindowNative.GetWindowHandle(window);
 
         if (target != foreground)
-            PInvoke.SetForegroundWindow(target);
+        {
+            if (PInvoke.SetForegroundWindow(target))
+                return true;
+
+            Debug.WriteLine("SetForegroundWindow() was refused");
+            return false;
+        }
+
+        return true;
     }
 
-    internal static bool UnRegisterWindow(MainWindow window)
+    internal bool UnRegisterWindow(MainWindow window)
     {
-        bool found = sWindowList.Remove(window);
+        bool found = windowList.Remove(window);
         Debug.Assert(found);
-        return sWindowList.Count == 0;
+        return windowList.Count == 0;
+    }
+
+    internal PointInt32 AdjustPositionForOtherWindows(PointInt32 pos)
+    {
+        const int cTitleBarHeight = 32;
+        int index = 0;
+
+        static bool TitleBarOverlaps(PointInt32 a, PointInt32 b)
+        {
+            RectInt32 aRect = new RectInt32(a.X, a.Y, cTitleBarHeight, cTitleBarHeight);
+            RectInt32 bRect = new RectInt32(b.X, b.Y, cTitleBarHeight, cTitleBarHeight);
+            return aRect.Intersects(bRect); 
+        }
+
+        while (index < windowList.Count)
+        {
+            PointInt32 existing = windowList[index++].RestoreBounds.TopLeft();
+
+            if (TitleBarOverlaps(existing, pos))
+            {
+                pos = existing.Offset(cTitleBarHeight);
+                index = 0;
+            }
+        }
+
+        return pos;
     }
 }

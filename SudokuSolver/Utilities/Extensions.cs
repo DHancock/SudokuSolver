@@ -20,6 +20,10 @@ internal static class Extensions
         return rect.X + Math.Max(rect.Width, 0);
     }
 
+    public static PointInt32 TopLeft(this RectInt32 rect)
+    {
+        return new PointInt32(rect.X, rect.Y);
+    }
 
     // intersection algorithm from https://stackoverflow.com/a/306332
     // the trick is not to detect an intersection, but to prove they cannot
@@ -32,5 +36,11 @@ internal static class Extensions
     public static bool DoesNotIntersect(this RectInt32 a, RectInt32 b)
     {
         return a.X > b.Right() || a.Right() < b.X || a.Y > b.Bottom() || a.Bottom() < b.Y;
+    }
+
+
+    public static PointInt32 Offset(this PointInt32 a, int offset)
+    {
+        return new PointInt32(a.X + offset, a.Y + offset);
     }
 }

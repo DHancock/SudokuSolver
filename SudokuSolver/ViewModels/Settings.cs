@@ -25,9 +25,6 @@ internal class Settings
 
     public bool RegisterFileTypes { get; set; } = true;
 
-    [JsonIgnore]
-    public bool IsFirstRun { get; private set; } = true;
-
     public async Task Save()
     {
         await Inner.Save(this);
@@ -75,10 +72,7 @@ internal class Settings
                         Settings? settings = JsonSerializer.Deserialize<Inner>(data, GetSerializerOptions());
 
                         if (settings is not null)
-                        {
-                            settings.IsFirstRun = false;
                             return settings;
-                        }
                     }
                 }
                 catch (Exception ex)
