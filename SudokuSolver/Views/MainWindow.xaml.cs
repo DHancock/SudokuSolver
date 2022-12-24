@@ -1,7 +1,4 @@
-﻿using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Shapes;
-
-using Sudoku.Utilities;
+﻿using Sudoku.Utilities;
 using Sudoku.ViewModels;
 
 namespace Sudoku.Views;
@@ -82,11 +79,11 @@ internal sealed partial class MainWindow : SubClassWindow
         printHelper = new PrintHelper(this);
 
         if (creator is not null)
-            appWindow.MoveAndResize(ValidateRestoreBounds(creator.RestoreBounds));
+            appWindow.MoveAndResize(ValidateWindowBounds(creator.RestoreBounds));
         else if (Settings.Data.RestoreBounds.IsEmpty()) // first run
-            appWindow.MoveAndResize(ValidateRestoreBounds(CenterInPrimaryDisplay()));
+            appWindow.MoveAndResize(ValidateWindowBounds(CenterInPrimaryDisplay()));
         else
-            appWindow.MoveAndResize(ValidateRestoreBounds(Settings.Data.RestoreBounds));
+            appWindow.MoveAndResize(ValidateWindowBounds(Settings.Data.RestoreBounds));
 
         if (Settings.Data.WindowState == WindowState.Minimized)
             WindowState = WindowState.Normal;
@@ -125,27 +122,27 @@ internal sealed partial class MainWindow : SubClassWindow
         }
     }
 
-    private static RectInt32 ValidateRestoreBounds(RectInt32 restoreBounds)
+    private static RectInt32 ValidateWindowBounds(RectInt32 bounds)
     {
-        Debug.Assert(!restoreBounds.IsEmpty());
+        Debug.Assert(!bounds.IsEmpty());
 
-        RectInt32 workArea = DisplayArea.GetFromRect(restoreBounds, DisplayAreaFallback.Nearest).WorkArea;
-        PointInt32 position = ((App)Application.Current).AdjustPositionForOtherWindows(restoreBounds.TopLeft());
+        RectInt32 workArea = DisplayArea.GetFromRect(bounds, DisplayAreaFallback.Nearest).WorkArea;
+        PointInt32 position = ((App)Application.Current).AdjustPositionForOtherWindows(bounds.TopLeft());
 
-        if ((position.Y + restoreBounds.Height) > workArea.Bottom())
-            position.Y = workArea.Bottom() - restoreBounds.Height;
+        if ((position.Y + bounds.Height) > workArea.Bottom())
+            position.Y = workArea.Bottom() - bounds.Height;
 
         if (position.Y < workArea.Y)
             position.Y = workArea.Y;
 
-        if ((position.X + restoreBounds.Width) > workArea.Right())
-            position.X = workArea.Right() - restoreBounds.Width;
+        if ((position.X + bounds.Width) > workArea.Right())
+            position.X = workArea.Right() - bounds.Width;
 
         if (position.X < workArea.X)
             position.X = workArea.X;
 
-        int width = Math.Min(restoreBounds.Width, workArea.Width);
-        int height = Math.Min(restoreBounds.Height, workArea.Height);
+        int width = Math.Min(bounds.Width, workArea.Width);
+        int height = Math.Min(bounds.Height, workArea.Height);
 
         return new RectInt32(position.X, position.Y, width, height);
     }
