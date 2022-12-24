@@ -81,13 +81,10 @@ internal sealed partial class MainWindow : SubClassWindow
 
         printHelper = new PrintHelper(this);
 
-        if (Settings.Data.RestoreBounds.IsEmpty()) // first run
-        {
-            appWindow.MoveAndResize(ValidateRestoreBounds(CenterInPrimaryDisplay()));
-            Settings.Data.RestoreBounds = RestoreBounds;
-        }
-        else if (creator is not null)
+        if (creator is not null)
             appWindow.MoveAndResize(ValidateRestoreBounds(creator.RestoreBounds));
+        else if (Settings.Data.RestoreBounds.IsEmpty()) // first run
+            appWindow.MoveAndResize(ValidateRestoreBounds(CenterInPrimaryDisplay()));
         else
             appWindow.MoveAndResize(ValidateRestoreBounds(Settings.Data.RestoreBounds));
 
@@ -128,7 +125,7 @@ internal sealed partial class MainWindow : SubClassWindow
         }
     }
 
-    private RectInt32 ValidateRestoreBounds(RectInt32 restoreBounds)
+    private static RectInt32 ValidateRestoreBounds(RectInt32 restoreBounds)
     {
         Debug.Assert(!restoreBounds.IsEmpty());
 
@@ -147,10 +144,10 @@ internal sealed partial class MainWindow : SubClassWindow
         if (position.X < workArea.X)
             position.X = workArea.X;
 
-        SizeInt32 size = new SizeInt32(Math.Min(restoreBounds.Width, workArea.Width),
-                                        Math.Min(restoreBounds.Height, workArea.Height));
+        int width = Math.Min(restoreBounds.Width, workArea.Width);
+        int height = Math.Min(restoreBounds.Height, workArea.Height);
 
-        return new RectInt32(position.X, position.Y, size.Width, size.Height);
+        return new RectInt32(position.X, position.Y, width, height);
     }
 
     private RectInt32 CenterInPrimaryDisplay()
