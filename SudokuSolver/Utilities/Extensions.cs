@@ -26,11 +26,11 @@ internal static class Extensions
     }
 
     // intersection algorithm from https://stackoverflow.com/a/306332
-    // the trick is not to detect an intersection, but to prove they cannot
+    // the trick is not to detect an intersection, but to prove that they cannot
 
-    public static bool Intersects(this RectInt32 a, RectInt32 b)  // !(a || b) == !a && !b
+    public static bool Intersects(this RectInt32 a, RectInt32 b)
     {
-        return a.X < b.Right() && a.Right() > b.X && a.Y < b.Bottom() && a.Bottom() > b.Y;
+        return !a.DoesNotIntersect(b);
     }
 
     public static bool DoesNotIntersect(this RectInt32 a, RectInt32 b)
