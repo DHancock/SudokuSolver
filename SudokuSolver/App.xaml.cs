@@ -178,7 +178,7 @@ public partial class App : Application
         {
             MainWindow existingWindow = windowList[index++];
             PointInt32 existingPos = existingWindow.RestoreBounds.TopLeft();
-            double scaleFactor = existingWindow.Content.XamlRoot.RasterizationScale;
+            double scaleFactor = existingWindow.GetScaleFactor();
 
             int clientTitleBarHeight = MainWindow.ConvertToDeviceSize(cTitleBarHeight, scaleFactor);
 

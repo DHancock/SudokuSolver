@@ -92,9 +92,9 @@ internal class SubClassWindow : Window
 
     public static int ConvertToDeviceSize(double value, double scalefactor) => Convert.ToInt32(Math.Clamp(value * scalefactor, 0, short.MaxValue));
 
-    protected double GetScaleFactor()
+    public double GetScaleFactor()
     {
-        // The xaml may not have loaded yet, so Content.XamlRoot.RasterizationScale isn't an option here
+        // if the xaml hasn't loaded yet, Content.XamlRoot.RasterizationScale isn't an option
         double dpi = PInvoke.GetDpiForWindow(hWnd);
         return dpi / 96.0;
     }
