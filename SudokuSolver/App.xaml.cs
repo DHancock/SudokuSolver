@@ -1,6 +1,4 @@
-﻿using Microsoft.UI.Xaml.Media.Animation;
-
-using Sudoku.Utilities;
+﻿using Sudoku.Utilities;
 using Sudoku.ViewModels;
 using Sudoku.Views;
 
