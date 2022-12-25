@@ -1,4 +1,6 @@
-﻿using Sudoku.Utilities;
+﻿using Microsoft.UI.Xaml.Media.Animation;
+
+using Sudoku.Utilities;
 using Sudoku.ViewModels;
 using Sudoku.Views;
 
@@ -164,23 +166,27 @@ public partial class App : Application
 
     internal PointInt32 AdjustPositionForOtherWindows(PointInt32 pos)
     {
-        const int cTitleBarHeight = 32;
-        int index = 0;
-
-        static bool TitleBarOverlaps(PointInt32 a, PointInt32 b)
+        static bool TitleBarOverlaps(PointInt32 a, PointInt32 b, int titleBarHeight)
         {
-            RectInt32 aRect = new RectInt32(a.X, a.Y, cTitleBarHeight, cTitleBarHeight);
-            RectInt32 bRect = new RectInt32(b.X, b.Y, cTitleBarHeight, cTitleBarHeight);
+            RectInt32 aRect = new RectInt32(a.X, a.Y, titleBarHeight, titleBarHeight);
+            RectInt32 bRect = new RectInt32(b.X, b.Y, titleBarHeight, titleBarHeight);
             return aRect.Intersects(bRect); 
         }
 
+        const int cTitleBarHeight = 32;
+        int index = 0;
+
         while (index < windowList.Count)
         {
-            PointInt32 existing = windowList[index++].RestoreBounds.TopLeft();
+            MainWindow existingWindow = windowList[index++];
+            PointInt32 existingPos = existingWindow.RestoreBounds.TopLeft();
+            double scaleFactor = existingWindow.Content.XamlRoot.RasterizationScale;
 
-            if (TitleBarOverlaps(existing, pos))
+            int clientTitleBarHeight = MainWindow.ConvertToDeviceSize(cTitleBarHeight, scaleFactor);
+
+            if (TitleBarOverlaps(existingPos, pos, clientTitleBarHeight))
             {
-                pos = existing.Offset(cTitleBarHeight);
+                pos = existingPos.Offset(clientTitleBarHeight + 1);
                 index = 0;
             }
         }
