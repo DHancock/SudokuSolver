@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "SudokuSolver (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "SudokuSolver (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
