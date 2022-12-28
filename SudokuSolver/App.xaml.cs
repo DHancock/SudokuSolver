@@ -37,6 +37,7 @@ public partial class App : Application
 
             if (Settings.Data.RegisterFileTypes && !IsPackaged())
             {
+                // packaged apps file type activation is defined in the Package.appxmanifest
                 // registering file types causes all the desktop icons to be reset, only do it once, if possible 
                 Settings.Data.RegisterFileTypes = false;
 
@@ -73,7 +74,7 @@ public partial class App : Application
         }
         else
         {
-            // single instancing only seems to work for unpackaged apps
+            // single instancing only seems to work for unpackaged apps...
             await appInstance.RedirectActivationToAsync(args);
             Process.GetCurrentProcess().Kill();
         }
