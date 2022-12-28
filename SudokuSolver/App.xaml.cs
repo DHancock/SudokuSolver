@@ -35,20 +35,17 @@ public partial class App : Application
         {
             appInstance.Activated += MainInstance_Activated;
 
-            if (Settings.Data.RegisterFileTypes)
+            if (Settings.Data.RegisterFileTypes && !IsPackaged())
             {
                 // registering file types causes all the desktop icons to be reset, only do it once, if possible 
                 Settings.Data.RegisterFileTypes = false;
 
                 string[] fileTypes = new[] { cFileExt };
                 string[] verbs = new[] { "view", "edit" };
-
-#if PACKAGED
-                string logo = string.Empty;  // use default or specify a relative image path
-#else
+                
                 // The icon is used in the explorer context menu "Open with" for this app's entry
-                string logo = $"{Path.ChangeExtension(typeof(App).Assembly.Location, ".exe")},{cIconResourceID}";
-#endif
+                string logo = $"{Environment.ProcessPath},{cIconResourceID}";
+                
                 // This doesn't update .sdku file's icon to the app's icon, but does reset the icon to a
                 // default file icon, replacing any previous "opens with" associations
                 ActivationRegistrationManager.RegisterForFileTypeActivation(fileTypes, logo, cDisplayName, verbs, string.Empty);
@@ -63,7 +60,7 @@ public partial class App : Application
     {
         AppActivationArguments args = appInstance.GetActivatedEventArgs();
 
-        if (appInstance.IsCurrent)
+        if (appInstance.IsCurrent || IsPackaged())
         {
             if (args.Kind == ExtendedActivationKind.File)
             {
@@ -71,15 +68,12 @@ public partial class App : Application
             }
             else if (args.Kind == ExtendedActivationKind.Launch)
             {
-#if PACKAGED
-                CreateNewWindow(null);
-#else
                 await ProcessCommandLine(Environment.GetCommandLineArgs());
-#endif
             }
         }
         else
         {
+            // single instancing only seems to work for unpackaged apps
             await appInstance.RedirectActivationToAsync(args);
             Process.GetCurrentProcess().Kill();
         }
@@ -190,5 +184,12 @@ public partial class App : Application
         }
 
         return pos;
+    }
+
+    private static bool IsPackaged()
+    {
+        uint length = 0;
+        WIN32_ERROR error = PInvoke.GetCurrentPackageFullName(ref length, null);
+        return error == WIN32_ERROR.ERROR_INSUFFICIENT_BUFFER;
     }
 }

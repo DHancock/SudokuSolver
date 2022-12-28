@@ -10,3 +10,4 @@ WM_GETMINMAXINFO
 CreateDispatcherQueueController
 SetForegroundWindow
 GetForegroundWindow
+GetCurrentPackageFullName
