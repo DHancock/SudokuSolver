@@ -15,6 +15,7 @@ internal sealed partial class MainWindow : SubClassWindow
     private readonly PrintHelper printHelper;
 
     private StorageFile? sourceFile;
+    private bool processingClose = false;
 
     public MainWindow(StorageFile? storagefile, MainWindow? creator)
     {
@@ -43,7 +44,14 @@ internal sealed partial class MainWindow : SubClassWindow
             // the await call creates a continuation routine, so must cancel the close here
             // and handle the actual closing explicitly when the continuation routine runs...
             args.Cancel = true;
-            await HandleWindowClosing();
+
+            if (!processingClose)
+            {
+                // prevents reentry i.e. selecting "Close window" from the task bar 
+                // while a save/don't save/cancel confirmation dialog is open.
+                processingClose = true;
+                await HandleWindowClosing();
+            }
         };
 
         if (AppWindowTitleBar.IsCustomizationSupported())
@@ -120,6 +128,9 @@ internal sealed partial class MainWindow : SubClassWindow
             // calling Close() doesn't raise an AppWindow.Closing event
             Close();
         }
+
+        // allow further close attempts
+        processingClose = false;
     }
 
     private static RectInt32 ValidateWindowBounds(RectInt32 bounds)
