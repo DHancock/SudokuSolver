@@ -7,13 +7,13 @@
   IgnorableNamespaces="uap rescap">
 
   <Identity
-    Name="05daab2d-b734-47d5-86c2-506522bcdfcb"
+    Name="SudokuSolver-05daab2d-b734-47d5-86c2-506522bcdfcb"
     Publisher="CN=david"
-    Version="1.0.0.0" />
+    Version="1.5.0.0" />
 
   <Properties>
-    <DisplayName>SudokuSolver</DisplayName>
-    <PublisherDisplayName>david</PublisherDisplayName>
+    <DisplayName>Sudoku Solver</DisplayName>
+    <PublisherDisplayName>David Hancock</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
@@ -31,12 +31,12 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="$targetentrypoint$">
       <uap:VisualElements
-        DisplayName="SudokuSolver"
-        Description="SudokuSolver"
+        DisplayName="Sudoku Solver"
+        Description="A sudoku puzzle solver"
         BackgroundColor="transparent"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png">
-        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" />
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png"  Square71x71Logo="Assets\SmallTile.png" Square310x310Logo="Assets\LargeTile.png"/>
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
       </uap:VisualElements>
       <Extensions>
