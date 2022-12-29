@@ -19,11 +19,11 @@
     <FileVersion>1.5.0.0</FileVersion>
     <LangVersion>10</LangVersion>
 	  
-	<!-- WindowsAppSDKSelfContained is a work around for a dependency problem with packaged and unpackaged builds -->
+	<!-- WindowsAppSDKSelfContained = true is a work around for a dependency problem with packaged and unpackaged builds -->
     <!-- It results in a DLL not found error when loading the Microsoft.ui.xaml.dll in the bootstrap code -->
     <!-- if the SDK Build Tools nuget package is included then packaged works and unpackaged fails -->
-    <!-- if the SDK Build Tools nuget package is omitted then packaged fails and unpacked works -->
-    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <!-- if the SDK Build Tools nuget package is omitted then packaged fails and unpackaged works -->
+    <WindowsAppSDKSelfContained>false</WindowsAppSDKSelfContained>
   </PropertyGroup>
 
 	
