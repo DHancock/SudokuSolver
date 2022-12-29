@@ -187,7 +187,7 @@ public partial class App : Application
         return pos;
     }
 
-    private static bool IsPackaged()
+    public static bool IsPackaged()
     {
         uint length = 0;
         WIN32_ERROR error = PInvoke.GetCurrentPackageFullName(ref length, null);
