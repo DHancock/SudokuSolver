@@ -47,10 +47,11 @@ internal sealed partial class MainWindow : SubClassWindow
 
             if (!processingClose)
             {
-                // prevents reentry i.e. selecting "Close window" from the task bar 
-                // while a save/don't save/cancel confirmation dialog is open.
+                // prevents reentry i.e. selecting "Close window" from the task bar menu
+                // while the save/don't save/cancel confirmation dialog is open.
                 processingClose = true;
                 await HandleWindowClosing();
+                processingClose = false;
             }
         };
 
@@ -128,9 +129,6 @@ internal sealed partial class MainWindow : SubClassWindow
             // calling Close() doesn't raise an AppWindow.Closing event
             Close();
         }
-
-        // allow further close attempts
-        processingClose = false;
     }
 
     private static RectInt32 ValidateWindowBounds(RectInt32 bounds)
