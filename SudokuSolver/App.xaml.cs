@@ -18,6 +18,8 @@ public partial class App : Application
     public const string cNewPuzzleName = "Untitled";
     private const string cAppKey = "sudoku-app";
 
+    public static bool IsPackaged { get; } = GetIsPackaged();
+
     private readonly DispatcherQueue uiThreadDispatcher;
     private readonly AppInstance appInstance;
     private readonly List<MainWindow> windowList = new List<MainWindow>();
@@ -31,13 +33,15 @@ public partial class App : Application
         appInstance = AppInstance.FindOrRegisterForKey(cAppKey);
         uiThreadDispatcher = DispatcherQueue.GetForCurrentThread();
 
-        if (appInstance.IsCurrent)
+        if (appInstance.IsCurrent && !IsPackaged)
         {
+            // redirected activation only works in unpackaged apps
+            // file type activation for packaged apps is defined in the Package.appxmanifest
+
             appInstance.Activated += MainInstance_Activated;
 
-            if (Settings.Data.RegisterFileTypes && !IsPackaged())
+            if (Settings.Data.RegisterFileTypes)
             {
-                // packaged apps file type activation is defined in the Package.appxmanifest
                 // registering file types causes all the desktop icons to be reset, only do it once, if possible 
                 Settings.Data.RegisterFileTypes = false;
 
@@ -61,7 +65,7 @@ public partial class App : Application
     {
         AppActivationArguments args = appInstance.GetActivatedEventArgs();
 
-        if (appInstance.IsCurrent || IsPackaged())
+        if (appInstance.IsCurrent || IsPackaged)
         {
             if (args.Kind == ExtendedActivationKind.File)
             {
@@ -69,12 +73,14 @@ public partial class App : Application
             }
             else if (args.Kind == ExtendedActivationKind.Launch)
             {
-                await ProcessCommandLine(Environment.GetCommandLineArgs());
+                if (IsPackaged)
+                    CreateNewWindow(storageFile: null);
+                else
+                    await ProcessCommandLine(Environment.GetCommandLineArgs());
             }
         }
         else
         {
-            // single instancing only seems to work for unpackaged apps...
             await appInstance.RedirectActivationToAsync(args);
             Process.GetCurrentProcess().Kill();
         }
@@ -187,7 +193,7 @@ public partial class App : Application
         return pos;
     }
 
-    public static bool IsPackaged()
+    private static bool GetIsPackaged()
     {
         uint length = 0;
         WIN32_ERROR error = PInvoke.GetCurrentPackageFullName(ref length, null);

@@ -13,7 +13,7 @@ public sealed partial class AboutBox : ContentDialog
         VersionTextBlock.Text = string.Format(VersionTextBlock.Text, typeof(App).Assembly.GetName().Version);
 
 #if DEBUG
-        if (App.IsPackaged())
+        if (App.IsPackaged)
             VersionTextBlock.Text += " (P)";
 #endif
         Loaded += async (s, e) =>
