@@ -16,6 +16,7 @@ internal sealed partial class MainWindow : SubClassWindow
 
     private StorageFile? sourceFile;
     private bool processingClose = false;
+    private AboutBox? aboutBox = null;
 
     public MainWindow(StorageFile? storagefile, MainWindow? creator)
     {
@@ -50,6 +51,10 @@ internal sealed partial class MainWindow : SubClassWindow
                 // prevents reentry i.e. selecting "Close window" from the task bar menu
                 // while the save/don't save/cancel confirmation dialog is open.
                 processingClose = true;
+
+                // hide the about box, two content dialogs cannot be open together
+                aboutBox?.Hide();
+
                 await HandleWindowClosing();
                 processingClose = false;
             }
@@ -370,7 +375,9 @@ internal sealed partial class MainWindow : SubClassWindow
 
     private async void AboutClickHandler(object sender, RoutedEventArgs e)
     {
-        await new AboutBox(Content.XamlRoot, layoutRoot.ActualTheme).ShowAsync();
+        aboutBox ??= new AboutBox(Content.XamlRoot);
+        aboutBox.RequestedTheme = layoutRoot.ActualTheme;
+        await aboutBox.ShowAsync();
     }
 
     private StorageFile? SourceFile
