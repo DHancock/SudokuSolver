@@ -387,7 +387,6 @@ internal sealed partial class MainWindow : SubClassWindow
     {
         string filePart = SourceFile is null ? App.cNewPuzzleName : SourceFile.DisplayName;
         string modified = Puzzle.ViewModel!.Modified ? "*" : string.Empty;
-
         string title;
 
         if (layoutRoot.FlowDirection == FlowDirection.LeftToRight)
@@ -399,6 +398,9 @@ internal sealed partial class MainWindow : SubClassWindow
             CustomTitleBar.Title = title;
         else
             Title = title;
+
+        // the app window's title is used in the task switcher
+        appWindow.Title = title;
     }
 
     private void ClearWindowDragRegions()
