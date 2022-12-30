@@ -48,11 +48,10 @@ internal sealed partial class MainWindow : SubClassWindow
 
             if (!processingClose)
             {
-                // prevents reentry i.e. selecting "Close window" from the task bar menu
-                // while the save/don't save/cancel confirmation dialog is open.
+                // prevent reentry
                 processingClose = true;
 
-                // hide the about box, two content dialogs cannot be open together
+                // two content dialogs cannot be open at the same time
                 aboutBox?.Hide();
 
                 await HandleWindowClosing();
