@@ -45,18 +45,7 @@ internal sealed partial class MainWindow : SubClassWindow
             // the await call creates a continuation routine, so must cancel the close here
             // and handle the actual closing explicitly when the continuation routine runs...
             args.Cancel = true;
-
-            if (!processingClose)
-            {
-                // prevent reentry
-                processingClose = true;
-
-                // two content dialogs cannot be open at the same time
-                aboutBox?.Hide();
-
-                await HandleWindowClosing();
-                processingClose = false;
-            }
+            await HandleWindowClosing();
         };
 
         if (AppWindowTitleBar.IsCustomizationSupported())
@@ -117,21 +106,35 @@ internal sealed partial class MainWindow : SubClassWindow
 
     private async Task HandleWindowClosing()
     {
-        Status status = await SaveExistingFirst();
-
-        if (status != Status.Cancelled)
+        if (processingClose)
         {
-            bool lastWindow = ((App)Application.Current).UnRegisterWindow(this);
+            Close(); // a second user close attempt
+        }
+        else
+        {
+            processingClose = true;
 
-            if (lastWindow)
+            // two content dialogs cannot be open at the same time
+            aboutBox?.Hide();
+
+            Status status = await SaveExistingFirst();
+
+            if (status != Status.Cancelled)
             {
-                Settings.Data.RestoreBounds = RestoreBounds;
-                Settings.Data.WindowState = WindowState;
-                await Settings.Data.Save();
+                bool lastWindow = ((App)Application.Current).UnRegisterWindow(this);
+
+                if (lastWindow)
+                {
+                    Settings.Data.RestoreBounds = RestoreBounds;
+                    Settings.Data.WindowState = WindowState;
+                    await Settings.Data.Save();
+                }
+
+                // calling Close() doesn't raise an AppWindow.Closing event
+                Close();
             }
 
-            // calling Close() doesn't raise an AppWindow.Closing event
-            Close();
+            processingClose = false;
         }
     }
 
@@ -243,9 +246,10 @@ internal sealed partial class MainWindow : SubClassWindow
         }
     }
 
-    private async void CloseClickHandler(object sender, RoutedEventArgs e)
+    private void CloseClickHandler(object sender, RoutedEventArgs e)
     {
-        await HandleWindowClosing();
+        // make the AppWindow.Closing event handler the only close window code path
+        PInvoke.SendMessage(hWnd, PInvoke.WM_CLOSE, 0, 0);
     }
 
 #pragma warning disable CA1822 // Mark members as static
