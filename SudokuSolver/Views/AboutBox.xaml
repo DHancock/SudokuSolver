@@ -5,10 +5,7 @@
     xmlns:local="using:Sudoku.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    Style="{StaticResource DefaultContentDialogStyle}"
-    Title="{x:Null}"
-    PrimaryButtonText = "OK">
+    mc:Ignorable="d">
     
     <ContentDialog.Content>
         <Grid>

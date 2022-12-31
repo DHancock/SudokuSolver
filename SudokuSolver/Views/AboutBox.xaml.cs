@@ -10,6 +10,7 @@ public sealed partial class AboutBox : ContentDialog
 
         XamlRoot = xamlRoot;
         VersionTextBlock.Text = string.Format(VersionTextBlock.Text, typeof(App).Assembly.GetName().Version);
+        PrimaryButtonText = "OK";
 
 #if DEBUG
         if (App.IsPackaged)
