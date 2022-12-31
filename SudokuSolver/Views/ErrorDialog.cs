@@ -4,15 +4,32 @@ namespace Sudoku.Views
 {
     internal sealed class ErrorDialog : ContentDialog
     {
-        public ErrorDialog(string message, string details, XamlRoot xamlRoot, ElementTheme actualTheme) : base()
+        public string? Message { set; private get; }
+        public string? Details { set; private get; }
+
+        public ErrorDialog(XamlRoot xamlRoot) : base()
         {
             XamlRoot = xamlRoot;
-            RequestedTheme = actualTheme;
             Title = App.cDisplayName;
             PrimaryButtonText = "OK";
-            Content = $"{message}{Environment.NewLine}{Environment.NewLine}{details}";
 
-            Utils.PlayExclamation();
+            Loaded += (s, e) =>
+            {
+                Utils.PlayExclamation();
+                string content = string.Empty;
+
+                if (!string.IsNullOrEmpty(Message))
+                {
+                    content = Message;
+
+                    if (!string.IsNullOrEmpty(Details))
+                        content += $"{Environment.NewLine}{Environment.NewLine}{Details}";
+                }
+                else if (!string.IsNullOrEmpty(Details))
+                    content = Details;
+
+                Content = content;
+            };
         }
     }
 }

@@ -17,6 +17,7 @@ internal sealed partial class MainWindow : SubClassWindow
     private StorageFile? sourceFile;
     private bool processingClose = false;
     private AboutBox? aboutBox = null;
+    private ErrorDialog? errorDialog = null;
 
     public MainWindow(StorageFile? storagefile, MainWindow? creator)
     {
@@ -117,8 +118,9 @@ internal sealed partial class MainWindow : SubClassWindow
         {
             processingClose = true;
 
-            // two content dialogs cannot be open at the same time
+            // cannot have more than one content dialog open at the same time
             aboutBox?.Hide();
+            errorDialog?.Hide();
 
             Status status = await SaveExistingFirst();
 
@@ -245,7 +247,7 @@ internal sealed partial class MainWindow : SubClassWindow
         }
         catch (Exception ex)
         {
-            await new ErrorDialog("A printing error occurred.", ex.Message, Content.XamlRoot, layoutRoot.ActualTheme).ShowAsync();
+            await ShowErrorDialog("A printing error occurred.", ex.Message);
         }
     }
 
@@ -273,7 +275,7 @@ internal sealed partial class MainWindow : SubClassWindow
         catch (Exception ex)
         {
             string heading = $"An error occurred when opening {file.DisplayName}.";
-            await new ErrorDialog(heading, ex.Message, Content.XamlRoot, layoutRoot.ActualTheme).ShowAsync();
+            await ShowErrorDialog(heading, ex.Message);
         }
 
         return error;
@@ -336,7 +338,7 @@ internal sealed partial class MainWindow : SubClassWindow
             catch (Exception ex)
             {
                 string heading = $"An error occurred when saving {SourceFile.DisplayName}.";
-                await new ErrorDialog(heading, ex.Message, Content.XamlRoot, layoutRoot.ActualTheme).ShowAsync();
+                await ShowErrorDialog(heading, ex.Message);
             }
         }
         else
@@ -371,7 +373,7 @@ internal sealed partial class MainWindow : SubClassWindow
             catch (Exception ex)
             {
                 string heading = $"An error occurred when saving {file.DisplayName}.";
-                await new ErrorDialog(heading, ex.Message, Content.XamlRoot, layoutRoot.ActualTheme).ShowAsync();
+                await ShowErrorDialog(heading, ex.Message);
             }
         }
 
@@ -383,6 +385,15 @@ internal sealed partial class MainWindow : SubClassWindow
         aboutBox ??= new AboutBox(Content.XamlRoot);
         aboutBox.RequestedTheme = layoutRoot.ActualTheme;
         await aboutBox.ShowAsync();
+    }
+
+    private async Task ShowErrorDialog(string message, string details)
+    {
+        errorDialog ??= new ErrorDialog(Content.XamlRoot);
+        errorDialog.RequestedTheme = layoutRoot.ActualTheme;
+        errorDialog.Message = message;
+        errorDialog.Details = details;
+        await errorDialog.ShowAsync();
     }
 
     private StorageFile? SourceFile
