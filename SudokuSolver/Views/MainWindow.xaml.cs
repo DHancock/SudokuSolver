@@ -106,6 +106,9 @@ internal sealed partial class MainWindow : SubClassWindow
 
     private async Task HandleWindowClosing()
     {
+        // This is called from the File menu's close click handler and
+        // also the AppWindow.Closing event handler. 
+
         if (processingClose)
         {
             Close(); // a second user close attempt
@@ -246,10 +249,9 @@ internal sealed partial class MainWindow : SubClassWindow
         }
     }
 
-    private void CloseClickHandler(object sender, RoutedEventArgs e)
+    private async void CloseClickHandler(object sender, RoutedEventArgs e)
     {
-        // make the AppWindow.Closing event handler the only close window code path
-        PInvoke.SendMessage(hWnd, PInvoke.WM_CLOSE, 0, 0);
+        await HandleWindowClosing();
     }
 
 #pragma warning disable CA1822 // Mark members as static
