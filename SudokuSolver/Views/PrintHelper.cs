@@ -45,35 +45,27 @@ internal sealed class PrintHelper
 
     public async Task PrintViewAsync(Canvas printCanvas, PuzzleView puzzleView, StorageFile? file, Settings.PerPrintSettings printSettings)
     {
-        try
-        {
-            Debug.Assert(PrintManager.IsSupported());
-            Debug.Assert(!currentlyPrinting);  
+        Debug.Assert(PrintManager.IsSupported());
 
-            if (PrintManager.IsSupported() && !currentlyPrinting) 
-            {
-                // printing isn't reentrant
-                currentlyPrinting = true;
+        if (currentlyPrinting)
+            throw new InvalidOperationException("Printing cannot be started at this time.");
 
-                headerText = file is null ? App.cNewPuzzleName : file.Path;
-                settings = printSettings;
+        // printing isn't reentrant
+        currentlyPrinting = true;
 
-                // a container for the puzzle
-                printPage = new PrintPage();
-                printPage.AddChild(puzzleView);
+        headerText = file is null ? App.cNewPuzzleName : file.Path;
+        settings = printSettings;
 
-                // the printed object must be part of the visual tree
-                rootVisual = printCanvas;
-                rootVisual.Children.Clear();
-                rootVisual.Children.Add(printPage);
+        // a container for the puzzle
+        printPage = new PrintPage();
+        printPage.AddChild(puzzleView);
 
-                await PrintManagerInterop.ShowPrintUIForWindowAsync(hWnd);
-            }
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine(ex.ToString());
-        }
+        // the printed object must be part of the visual tree
+        rootVisual = printCanvas;
+        rootVisual.Children.Clear();
+        rootVisual.Children.Add(printPage);
+
+        await PrintManagerInterop.ShowPrintUIForWindowAsync(hWnd);
     }   
 
     private void PrintTaskRequested(PrintManager sender, PrintTaskRequestedEventArgs e)
