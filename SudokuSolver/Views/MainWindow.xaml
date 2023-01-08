@@ -58,7 +58,7 @@
                     </MenuFlyoutItem>
 
                     <MenuFlyoutSeparator />
-                    <MenuFlyoutItem Text="Print..." Click="PrintClickHandler" IsEnabled="{x:Bind IsPrintingAvailable}" AccessKey="P">
+                    <MenuFlyoutItem Text="Print..." Click="PrintClickHandler" IsEnabled="{x:Bind local:MainWindow.IsPrintingAvailable}" AccessKey="P">
                         <MenuFlyoutItem.KeyboardAccelerators>
                             <KeyboardAccelerator Key="P" Modifiers="Control"/>
                         </MenuFlyoutItem.KeyboardAccelerators>

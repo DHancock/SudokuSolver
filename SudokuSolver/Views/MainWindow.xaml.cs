@@ -256,9 +256,7 @@ internal sealed partial class MainWindow : SubClassWindow
         await HandleWindowClosing();
     }
 
-#pragma warning disable CA1822 // Mark members as static
-    public bool IsPrintingAvailable => PrintManager.IsSupported();
-#pragma warning restore CA1822 // Mark members as static
+    public static bool IsPrintingAvailable => PrintManager.IsSupported();
 
     private async Task<Error> OpenFile(StorageFile file)
     {
