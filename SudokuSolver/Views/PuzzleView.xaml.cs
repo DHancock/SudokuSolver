@@ -15,14 +15,6 @@ internal partial class PuzzleView : UserControl
     public PuzzleView()
     {
         InitializeComponent();
-    
-        Loaded += async (s, e) =>
-        {
-            // switch on the brush transition animation only for user initiated theme
-            // changes, not when the window is opened to avoid ui flashing.
-            await Task.Delay(250);
-            PuzzleBrushTransition.Duration = new TimeSpan(0, 0, 0, 0, 250);
-        };
 
         SizeChanged += (s, e) =>
         {
@@ -42,4 +34,6 @@ internal partial class PuzzleView : UserControl
             DataContext = viewModel = value;
         }
     }
+
+    public BrushTransition BackgroundBrushTransition => PuzzleBrushTransition;
 }

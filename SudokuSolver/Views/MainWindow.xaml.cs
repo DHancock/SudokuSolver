@@ -93,16 +93,22 @@ internal sealed partial class MainWindow : SubClassWindow
         else
             WindowState = Settings.Data.WindowState;
 
-        if (storagefile is not null)
+       
+        layoutRoot.Loaded += async (s, e) =>
         {
-            layoutRoot.Loaded += async (s, e) =>
+            layoutRoot.RequestedTheme = viewSettings.Theme;
+            
+            // set the duration for the next theme transition
+            Puzzle.BackgroundBrushTransition.Duration = new TimeSpan(0, 0, 0, 0, 250);
+
+            if (storagefile is not null)
             {
                 Error error = await OpenFile(storagefile);
 
                 if (error == Error.Success)
                     SourceFile = storagefile;
-            };
-        }
+            }
+        };
     }
 
     private async Task HandleWindowClosing()
