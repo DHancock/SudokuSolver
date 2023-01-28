@@ -116,11 +116,9 @@ internal sealed partial class MainWindow : SubClassWindow
         // This is called from the File menu's close click handler and
         // also the AppWindow.Closing event handler. 
 
-        if (processingClose)
-        {
-            Close(); // a second user close attempt
-        }
-        else
+        Status status = Status.Continue;
+
+        if (!processingClose)  // the first user attempt to close, a second will always succeed
         {
             processingClose = true;
 
@@ -128,24 +126,26 @@ internal sealed partial class MainWindow : SubClassWindow
             aboutBox?.Hide();
             errorDialog?.Hide();
 
-            Status status = await SaveExistingFirst();
+            status = await SaveExistingFirst();
+        }
 
-            if (status != Status.Cancelled)
+        if (status == Status.Cancelled)  // the save existing prompt was cancelled
+        {
+            processingClose = false;
+        }
+        else
+        {
+            bool lastWindow = ((App)Application.Current).UnRegisterWindow(this);
+
+            if (lastWindow)
             {
-                bool lastWindow = ((App)Application.Current).UnRegisterWindow(this);
-
-                if (lastWindow)
-                {
-                    Settings.Data.RestoreBounds = RestoreBounds;
-                    Settings.Data.WindowState = WindowState;
-                    await Settings.Data.Save();
-                }
-
-                // calling Close() doesn't raise an AppWindow.Closing event
-                Close();
+                Settings.Data.RestoreBounds = RestoreBounds;
+                Settings.Data.WindowState = WindowState;
+                await Settings.Data.Save();
             }
 
-            processingClose = false;
+            // calling Close() doesn't raise an AppWindow.Closing event
+            Close();
         }
     }
 
