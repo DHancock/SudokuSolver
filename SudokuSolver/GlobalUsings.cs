@@ -23,6 +23,7 @@ global using System.Xml.Linq;
 
 global using Windows.ApplicationModel.Activation;
 global using Windows.Foundation;
+global using Windows.Foundation.Collections;
 global using Windows.Graphics;
 global using Windows.Graphics.Printing;
 global using Windows.Graphics.Printing.OptionDetails;

@@ -2,7 +2,9 @@
 
 namespace Sudoku.ViewModels;
 
-// These settings are serialized to a json text file.
+// Windows.Storage.ApplicationData isn't supported in unpackaged apps.
+
+// For the unpackaged variant, settings are serialized to a json text file.
 // Adding or deleting properties is safe. The missing, or extra data is ignored.
 // Changing the type of an existing property may cause problems though. Best not
 // delete properties just in case a name is later reused with a different type.
@@ -40,6 +42,46 @@ internal class Settings
 
         public static async Task Save(Settings settings)
         {
+            if (App.IsPackaged)
+            {
+                SavePackaged(settings);
+                await Task.CompletedTask;
+            }
+            else
+            {
+                await SaveUnpackaged(settings);
+            }
+        }
+
+        private static void SavePackaged(Settings settings)
+        {
+            try
+            {
+                IPropertySet properties = ApplicationData.Current.LocalSettings.Values;
+
+                properties[nameof(PerViewSettings.IsDarkThemed)] = settings.ViewSettings.IsDarkThemed;
+                properties[nameof(PerViewSettings.ShowSolution)] = settings.ViewSettings.ShowSolution;
+                properties[nameof(PerViewSettings.ShowPossibles)] = settings.ViewSettings.ShowPossibles;
+
+                properties[nameof(PerPrintSettings.PrintAlignment)] = (int)settings.PrintSettings.PrintAlignment;
+                properties[nameof(PerPrintSettings.PrintSize)] = (int)settings.PrintSettings.PrintSize;
+                properties[nameof(PerPrintSettings.PrintMargin)] = (int)settings.PrintSettings.PrintMargin;
+                properties[nameof(PerPrintSettings.ShowHeader)] = settings.PrintSettings.ShowHeader;
+
+                properties[nameof(WindowState)] = (int)settings.WindowState;
+                properties[nameof(RectInt32.X)] = settings.RestoreBounds.X;
+                properties[nameof(RectInt32.Y)] = settings.RestoreBounds.Y;
+                properties[nameof(RectInt32.Width)] = settings.RestoreBounds.Width;
+                properties[nameof(RectInt32.Height)] = settings.RestoreBounds.Height;
+            }
+            catch (Exception ex)
+            {
+                Debug.Fail(ex.ToString());
+            }
+        }
+
+        private static async Task SaveUnpackaged(Settings settings)
+        {
             try
             {
                 string path = GetSettingsFilePath();
@@ -58,6 +100,49 @@ internal class Settings
         }
 
         public static Settings Load()
+        {
+            if (App.IsPackaged)
+                return LoadPackaged();
+
+            return LoadUnpackaged();
+        }
+
+        private static Settings LoadPackaged()
+        {
+            Settings settings = new Settings();
+
+            // file type activation is defined in the Package.appxmanifest 
+            settings.RegisterFileTypes = false;
+
+            try
+            {
+                IPropertySet properties = ApplicationData.Current.LocalSettings.Values;
+
+                settings.ViewSettings.IsDarkThemed = (bool)properties[nameof(PerViewSettings.IsDarkThemed)];
+                settings.ViewSettings.ShowSolution = (bool)properties[nameof(PerViewSettings.ShowSolution)];
+                settings.ViewSettings.ShowPossibles = (bool)properties[nameof(PerViewSettings.ShowPossibles)];
+
+                settings.PrintSettings.PrintAlignment = (PrintHelper.Alignment)properties[nameof(PerPrintSettings.PrintAlignment)];
+                settings.PrintSettings.PrintSize = (PrintHelper.PrintSize)properties[nameof(PerPrintSettings.PrintSize)];
+                settings.PrintSettings.PrintMargin = (PrintHelper.Margin)properties[nameof(PerPrintSettings.PrintMargin)];
+                settings.PrintSettings.ShowHeader = (bool)properties[nameof(PerPrintSettings.ShowHeader)];
+
+                settings.WindowState = (WindowState)properties[nameof(WindowState)];
+
+                settings.RestoreBounds = new RectInt32((int)properties[nameof(RectInt32.X)],
+                                                    (int)properties[nameof(RectInt32.Y)],
+                                                    (int)properties[nameof(RectInt32.Width)],
+                                                    (int)properties[nameof(RectInt32.Height)]);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
+            }
+
+            return settings;
+        }
+
+        private static Settings LoadUnpackaged()
         {
             string path = GetSettingsFilePath();
 
