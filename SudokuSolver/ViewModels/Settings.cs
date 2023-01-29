@@ -43,14 +43,9 @@ internal class Settings
         public static async Task Save(Settings settings)
         {
             if (App.IsPackaged)
-            {
                 SavePackaged(settings);
-                await Task.CompletedTask;
-            }
             else
-            {
                 await SaveUnpackaged(settings);
-            }
         }
 
         private static void SavePackaged(Settings settings)
