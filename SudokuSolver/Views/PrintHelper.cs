@@ -2,11 +2,11 @@
 // https://github.com/marb2000/PrintSample/blob/master/MainWindow.xaml.cs
 // https://github.com/microsoft/Windows-universal-samples/blob/main/Samples/Printing/cs/PrintHelper.cs
 
-using Sudoku.ViewModels;
+using SudokuSolver.ViewModels;
 
 using DispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue;
 
-namespace Sudoku.Views;
+namespace SudokuSolver.Views;
 
 internal sealed class PrintHelper
 {

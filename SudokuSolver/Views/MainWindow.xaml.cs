@@ -1,7 +1,7 @@
-﻿using Sudoku.Utilities;
-using Sudoku.ViewModels;
+﻿using SudokuSolver.Utilities;
+using SudokuSolver.ViewModels;
 
-namespace Sudoku.Views;
+namespace SudokuSolver.Views;
 
 /// <summary>
 /// Interaction logic for MainWindow.xaml

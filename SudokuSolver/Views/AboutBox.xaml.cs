@@ -1,6 +1,6 @@
-﻿using Sudoku.Utilities;
+﻿using SudokuSolver.Utilities;
 
-namespace Sudoku.Views;
+namespace SudokuSolver.Views;
 
 public sealed partial class AboutBox : ContentDialog
 {
@@ -19,7 +19,7 @@ public sealed partial class AboutBox : ContentDialog
 
         Loaded += async (s, e) =>
         {
-            string path = ActualTheme == ElementTheme.Light ? "Sudoku.Resources.about_light.png" : "Sudoku.Resources.about_dark.png";
+            string path = ActualTheme == ElementTheme.Light ? "SudokuSolver.Resources.about_light.png" : "SudokuSolver.Resources.about_dark.png";
             AboutImage.Source = await Utils.LoadEmbeddedImageResource(path);
         };
     }

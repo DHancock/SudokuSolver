@@ -1,6 +1,6 @@
-﻿using Sudoku.Utilities;
+﻿using SudokuSolver.Utilities;
 
-namespace Sudoku.Views;
+namespace SudokuSolver.Views;
 
 internal sealed partial class CustomTitleBar : UserControl
 {
@@ -26,7 +26,7 @@ internal sealed partial class CustomTitleBar : UserControl
             Loaded += async (s, a) =>
             {
                 UpdateTitleBarPadding(ActualSize.X);
-                windowIcon.Source = await Utils.LoadEmbeddedImageResource("Sudoku.Resources.app.png");
+                windowIcon.Source = await Utils.LoadEmbeddedImageResource("SudokuSolver.Resources.app.png");
             };
         }
     }

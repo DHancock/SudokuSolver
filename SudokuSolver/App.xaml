@@ -1,7 +1,7 @@
-﻿<Application x:Class="Sudoku.App"
+﻿<Application x:Class="SudokuSolver.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="using:Sudoku">
+             xmlns:local="using:SudokuSolver">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

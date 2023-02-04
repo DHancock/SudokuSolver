@@ -1,11 +1,11 @@
-﻿using Sudoku.Utilities;
-using Sudoku.ViewModels;
-using Sudoku.Views;
+﻿using SudokuSolver.Utilities;
+using SudokuSolver.ViewModels;
+using SudokuSolver.Views;
 
 // not to be confused with Windows.System.DispatcherQueue
 using DispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue;
 
-namespace Sudoku;
+namespace SudokuSolver;
 
 /// <summary>
 /// Provides application-specific behavior to supplement the default Application class.

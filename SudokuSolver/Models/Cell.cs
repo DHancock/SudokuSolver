@@ -1,6 +1,6 @@
-﻿using Sudoku.Common;
+﻿using SudokuSolver.Common;
 
-namespace Sudoku.Models;
+namespace SudokuSolver.Models;
 
 [DebuggerDisplay("[{Index  % 9}, {Index / 9}] value = {Value}, origin = {Origin}")]
 internal sealed class Cell : CellBase

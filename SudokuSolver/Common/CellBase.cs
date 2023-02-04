@@ -1,4 +1,4 @@
-﻿namespace Sudoku.Common;
+﻿namespace SudokuSolver.Common;
 
 internal abstract class CellBase : IEquatable<CellBase>
 {

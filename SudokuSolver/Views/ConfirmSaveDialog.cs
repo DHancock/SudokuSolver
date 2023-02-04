@@ -1,4 +1,4 @@
-﻿namespace Sudoku.Views;
+﻿namespace SudokuSolver.Views;
 
 internal sealed class ConfirmSaveDialog : ContentDialog
 {

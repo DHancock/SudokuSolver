@@ -1,4 +1,4 @@
-﻿namespace Sudoku.Common;
+﻿namespace SudokuSolver.Common;
 
 [DebuggerTypeProxy(typeof(BitFieldDebugProxy))]
 internal struct BitField : IEquatable<BitField>

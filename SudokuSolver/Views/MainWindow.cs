@@ -4,7 +4,7 @@
 // copied from: (edited for nullable, and application specific theme, rather than following the system default)
 // https://github.com/microsoft/WinUI-Gallery/blob/main/WinUIGallery/SamplePages/SampleSystemBackdropsWindow.xaml.cs
 
-namespace Sudoku.Views
+namespace SudokuSolver.Views
 {
     internal sealed partial class MainWindow : SubClassWindow
     {

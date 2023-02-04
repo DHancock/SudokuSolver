@@ -1,4 +1,4 @@
-﻿namespace Sudoku.Views;
+﻿namespace SudokuSolver.Views;
 
 // if Microsoft.UI.Xaml.Shapes is added to the global usings there will be a
 // name conflict between Shapes.Path and System.IO.Path

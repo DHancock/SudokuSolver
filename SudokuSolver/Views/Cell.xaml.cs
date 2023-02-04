@@ -1,6 +1,6 @@
-﻿using Sudoku.Common;
+﻿using SudokuSolver.Common;
 
-namespace Sudoku.Views;
+namespace SudokuSolver.Views;
 
 /// <summary>
 /// Interaction logic for Cell.xaml

@@ -1,4 +1,4 @@
-﻿namespace Sudoku.Views;
+﻿namespace SudokuSolver.Views;
 
 /// <summary>
 /// A minimal wrapper for a TextBlock because TextBlocks don't derive from a Control type. 

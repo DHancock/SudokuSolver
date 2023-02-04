@@ -1,4 +1,4 @@
-﻿namespace Sudoku.Views;
+﻿namespace SudokuSolver.Views;
 
 public enum WindowState { Normal, Minimized, Maximized }
 

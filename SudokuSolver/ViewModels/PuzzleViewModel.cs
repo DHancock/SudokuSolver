@@ -1,8 +1,8 @@
-﻿using Sudoku.Utilities;
-using Sudoku.Common;
-using Sudoku.Models;
+﻿using SudokuSolver.Utilities;
+using SudokuSolver.Common;
+using SudokuSolver.Models;
 
-namespace Sudoku.ViewModels;
+namespace SudokuSolver.ViewModels;
 
 internal sealed class PuzzleViewModel : INotifyPropertyChanged
 {

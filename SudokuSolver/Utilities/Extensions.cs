@@ -1,4 +1,4 @@
-﻿namespace Sudoku.Utilities;
+﻿namespace SudokuSolver.Utilities;
 
 internal static class Extensions
 {

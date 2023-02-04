@@ -1,8 +1,8 @@
 ﻿using Microsoft.UI.Xaml.Media;
 
-using Sudoku.ViewModels;
+using SudokuSolver.ViewModels;
 
-namespace Sudoku.Views;
+namespace SudokuSolver.Views;
 
 /// <summary>
 /// Interaction logic for PuzzleView.xaml

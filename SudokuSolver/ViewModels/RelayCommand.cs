@@ -1,4 +1,4 @@
-﻿namespace Sudoku.ViewModels;
+﻿namespace SudokuSolver.ViewModels;
 
 internal sealed class RelayCommand : ICommand
 {

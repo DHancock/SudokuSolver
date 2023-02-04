@@ -1,4 +1,4 @@
-﻿namespace Sudoku.Models;
+﻿namespace SudokuSolver.Models;
 
 internal sealed class CellList : IReadOnlyList<Cell>
 {

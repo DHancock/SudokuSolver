@@ -1,6 +1,6 @@
-﻿using Sudoku.Common;
+﻿using SudokuSolver.Common;
 
-namespace Sudoku.Models;
+namespace SudokuSolver.Models;
 
 internal sealed class PuzzleModel
 {

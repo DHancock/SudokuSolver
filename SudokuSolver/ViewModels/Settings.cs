@@ -1,6 +1,6 @@
-﻿using Sudoku.Views;
+﻿using SudokuSolver.Views;
 
-namespace Sudoku.ViewModels;
+namespace SudokuSolver.ViewModels;
 
 // Windows.Storage.ApplicationData isn't supported in unpackaged apps.
 

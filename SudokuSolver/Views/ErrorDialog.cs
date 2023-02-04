@@ -1,6 +1,6 @@
-﻿using Sudoku.Utilities;
+﻿using SudokuSolver.Utilities;
 
-namespace Sudoku.Views
+namespace SudokuSolver.Views
 {
     internal sealed class ErrorDialog : ContentDialog
     {

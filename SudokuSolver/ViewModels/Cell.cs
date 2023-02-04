@@ -1,6 +1,6 @@
-﻿using Sudoku.Common;
+﻿using SudokuSolver.Common;
 
-namespace Sudoku.ViewModels;
+namespace SudokuSolver.ViewModels;
 
 internal sealed class Cell : CellBase
 {
