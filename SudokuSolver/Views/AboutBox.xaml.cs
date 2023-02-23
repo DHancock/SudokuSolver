@@ -15,6 +15,8 @@ public sealed partial class AboutBox : ContentDialog
 #if DEBUG
         if (App.IsPackaged)
             VersionTextBlock.Text += " (P)";
+        else
+            VersionTextBlock.Text += " (D)";
 #endif
 
         Loaded += async (s, e) =>
