@@ -72,15 +72,15 @@ public partial class App : Application
         HKCU\Software\Classes\.sdku\OpenWithProgids
         
         generating a prod id key value in the form of "App.xxxxxxxxxxxxxxxx.File" and an entry with that key
-        which identifies the verbs and associate application path e.g
+        that identifies the verbs and associated application path e.g.
 
         HKCU\Software\Classes\App.xxxxxxxxxxxxxxxx.File
 
-        however, it also creates another entry with that key, but minus the .File part under 
+        however, it also creates another entry with that key, but minus the ".File" part under 
 
         HKCU\Software\Microsoft\WindowsAppRuntimeApplications\App.xxxxxxxxxxxxxxxx
 
-        which lists the file extensions associations for that key.
+        which lists the file extension associations for that key.
         */
     }
 
