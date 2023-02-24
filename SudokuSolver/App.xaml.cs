@@ -33,39 +33,57 @@ public partial class App : Application
         appInstance = AppInstance.FindOrRegisterForKey(cAppKey);
         uiThreadDispatcher = DispatcherQueue.GetForCurrentThread();
 
-        if (appInstance.IsCurrent && !IsPackaged)
+        if (appInstance.IsCurrent)
         {
-            // redirected activation only works in unpackaged apps
             // file type activation for packaged apps is defined in the Package.appxmanifest
 
             appInstance.Activated += MainInstance_Activated;
 
-            if (Settings.Data.RegisterFileTypes)
+#if DEBUG
+            if (!IsPackaged)
             {
-                // registering file types causes all the desktop icons to be reset, only do it once, if possible 
-                Settings.Data.RegisterFileTypes = false;
-
+                // for testing only...
+                // registration will be actioned from the installer, and then removed on uninstall
+                // multiple registrations at different paths can cause errors, especially if one
+                // of the apps has subsequently been deleted without unregistering...
                 string[] fileTypes = new[] { cFileExt };
                 string[] verbs = new[] { "view", "edit" };
-                
+
                 // The icon is used in the explorer context menu "Open with" for this app's entry
                 string logo = $"{Environment.ProcessPath},{cIconResourceID}";
-                
+
                 // This doesn't update .sdku file's icon to the app's icon, but does reset the icon to a
                 // default file icon, replacing any previous "opens with" associations
                 ActivationRegistrationManager.RegisterForFileTypeActivation(fileTypes, logo, cDisplayName, verbs, string.Empty);
             }
+#endif
         }
 
         InitializeComponent();
     }
 
+#if DEBUG
+    private void UnregisterFileTypeActivation()
+    {
+        try
+        {
+            string[] fileTypes = new[] { cFileExt };
+            ActivationRegistrationManager.UnregisterForFileTypeActivation(fileTypes, Environment.ProcessPath);
+        }
+        catch (Exception ex)
+        {
+            // usually means the file types haven't been registered for the exe at the supplied path
+            Debug.WriteLine(ex.ToString());
+        }
+    }
+#endif
+    
     // Invoked on the ui thread when the application is launched normally
     protected async override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs _)
     {
         AppActivationArguments args = appInstance.GetActivatedEventArgs();
 
-        if (appInstance.IsCurrent || IsPackaged)
+        if (appInstance.IsCurrent)
         {
             if (args.Kind == ExtendedActivationKind.File)
             {
@@ -160,6 +178,11 @@ public partial class App : Application
     {
         bool found = windowList.Remove(window);
         Debug.Assert(found);
+
+#if DEBUG
+        if (windowList.Count == 0)
+            UnregisterFileTypeActivation();
+#endif
         return windowList.Count == 0;
     }
 

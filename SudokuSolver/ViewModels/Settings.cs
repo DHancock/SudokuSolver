@@ -25,8 +25,6 @@ internal class Settings
 
     public RectInt32 RestoreBounds { get; set; } = default;
 
-    public bool RegisterFileTypes { get; set; } = true;
-
     public async Task Save()
     {
         await Inner.Save(this);
@@ -105,9 +103,6 @@ internal class Settings
         private static Settings LoadPackaged()
         {
             Settings settings = new Settings();
-
-            // file type activation is defined in the Package.appxmanifest 
-            settings.RegisterFileTypes = false;
 
             try
             {
