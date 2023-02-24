@@ -1,5 +1,6 @@
-﻿using SudokuSolver.Utilities;
-using SudokuSolver.ViewModels;
+﻿//#define TEST_FILE_ACTIVATION
+
+using SudokuSolver.Utilities;
 using SudokuSolver.Views;
 
 // not to be confused with Windows.System.DispatcherQueue
@@ -35,26 +36,18 @@ public partial class App : Application
 
         if (appInstance.IsCurrent)
         {
-            // file type activation for packaged apps is defined in the Package.appxmanifest
-
             appInstance.Activated += MainInstance_Activated;
 
-#if DEBUG
+#if DEBUG && TEST_FILE_ACTIVATION
             if (!IsPackaged)
             {
                 // for testing only...
                 // registration will be actioned from the installer, and then removed on uninstall
                 // multiple registrations at different paths can cause errors, especially if one
                 // of the apps has subsequently been deleted without unregistering...
-                string[] fileTypes = new[] { cFileExt };
-                string[] verbs = new[] { "view", "edit" };
+                // file type activation for packaged apps is defined in the Package.appxmanifest
 
-                // The icon is used in the explorer context menu "Open with" for this app's entry
-                string logo = $"{Environment.ProcessPath},{cIconResourceID}";
-
-                // This doesn't update .sdku file's icon to the app's icon, but does reset the icon to a
-                // default file icon, replacing any previous "opens with" associations
-                ActivationRegistrationManager.RegisterForFileTypeActivation(fileTypes, logo, cDisplayName, verbs, string.Empty);
+                RegisterFileTypeActivation();
             }
 #endif
         }
@@ -62,7 +55,35 @@ public partial class App : Application
         InitializeComponent();
     }
 
-#if DEBUG
+#if DEBUG && TEST_FILE_ACTIVATION
+    private static void RegisterFileTypeActivation()
+    {
+        string[] fileTypes = new[] { cFileExt };
+        string[] verbs = new[] { "open" };
+
+        // the icon to use for .sdku files
+        string logo = $"{Environment.ProcessPath},0";
+
+        ActivationRegistrationManager.RegisterForFileTypeActivation(fileTypes, logo, cDisplayName, verbs, string.Empty);
+
+        /*
+        Registration creates the usual file extension association registry entries e.g.
+
+        HKCU\Software\Classes\.sdku\OpenWithProgids
+        
+        generating a prod id key value in the form of "App.xxxxxxxxxxxxxxxx.File" and an entry with that key
+        which identifies the verbs and associate application path e.g
+
+        HKCU\Software\Classes\App.xxxxxxxxxxxxxxxx.File
+
+        however, it also creates another entry with that key, but minus the .File part under 
+
+        HKCU\Software\Microsoft\WindowsAppRuntimeApplications\App.xxxxxxxxxxxxxxxx
+
+        which lists the file extensions associations for that key.
+        */
+    }
+
     private void UnregisterFileTypeActivation()
     {
         try
@@ -77,7 +98,7 @@ public partial class App : Application
         }
     }
 #endif
-    
+
     // Invoked on the ui thread when the application is launched normally
     protected async override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs _)
     {
@@ -179,8 +200,8 @@ public partial class App : Application
         bool found = windowList.Remove(window);
         Debug.Assert(found);
 
-#if DEBUG
-        if (windowList.Count == 0)
+#if DEBUG && TEST_FILE_ACTIVATION
+        if ((windowList.Count == 0) && !IsPackaged)
             UnregisterFileTypeActivation();
 #endif
         return windowList.Count == 0;
