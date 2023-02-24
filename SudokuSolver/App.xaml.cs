@@ -67,20 +67,23 @@ public partial class App : Application
         ActivationRegistrationManager.RegisterForFileTypeActivation(fileTypes, logo, cDisplayName, verbs, string.Empty);
 
         /*
-        Registration creates the usual file extension association registry entries e.g.
+        Registration creates the usual file extension association registry entries:
 
         HKCU\Software\Classes\.sdku\OpenWithProgids
         
         generating a prod id key value in the form of "App.xxxxxxxxxxxxxxxx.File" and an entry with that key
-        that identifies the verbs and associated application path e.g.
+        that identifies the verbs and associated application path:
 
         HKCU\Software\Classes\App.xxxxxxxxxxxxxxxx.File
 
-        however, it also creates another entry with that key, but minus the ".File" part under 
+        however, it also creates another entry with that key, but minus the ".File" that lists the file extension 
+        associations for that key under: 
 
         HKCU\Software\Microsoft\WindowsAppRuntimeApplications\App.xxxxxxxxxxxxxxxx
 
-        which lists the file extension associations for that key.
+        It also adds it as a named value, along with other packaged AppX entries under:
+
+        HKCU\Software\RegisteredApplications
         */
     }
 
