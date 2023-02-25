@@ -105,6 +105,7 @@ public partial class App : Application
     // Invoked on the ui thread when the application is launched normally
     protected async override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs _)
     {
+#if DEBUG && TEST_FILE_ACTIVATION
         AppActivationArguments args = appInstance.GetActivatedEventArgs();
 
         if (appInstance.IsCurrent)
@@ -126,6 +127,12 @@ public partial class App : Application
             await appInstance.RedirectActivationToAsync(args);
             Process.GetCurrentProcess().Kill();
         }
+#else
+        if (IsPackaged)
+            CreateNewWindow(storageFile: null);
+        else
+            await ProcessCommandLine(Environment.GetCommandLineArgs());
+#endif
     }
 
     // Invoked when a redirection request is received.
