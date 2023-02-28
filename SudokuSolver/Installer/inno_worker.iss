@@ -61,18 +61,9 @@ Name: desktopicon; Description: "{cm:CreateDesktopIcon}"
 Filename: "{app}\{#appExeName}"; Parameters: "/register"; 
 Filename: "{app}\{#appExeName}"; Description: "{cm:LaunchProgram,{#appDisplayName}}"; Flags: nowait postinstall skipifsilent
 
-[Registry]
-#define fileExt ".sdku"
-
-Root: HKA; Subkey: "Software\Classes\{#fileExt}\OpenWithProgids"; ValueType: string; ValueName: "{#appId}"; Flags: uninsdeletevalue
-Root: HKA; Subkey: "Software\Classes\{#appId}"; ValueType: string; ValueName: ""; ValueData: "sudoku files"; Flags: uninsdeletekey
-Root: HKA; Subkey: "Software\Classes\{#appId}\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#appExeName},0"
-Root: HKA; Subkey: "Software\Classes\{#appId}\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#appExeName}"" ""%1"""
-Root: HKA; Subkey: "Software\Classes\Applications\{#appExeName}\SupportedTypes"; ValueType: string; ValueName: "{#fileExt}"; ValueData: ""
-
 [UninstallRun]
 Filename: "{app}\{#appExeName}"; Parameters: "/unregister"; 
-Filename: powershell.exe ; Parameters: "Get-Process {#appName} | where Path -eq '{app}\{#appExeName}' | kill -Force "; Flags: runhidden
+Filename: powershell.exe ; Parameters: "Get-Process {#appName} | where Path -eq '{app}\{#appExeName}' | kill -Force"; Flags: runhidden
 
 [code]
 function InitializeUninstall(): Boolean;
