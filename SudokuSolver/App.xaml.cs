@@ -17,7 +17,7 @@ public partial class App : Application
     public const string cDisplayName = "Sudoku Solver";
     public const string cIconResourceID = "32512";
     public const string cNewPuzzleName = "Untitled";
-    private const string cAppKey = "sudoku-app";
+    public const string cAppKey = "sudoku-app";
 
     public static bool IsPackaged { get; } = GetIsPackaged();
 
@@ -25,114 +25,40 @@ public partial class App : Application
     private readonly AppInstance appInstance;
     private readonly List<MainWindow> windowList = new List<MainWindow>();
 
+    private bool appClosing = false;
+
     /// <summary>
-    /// Initializes the singleton application object.  This is the first line of authored code
-    /// executed, and as such is the logical equivalent of main() or WinMain().
+    /// Initializes the singleton application object. Unless registering file type activation 
+    /// fails this will be the main instance, others will already have been redirected before
+    /// the app is constructed.
     /// </summary>
-    public App()
+    public App(AppInstance appInstance)
     {
-        appInstance = AppInstance.FindOrRegisterForKey(cAppKey);
+        this.appInstance = appInstance;
         uiThreadDispatcher = DispatcherQueue.GetForCurrentThread();
 
         if (appInstance.IsCurrent)
-        {
             appInstance.Activated += MainInstance_Activated;
-
-#if DEBUG && TEST_FILE_ACTIVATION
-            if (!IsPackaged)
-            {
-                // for testing only...
-                // registration will be actioned from the installer, and then removed on uninstall
-                // multiple registrations at different paths can cause errors, especially if one
-                // of the apps has subsequently been deleted without unregistering...
-                // file type activation for packaged apps is defined in the Package.appxmanifest
-
-                RegisterFileTypeActivation();
-            }
-#endif
-        }
 
         InitializeComponent();
     }
 
-#if DEBUG && TEST_FILE_ACTIVATION
-    private static void RegisterFileTypeActivation()
-    {
-        string[] fileTypes = new[] { cFileExt };
-        string[] verbs = new[] { "open" };
-
-        // the icon to use for .sdku files
-        string logo = $"{Environment.ProcessPath},0";
-
-        ActivationRegistrationManager.RegisterForFileTypeActivation(fileTypes, logo, cDisplayName, verbs, string.Empty);
-
-        /*
-        Registration creates the usual file extension association registry entries:
-
-        HKCU\Software\Classes\.sdku\OpenWithProgids
-        
-        generating a prod id key value in the form of "App.xxxxxxxxxxxxxxxx.File" and an entry with that key
-        that identifies the verbs and associated application path:
-
-        HKCU\Software\Classes\App.xxxxxxxxxxxxxxxx.File
-
-        however, it also creates another entry with that key, but minus the ".File" that lists the file extension 
-        associations for that key under: 
-
-        HKCU\Software\Microsoft\WindowsAppRuntimeApplications\App.xxxxxxxxxxxxxxxx
-
-        It also adds it as a named value, along with other packaged AppX entries under:
-
-        HKCU\Software\RegisteredApplications
-        */
-    }
-
-    private void UnregisterFileTypeActivation()
-    {
-        try
-        {
-            string[] fileTypes = new[] { cFileExt };
-            ActivationRegistrationManager.UnregisterForFileTypeActivation(fileTypes, Environment.ProcessPath);
-        }
-        catch (Exception ex)
-        {
-            // usually means the file types haven't been registered for the exe at the supplied path
-            Debug.WriteLine(ex.ToString());
-        }
-    }
-#endif
-
     // Invoked on the ui thread when the application is launched normally
     protected async override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs _)
     {
-#if DEBUG && TEST_FILE_ACTIVATION
         AppActivationArguments args = appInstance.GetActivatedEventArgs();
 
-        if (appInstance.IsCurrent)
+        if (args.Kind == ExtendedActivationKind.File)
         {
-            if (args.Kind == ExtendedActivationKind.File)
-            {
-                ProcessFileActivation(args);
-            }
-            else if (args.Kind == ExtendedActivationKind.Launch)
-            {
-                if (IsPackaged)
-                    CreateNewWindow(storageFile: null);
-                else
-                    await ProcessCommandLine(Environment.GetCommandLineArgs());
-            }
+            ProcessFileActivation(args);
         }
-        else
+        else if (args.Kind == ExtendedActivationKind.Launch)
         {
-            await appInstance.RedirectActivationToAsync(args);
-            Process.GetCurrentProcess().Kill();
+            if (IsPackaged)
+                CreateNewWindow(storageFile: null);
+            else
+                await ProcessCommandLine(Environment.GetCommandLineArgs());
         }
-#else
-        if (IsPackaged)
-            CreateNewWindow(storageFile: null);
-        else
-            await ProcessCommandLine(Environment.GetCommandLineArgs());
-#endif
     }
 
     // Invoked when a redirection request is received.
@@ -164,6 +90,8 @@ public partial class App : Application
 
     private async Task ProcessCommandLine(string[]? args)
     {
+        bool windowCreated = false;
+
         if (args?.Length > 1)  // args[0] is typically the path to the executing assembly
         {
             for (int index = 1; index < args.Length; index++)
@@ -174,18 +102,23 @@ public partial class App : Application
                 {
                     StorageFile storgeFile = await StorageFile.GetFileFromPathAsync(arg);
                     CreateNewWindow(storgeFile);
+                    windowCreated = true;
                 }
             }
         }
-        else
+        
+        if (!windowCreated)
             CreateNewWindow(storageFile: null);
     }
 
     internal void CreateNewWindow(StorageFile? storageFile, MainWindow? creator = null)
     {
-        MainWindow window = new MainWindow(storageFile, creator);
-        windowList.Add(window);
-        TryBumpWindowToFront(window);
+        if (!appClosing)
+        {
+            MainWindow window = new MainWindow(storageFile, creator);
+            windowList.Add(window);
+            TryBumpWindowToFront(window);
+        }
     }
 
     private static bool TryBumpWindowToFront(Window window)
@@ -207,14 +140,12 @@ public partial class App : Application
 
     internal bool UnRegisterWindow(MainWindow window)
     {
+        appClosing = windowList.Count == 1;
+
         bool found = windowList.Remove(window);
         Debug.Assert(found);
 
-#if DEBUG && TEST_FILE_ACTIVATION
-        if ((windowList.Count == 0) && !IsPackaged)
-            UnregisterFileTypeActivation();
-#endif
-        return windowList.Count == 0;
+        return appClosing;
     }
 
     internal PointInt32 AdjustPositionForOtherWindows(PointInt32 pos)
