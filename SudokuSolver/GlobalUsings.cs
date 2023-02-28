@@ -37,4 +37,5 @@ global using Windows.Win32.System.WinRT;
 global using Windows.Win32.UI.Shell;
 global using Windows.Win32.UI.WindowsAndMessaging;
 
+global using WinRT;
 global using WinRT.Interop;

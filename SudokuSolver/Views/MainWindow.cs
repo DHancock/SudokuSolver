@@ -1,7 +1,4 @@
-﻿using WinRT; // required to support Window.As<ICompositionSupportsSystemBackdrop>()
-
-
-// copied from: (edited for nullable, and application specific theme, rather than following the system default)
+﻿// copied from: (edited for nullable, and application specific theme, rather than following the system default)
 // https://github.com/microsoft/WinUI-Gallery/blob/main/WinUIGallery/SamplePages/SampleSystemBackdropsWindow.xaml.cs
 
 namespace SudokuSolver.Views

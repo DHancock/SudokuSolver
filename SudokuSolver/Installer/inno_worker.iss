@@ -30,7 +30,6 @@ Compression=lzma2
 SolidCompression=yes
 OutputBaseFilename={#appDisplayName}_v{#appVer}_{#platform}
 InfoBeforeFile="{#SourcePath}\unlicense.txt"
-ChangesAssociations=yes
 PrivilegesRequired=lowest
 WizardStyle=classic
 DisableWelcomePage=no
