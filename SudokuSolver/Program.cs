@@ -91,7 +91,7 @@ namespace SudokuSolver
 
             HKCU\Software\Classes\Applications\<app name.exe>\SupportedTypes -> name of .sdku
 
-            It does create another entries with the prog id key, but minus the ".File" that lists the file extension 
+            It does create other entries with the prog id key, but minus the ".File" part. It lists the file extension 
             associations for that key under: 
 
             HKCU\Software\Microsoft\WindowsAppRuntimeApplications\App.xxxxxxxxxxxxxxxx
