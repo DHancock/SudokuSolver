@@ -53,7 +53,6 @@ public static class Program
         return 0;
     }
 
-
     private static void RegisterFileTypeActivation()
     {
         string[] fileTypes = new[] { App.cFileExt };
@@ -61,6 +60,7 @@ public static class Program
         string logo = $"{Environment.ProcessPath},0";
 
         // multiple registrations for the same path won't create additional registry entries
+        // however it will cause all desktop icons to be refreshed, so should be avoided
         ActivationRegistrationManager.RegisterForFileTypeActivation(fileTypes, logo, App.cDisplayName, verbs, string.Empty);
     }
 
