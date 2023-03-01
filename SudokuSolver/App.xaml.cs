@@ -1,6 +1,4 @@
-﻿//#define TEST_FILE_ACTIVATION
-
-using SudokuSolver.Utilities;
+﻿using SudokuSolver.Utilities;
 using SudokuSolver.Views;
 
 // not to be confused with Windows.System.DispatcherQueue
