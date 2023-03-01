@@ -18,7 +18,7 @@ public static class Program
 
         if (args.Length == 1)
         {
-            switch (args[0].ToLower())
+            switch (args[0])
             {
                 case "/register": RegisterFileTypeActivation(); return 1;
                 case "/unregister": UnregisterFileTypeActivation(); return 2;
@@ -41,7 +41,8 @@ public static class Program
         }
 
         // the uninstaller uses this local mutex to see if the app is currently running
-        SafeHandle mutex = PInvoke.CreateMutex(null, false, cInstallerMutexName);
+        Mutex mutex = new Mutex(initiallyOwned: false, cInstallerMutexName, out bool createdNew);
+        Debug.Assert(createdNew);
 
         Application.Start((p) =>
         {
