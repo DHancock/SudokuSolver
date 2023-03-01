@@ -1,33 +1,40 @@
-﻿<Application x:Class="Sudoku.App"
+﻿<Application x:Class="SudokuSolver.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-             xmlns:local="clr-namespace:Sudoku"
-             StartupUri="Views/MainWindow.xaml">
+             xmlns:local="using:SudokuSolver">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
-                <!-- the following theme is the application's default theme -->
-                <ResourceDictionary Source="pack://application:,,,/SudokuSolver;component/themes/lighttheme.xaml" />
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+                <ResourceDictionary Source="ms-appx:///Resources/Themes.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
-            <Style x:Key="MainWindowStyle" TargetType="{x:Type mah:MetroWindow}">
-                <Setter Property="SnapsToDevicePixels" Value="False" />
-                <Setter Property="ResizeMode" Value="CanResizeWithGrip" />
-                <Setter Property="GlowBrush" Value="{Binding RelativeSource={RelativeSource Self}, Path=WindowTitleBrush}" />
-                <Setter Property="TitleCharacterCasing" Value="Normal" />
-                <Setter Property="TitleAlignment" Value="Left" />
-                <Setter Property="SaveWindowPosition" Value="True"/>
-                <Style.Triggers>
-                    <DataTrigger Binding="{Binding AccentTitleBar}" Value="True">
-                        <!-- the WindowTitleBrush is the window title bar background brush -->
-                        <Setter Property="WindowTitleBrush" Value="{x:Static SystemParameters.WindowGlassBrush}"/>
-                    </DataTrigger>
-                </Style.Triggers>
-            </Style>
+            <x:Double x:Key="cell_size">50</x:Double>
 
+            <Style x:Key="WindowContentStyle" TargetType="ContentControl">
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ContentControl">
+                            <ContentPresenter x:Name="cp" Content="{TemplateBinding Content}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup x:Name="DesktopBackdropStates">
+                                        <VisualState x:Name="BackdropNotSupported">
+                                            <VisualState.Setters>
+                                                <Setter Target="cp.Background" Value="{ThemeResource ApplicationPageBackgroundThemeBrush}"/>
+                                            </VisualState.Setters>
+                                        </VisualState>
+
+                                        <VisualState x:Name="BackdropValid"/>
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+                            </ContentPresenter>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

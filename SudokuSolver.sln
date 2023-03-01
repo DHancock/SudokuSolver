@@ -1,20 +1,38 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30128.74
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33122.133
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SudokuSolver", "SudokuSolver\SudokuSolver.csproj", "{F921DDE2-C32F-4AF8-9A59-8E5D44ACE5A9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
-		Release|Any CPU = Release|Any CPU
+		Debug|ARM64 = Debug|ARM64
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|ARM64 = Release|ARM64
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F921DDE2-C32F-4AF8-9A59-8E5D44ACE5A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F921DDE2-C32F-4AF8-9A59-8E5D44ACE5A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F921DDE2-C32F-4AF8-9A59-8E5D44ACE5A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F921DDE2-C32F-4AF8-9A59-8E5D44ACE5A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F921DDE2-C32F-4AF8-9A59-8E5D44ACE5A9}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{F921DDE2-C32F-4AF8-9A59-8E5D44ACE5A9}.Debug|ARM64.Build.0 = Debug|ARM64
+		{F921DDE2-C32F-4AF8-9A59-8E5D44ACE5A9}.Debug|ARM64.Deploy.0 = Debug|ARM64
+		{F921DDE2-C32F-4AF8-9A59-8E5D44ACE5A9}.Debug|x64.ActiveCfg = Debug|x64
+		{F921DDE2-C32F-4AF8-9A59-8E5D44ACE5A9}.Debug|x64.Build.0 = Debug|x64
+		{F921DDE2-C32F-4AF8-9A59-8E5D44ACE5A9}.Debug|x64.Deploy.0 = Debug|x64
+		{F921DDE2-C32F-4AF8-9A59-8E5D44ACE5A9}.Debug|x86.ActiveCfg = Debug|x86
+		{F921DDE2-C32F-4AF8-9A59-8E5D44ACE5A9}.Debug|x86.Build.0 = Debug|x86
+		{F921DDE2-C32F-4AF8-9A59-8E5D44ACE5A9}.Debug|x86.Deploy.0 = Debug|x86
+		{F921DDE2-C32F-4AF8-9A59-8E5D44ACE5A9}.Release|ARM64.ActiveCfg = Release|ARM64
+		{F921DDE2-C32F-4AF8-9A59-8E5D44ACE5A9}.Release|ARM64.Build.0 = Release|ARM64
+		{F921DDE2-C32F-4AF8-9A59-8E5D44ACE5A9}.Release|ARM64.Deploy.0 = Release|ARM64
+		{F921DDE2-C32F-4AF8-9A59-8E5D44ACE5A9}.Release|x64.ActiveCfg = Release|x64
+		{F921DDE2-C32F-4AF8-9A59-8E5D44ACE5A9}.Release|x64.Build.0 = Release|x64
+		{F921DDE2-C32F-4AF8-9A59-8E5D44ACE5A9}.Release|x64.Deploy.0 = Release|x64
+		{F921DDE2-C32F-4AF8-9A59-8E5D44ACE5A9}.Release|x86.ActiveCfg = Release|x86
+		{F921DDE2-C32F-4AF8-9A59-8E5D44ACE5A9}.Release|x86.Build.0 = Release|x86
+		{F921DDE2-C32F-4AF8-9A59-8E5D44ACE5A9}.Release|x86.Deploy.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

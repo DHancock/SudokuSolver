@@ -1,149 +1,485 @@
-﻿using System;
-using System.IO;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using Microsoft.Win32;
+﻿using SudokuSolver.Utilities;
+using SudokuSolver.ViewModels;
 
-using ControlzEx.Theming;
-using MahApps.Metro.Controls.Dialogs;
+namespace SudokuSolver.Views;
 
-using Sudoku.ViewModels;
-using Sudoku.Themes;
-
-#nullable enable
-
-namespace Sudoku.Views
+/// <summary>
+/// Interaction logic for MainWindow.xaml
+/// </summary>
+internal sealed partial class MainWindow : SubClassWindow
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow
+    private enum Error { Success, Failure }
+    private enum Status { Cancelled, Continue }
+    public WindowViewModel ViewModel { get; private set; }
+
+    private readonly PrintHelper printHelper;
+
+    private StorageFile? sourceFile;
+    private bool processingClose = false;
+    private AboutBox? aboutBox = null;
+    private ErrorDialog? errorDialog = null;
+
+    public MainWindow(StorageFile? storagefile, MainWindow? creator)
     {
-        // according to https://fileinfo.com this extension isn't in use (at least by a popular program)
-        private const string cFileFilter = "Sudoku files|*.sdku";
-        private const string cDefaultFileExt = ".sdku";
-        private const string cDefaultWindowTitle = "Sudoku Solver";
+        InitializeComponent();
 
+        // each window needs a local copy of the common view settings
+        Settings.PerViewSettings viewSettings = Settings.Data.ViewSettings.Clone();
 
-        public MainWindow()
+        // acrylic also works, but isn't recommended according to the UI guidelines
+        if (!TrySetMicaBackdrop(viewSettings.Theme))
         {
-            InitializeComponent();
-
-            Title = cDefaultWindowTitle;
-            Activated += MainWindow_Activated;
-
-            InitializeThemeAndAccent();
-            ProcessCommandLine(Environment.GetCommandLineArgs());
-        }
-
-
-        private void MainWindow_Activated(object? sender, EventArgs e)
-        {
-            // this app's light/dark theme setting over rides the OS setting
-            // so only check if the title bar and borders setting has changed
-            PuzzleViewModel vm = (PuzzleViewModel)DataContext;
-            vm.AccentTitleBar = WindowsThemeHelper.ShowAccentColorOnTitleBarsAndWindowBorders();
-        }
-
-
-        private void ProcessCommandLine(string[] args)
-        {
-            // args[0] is typically the full path of the executing assembly
-            if ((args?.Length == 2) && (Path.GetExtension(args[1]).ToLower() == cDefaultFileExt) && File.Exists(args[1]))
-                OpenFile(args[1]);
-        }
-
-        private void InitializeThemeAndAccent()
-        {
-            if (WindowsThemeHelper.GetWindowsBaseColor() == ThemeManager.BaseColorDark)
-                SetTheme(dark: true);
-
-            ((PuzzleViewModel)DataContext).AccentTitleBar = WindowsThemeHelper.ShowAccentColorOnTitleBarsAndWindowBorders();
-        }
-
-        private void ExitClickHandler(object sender, RoutedEventArgs e) => Close();
-
-        private void PrintExecutedHandler(object sender, ExecutedRoutedEventArgs e)
-        {
-            PrintDialog printDialog = new PrintDialog
+            layoutRoot.Loaded += (s, e) =>
             {
-                UserPageRangeEnabled = false,
-                CurrentPageEnabled = false
+                // the visual states won't exist until after OnApplyTemplate() has completed
+                bool stateFound = VisualStateManager.GoToState(layoutRoot, "BackdropNotSupported", false);
+                Debug.Assert(stateFound);
+            };
+        }
+
+        ViewModel = new WindowViewModel(viewSettings);
+        Puzzle.ViewModel = new PuzzleViewModel(viewSettings);
+        Puzzle.ViewModel.PropertyChanged += ViewModel_PropertyChanged;  // used to update the window title
+
+        appWindow.Closing += async (s, args) =>
+        {
+            // the await call creates a continuation routine, so must cancel the close here
+            // and handle the actual closing explicitly when the continuation routine runs...
+            args.Cancel = true;
+            await HandleWindowClosing();
+        };
+
+        if (AppWindowTitleBar.IsCustomizationSupported())
+        {
+            CustomTitleBar.ParentAppWindow = appWindow;
+            CustomTitleBar.UpdateThemeAndTransparency(viewSettings.Theme);
+            Activated += CustomTitleBar.ParentWindow_Activated;
+            appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+
+            // the last event received will have the correct dimensions
+            layoutRoot.SizeChanged += (s, a) => SetWindowDragRegions();
+            Menu.SizeChanged += (s, a) => SetWindowDragRegions();
+            Puzzle.SizeChanged += (s, a) => SetWindowDragRegions();
+
+            Menu.Loaded += (s, a) => SetWindowDragRegions();
+            Puzzle.Loaded += (s, a) => SetWindowDragRegions();
+
+            // the drag regions need to be adjusted for menu fly outs
+            FileMenuItem.Loaded += (s, a) => ClearWindowDragRegions();
+            ViewMenuItem.Loaded += (s, a) => ClearWindowDragRegions();
+            FileMenuItem.Unloaded += (s, a) => SetWindowDragRegions();
+            ViewMenuItem.Unloaded += (s, a) => SetWindowDragRegions();
+        }
+        else
+        {
+            CustomTitleBar.Visibility = Visibility.Collapsed;
+        }
+
+        // always set the window icon, it's used in the task switcher
+        SetWindowIconFromAppIcon();
+        UpdateWindowTitle();
+
+        printHelper = new PrintHelper(this);
+
+        if (creator is not null)
+            appWindow.MoveAndResize(ValidateWindowBounds(creator.RestoreBounds));
+        else if (Settings.Data.RestoreBounds.IsEmpty()) // first run
+            appWindow.MoveAndResize(ValidateWindowBounds(CenterInPrimaryDisplay()));
+        else
+            appWindow.MoveAndResize(ValidateWindowBounds(Settings.Data.RestoreBounds));
+
+        if (Settings.Data.WindowState == WindowState.Minimized)
+            WindowState = WindowState.Normal;
+        else
+            WindowState = Settings.Data.WindowState;
+
+       
+        layoutRoot.Loaded += async (s, e) =>
+        {
+            layoutRoot.RequestedTheme = viewSettings.Theme;
+            
+            // set the duration for the next theme transition
+            Puzzle.BackgroundBrushTransition.Duration = new TimeSpan(0, 0, 0, 0, 250);
+
+            if (storagefile is not null)
+            {
+                Error error = await OpenFile(storagefile);
+
+                if (error == Error.Success)
+                    SourceFile = storagefile;
+            }
+        };
+    }
+
+    private async Task HandleWindowClosing()
+    {
+        // This is called from the File menu's close click handler and
+        // also the AppWindow.Closing event handler. 
+
+        Status status = Status.Continue;
+
+        if (!processingClose)  // the first user attempt to close, a second will always succeed
+        {
+            processingClose = true;
+
+            // cannot have more than one content dialog open at the same time
+            aboutBox?.Hide();
+            errorDialog?.Hide();
+
+            status = await SaveExistingFirst();
+        }
+
+        if (status == Status.Cancelled)  // the save existing prompt was cancelled
+        {
+            processingClose = false;
+        }
+        else
+        {
+            bool lastWindow = ((App)Application.Current).UnRegisterWindow(this);
+
+            if (lastWindow)
+            {
+                Settings.Data.RestoreBounds = RestoreBounds;
+                Settings.Data.WindowState = WindowState;
+                await Settings.Data.Save();
+            }
+
+            // calling Close() doesn't raise an AppWindow.Closing event
+            Close();
+        }
+    }
+
+    private static RectInt32 ValidateWindowBounds(RectInt32 bounds)
+    {
+        Debug.Assert(!bounds.IsEmpty());
+
+        RectInt32 workArea = DisplayArea.GetFromRect(bounds, DisplayAreaFallback.Nearest).WorkArea;
+        PointInt32 position = ((App)Application.Current).AdjustPositionForOtherWindows(bounds.TopLeft());
+
+        if ((position.Y + bounds.Height) > workArea.Bottom())
+            position.Y = workArea.Bottom() - bounds.Height;
+
+        if (position.Y < workArea.Y)
+            position.Y = workArea.Y;
+
+        if ((position.X + bounds.Width) > workArea.Right())
+            position.X = workArea.Right() - bounds.Width;
+
+        if (position.X < workArea.X)
+            position.X = workArea.X;
+
+        int width = Math.Min(bounds.Width, workArea.Width);
+        int height = Math.Min(bounds.Height, workArea.Height);
+
+        return new RectInt32(position.X, position.Y, width, height);
+    }
+
+    private RectInt32 CenterInPrimaryDisplay()
+    {
+        double scaleFactor = GetScaleFactor();
+        int width = ConvertToDeviceSize(InitialWidth, scaleFactor);
+        int height = ConvertToDeviceSize(InitialHeight, scaleFactor);
+
+        RectInt32 windowArea;
+        RectInt32 workArea = DisplayArea.Primary.WorkArea;
+        
+        windowArea.X = (workArea.Width - width) / 2;
+        windowArea.Y = (workArea.Height - height) / 2;
+        windowArea.Width = width;
+        windowArea.Height = height;
+
+        return windowArea;
+    }
+
+    private async void NewClickHandler(object sender, RoutedEventArgs e)
+    {
+        Status status = await SaveExistingFirst();
+
+        if (status != Status.Cancelled)
+        {
+            Puzzle.ViewModel!.New();
+            SourceFile = null;
+        }
+    }
+
+    private async void OpenClickHandler(object sender, RoutedEventArgs e)
+    {
+        Status status = await SaveExistingFirst();
+
+        if (status != Status.Cancelled)
+        {
+            FileOpenPicker openPicker = new FileOpenPicker();
+            InitializeWithWindow.Initialize(openPicker, hWnd);
+            openPicker.FileTypeFilter.Add(App.cFileExt);
+
+            StorageFile file = await openPicker.PickSingleFileAsync();
+
+            if (file is not null)
+            {
+                Error error = await OpenFile(file);
+
+                if (error == Error.Success)
+                    SourceFile = file;
+            }
+        }
+    }
+
+    private void NewWindowClickHandler(object sender, RoutedEventArgs e)
+    {
+        ((App)Application.Current).CreateNewWindow(storageFile: null, creator: this);
+    }
+
+    private async void SaveClickHandler(object sender, RoutedEventArgs e)
+    {
+        await Save();
+    }
+
+    private async void SaveAsClickHandler(object sender, RoutedEventArgs e)
+    {
+        await SaveAs();
+    }
+
+    private async void PrintClickHandler(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            PuzzleView printView = new PuzzleView
+            {
+                IsPrintView = true,
+                ViewModel = Puzzle.ViewModel,
             };
 
-            if (printDialog.ShowDialog() == true)
+            await printHelper.PrintViewAsync(PrintCanvas, printView, SourceFile, Settings.Data.PrintSettings.Clone());
+        }
+        catch (Exception ex)
+        {
+            await ShowErrorDialog("A printing error occurred.", ex.Message);
+        }
+    }
+
+    private async void CloseClickHandler(object sender, RoutedEventArgs e)
+    {
+        await HandleWindowClosing();
+    }
+
+    public static bool IsPrintingAvailable => PrintManager.IsSupported();
+
+    private async Task<Error> OpenFile(StorageFile file)
+    {
+        Error error = Error.Failure;
+
+        try
+        {
+            using (Stream stream = await file.OpenStreamForReadAsync())
             {
-                const double cPaddingPercentage = 6.25;
+                Puzzle.ViewModel!.Open(stream);
+                error = Error.Success;
+            }
+        }
+        catch (Exception ex)
+        {
+            string heading = $"An error occurred when opening {file.DisplayName}.";
+            await ShowErrorDialog(heading, ex.Message);
+        }
 
-                PuzzleView puzzleView = new PuzzleView
-                {
-                    Padding = new Thickness(Math.Min(printDialog.PrintableAreaHeight, printDialog.PrintableAreaWidth) * (cPaddingPercentage / 100D)),
-                    DataContext = this.DataContext
-                };
+        return error;
+    }
 
-                // always print using the light theme
-                ThemeController.SetLightTheme(puzzleView);
+    private async Task<Status> SaveExistingFirst()
+    {
+        Status status = Status.Continue;
 
-                printDialog.PrintVisual(puzzleView, "Sudoku puzzle");
+        if (Puzzle.ViewModel!.Modified)
+        {
+            string path;
+
+            if (SourceFile is null)
+                path = App.cNewPuzzleName;
+            else
+                path = SourceFile.Path;
+
+            ContentDialogResult result = await new ConfirmSaveDialog(path, Content.XamlRoot, layoutRoot.ActualTheme).ShowAsync();
+
+            if (result == ContentDialogResult.Primary)
+            {
+                status = await Save();  // if it's a new file, the Save As picker could be cancelled
+            }
+            else if (result == ContentDialogResult.None)
+            {
+                status = Status.Cancelled;
             }
         }
 
-        private void OpenFile(string fullPath)
+        return status;
+    }
+
+    private async Task SaveFile(StorageFile file)
+    {
+        using (StorageStreamTransaction transaction = await file.OpenTransactedWriteAsync())
+        {
+            using (Stream stream = transaction.Stream.AsStreamForWrite())
+            {
+                Puzzle.ViewModel?.Save(stream);
+
+                // delete any existing file data beyond the end of the stream
+                transaction.Stream.Size = transaction.Stream.Position;
+
+                await transaction.CommitAsync();
+            }
+        }
+    }
+
+    private async Task<Status> Save()
+    {
+        Status status = Status.Continue;
+
+        if (SourceFile is not null)
         {
             try
             {
-                using FileStream fs = File.OpenRead(fullPath);
-                ((PuzzleViewModel)DataContext).Open(fs);
-                Title = $"{cDefaultWindowTitle} - {Path.GetFileNameWithoutExtension(fullPath)}";
+                await SaveFile(SourceFile);
             }
             catch (Exception ex)
             {
-                Title = cDefaultWindowTitle;
-                string heading = $"Failed to open file \"{Path.GetFileNameWithoutExtension(fullPath)}\"";
-                this.ShowModalMessageExternal(heading, ex.Message);
+                string heading = $"An error occurred when saving {SourceFile.DisplayName}.";
+                await ShowErrorDialog(heading, ex.Message);
             }
         }
-                                                                             
-        private void OpenExecutedHandler(object sender, ExecutedRoutedEventArgs e)
+        else
+            status = await SaveAs();
+
+        return status;
+    }
+
+    private async Task<Status> SaveAs()
+    {
+        Status status = Status.Cancelled;
+        FileSavePicker savePicker = new FileSavePicker();
+        InitializeWithWindow.Initialize(savePicker, hWnd);
+
+        savePicker.FileTypeChoices.Add("Sudoku files", new List<string>() { App.cFileExt });
+
+        if (SourceFile is null)
+            savePicker.SuggestedFileName = App.cNewPuzzleName;
+        else
+            savePicker.SuggestedFileName = SourceFile.DisplayName;
+
+        StorageFile file = await savePicker.PickSaveFileAsync();
+
+        if (file is not null)
         {
-            OpenFileDialog dialog = new OpenFileDialog { Filter = cFileFilter };
-
-            if (dialog.ShowDialog() == true)
-                OpenFile(dialog.FileName);
-        }
-
-        private void SaveExecutedHandler(object sender, ExecutedRoutedEventArgs e)
-        {
-            SaveFileDialog dialog = new SaveFileDialog { Filter = cFileFilter };
-
-            if (dialog.ShowDialog() == true)
+            try
             {
-                try
-                {
-                    using Stream stream = dialog.OpenFile();
-                    ((PuzzleViewModel)DataContext).Save(stream);
-                }
-                catch (Exception ex)
-                {
-                    string heading = $"Failed to save file \"{Path.GetFileNameWithoutExtension(dialog.FileName)}\"";
-                    this.ShowModalMessageExternal(heading, ex.Message);
-                }
+                await SaveFile(file);
+                SourceFile = file;
+                status = Status.Continue;
+            }
+            catch (Exception ex)
+            {
+                string heading = $"An error occurred when saving {file.DisplayName}.";
+                await ShowErrorDialog(heading, ex.Message);
             }
         }
 
-        private void SetTheme(bool dark)
+        return status; 
+    }
+
+    private async void AboutClickHandler(object sender, RoutedEventArgs e)
+    {
+        aboutBox ??= new AboutBox(Content.XamlRoot);
+        aboutBox.RequestedTheme = layoutRoot.ActualTheme;
+        await aboutBox.ShowAsync();
+    }
+
+    private async Task ShowErrorDialog(string message, string details)
+    {
+        errorDialog ??= new ErrorDialog(Content.XamlRoot);
+        errorDialog.RequestedTheme = layoutRoot.ActualTheme;
+        errorDialog.Message = message;
+        errorDialog.Details = details;
+        await errorDialog.ShowAsync();
+    }
+
+    private StorageFile? SourceFile
+    {
+        get => sourceFile;
+        set
         {
-            ((PuzzleViewModel)DataContext).DarkThemed = dark;
-
-            if (dark)
-                ThemeController.SetDarkTheme(Application.Current);
-            else
-                ThemeController.SetLightTheme(Application.Current);
+            if (sourceFile != value)
+            {
+                sourceFile = value;
+                UpdateWindowTitle();
+            }
         }
+    }
 
-        private void DarkThemeCheckedHandler(object sender, RoutedEventArgs e) => SetTheme(dark: true);
+    private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(Puzzle.ViewModel.Modified))
+            UpdateWindowTitle();
+    }
 
-        private void DarkThemeUncheckedHandler(object sender, RoutedEventArgs e) => SetTheme(dark: false);
+    private void UpdateWindowTitle()
+    {
+        string filePart = SourceFile is null ? App.cNewPuzzleName : SourceFile.DisplayName;
+        string modified = Puzzle.ViewModel!.Modified ? "*" : string.Empty;
+        string title;
+
+        if (layoutRoot.FlowDirection == FlowDirection.LeftToRight)
+            title = $"{App.cDisplayName} - {filePart}{modified}";
+        else
+            title = $"{modified}{filePart} - {App.cDisplayName}";
+
+        if (AppWindowTitleBar.IsCustomizationSupported())
+            CustomTitleBar.Title = title;
+        else
+            Title = title;
+
+        // the app window's title is used in the task switcher
+        appWindow.Title = title;
+    }
+
+    private void ClearWindowDragRegions()
+    {
+        Debug.Assert(AppWindowTitleBar.IsCustomizationSupported());
+        Debug.Assert(appWindow.TitleBar.ExtendsContentIntoTitleBar);
+
+        // clear all drag rectangles to allow mouse interaction with menu fly outs,  
+        // including clicks anywhere in the window used to dismiss the menu
+        appWindow.TitleBar.SetDragRectangles(new[] { new RectInt32(0, 0, 0, 0) });
+    }
+
+    private void SetWindowDragRegions()
+    {
+        if (Menu.IsLoaded && Puzzle.IsLoaded)
+        {
+            Debug.Assert(AppWindowTitleBar.IsCustomizationSupported());
+            Debug.Assert(appWindow.TitleBar.ExtendsContentIntoTitleBar);
+
+            double scale = Puzzle.XamlRoot.RasterizationScale;
+
+            RectInt32 windowRect = new RectInt32(0, 0, appWindow.ClientSize.Width, appWindow.ClientSize.Height);
+            RectInt32 menuRect = ScaledRect(Menu.ActualOffset, Menu.ActualSize, scale);
+            RectInt32 puzzleRect = ScaledRect(Puzzle.ActualOffset, Puzzle.ActualSize, scale);
+
+            SimpleRegion region = new SimpleRegion(windowRect);
+            region.Subtract(menuRect);
+            region.Subtract(puzzleRect);
+
+            appWindow.TitleBar.SetDragRectangles(region.ToArray());
+        }
+    }
+
+    private static RectInt32 ScaledRect(Vector3 location, Vector2 size, double scale)
+    {
+        return ScaledRect(location.X, location.Y, size.X, size.Y, scale);
+    }
+
+    private static RectInt32 ScaledRect(double x, double y, double width, double height, double scale)
+    {
+        return new RectInt32(Convert.ToInt32(x * scale), 
+                                Convert.ToInt32(y * scale), 
+                                Convert.ToInt32(width * scale), 
+                                Convert.ToInt32(height * scale));
     }
 }

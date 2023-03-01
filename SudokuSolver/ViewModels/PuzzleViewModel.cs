@@ -1,216 +1,193 @@
-﻿using System;
-using System.ComponentModel;
-using System.IO;
-using System.Media;
-using System.Windows.Input;
-using System.Runtime.CompilerServices;
-using System.Diagnostics;
+﻿using SudokuSolver.Utilities;
+using SudokuSolver.Common;
+using SudokuSolver.Models;
 
-using Sudoku.Common;
-using Sudoku.Models;
+namespace SudokuSolver.ViewModels;
 
-namespace Sudoku.ViewModels
+internal sealed class PuzzleViewModel : INotifyPropertyChanged
 {
-    internal sealed class PuzzleViewModel : INotifyPropertyChanged
+    private PuzzleModel Model { get; }
+    public CellList Cells { get; }
+    public Settings.PerViewSettings ViewSettings { get; }
+
+    private bool modified = false;
+
+    public PuzzleViewModel(Settings.PerViewSettings viewSettings)
     {
-        private bool showPossibles = false;
-        private bool darkThemed = false;
-        private bool accentTitleBar = false;
-        private bool showSolution = true;
+        Model = new PuzzleModel();
+        Cells = new CellList();
+        ViewSettings = viewSettings;
+    }
 
-        private PuzzleModel Model { get; }
-        public CellList Cells { get; }
-        public ICommand ClearCommand { get; }
+    // an empty implementation used to indicate no action is required
+    private static bool NoOp(int index, int value) => throw new NotImplementedException();
 
+    private Func<int, int, bool> DetermineChange(int index, int newValue)
+    {
+        Cell cell = Cells[index];
+        int currentValue = cell.Value;
+        Origins currentOrigin = cell.Origin;
 
-        public PuzzleViewModel()
+        if (newValue > 0)
         {
-            Model = new PuzzleModel();
-            Cells = new CellList(CellChanged_EventHandler);
-            ClearCommand = new RelayCommand(ClearCommandHandler, o => !Model.PuzzleIsEmpty);
-        }
+            if (currentValue == 0)
+                return Model.Add;
 
-
-        // an empty implementation used to indicate no action is required
-        // when the user changes a cell. As the code supports nullable using
-        // this avoids the need to return a null function delegate.
-        private static bool NoOp(int index, int value)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        private Func<int, int, bool> DetermineChange(Cell changedCell, int previousValue)
-        {
-            int newValue = changedCell.Value;
-            Origins origin = changedCell.Origin;
-
-            if (newValue > 0)
+            if (currentValue != newValue)
             {
-                if (previousValue == 0)
-                    return Model.Add;
+                if (currentOrigin == Origins.User)
+                    return Model.Edit;
 
-                if (previousValue != newValue)
-                {
-                    if (origin == Origins.User)
-                        return Model.Edit;
-
-                    if ((origin == Origins.Trial) || (origin == Origins.Calculated))
-                        return Model.EditForced;
-                }
-
-                if ((previousValue == newValue) && ((origin == Origins.Trial) || (origin == Origins.Calculated)))
-                    return Model.SetOrigin;
+                if ((currentOrigin == Origins.Trial) || (currentOrigin == Origins.Calculated))
+                    return Model.EditForced;
             }
 
-            if ((newValue == 0) && (previousValue > 0) && (origin == Origins.User))
-                return Model.Delete;
-
-            // typical changes that require no action are deleting an empty cell, 
-            // deleting a cell containing a calculated value which would then just 
-            // be recalculated and also editing a user cell to have the same value.
-            return NoOp;
+            if ((currentValue == newValue) && ((currentOrigin == Origins.Trial) || (currentOrigin == Origins.Calculated)))
+                return Model.SetOrigin;
         }
 
+        if ((newValue == 0) && (currentValue > 0) && (currentOrigin == Origins.User))
+            return Model.Delete;
 
-        // the user typed a value into a cell
-        private void CellChanged_EventHandler(object? sender, PropertyChangedEventArgs e)
+        // typical changes that require no action are deleting an empty cell, 
+        // deleting a cell containing a calculated value which would then just 
+        // be recalculated and also editing a user cell to have the same value.
+        return NoOp;
+    }
+
+    // the user typed a value into a cell
+    public void UpdateCellForKeyDown(int index, int newValue)
+    {
+        Func<int, int, bool> modelFunction = DetermineChange(index, newValue);
+
+        if (modelFunction != NoOp)
         {
-            if (sender == null)
-                return;
-
-            Cell changedCell = (Cell)sender;
-            int previousValue = Model.Cells[changedCell.Index].Value;
-
-            Func<int, int, bool> modelFunction = DetermineChange(changedCell, previousValue);
-
-            if (modelFunction != NoOp)
-            {
-                if (modelFunction(changedCell.Index, changedCell.Value))
-                {
-                    Cells.UpdateCell(Model.Cells[changedCell.Index]);  
-                    UpdateView();
-                }
-                else
-                {
-                    changedCell.RevertValue(previousValue); // avoids another cell changed event
-                    SystemSounds.Beep.Play();
-                }
-
-                Debug.Assert(Model.CompletedCellCountIsValid);
-            }
-            else
-                changedCell.RevertValue(previousValue);
-        }
-
-
-        public void Save(Stream stream) => Model.Save(stream);
-    
-
-        public void Open(Stream stream)
-        {
-            try
-            {
-                Model.Clear();
-                Model.Open(stream);
-            }
-            catch
-            {
-                Model.Clear();
-                throw;
-            }
-            finally
+            if (modelFunction(index, newValue))
             {
                 UpdateView();
+                Modified = true;
             }
-        }
-
-
-        private void UpdateView()
-        {
-            // copy model cells in to the view model observable collection, causing a ui update
-            foreach (Models.Cell cell in Model.Cells) 
+            else
             {
-                if (!cell.Equals(Cells[cell.Index]))
-                    Cells.UpdateCell(cell);
+                Utils.PlayExclamation();
             }
         }
+    }
 
+    public void Save(Stream stream)
+    {
+        Model.Save(stream);
+        Modified = false;
+    }
 
-        private void ClearCommandHandler(object? _)
+    public void Open(Stream stream)
+    {
+        try
         {
             Model.Clear();
+            Model.Open(stream);
+            Modified = false;
+        }
+        catch
+        {
+            Model.Clear();
+            throw;
+        }
+        finally
+        {
             UpdateView();
         }
-
-        public bool ShowPossibles
-        {                                                        
-            get => showPossibles;
-            set
-            {
-                if (value != showPossibles)
-                {
-                    showPossibles = value;
-                    NotifyPropertyChanged();  // a style trigger updates the ui
-                }
-            }
-        }
-        
-        public bool DarkThemed
-        {
-            get => darkThemed;
-            set
-            {
-                if (value != darkThemed)
-                {
-                    darkThemed = value;
-                    NotifyPropertyChanged();
-                }
-            }
-        }
-
-
-        public bool AccentTitleBar
-        {
-            get => accentTitleBar;
-            set
-            {
-                if (value != accentTitleBar)
-                {
-                    accentTitleBar = value;
-                    NotifyPropertyChanged();
-                }
-            }
-        }
-
-        public bool ShowSolution
-        {
-            get => showSolution;
-            set
-            {
-                if (value != showSolution)
-                {
-                    showSolution = value;
-                    NotifyPropertyChanged();
-                    UpdateViewForShowSolutionStateChange();
-                }
-            }
-        }
-
-        private void UpdateViewForShowSolutionStateChange()
-        {
-            foreach (Models.Cell cell in Model.Cells)
-            {
-                if ((cell.Origin == Origins.Calculated) || (cell.Origin == Origins.Trial))
-                    Cells.UpdateCell(cell);
-            }
-        }
-
-        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
     }
+
+    private void UpdateView()
+    {
+        // update the view model's observable collection, causing a ui update
+        foreach (Models.Cell modelCell in Model.Cells) 
+        {
+            int index = modelCell.Index;
+
+            if (!modelCell.Equals(Cells[index]))
+                Cells[index] = new Cell(modelCell);
+        }
+
+        Debug.Assert(Model.CompletedCellCountIsValid);
+    }
+
+    public void New()
+    {
+        Model.Clear();
+        UpdateView();
+        Modified = false;
+    }
+
+    public bool ShowPossibles
+    {                                                        
+        get => ViewSettings.ShowPossibles;
+        set
+        {
+            if (ViewSettings.ShowPossibles != value)
+            {
+                ViewSettings.ShowPossibles = value;
+                Settings.Data.ViewSettings.ShowPossibles = value;
+                UpdateViewForShowPossiblesStateChange();
+                NotifyPropertyChanged();
+            }
+        }
+    }
+
+    public bool ShowSolution
+    {
+        get => ViewSettings.ShowSolution;
+        set
+        {
+            if (ViewSettings.ShowSolution != value)
+            {
+                ViewSettings.ShowSolution = value;
+                Settings.Data.ViewSettings.ShowSolution = value;
+                UpdateViewForShowSolutionStateChange();
+                NotifyPropertyChanged();
+            }
+        }
+    }
+
+    private void UpdateViewForShowPossiblesStateChange()
+    {
+        UpdateViewWhere(cell => !cell.HasValue);
+    }
+
+    private void UpdateViewForShowSolutionStateChange()
+    {
+        UpdateViewWhere(cell => cell.Origin == Origins.Calculated || cell.Origin == Origins.Trial);
+    }
+
+    private void UpdateViewWhere(Func<Cell, bool> predicate)
+    {
+        for (int index = 0; index < Cells.Count; index++)
+        {
+            Cell cell = Cells[index];
+
+            if (predicate(cell))
+                Cells[index] = new Cell(cell);
+        }
+    }
+
+    public bool Modified
+    {
+        get => modified;
+        set
+        {
+            if (modified != value)
+            {
+                modified = value;
+                NotifyPropertyChanged();
+            }
+        }
+    }
+
+    private void NotifyPropertyChanged([CallerMemberName] string? propertyName = default)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
 }

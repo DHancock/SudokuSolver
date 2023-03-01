@@ -1,0 +1,27 @@
+﻿<ContentDialog
+    x:Class="SudokuSolver.Views.AboutBox"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:SudokuSolver.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Style="{StaticResource DefaultContentDialogStyle}">
+    
+    <ContentDialog.Content>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Image x:Name="AboutImage" Width="62" Height="62" Margin="0,7,20,0" VerticalAlignment="Top"/>
+
+            <StackPanel Grid.Column="1">
+                <TextBlock Text="Sudoku Solver" FontSize="20"/>
+                <TextBlock Text="Version: {0}" x:Name="VersionTextBlock"/>
+                <TextBlock><Hyperlink NavigateUri="https://github.com/DHancock/SudokuSolver">GitHub Repository</Hyperlink></TextBlock>
+            </StackPanel>
+        </Grid>
+    </ContentDialog.Content>
+</ContentDialog>

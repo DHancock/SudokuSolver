@@ -1,15 +1,39 @@
-﻿using System.Windows.Controls;
+﻿using Microsoft.UI.Xaml.Media;
 
-namespace Sudoku.Views
+using SudokuSolver.ViewModels;
+
+namespace SudokuSolver.Views;
+
+/// <summary>
+/// Interaction logic for PuzzleView.xaml
+/// </summary>
+internal partial class PuzzleView : UserControl
 {
-    /// <summary>
-    /// Interaction logic for PuzzleView.xaml
-    /// </summary>
-    public partial class PuzzleView : UserControl
+    private PuzzleViewModel? viewModel;
+    public bool IsPrintView { get; set; } = false;
+
+    public PuzzleView()
     {
-        public PuzzleView()
+        InitializeComponent();
+
+        SizeChanged += (s, e) =>
         {
-            InitializeComponent();
+            // printers generally have much higher resolutions than monitors
+            if (!IsPrintView)
+                Grid.AdaptForScaleFactor(e.NewSize.Width);
+        };
+    }
+     
+    public PuzzleViewModel? ViewModel
+    {
+        get => viewModel;
+
+        set
+        {
+            Debug.Assert(value is not null);
+            DataContext = viewModel = value;
         }
     }
+
+    public BrushTransition BackgroundBrushTransition => PuzzleBrushTransition;
 }

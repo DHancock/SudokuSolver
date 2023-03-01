@@ -1,78 +1,90 @@
-﻿<mah:MetroWindow x:Class="Sudoku.Views.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-        xmlns:local="clr-namespace:Sudoku.Views"
-        xmlns:vm="clr-namespace:Sudoku.ViewModels"
-        mc:Ignorable="d"
-        Height="543" 
-        Width="485" 
-        WindowStartupLocation="CenterScreen"
-        MinHeight="320"
-        MinWidth="260"
-        Style="{StaticResource MainWindowStyle}">
+﻿<local:SubClassWindow
+    x:Class="SudokuSolver.Views.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:SudokuSolver.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    MinWidth="320"
+    MinHeight="375"
+    InitialWidth="563"
+    InitialHeight="614"
+    mc:Ignorable="d">
 
-    <Window.DataContext>
-        <vm:PuzzleViewModel/>
-    </Window.DataContext>
-    <Window.CommandBindings>
-        <CommandBinding Command="Open" Executed="OpenExecutedHandler"/>
-        <CommandBinding Command="Save" Executed="SaveExecutedHandler"/>
-        <CommandBinding Command="Print" Executed="PrintExecutedHandler"/>
-    </Window.CommandBindings>
+    <ContentControl x:Name="layoutRoot" Style="{StaticResource WindowContentStyle}" RequestedTheme="{x:Bind ViewModel.Theme, Mode=OneWay}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="98*"/>
-            <RowDefinition Height="2*"/> <!-- this row is used as the window bottom padding -->
-        </Grid.RowDefinitions>
+            <local:CustomTitleBar x:Name="CustomTitleBar"/>
 
-        <Menu Grid.Row="0">
-            <Menu.Resources>
-                <Style TargetType="TextBlock">
-                    <Setter Property="FontFamily" Value="{StaticResource MahApps.Fonts.Family.SymbolTheme}"/>
-                    <Setter Property="VerticalAlignment" Value="Center"/>
-                    <Setter Property="FontSize" Value="16"/>
-                    <Setter Property="Padding" Value="5,0,5,0"/>
-                </Style>
-            </Menu.Resources>
-            <MenuItem Header="_File">
-                <MenuItem Header="_Open..." Command="Open" InputGestureText="Ctrl+O">
-                    <MenuItem.Icon>
-                        <TextBlock Text="&#xE1A5;"/>
-                    </MenuItem.Icon>
-                </MenuItem>
-                <MenuItem Header="_Clear" Command="{Binding ClearCommand}">
-                    <MenuItem.Icon>
-                        <TextBlock Text="&#xE10A;"/>
-                    </MenuItem.Icon>
-                </MenuItem>
-                <Separator />
-                <MenuItem Header="_Save As..." Command="Save" InputGestureText="Ctrl+S">
-                    <MenuItem.Icon>
-                        <TextBlock Text="&#xE105;"/>
-                    </MenuItem.Icon>
-                </MenuItem>
-                <Separator />
-                <MenuItem Header="_Print..." Command="Print" InputGestureText="Ctrl+P">
-                    <MenuItem.Icon>
-                        <TextBlock Text="&#xE749;"/>
-                    </MenuItem.Icon>
-                </MenuItem>
-                <Separator />
-                <MenuItem Header="_Exit" Click="ExitClickHandler" InputGestureText="Alt+F4"/>
-            </MenuItem>
-            <MenuItem Header="_Options">
-                <MenuItem Header="_Show possibles" IsCheckable="True" IsChecked="{Binding ShowPossibles}"/>
-                <MenuItem Header="S_how solution" IsCheckable="True" IsChecked="{Binding ShowSolution}"/>
-                <Separator />
-                <MenuItem Header="_Dark mode" IsCheckable="True" IsChecked="{Binding DarkThemed, Mode=OneWay}" Checked="DarkThemeCheckedHandler" Unchecked="DarkThemeUncheckedHandler"/>
-            </MenuItem>
-        </Menu>
+            <!-- used to add print preview pages to the visual tree -->
+            <Canvas x:Name="PrintCanvas" Opacity="0"/>
 
-        <local:PuzzleView Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="5,5,5,0"/>
-    </Grid>
-</mah:MetroWindow>
+            <MenuBar x:Name="Menu" Grid.Row="1" HorizontalAlignment="Left">
+                <MenuBarItem Title="File" AccessKey="F">
+
+                    <MenuFlyoutItem x:Name="FileMenuItem" Text="New" Click="NewClickHandler" AccessKey="N">
+                        <MenuFlyoutItem.KeyboardAccelerators>
+                            <KeyboardAccelerator Key="N" Modifiers="Control" />
+                        </MenuFlyoutItem.KeyboardAccelerators>
+                    </MenuFlyoutItem>
+
+                    <MenuFlyoutItem Text="New Window" Click="NewWindowClickHandler" AccessKey="W">
+                        <MenuFlyoutItem.KeyboardAccelerators>
+                            <KeyboardAccelerator Key="N" Modifiers="Control,Shift" />
+                        </MenuFlyoutItem.KeyboardAccelerators>
+                    </MenuFlyoutItem>
+
+                    <MenuFlyoutItem Text="Open" Click="OpenClickHandler" AccessKey="0">
+                        <MenuFlyoutItem.KeyboardAccelerators>
+                            <KeyboardAccelerator Key="O" Modifiers="Control" />
+                        </MenuFlyoutItem.KeyboardAccelerators>
+                    </MenuFlyoutItem>
+
+                    <MenuFlyoutItem Text="Save" Click="SaveClickHandler" AccessKey="S">
+                        <MenuFlyoutItem.KeyboardAccelerators>
+                            <KeyboardAccelerator Key="S" Modifiers="Control" />
+                        </MenuFlyoutItem.KeyboardAccelerators>
+                    </MenuFlyoutItem>
+
+                    <MenuFlyoutItem Text="Save As..." Click="SaveAsClickHandler" AccessKey="A">
+                        <MenuFlyoutItem.KeyboardAccelerators>
+                            <KeyboardAccelerator Key="S" Modifiers="Control,Shift"/>
+                        </MenuFlyoutItem.KeyboardAccelerators>
+                    </MenuFlyoutItem>
+
+                    <MenuFlyoutSeparator />
+                    <MenuFlyoutItem Text="Print..." Click="PrintClickHandler" IsEnabled="{x:Bind local:MainWindow.IsPrintingAvailable}" AccessKey="P">
+                        <MenuFlyoutItem.KeyboardAccelerators>
+                            <KeyboardAccelerator Key="P" Modifiers="Control"/>
+                        </MenuFlyoutItem.KeyboardAccelerators>
+                    </MenuFlyoutItem>
+
+                    <MenuFlyoutSeparator />
+                    <MenuFlyoutItem Text="Close" Click="CloseClickHandler" AccessKey="X">
+                        <MenuFlyoutItem.KeyboardAccelerators>
+                            <KeyboardAccelerator Key="W" Modifiers="Control"/>
+                        </MenuFlyoutItem.KeyboardAccelerators>
+                    </MenuFlyoutItem>
+                </MenuBarItem>
+
+                <MenuBarItem Title="View" AccessKey="V">
+                    <ToggleMenuFlyoutItem Text="Possibles" IsChecked="{x:Bind Puzzle.ViewModel.ShowPossibles, Mode=TwoWay}" AccessKey="P"/>
+                    <ToggleMenuFlyoutItem Text="Solution" IsChecked="{x:Bind Puzzle.ViewModel.ShowSolution, Mode=TwoWay}" AccessKey="S"/>
+
+                    <MenuFlyoutSeparator />
+                    <ToggleMenuFlyoutItem Text="Dark theme" IsChecked="{x:Bind ViewModel.IsDarkThemed, Mode=TwoWay}" AccessKey="D"/>
+
+                    <MenuFlyoutSeparator />
+                    <MenuFlyoutItem x:Name="ViewMenuItem" Text="About..." Click="AboutClickHandler" AccessKey="A"/>
+                </MenuBarItem>
+            </MenuBar>
+
+            <local:PuzzleView x:Name="Puzzle" Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="8,0,8,8"/>
+        </Grid>
+    </ContentControl>
+</local:SubClassWindow>
