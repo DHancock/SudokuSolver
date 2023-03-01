@@ -28,7 +28,7 @@ OutputDir={#SourcePath}\bin
 UninstallDisplayIcon={app}\{#appExeName}
 Compression=lzma2
 SolidCompression=yes
-OutputBaseFilename={#appDisplayName}_v{#appVer}_{#platform}
+OutputBaseFilename={#appName}_v{#appVer}_{#platform}
 InfoBeforeFile="{#SourcePath}\unlicense.txt"
 PrivilegesRequired=lowest
 WizardStyle=classic
@@ -65,19 +65,92 @@ Filename: "{app}\{#appExeName}"; Parameters: "/unregister";
 Filename: powershell.exe ; Parameters: "Get-Process {#appName} | where Path -eq '{app}\{#appExeName}' | kill -Force"; Flags: runhidden
 
 [code]
-function InitializeUninstall(): Boolean;
-var
-  message: string;
-begin
-  Result := true;
+// code based on this excellent stackoverflow answer:
+// https://stackoverflow.com/questions/7415457/custom-inno-setup-uninstall-page-not-msgbox#42550055
 
-  if CheckForMutexes('{#appId}') then begin
-    message := 'Uninstall has detected that {#appDisplayName} is running. ' #13#13 +
-                'Please close all {#appDisplayName} windows before uninstalling. ' #13#13 +
-                'If you continue anyway, {#appDisplayName} will be terminated ' +
-                'and any unsaved changes will be lost.' 
-                 
-    Result := MsgBox(message, mbError, MB_OKCANCEL) = IDOK ;
-     
+procedure InitializeUninstallProgressForm();
+var
+  PageText: TNewStaticText;
+  PageNameLabel: string;
+  PageDescriptionLabel: string;
+  CancelButtonEnabled: Boolean;
+  CancelButtonModalResult: Integer;
+  NewPage: TNewNotebookPage;
+  UninstallButton: TNewButton;
+  CautionImage: TBitmapImage;
+begin
+  
+  if (not UninstallSilent) and CheckForMutexes('{#appId}') then
+  begin
+    // create the page
+    NewPage := TNewNotebookPage.Create(UninstallProgressForm);
+    NewPage.Notebook := UninstallProgressForm.InnerNotebook;
+    NewPage.Parent := UninstallProgressForm.InnerNotebook;
+    NewPage.Align := alClient;
+  
+    // create page contents
+    CautionImage := TBitmapImage.Create(UninstallProgressForm);
+    CautionImage.Parent := NewPage;
+    CautionImage.Bitmap.LoadFromFile(ExpandConstant('{app}\Resources\warning.bmp'));
+    CautionImage.Bitmap.AlphaFormat := afPremultiplied;
+    CautionImage.Width := ScaleX(80);
+    CautionImage.Height := ScaleX(80);
+    CautionImage.AutoSize := true;
+    CautionImage.Top := ScaleX(10);
+    CautionImage.Left := ScaleX(10);
+        
+    PageText := TNewStaticText.Create(UninstallProgressForm);
+    PageText.Parent := NewPage;
+    PageText.Top := CautionImage.Top;
+    PageText.Left := CautionImage.Left + CautionImage.Width + ScaleX(20) ;
+    PageText.Width := UninstallProgressForm.StatusLabel.Width - PageText.Left;
+    PageText.Height := ScaleX(300);
+    PageText.AutoSize := False;
+    PageText.ShowAccelChar := False;
+    PageText.WordWrap := True;
+    PageText.Caption := 'Uninstall has detected that {#appDisplayName} is running. '#13#10#13#10 +
+                        'Please close all {#appDisplayName} windows before continuing. '#13#10#13#10 +
+                        'If you continue without closing, {#appDisplayName} will be terminated ' +
+                        'and any unsaved changes will be lost.' 
+
+             
+    UninstallButton := TNewButton.Create(UninstallProgressForm);
+    UninstallButton.Parent := UninstallProgressForm;
+    UninstallButton.Left := UninstallProgressForm.CancelButton.Left - UninstallProgressForm.CancelButton.Width - ScaleX(10);
+    UninstallButton.Top := UninstallProgressForm.CancelButton.Top;
+    UninstallButton.Width := UninstallProgressForm.CancelButton.Width;
+    UninstallButton.Height := UninstallProgressForm.CancelButton.Height;
+    UninstallButton.ModalResult := mrOK; 
+    UninstallButton.Caption := 'Uninstall';
+    
+    // adjust tab order
+    UninstallButton.TabOrder := UninstallProgressForm.CancelButton.TabOrder;
+    UninstallProgressForm.CancelButton.TabOrder := UninstallButton.TabOrder + 1;
+    
+    // store previous state
+    CancelButtonEnabled := UninstallProgressForm.CancelButton.Enabled
+    CancelButtonModalResult := UninstallProgressForm.CancelButton.ModalResult;
+    PageNameLabel := UninstallProgressForm.PageNameLabel.Caption;
+    PageDescriptionLabel := UninstallProgressForm.PageDescriptionLabel.Caption;
+  
+    // initialise content
+    UninstallProgressForm.PageNameLabel.Caption := 'Caution';
+    UninstallProgressForm.PageDescriptionLabel.Caption := 'A problem has been detected.';
+    UninstallProgressForm.CancelButton.Enabled := true;    
+    UninstallProgressForm.CancelButton.ModalResult := mrCancel;
+    
+    // add the new page
+    UninstallProgressForm.InnerNotebook.ActivePage := NewPage;
+    
+    // run the page
+    if UninstallProgressForm.ShowModal = mrCancel then Abort;
+
+    // restore state
+    UninstallButton.Visible := false
+    UninstallProgressForm.CancelButton.Enabled := CancelButtonEnabled;
+    UninstallProgressForm.CancelButton.ModalResult := CancelButtonModalResult
+    UninstallProgressForm.PageNameLabel.Caption := PageNameLabel;
+    UninstallProgressForm.PageDescriptionLabel.Caption := PageDescriptionLabel;
+    UninstallProgressForm.InnerNotebook.ActivePage := UninstallProgressForm.InstallingPage;
   end;
 end;
