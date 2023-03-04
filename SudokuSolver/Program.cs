@@ -49,8 +49,9 @@ public static class Program
 
                 return 5;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Debug.Fail(ex.ToString());
             }
         }
 
@@ -86,10 +87,11 @@ public static class Program
             string[] fileTypes = new[] { App.cFileExt };
             ActivationRegistrationManager.UnregisterForFileTypeActivation(fileTypes, Environment.ProcessPath);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             // a file not found exception probably means the file type hasn't been
             // registered for this application's path
+            Debug.Fail(ex.ToString());
         }
     }
 
@@ -121,37 +123,41 @@ public static class Program
     {
         Process current = Process.GetCurrentProcess();
         Process[] processes = Process.GetProcessesByName(current.ProcessName);
-        
+
         foreach (Process process in processes)
         {
-            if ((process.Id != current.Id) && (process.MainModule?.FileName == Environment.ProcessPath))
+            try
             {
-                try
+                if ((process.Id != current.Id) && PathEquals(process, current) && (process.MainWindowHandle != IntPtr.Zero))
                 {
-                    if (process.MainWindowHandle != IntPtr.Zero)
+                    HWND hWnd = (HWND)process.MainWindowHandle;
+
+                    WINDOWPLACEMENT placement = default;
+                    placement.length = (uint)Marshal.SizeOf<WINDOWPLACEMENT>();
+
+                    if (PInvoke.GetWindowPlacement(hWnd, ref placement))
                     {
-                        HWND hWnd = (HWND)process.MainWindowHandle;
+                        if (placement.showCmd == SHOW_WINDOW_CMD.SW_SHOWMINIMIZED)
+                            PInvoke.ShowWindow(hWnd, SHOW_WINDOW_CMD.SW_RESTORE);
 
-                        WINDOWPLACEMENT placement = default;
-                        placement.length = (uint)Marshal.SizeOf<WINDOWPLACEMENT>();
-
-                        if (PInvoke.GetWindowPlacement(hWnd, ref placement))
-                        {
-                            if (placement.showCmd == SHOW_WINDOW_CMD.SW_SHOWMINIMIZED)
-                                PInvoke.ShowWindow(hWnd, SHOW_WINDOW_CMD.SW_RESTORE);
-
-                            if (PInvoke.SetForegroundWindow(hWnd))
-                                return true;
-                        }
+                        if (PInvoke.SetForegroundWindow(hWnd))
+                            return true;
                     }
                 }
-                catch (Exception ex)
-                {
-                    Debug.Fail(ex.ToString());
-                }
+            }
+            catch (Exception ex)
+            {
+                Debug.Fail(ex.ToString());
             }
         }
 
         return false;
+    }
+
+    private static bool PathEquals(Process a, Process b)
+    {
+        return (a.MainModule is not null) &&
+                (b.MainModule is not null) &&
+                string.Equals(a.MainModule.FileName, b.MainModule.FileName, StringComparison.OrdinalIgnoreCase);
     }
 }
