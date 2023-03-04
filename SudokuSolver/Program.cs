@@ -1,4 +1,7 @@
 ﻿using Microsoft.UI.Dispatching;
+
+using System.Runtime.InteropServices;
+
 using DispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue;
 
 namespace SudokuSolver;
@@ -32,8 +35,19 @@ public static class Program
             try
             {
                 AppActivationArguments aea = AppInstance.GetCurrent().GetActivatedEventArgs();
-                await appInstance.RedirectActivationToAsync(aea);
-                return 3;
+
+                if (aea.Kind == ExtendedActivationKind.File)
+                {
+                    await appInstance.RedirectActivationToAsync(aea);
+                    return 3;
+                }
+                else if (aea.Kind == ExtendedActivationKind.Launch)
+                {
+                    AttemptSwitchToMainWindow();
+                    return 4;
+                }
+
+                return 5;
             }
             catch (Exception)
             {
@@ -79,7 +93,6 @@ public static class Program
         }
     }
 
-
     /*
         As of WinAppSdk 1.2.4, registration creates most of the usual file extension association registry entries,
         generating a prod id key value in the form of "App.xxxxxxxxxxxxxxxx.File":
@@ -103,4 +116,54 @@ public static class Program
         Neither of the last two are deleted on unregistration, but the .sdku name is removed from 
         the WindowsAppRuntimeApplications\Capabilties\FileAssociations
     */
+
+    private static bool AttemptSwitchToMainWindow()
+    {
+        Process current = Process.GetCurrentProcess();
+        Process[] processes = Process.GetProcessesByName(current.ProcessName);
+        
+        foreach (Process process in processes)
+        {
+            if ((process.Id != current.Id) && (process.MainModule?.FileName == Environment.ProcessPath))
+            {
+                try
+                {
+                    if (process.MainWindowHandle != IntPtr.Zero)
+                    {
+                        HWND hWnd = (HWND)process.MainWindowHandle;
+
+                        WINDOWPLACEMENT placement = default;
+                        placement.length = (uint)Marshal.SizeOf<WINDOWPLACEMENT>();
+
+                        if (PInvoke.GetWindowPlacement(hWnd, ref placement))
+                        {
+                            switch (placement.showCmd)
+                            {
+                                case SHOW_WINDOW_CMD.SW_SHOWMAXIMIZED:
+                                    PInvoke.ShowWindow(hWnd, SHOW_WINDOW_CMD.SW_SHOWMAXIMIZED);
+                                    break;
+
+                                case SHOW_WINDOW_CMD.SW_SHOWMINIMIZED:
+                                    PInvoke.ShowWindow(hWnd, SHOW_WINDOW_CMD.SW_RESTORE);
+                                    break;
+
+                                default:
+                                    PInvoke.ShowWindow(hWnd, SHOW_WINDOW_CMD.SW_NORMAL);
+                                    break;
+                            }
+
+                            if (PInvoke.SetForegroundWindow(hWnd))
+                                return true;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.Fail(ex.ToString());
+                }
+            }
+        }
+
+        return false;
+    }
 }

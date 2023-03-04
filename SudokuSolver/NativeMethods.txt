@@ -11,3 +11,5 @@ CreateDispatcherQueueController
 SetForegroundWindow
 GetForegroundWindow
 GetCurrentPackageFullName
+ShowWindow
+GetWindowPlacement
