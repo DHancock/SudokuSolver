@@ -137,20 +137,8 @@ public static class Program
 
                         if (PInvoke.GetWindowPlacement(hWnd, ref placement))
                         {
-                            switch (placement.showCmd)
-                            {
-                                case SHOW_WINDOW_CMD.SW_SHOWMAXIMIZED:
-                                    PInvoke.ShowWindow(hWnd, SHOW_WINDOW_CMD.SW_SHOWMAXIMIZED);
-                                    break;
-
-                                case SHOW_WINDOW_CMD.SW_SHOWMINIMIZED:
-                                    PInvoke.ShowWindow(hWnd, SHOW_WINDOW_CMD.SW_RESTORE);
-                                    break;
-
-                                default:
-                                    PInvoke.ShowWindow(hWnd, SHOW_WINDOW_CMD.SW_NORMAL);
-                                    break;
-                            }
+                            if (placement.showCmd == SHOW_WINDOW_CMD.SW_SHOWMINIMIZED)
+                                PInvoke.ShowWindow(hWnd, SHOW_WINDOW_CMD.SW_RESTORE);
 
                             if (PInvoke.SetForegroundWindow(hWnd))
                                 return true;
