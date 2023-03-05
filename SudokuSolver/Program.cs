@@ -1,7 +1,4 @@
 ﻿using Microsoft.UI.Dispatching;
-
-using System.Runtime.InteropServices;
-
 using DispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue;
 
 namespace SudokuSolver;
@@ -47,12 +44,14 @@ public static class Program
                     return 4;
                 }
 
-                return 5;
+                Debug.Fail($"unknown activation kind: {aea.Kind}");
             }
             catch (Exception ex)
             {
                 Debug.Fail(ex.ToString());
             }
+
+            return 5;  // enforce single instancing
         }
 
         // the uninstaller uses this local mutex to see if the app is currently running
@@ -135,14 +134,18 @@ public static class Program
                     WINDOWPLACEMENT placement = default;
                     placement.length = (uint)Marshal.SizeOf<WINDOWPLACEMENT>();
 
-                    if (PInvoke.GetWindowPlacement(hWnd, ref placement))
-                    {
-                        if (placement.showCmd == SHOW_WINDOW_CMD.SW_SHOWMINIMIZED)
-                            PInvoke.ShowWindow(hWnd, SHOW_WINDOW_CMD.SW_RESTORE);
+                    if (!PInvoke.GetWindowPlacement(hWnd, ref placement))
+                        throw new Win32Exception(Marshal.GetLastPInvokeError());
 
-                        if (PInvoke.SetForegroundWindow(hWnd))
-                            return true;
-                    }
+                    if (placement.showCmd == SHOW_WINDOW_CMD.SW_SHOWMINIMIZED)
+                        PInvoke.ShowWindow(hWnd, SHOW_WINDOW_CMD.SW_RESTORE);
+
+                    if (PInvoke.SetForegroundWindow(hWnd))
+                        return true;
+
+                    // restore window opening state (it doesn't change the windows visibility)
+                    if (placement.showCmd == SHOW_WINDOW_CMD.SW_SHOWMINIMIZED)
+                        PInvoke.ShowWindow(hWnd, SHOW_WINDOW_CMD.SW_SHOWMINIMIZED);
                 }
             }
             catch (Exception ex)
