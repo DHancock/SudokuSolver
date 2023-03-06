@@ -27,7 +27,14 @@ public static class Program
 
         AppInstance appInstance = AppInstance.FindOrRegisterForKey(App.cAppKey);
 
-        if (!appInstance.IsCurrent)
+        // the uninstaller checks this named local mutex to see if the app is running
+        bool mutexExists = Mutex.TryOpenExisting(cInstallerMutexName, out Mutex? mutex);
+
+        if (!mutexExists)
+            mutex = new Mutex(initiallyOwned: false, cInstallerMutexName);
+
+        // appInstance.IsCurrent isn't reliable, use the mutex to check for single instancing
+        if (mutexExists)
         {
             try
             {
@@ -53,10 +60,6 @@ public static class Program
 
             return 5;  // enforce single instancing
         }
-
-        // the uninstaller uses this local mutex to see if the app is currently running
-        Mutex mutex = new Mutex(initiallyOwned: false, cInstallerMutexName, out bool createdNew);
-        Debug.Assert(createdNew);
 
         Application.Start((p) =>
         {
