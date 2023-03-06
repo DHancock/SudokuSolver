@@ -11,7 +11,7 @@
 #endif
 
 #define appDisplayName "Sudoku Solver"
-#define appVer "1.5"
+#define appVer "1.5.1"
 #define appName "sudokusolver"
 #define appExeName appName + ".exe"
 #define appId "sudukosolver.8628521D92E74106"
@@ -21,6 +21,7 @@ AppId={#appId}
 appName={#appDisplayName}
 AppVersion={#appVer}
 AppVerName={cm:NameAndVersion,{#appDisplayName},{#appVer}}
+VersionInfoVersion={#appVer}
 DefaultDirName={autopf}\{#appDisplayName}
 DefaultGroupName={#appDisplayName}
 SourceDir=..\bin\{#platform}\Release\publish
@@ -47,7 +48,7 @@ AppUpdatesURL=https://github.com/DHancock/SudokuSolver/releases
 #endif
 
 [Files]
-Source: "*"; DestDir: "{app}"; Flags: recursesubdirs
+Source: "*"; DestDir: "{app}"; Excludes: "*.png"
 
 [Icons]
 Name: "{group}\{#appDisplayName}"; Filename: "{app}\{#appExeName}"
@@ -62,7 +63,7 @@ Filename: "{app}\{#appExeName}"; Description: "{cm:LaunchProgram,{#appDisplayNam
 
 [UninstallRun]
 Filename: "{app}\{#appExeName}"; Parameters: "/unregister"; 
-Filename: powershell.exe ; Parameters: "Get-Process {#appName} | where Path -eq '{app}\{#appExeName}' | kill -Force"; Flags: runhidden
+Filename: powershell.exe; Parameters: "Get-Process '{#appName}' | where Path -eq '{app}\{#appExeName}' | kill -Force"; Flags: runhidden
 
 [code]
 // code based on this excellent stackoverflow answer:

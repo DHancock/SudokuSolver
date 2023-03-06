@@ -1,7 +1,4 @@
 ﻿using Microsoft.UI.Dispatching;
-
-using System.Runtime.InteropServices;
-
 using DispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue;
 
 namespace SudokuSolver;
@@ -9,6 +6,7 @@ namespace SudokuSolver;
 public static class Program
 {
     private const string cInstallerMutexName = "sudukosolver.8628521D92E74106";
+    private const string cAppKey = cInstallerMutexName;
 
     [DllImport("Microsoft.ui.xaml.dll")]
     private static extern void XamlCheckProcessRequirements();
@@ -28,9 +26,10 @@ public static class Program
             }
         }
 
-        AppInstance appInstance = AppInstance.FindOrRegisterForKey(App.cAppKey);
+        AppInstance appInstance = AppInstance.FindOrRegisterForKey(cAppKey);
 
-        if (!appInstance.IsCurrent)
+        // appInstance.IsCurrent isn't reliable, use the installer mutex instead
+        if (Mutex.TryOpenExisting(cInstallerMutexName, out Mutex? mutex))
         {
             try
             {
@@ -47,17 +46,18 @@ public static class Program
                     return 4;
                 }
 
-                return 5;
+                Debug.Fail($"unknown activation kind: {aea.Kind}");
             }
             catch (Exception ex)
             {
                 Debug.Fail(ex.ToString());
             }
+
+            return 5;  // enforce single instancing
         }
 
-        // the uninstaller uses this local mutex to see if the app is currently running
-        Mutex mutex = new Mutex(initiallyOwned: false, cInstallerMutexName, out bool createdNew);
-        Debug.Assert(createdNew);
+        // the uninstaller uses this mutex to check if the app is running
+        _ = new Mutex(initiallyOwned: false, cInstallerMutexName);
 
         Application.Start((p) =>
         {
@@ -116,7 +116,7 @@ public static class Program
         HKCU\Software\RegisteredApplications
 
         Neither of the last two are deleted on unregistration, but the .sdku name is removed from 
-        the WindowsAppRuntimeApplications\Capabilties\FileAssociations
+        the WindowsAppRuntimeApplications\App.xxxxxxxxxxxxxxxx\Capabilties\FileAssociations
     */
 
     private static bool AttemptSwitchToMainWindow()
@@ -135,14 +135,18 @@ public static class Program
                     WINDOWPLACEMENT placement = default;
                     placement.length = (uint)Marshal.SizeOf<WINDOWPLACEMENT>();
 
-                    if (PInvoke.GetWindowPlacement(hWnd, ref placement))
-                    {
-                        if (placement.showCmd == SHOW_WINDOW_CMD.SW_SHOWMINIMIZED)
-                            PInvoke.ShowWindow(hWnd, SHOW_WINDOW_CMD.SW_RESTORE);
+                    if (!PInvoke.GetWindowPlacement(hWnd, ref placement))
+                        throw new Win32Exception(Marshal.GetLastPInvokeError());
 
-                        if (PInvoke.SetForegroundWindow(hWnd))
-                            return true;
-                    }
+                    if (placement.showCmd == SHOW_WINDOW_CMD.SW_SHOWMINIMIZED)
+                        PInvoke.ShowWindow(hWnd, SHOW_WINDOW_CMD.SW_RESTORE);
+
+                    if (PInvoke.SetForegroundWindow(hWnd))
+                        return true;
+
+                    // restore window opening state (it doesn't change the windows visibility)
+                    if (placement.showCmd == SHOW_WINDOW_CMD.SW_SHOWMINIMIZED)
+                        PInvoke.ShowWindow(hWnd, SHOW_WINDOW_CMD.SW_SHOWMINIMIZED);
                 }
             }
             catch (Exception ex)

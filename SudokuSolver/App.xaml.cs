@@ -13,9 +13,7 @@ public partial class App : Application
 {
     public const string cFileExt = ".sdku";
     public const string cDisplayName = "Sudoku Solver";
-    public const string cIconResourceID = "32512";
     public const string cNewPuzzleName = "Untitled";
-    public const string cAppKey = "sudoku-app";
 
     public static bool IsPackaged { get; } = GetIsPackaged();
 
@@ -26,17 +24,17 @@ public partial class App : Application
     private bool appClosing = false;
 
     /// <summary>
-    /// Initializes the singleton application object. Unless registering file type activation 
-    /// fails this will be the main instance, others will already have been redirected before
-    /// the app is constructed.
+    /// Initializes the singleton application object. This will be the single current
+    /// instance, attempts to open more apps will already have been redirected.
     /// </summary>
-    public App(AppInstance appInstance)
+    public App(AppInstance instance)
     {
-        this.appInstance = appInstance;
+        Debug.Assert(instance.IsCurrent);
+
         uiThreadDispatcher = DispatcherQueue.GetForCurrentThread();
 
-        if (appInstance.IsCurrent)
-            appInstance.Activated += MainInstance_Activated;
+        appInstance = instance;
+        appInstance.Activated += MainInstance_Activated;
 
         InitializeComponent();
     }
