@@ -15,8 +15,8 @@
     <ApplicationIcon>Resources\app.ico</ApplicationIcon>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
     <PackageIcon>app.ico</PackageIcon>
-    <AssemblyVersion>1.5.0.0</AssemblyVersion>
-    <FileVersion>1.5.0.0</FileVersion>
+    <AssemblyVersion>1.5.1</AssemblyVersion>
+    <FileVersion>1.5.1</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -30,7 +30,9 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.2.230217.4" />
+	<!-- the build tools are only required for packaged builds to run...
 	<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.755" />
+	-->
 	<Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
 
