@@ -49,6 +49,7 @@ AppUpdatesURL=https://github.com/DHancock/SudokuSolver/releases
 
 [Files]
 Source: "*"; DestDir: "{app}"; Excludes: "*.png"
+Source: "Resources\*"; DestDir: "{app}\Resources"
 
 [Icons]
 Name: "{group}\{#appDisplayName}"; Filename: "{app}\{#appExeName}"
