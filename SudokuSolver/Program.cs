@@ -6,6 +6,7 @@ namespace SudokuSolver;
 public static class Program
 {
     private const string cInstallerMutexName = "sudukosolver.8628521D92E74106";
+    private const string cAppKey = cInstallerMutexName;
 
     [DllImport("Microsoft.ui.xaml.dll")]
     private static extern void XamlCheckProcessRequirements();
@@ -25,16 +26,10 @@ public static class Program
             }
         }
 
-        AppInstance appInstance = AppInstance.FindOrRegisterForKey(App.cAppKey);
+        AppInstance appInstance = AppInstance.FindOrRegisterForKey(cAppKey);
 
-        // the uninstaller checks this named local mutex to see if the app is running
-        bool mutexExists = Mutex.TryOpenExisting(cInstallerMutexName, out Mutex? mutex);
-
-        if (!mutexExists)
-            mutex = new Mutex(initiallyOwned: false, cInstallerMutexName);
-
-        // appInstance.IsCurrent isn't reliable, use the mutex to check for single instancing
-        if (mutexExists)
+        // appInstance.IsCurrent isn't reliable, use the installer mutex instead
+        if (Mutex.TryOpenExisting(cInstallerMutexName, out Mutex? mutex))
         {
             try
             {
@@ -60,6 +55,9 @@ public static class Program
 
             return 5;  // enforce single instancing
         }
+
+        // the uninstaller uses this mutex to check if the app is running
+        _ = new Mutex(initiallyOwned: false, cInstallerMutexName);
 
         Application.Start((p) =>
         {
@@ -118,7 +116,7 @@ public static class Program
         HKCU\Software\RegisteredApplications
 
         Neither of the last two are deleted on unregistration, but the .sdku name is removed from 
-        the WindowsAppRuntimeApplications\Capabilties\FileAssociations
+        the WindowsAppRuntimeApplications\App.xxxxxxxxxxxxxxxx\Capabilties\FileAssociations
     */
 
     private static bool AttemptSwitchToMainWindow()

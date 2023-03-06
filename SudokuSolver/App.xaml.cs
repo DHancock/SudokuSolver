@@ -13,9 +13,7 @@ public partial class App : Application
 {
     public const string cFileExt = ".sdku";
     public const string cDisplayName = "Sudoku Solver";
-    public const string cIconResourceID = "32512";
     public const string cNewPuzzleName = "Untitled";
-    public const string cAppKey = "sudoku-app";
 
     public static bool IsPackaged { get; } = GetIsPackaged();
 
