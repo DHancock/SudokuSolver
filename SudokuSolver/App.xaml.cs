@@ -55,10 +55,8 @@ public partial class App : Application
             else
             {
                 string[] commandLine = Environment.GetCommandLineArgs();
-                bool windowCreated = false;
 
-                if (commandLine.Length > 1)
-                    windowCreated = await ProcessCommandLine(commandLine);
+                bool windowCreated = await ProcessCommandLine(commandLine);
 
                 if (!windowCreated)
                     CreateNewWindow(storageFile: null);
@@ -72,10 +70,13 @@ public partial class App : Application
     {
         bool success = uiThreadDispatcher.TryEnqueue(async () =>
         {
-            if (e.Kind == ExtendedActivationKind.File)
-                ProcessFileActivation(e);
-            else if (e.Kind == ExtendedActivationKind.Launch)
-                await ProcessRedirectedLaunchActivation(e);
+            if (!appClosing)
+            {
+                if (e.Kind == ExtendedActivationKind.File)
+                    ProcessFileActivation(e);
+                else if (e.Kind == ExtendedActivationKind.Launch)
+                    await ProcessRedirectedLaunchActivation(e);
+            }
         });
 
         Debug.Assert(success);
@@ -98,10 +99,8 @@ public partial class App : Application
         if (args.Data is ILaunchActivatedEventArgs launchData)
         {
             string[] commandLine = launchData.Arguments.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            bool windowCreated = false;
 
-            if (commandLine.Length > 1)
-                windowCreated = await ProcessCommandLine(commandLine);
+            bool windowCreated = await ProcessCommandLine(commandLine);
                 
             if (!windowCreated)
                 TrySwitchToMainWindow();
@@ -168,18 +167,16 @@ public partial class App : Application
     private bool TrySwitchToMainWindow()
     {
         IntPtr targetWindow = Process.GetCurrentProcess().MainWindowHandle;
+        Debug.Assert(targetWindow != IntPtr.Zero);
 
-        if (targetWindow != IntPtr.Zero)
+        foreach (MainWindow window in windowList)
         {
-            foreach (MainWindow window in windowList)
+            if (targetWindow == WindowNative.GetWindowHandle(window))
             {
-                if (targetWindow == WindowNative.GetWindowHandle(window))
-                {
-                    if (window.WindowState == WindowState.Minimized) 
-                        window.WindowState = WindowState.Normal;
+                if (window.WindowState == WindowState.Minimized) 
+                    window.WindowState = WindowState.Normal;
 
-                    return TryBumpWindowToFront(window);
-                }
+                return TryBumpWindowToFront(window);
             }
         }
 
