@@ -53,7 +53,16 @@ public partial class App : Application
             if (IsPackaged)
                 CreateNewWindow(storageFile: null);
             else
-                await ProcessCommandLine(Environment.GetCommandLineArgs());
+            {
+                string[] commandLine = Environment.GetCommandLineArgs();
+                bool windowCreated = false;
+
+                if (commandLine.Length > 1)
+                    windowCreated = await ProcessCommandLine(commandLine);
+
+                if (!windowCreated)
+                    CreateNewWindow(storageFile: null);
+            }
         }
     }
 
@@ -61,15 +70,15 @@ public partial class App : Application
     // Unlike OnLaunched(), this isn't called on the ui thread.
     private void MainInstance_Activated(object? sender, AppActivationArguments e)
     {
-        if (e.Kind == ExtendedActivationKind.File)
+        bool success = uiThreadDispatcher.TryEnqueue(async () =>
         {
-            bool success = uiThreadDispatcher.TryEnqueue(() =>
-            {
+            if (e.Kind == ExtendedActivationKind.File)
                 ProcessFileActivation(e);
-            });
+            else if (e.Kind == ExtendedActivationKind.Launch)
+                await ProcessRedirectedLaunchActivation(e);
+        });
 
-            Debug.Assert(success);
-        }
+        Debug.Assert(success);
     }
 
     private void ProcessFileActivation(AppActivationArguments args)
@@ -84,27 +93,39 @@ public partial class App : Application
         }
     }
 
-    private async Task ProcessCommandLine(string[]? args)
+    private async Task ProcessRedirectedLaunchActivation(AppActivationArguments args)
+    {
+        if (args.Data is ILaunchActivatedEventArgs launchData)
+        {
+            string[] commandLine = launchData.Arguments.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            bool windowCreated = false;
+
+            if (commandLine.Length > 1)
+                windowCreated = await ProcessCommandLine(commandLine);
+                
+            if (!windowCreated)
+                TrySwitchToMainWindow();
+        }
+    }
+
+    private async Task<bool> ProcessCommandLine(string[] args)
     {
         bool windowCreated = false;
 
-        if (args?.Length > 1)  // args[0] is typically the path to the executing assembly
+        // args[0] is typically the path to the executing assembly
+        for (int index = 1; index < args.Length; index++)
         {
-            for (int index = 1; index < args.Length; index++)
-            {
-                string arg = args[index];
+            string arg = args[index];
 
-                if (!string.IsNullOrEmpty(arg) && Path.GetExtension(arg).ToLower() == App.cFileExt && File.Exists(arg))
-                {
-                    StorageFile storgeFile = await StorageFile.GetFileFromPathAsync(arg);
-                    CreateNewWindow(storgeFile);
-                    windowCreated = true;
-                }
+            if (!string.IsNullOrEmpty(arg) && Path.GetExtension(arg).ToLower() == App.cFileExt && File.Exists(arg))
+            {
+                StorageFile storgeFile = await StorageFile.GetFileFromPathAsync(arg);
+                CreateNewWindow(storgeFile);
+                windowCreated = true;
             }
         }
-        
-        if (!windowCreated)
-            CreateNewWindow(storageFile: null);
+
+        return windowCreated;
     }
 
     internal void CreateNewWindow(StorageFile? storageFile, MainWindow? creator = null)
@@ -142,6 +163,27 @@ public partial class App : Application
         Debug.Assert(found);
 
         return appClosing;
+    }
+
+    private bool TrySwitchToMainWindow()
+    {
+        IntPtr targetWindow = Process.GetCurrentProcess().MainWindowHandle;
+
+        if (targetWindow != IntPtr.Zero)
+        {
+            foreach (MainWindow window in windowList)
+            {
+                if (targetWindow == WindowNative.GetWindowHandle(window))
+                {
+                    if (window.WindowState == WindowState.Minimized) 
+                        window.WindowState = WindowState.Normal;
+
+                    return TryBumpWindowToFront(window);
+                }
+            }
+        }
+
+        return false;
     }
 
     internal PointInt32 AdjustPositionForOtherWindows(PointInt32 pos)
