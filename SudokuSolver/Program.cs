@@ -6,7 +6,7 @@ namespace SudokuSolver;
 public static class Program
 {
     private const string cInstallerMutexName = "sudukosolver.8628521D92E74106";
-    private const string cAppKey = cInstallerMutexName;
+    private const string cAppKey = "sudukosolver.4DFE572A4538672D";
 
     [DllImport("Microsoft.ui.xaml.dll")]
     private static extern void XamlCheckProcessRequirements();
@@ -28,36 +28,24 @@ public static class Program
 
         AppInstance appInstance = AppInstance.FindOrRegisterForKey(cAppKey);
 
-        // appInstance.IsCurrent isn't reliable, use the installer mutex instead
-        if (Mutex.TryOpenExisting(cInstallerMutexName, out Mutex? mutex))
+        if (!appInstance.IsCurrent)
         {
             try
             {
                 AppActivationArguments aea = AppInstance.GetCurrent().GetActivatedEventArgs();
-
-                if (aea.Kind == ExtendedActivationKind.File)
-                {
-                    await appInstance.RedirectActivationToAsync(aea);
-                    return 3;
-                }
-                else if (aea.Kind == ExtendedActivationKind.Launch)
-                {
-                    AttemptSwitchToMainWindow();
-                    return 4;
-                }
-
-                Debug.Fail($"unknown activation kind: {aea.Kind}");
+                await appInstance.RedirectActivationToAsync(aea);
+                return 3;
             }
             catch (Exception ex)
             {
                 Debug.Fail(ex.ToString());
             }
 
-            return 5;  // enforce single instancing
+            return 4;  // enforce single instancing
         }
 
         // the uninstaller uses this mutex to check if the app is running
-        _ = new Mutex(initiallyOwned: false, cInstallerMutexName);
+        Mutex mutex = new Mutex(initiallyOwned: false, cInstallerMutexName);
 
         Application.Start((p) =>
         {
@@ -118,50 +106,4 @@ public static class Program
         Neither of the last two are deleted on unregistration, but the .sdku name is removed from 
         the WindowsAppRuntimeApplications\App.xxxxxxxxxxxxxxxx\Capabilties\FileAssociations
     */
-
-    private static bool AttemptSwitchToMainWindow()
-    {
-        Process current = Process.GetCurrentProcess();
-        Process[] processes = Process.GetProcessesByName(current.ProcessName);
-
-        foreach (Process process in processes)
-        {
-            try
-            {
-                if ((process.Id != current.Id) && PathEquals(process, current) && (process.MainWindowHandle != IntPtr.Zero))
-                {
-                    HWND hWnd = (HWND)process.MainWindowHandle;
-
-                    WINDOWPLACEMENT placement = default;
-                    placement.length = (uint)Marshal.SizeOf<WINDOWPLACEMENT>();
-
-                    if (!PInvoke.GetWindowPlacement(hWnd, ref placement))
-                        throw new Win32Exception(Marshal.GetLastPInvokeError());
-
-                    if (placement.showCmd == SHOW_WINDOW_CMD.SW_SHOWMINIMIZED)
-                        PInvoke.ShowWindow(hWnd, SHOW_WINDOW_CMD.SW_RESTORE);
-
-                    if (PInvoke.SetForegroundWindow(hWnd))
-                        return true;
-
-                    // restore window opening state (it doesn't change the windows visibility)
-                    if (placement.showCmd == SHOW_WINDOW_CMD.SW_SHOWMINIMIZED)
-                        PInvoke.ShowWindow(hWnd, SHOW_WINDOW_CMD.SW_SHOWMINIMIZED);
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.Fail(ex.ToString());
-            }
-        }
-
-        return false;
-    }
-
-    private static bool PathEquals(Process a, Process b)
-    {
-        return (a.MainModule is not null) &&
-                (b.MainModule is not null) &&
-                string.Equals(a.MainModule.FileName, b.MainModule.FileName, StringComparison.OrdinalIgnoreCase);
-    }
 }
