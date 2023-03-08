@@ -48,8 +48,7 @@ AppUpdatesURL=https://github.com/DHancock/SudokuSolver/releases
 #endif
 
 [Files]
-Source: "*"; DestDir: "{app}"; Excludes: "*.png"
-Source: "Resources\*"; DestDir: "{app}\Resources"
+Source: "*"; DestDir: "{app}"; Flags: recursesubdirs
 
 [Icons]
 Name: "{group}\{#appDisplayName}"; Filename: "{app}\{#appExeName}"
