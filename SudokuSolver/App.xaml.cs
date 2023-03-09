@@ -56,7 +56,7 @@ public partial class App : Application
                 CreateNewWindow(storageFile: null);
             else
             {
-                string[] commandLine = Environment.GetCommandLineArgs();
+                IList<string> commandLine = Environment.GetCommandLineArgs();
 
                 bool windowCreated = await ProcessCommandLine(commandLine);
 
@@ -100,7 +100,7 @@ public partial class App : Application
     {
         if (args.Data is ILaunchActivatedEventArgs launchData)
         {
-            string[] commandLine = SplitCommandLine(launchData.Arguments);
+            IList<string> commandLine = SplitLaunchActivationCommandLine(launchData.Arguments);
 
             bool windowCreated = await ProcessCommandLine(commandLine);
                 
@@ -109,12 +109,12 @@ public partial class App : Application
         }
     }
 
-    private async Task<bool> ProcessCommandLine(string[] args)
+    private async Task<bool> ProcessCommandLine(IList<string> args)
     {
         bool windowCreated = false;
 
         // args[0] is typically the path to the executing assembly
-        for (int index = 1; index < args.Length; index++)
+        for (int index = 1; index < args.Count; index++)
         {
             string arg = args[index];
 
@@ -224,8 +224,8 @@ public partial class App : Application
 
 
     // The command line is constructed by the os when a file is dragged 
-    // and dropped onto the exe, so really should be well formed.
-    private string[] SplitCommandLine(string commandLine)
+    // and dropped onto the exe (or it's shortcut), so really should be well formed.
+    private static IList<string> SplitLaunchActivationCommandLine(string commandLine)
     {
         List<string> arguments = new List<string>();
         StringBuilder sb = new StringBuilder();
@@ -235,21 +235,20 @@ public partial class App : Application
         {
             if (letter == '"')
                 insideQuotes = !insideQuotes;
-            else
+
+            else if (insideQuotes || (letter != ' '))
+                sb.Append(letter);
+
+            else if (sb.Length > 0)
             {
-                if (insideQuotes || (letter != ' '))
-                    sb.Append(letter);
-                else if (sb.Length > 0)
-                {
-                    arguments.Add(sb.ToString());
-                    sb.Clear();
-                }
+                arguments.Add(sb.ToString());
+                sb.Clear();
             }
         }
 
         if (sb.Length > 0)
             arguments.Add(sb.ToString());
 
-        return arguments.ToArray();
+        return arguments;
     }
 }
