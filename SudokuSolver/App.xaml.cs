@@ -1,6 +1,8 @@
 ﻿using SudokuSolver.Utilities;
 using SudokuSolver.Views;
 
+using System.Text;
+
 // not to be confused with Windows.System.DispatcherQueue
 using DispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue;
 
@@ -98,7 +100,7 @@ public partial class App : Application
     {
         if (args.Data is ILaunchActivatedEventArgs launchData)
         {
-            string[] commandLine = launchData.Arguments.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            string[] commandLine = SplitCommandLine(launchData.Arguments);
 
             bool windowCreated = await ProcessCommandLine(commandLine);
                 
@@ -218,5 +220,36 @@ public partial class App : Application
         uint length = 0;
         WIN32_ERROR error = PInvoke.GetCurrentPackageFullName(ref length, null);
         return error == WIN32_ERROR.ERROR_INSUFFICIENT_BUFFER;
+    }
+
+
+    // The command line is constructed by the os when a file is dragged 
+    // and dropped onto the exe, so really should be well formed.
+    private string[] SplitCommandLine(string commandLine)
+    {
+        List<string> arguments = new List<string>();
+        StringBuilder sb = new StringBuilder();
+        bool insideQuotes = false;
+
+        foreach (char letter in commandLine)
+        {
+            if (letter == '"')
+                insideQuotes = !insideQuotes;
+            else
+            {
+                if (insideQuotes || (letter != ' '))
+                    sb.Append(letter);
+                else if (sb.Length > 0)
+                {
+                    arguments.Add(sb.ToString());
+                    sb.Clear();
+                }
+            }
+        }
+
+        if (sb.Length > 0)
+            arguments.Add(sb.ToString());
+
+        return arguments.ToArray();
     }
 }
