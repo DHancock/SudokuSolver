@@ -5,8 +5,8 @@ namespace SudokuSolver;
 
 public static class Program
 {
-    private const string cInstallerMutexName = "sudukosolver.8628521D92E74106";
-    private const string cAppKey = "sudukosolver.4DFE572A4538672D";
+    private const string cInstallerMutexName = "7D096DF7-A1EF-4EC9-B39D-416771E026AC";
+    private const string cAppKey = "586A28D4-3FF0-42B2-829B-5F02BBFC8352";
 
     [DllImport("Microsoft.ui.xaml.dll")]
     private static extern void XamlCheckProcessRequirements();
@@ -45,7 +45,7 @@ public static class Program
         }
 
         // the uninstaller uses this mutex to check if the app is running
-        Mutex mutex = new Mutex(initiallyOwned: false, cInstallerMutexName);
+        SafeFileHandle mutex = PInvoke.CreateMutex(null, bInitialOwner: false, cInstallerMutexName);
 
         Application.Start((p) =>
         {
