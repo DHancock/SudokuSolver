@@ -152,26 +152,7 @@ internal sealed partial class MainWindow : SubClassWindow
     private static RectInt32 ValidateWindowBounds(RectInt32 bounds)
     {
         Debug.Assert(!bounds.IsEmpty());
-
-        RectInt32 workArea = DisplayArea.GetFromRect(bounds, DisplayAreaFallback.Nearest).WorkArea;
-        PointInt32 position = ((App)Application.Current).AdjustPositionForOtherWindows(bounds.TopLeft());
-
-        if ((position.Y + bounds.Height) > workArea.Bottom())
-            position.Y = workArea.Bottom() - bounds.Height;
-
-        if (position.Y < workArea.Y)
-            position.Y = workArea.Y;
-
-        if ((position.X + bounds.Width) > workArea.Right())
-            position.X = workArea.Right() - bounds.Width;
-
-        if (position.X < workArea.X)
-            position.X = workArea.X;
-
-        int width = Math.Min(bounds.Width, workArea.Width);
-        int height = Math.Min(bounds.Height, workArea.Height);
-
-        return new RectInt32(position.X, position.Y, width, height);
+        return ((App)Application.Current).AdjustNewWindowPosition(bounds);
     }
 
     private RectInt32 CenterInPrimaryDisplay()

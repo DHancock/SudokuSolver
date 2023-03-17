@@ -185,7 +185,7 @@ public partial class App : Application
         return false;
     }
 
-    internal PointInt32 AdjustPositionForOtherWindows(PointInt32 pos)
+    internal RectInt32 AdjustNewWindowPosition(RectInt32 bounds)
     {
         static bool TitleBarOverlaps(PointInt32 a, PointInt32 b, int titleBarHeight)
         {
@@ -196,23 +196,52 @@ public partial class App : Application
 
         const int cTitleBarHeight = 32;
         int index = 0;
-
-        while (index < windowList.Count)
+        int resetCount = 0;
+        PointInt32 newPos = bounds.TopLeft();
+        
+        while ((index < windowList.Count) && (resetCount < windowList.Count))
         {
             MainWindow existingWindow = windowList[index++];
             PointInt32 existingPos = existingWindow.RestoreBounds.TopLeft();
             double scaleFactor = existingWindow.GetScaleFactor();
-
             int clientTitleBarHeight = MainWindow.ConvertToDeviceSize(cTitleBarHeight, scaleFactor);
 
-            if (TitleBarOverlaps(existingPos, pos, clientTitleBarHeight))
+            newPos = AdjustWindowBoundsForDisplay(new RectInt32(newPos.X, newPos.Y, bounds.Width, bounds.Height)).TopLeft();
+
+            if (TitleBarOverlaps(existingPos, newPos, clientTitleBarHeight))
             {
-                pos = existingPos.Offset(clientTitleBarHeight + 1);
+                newPos = existingPos.Offset(clientTitleBarHeight + 1);
                 index = 0;
+                ++resetCount;  // avoid an infinate loop if the position cannot be adjusted due to display limits
             }
         }
 
-        return pos;
+        return AdjustWindowBoundsForDisplay(new RectInt32(newPos.X, newPos.Y, bounds.Width, bounds.Height));
+    }
+
+    private static RectInt32 AdjustWindowBoundsForDisplay(RectInt32 bounds)
+    {
+        Debug.Assert(!bounds.IsEmpty());
+
+        RectInt32 workArea = DisplayArea.GetFromRect(bounds, DisplayAreaFallback.Nearest).WorkArea;
+        PointInt32 position = bounds.TopLeft();
+
+        if ((position.Y + bounds.Height) > workArea.Bottom())
+            position.Y = workArea.Bottom() - bounds.Height;
+
+        if (position.Y < workArea.Y)
+            position.Y = workArea.Y;
+
+        if ((position.X + bounds.Width) > workArea.Right())
+            position.X = workArea.Right() - bounds.Width;
+
+        if (position.X < workArea.X)
+            position.X = workArea.X;
+
+        int width = Math.Min(bounds.Width, workArea.Width);
+        int height = Math.Min(bounds.Height, workArea.Height);
+
+        return new RectInt32(position.X, position.Y, width, height);
     }
 
     private static bool GetIsPackaged()
@@ -221,7 +250,6 @@ public partial class App : Application
         WIN32_ERROR error = PInvoke.GetCurrentPackageFullName(ref length, null);
         return error == WIN32_ERROR.ERROR_INSUFFICIENT_BUFFER;
     }
-
 
     // The command line is constructed by the os when a file is dragged 
     // and dropped onto the exe (or it's shortcut), so really should be well formed.
