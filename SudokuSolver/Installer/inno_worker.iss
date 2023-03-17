@@ -15,6 +15,7 @@
 #define appName "SudokuSolver"
 #define appExeName appName + ".exe"
 #define appId "sudukosolver.8628521D92E74106"
+#define installerMutexName "7D096DF7-A1EF-4EC9-B39D-416771E026AC";
 
 [Setup]
 AppId={#appId}
@@ -59,7 +60,7 @@ Name: desktopicon; Description: "{cm:CreateDesktopIcon}"
 
 [Run]
 Filename: "{app}\{#appExeName}"; Parameters: "/register"; 
-Filename: "{app}\{#appExeName}"; Description: "{cm:LaunchProgram,{#appDisplayName}}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#appExeName}"; Description: "{cm:LaunchProgram,{#appDisplayName}}"; Flags: shellexec postinstall skipifsilent
 
 [UninstallRun]
 Filename: "{app}\{#appExeName}"; Parameters: "/unregister"; 
@@ -81,7 +82,7 @@ var
   CautionImage: TBitmapImage;
 begin
   
-  if (not UninstallSilent) and CheckForMutexes('{#appId}') then
+  if (not UninstallSilent) and CheckForMutexes('{#installerMutexName}') then
   begin
     // create the page
     NewPage := TNewNotebookPage.Create(UninstallProgressForm);
