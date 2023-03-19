@@ -11,4 +11,3 @@ CreateDispatcherQueueController
 SetForegroundWindow
 GetForegroundWindow
 GetCurrentPackageFullName
-CreateMutex
