@@ -15,7 +15,7 @@
 #define appName "SudokuSolver"
 #define appExeName appName + ".exe"
 #define appId "sudukosolver.8628521D92E74106"
-#define installerMutexName "7D096DF7-A1EF-4EC9-B39D-416771E026AC";
+
 
 [Setup]
 AppId={#appId}
@@ -70,6 +70,8 @@ Filename: powershell.exe; Parameters: "Get-Process '{#appName}' | where Path -eq
 // code based on this excellent stackoverflow answer:
 // https://stackoverflow.com/questions/7415457/custom-inno-setup-uninstall-page-not-msgbox#42550055
 
+function IsAppRunning: Boolean; forward;
+
 procedure InitializeUninstallProgressForm();
 var
   PageText: TNewStaticText;
@@ -81,8 +83,8 @@ var
   UninstallButton: TNewButton;
   CautionImage: TBitmapImage;
 begin
-  
-  if (not UninstallSilent) and CheckForMutexes('{#installerMutexName}') then
+
+  if (not UninstallSilent) and IsAppRunning then
   begin
     // create the page
     NewPage := TNewNotebookPage.Create(UninstallProgressForm);
@@ -154,5 +156,23 @@ begin
     UninstallProgressForm.PageNameLabel.Caption := PageNameLabel;
     UninstallProgressForm.PageDescriptionLabel.Caption := PageDescriptionLabel;
     UninstallProgressForm.InnerNotebook.ActivePage := UninstallProgressForm.InstallingPage;
+  end;
+end;
+
+
+function IsAppRunning: Boolean;
+var
+  ResultCode: Integer;
+  Params: String;
+begin
+
+  Params := ExpandConstant('Exit (Get-Process ''{#appName}'' | where Path -eq ''{app}\{#appExeName}'').Count');
+
+  if Exec('powershell.exe', Params, '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+  begin
+    Result := ResultCode > 0;
+  end
+  else begin
+    Result := False;
   end;
 end;
