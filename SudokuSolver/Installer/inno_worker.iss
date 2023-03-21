@@ -176,3 +176,31 @@ begin
     Result := False;
   end;
 end;
+
+
+// If this install is updating from version 1.5 (the first version with an installer)
+// then uninstall version 1.5 first. It hit a bug in WinAppSdk 1.2.4 which will break
+// app single instancing. Version 1.5 has been deleted from the GitHub releases.
+procedure CurStepChanged(CurStep: TSetupStep);
+var
+  RegKey: String;
+  InstalledVersion: String;
+  UninstallerPath: String;
+  ResultCode: Integer;
+begin
+  if (CurStep = ssInstall) then
+  begin
+
+    RegKey := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#appId}_is1';
+
+    if RegQueryStringValue(HKCU, RegKey, 'DisplayVersion', InstalledVersion) and (InstalledVersion = '1.5') then
+    begin
+      if RegQueryStringValue(HKCU, RegKey, 'UninstallString', UninstallerPath) then
+      begin
+        Exec(RemoveQuotes(UninstallerPath), '/VERYSILENT', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+      end;
+    end;
+  end;
+end;
+
+
