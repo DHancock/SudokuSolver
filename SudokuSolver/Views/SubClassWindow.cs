@@ -8,8 +8,8 @@ internal class SubClassWindow : Window
     public double MinHeight { get; set; }
     public double InitialWidth { get; set; }
     public double InitialHeight { get; set; }
+    public IntPtr WindowPtr { get; }
 
-    protected readonly HWND hWnd;
     private readonly SUBCLASSPROC subClassDelegate;
     protected readonly AppWindow appWindow;
     private PointInt32 restorePosition;
@@ -17,14 +17,14 @@ internal class SubClassWindow : Window
 
     public SubClassWindow()
     {
-        hWnd = (HWND)WindowNative.GetWindowHandle(this);
+        WindowPtr = WindowNative.GetWindowHandle(this);
 
-        appWindow = AppWindow.GetFromWindowId(Win32Interop.GetWindowIdFromWindow(hWnd));
+        appWindow = AppWindow.GetFromWindowId(Win32Interop.GetWindowIdFromWindow(WindowPtr));
         appWindow.Changed += AppWindow_Changed;
 
         subClassDelegate = new SUBCLASSPROC(NewSubWindowProc);
 
-        if (!PInvoke.SetWindowSubclass(hWnd, subClassDelegate, 0, 0))
+        if (!PInvoke.SetWindowSubclass((HWND)WindowPtr, subClassDelegate, 0, 0))
             throw new Win32Exception(Marshal.GetLastPInvokeError());
     }
 
@@ -95,7 +95,7 @@ internal class SubClassWindow : Window
     public double GetScaleFactor()
     {
         // if the xaml hasn't loaded yet, Content.XamlRoot.RasterizationScale isn't an option
-        double dpi = PInvoke.GetDpiForWindow(hWnd);
+        double dpi = PInvoke.GetDpiForWindow((HWND)WindowPtr);
         return dpi / 96.0;
     }
 

@@ -18,6 +18,7 @@ public partial class App : Application
     public const string cNewPuzzleName = "Untitled";
 
     public static bool IsPackaged { get; } = GetIsPackaged();
+    public static App Instance => (App)Application.Current;
 
     private readonly DispatcherQueue uiThreadDispatcher;
     private readonly AppInstance appInstance;
@@ -139,10 +140,10 @@ public partial class App : Application
         }
     }
 
-    private static bool TryBumpWindowToFront(Window window)
+    private static bool TryBumpWindowToFront(MainWindow window)
     {
         HWND foreground = PInvoke.GetForegroundWindow();
-        HWND target = (HWND)WindowNative.GetWindowHandle(window);
+        HWND target = (HWND)window.WindowPtr;
 
         if (target != foreground)
         {
@@ -173,7 +174,7 @@ public partial class App : Application
 
         foreach (MainWindow window in windowList)
         {
-            if (targetWindow == WindowNative.GetWindowHandle(window))
+            if (targetWindow == window.WindowPtr)
             {
                 if (window.WindowState == WindowState.Minimized) 
                     window.WindowState = WindowState.Normal;
@@ -185,7 +186,47 @@ public partial class App : Application
         return false;
     }
 
-    internal RectInt32 AdjustNewWindowPosition(RectInt32 bounds)
+    internal RectInt32 GetNewWindowPosition(MainWindow newWindow)
+    {
+        if (windowList.Count == 0)  // opening the app's first window
+        {
+            if (ViewModels.Settings.Data.RestoreBounds.IsEmpty())  // first run
+                return CenterInPrimaryDisplay(newWindow);
+
+            return GetNewWindowPosition(ViewModels.Settings.Data.RestoreBounds);
+        }
+
+        // open relative to the top window's last normal position
+        IntPtr targetWindow = Process.GetCurrentProcess().MainWindowHandle;
+
+        foreach (MainWindow window in windowList)
+        {
+            if (targetWindow == window.WindowPtr)
+                return GetNewWindowPosition(window.RestoreBounds); 
+        }
+        
+        Debug.Fail("failed to determine new window position");
+        return CenterInPrimaryDisplay(newWindow); 
+    }
+
+    private static RectInt32 CenterInPrimaryDisplay(MainWindow window)
+    {
+        double scaleFactor = window.GetScaleFactor();
+        int width = MainWindow.ConvertToDeviceSize(window.InitialWidth, scaleFactor);
+        int height = MainWindow.ConvertToDeviceSize(window.InitialHeight, scaleFactor);
+
+        RectInt32 windowArea;
+        RectInt32 workArea = DisplayArea.Primary.WorkArea;
+
+        windowArea.X = Math.Max((workArea.Width - width) / 2, workArea.X);
+        windowArea.Y = Math.Max((workArea.Height - height) / 2, workArea.Y);
+        windowArea.Width = width;
+        windowArea.Height = height;
+
+        return windowArea;
+    }
+
+    internal RectInt32 GetNewWindowPosition(RectInt32 bounds)
     {
         static bool TitleBarOverlaps(PointInt32 a, PointInt32 b, int titleBarHeight)
         {
