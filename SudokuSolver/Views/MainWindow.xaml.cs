@@ -82,11 +82,9 @@ internal sealed partial class MainWindow : SubClassWindow
         printHelper = new PrintHelper(this);
 
         if (creator is not null)
-            appWindow.MoveAndResize(ValidateWindowBounds(creator.RestoreBounds));
-        else if (Settings.Data.RestoreBounds.IsEmpty()) // first run
-            appWindow.MoveAndResize(ValidateWindowBounds(CenterInPrimaryDisplay()));
+            appWindow.MoveAndResize(App.Instance.GetNewWindowPosition(creator.RestoreBounds));
         else
-            appWindow.MoveAndResize(ValidateWindowBounds(Settings.Data.RestoreBounds));
+            appWindow.MoveAndResize(App.Instance.GetNewWindowPosition(this));
 
         if (Settings.Data.WindowState == WindowState.Minimized)
             WindowState = WindowState.Normal;
@@ -135,7 +133,7 @@ internal sealed partial class MainWindow : SubClassWindow
         }
         else
         {
-            bool lastWindow = ((App)Application.Current).UnRegisterWindow(this);
+            bool lastWindow = App.Instance.UnRegisterWindow(this);
 
             if (lastWindow)
             {
@@ -147,29 +145,6 @@ internal sealed partial class MainWindow : SubClassWindow
             // calling Close() doesn't raise an AppWindow.Closing event
             Close();
         }
-    }
-
-    private static RectInt32 ValidateWindowBounds(RectInt32 bounds)
-    {
-        Debug.Assert(!bounds.IsEmpty());
-        return ((App)Application.Current).AdjustNewWindowPosition(bounds);
-    }
-
-    private RectInt32 CenterInPrimaryDisplay()
-    {
-        double scaleFactor = GetScaleFactor();
-        int width = ConvertToDeviceSize(InitialWidth, scaleFactor);
-        int height = ConvertToDeviceSize(InitialHeight, scaleFactor);
-
-        RectInt32 windowArea;
-        RectInt32 workArea = DisplayArea.Primary.WorkArea;
-        
-        windowArea.X = (workArea.Width - width) / 2;
-        windowArea.Y = (workArea.Height - height) / 2;
-        windowArea.Width = width;
-        windowArea.Height = height;
-
-        return windowArea;
     }
 
     private async void NewClickHandler(object sender, RoutedEventArgs e)
@@ -190,7 +165,7 @@ internal sealed partial class MainWindow : SubClassWindow
         if (status != Status.Cancelled)
         {
             FileOpenPicker openPicker = new FileOpenPicker();
-            InitializeWithWindow.Initialize(openPicker, hWnd);
+            InitializeWithWindow.Initialize(openPicker, WindowPtr);
             openPicker.FileTypeFilter.Add(App.cFileExt);
 
             StorageFile file = await openPicker.PickSingleFileAsync();
@@ -207,7 +182,7 @@ internal sealed partial class MainWindow : SubClassWindow
 
     private void NewWindowClickHandler(object sender, RoutedEventArgs e)
     {
-        ((App)Application.Current).CreateNewWindow(storageFile: null, creator: this);
+        App.Instance.CreateNewWindow(storageFile: null, creator: this);
     }
 
     private async void SaveClickHandler(object sender, RoutedEventArgs e)
@@ -336,7 +311,7 @@ internal sealed partial class MainWindow : SubClassWindow
     {
         Status status = Status.Cancelled;
         FileSavePicker savePicker = new FileSavePicker();
-        InitializeWithWindow.Initialize(savePicker, hWnd);
+        InitializeWithWindow.Initialize(savePicker, WindowPtr);
 
         savePicker.FileTypeChoices.Add("Sudoku files", new List<string>() { App.cFileExt });
 
