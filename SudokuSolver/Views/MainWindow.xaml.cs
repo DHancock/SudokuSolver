@@ -12,7 +12,7 @@ internal sealed partial class MainWindow : SubClassWindow
     private enum Status { Cancelled, Continue }
     public WindowViewModel ViewModel { get; private set; }
 
-    private readonly PrintHelper printHelper;
+    private PrintHelper? printHelper;
 
     private StorageFile? sourceFile;
     private bool processingClose = false;
@@ -79,8 +79,6 @@ internal sealed partial class MainWindow : SubClassWindow
         SetWindowIconFromAppIcon();
         UpdateWindowTitle();
 
-        printHelper = new PrintHelper(this);
-
         if (creator is not null)
             appWindow.MoveAndResize(App.Instance.GetNewWindowPosition(creator.RestoreBounds));
         else
@@ -90,7 +88,6 @@ internal sealed partial class MainWindow : SubClassWindow
             WindowState = WindowState.Normal;
         else
             WindowState = Settings.Data.WindowState;
-
        
         layoutRoot.Loaded += async (s, e) =>
         {
@@ -199,6 +196,8 @@ internal sealed partial class MainWindow : SubClassWindow
     {
         try
         {
+            printHelper ??= new PrintHelper(this);
+
             PuzzleView printView = new PuzzleView
             {
                 IsPrintView = true,
