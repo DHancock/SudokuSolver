@@ -49,6 +49,8 @@ internal sealed partial class MainWindow : SubClassWindow
             await HandleWindowClosing();
         };
 
+        Activated += App.Instance.RecordWindowActivated;
+
         if (AppWindowTitleBar.IsCustomizationSupported())
         {
             CustomTitleBar.ParentAppWindow = appWindow;

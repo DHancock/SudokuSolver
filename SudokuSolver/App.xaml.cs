@@ -23,6 +23,7 @@ public partial class App : Application
     private readonly DispatcherQueue uiThreadDispatcher;
     private readonly AppInstance appInstance;
     private readonly List<MainWindow> windowList = new List<MainWindow>();
+    private MainWindow? currentMainWindow;
 
     private bool appClosing = false;
 
@@ -169,18 +170,14 @@ public partial class App : Application
 
     private bool TrySwitchToMainWindow()
     {
-        IntPtr targetWindow = Process.GetCurrentProcess().MainWindowHandle;
-        Debug.Assert(targetWindow != IntPtr.Zero);
+        Debug.Assert(currentMainWindow is not null);
 
-        foreach (MainWindow window in windowList)
+        if (currentMainWindow is not null)
         {
-            if (targetWindow == window.WindowPtr)
-            {
-                if (window.WindowState == WindowState.Minimized) 
-                    window.WindowState = WindowState.Normal;
+            if (currentMainWindow.WindowState == WindowState.Minimized)
+                currentMainWindow.WindowState = WindowState.Normal;
 
-                return TryBumpWindowToFront(window);
-            }
+            return TryBumpWindowToFront(currentMainWindow);
         }
 
         return false;
@@ -188,7 +185,7 @@ public partial class App : Application
 
     internal RectInt32 GetNewWindowPosition(MainWindow newWindow)
     {
-        if (windowList.Count == 0)  // opening the app's first window
+        if (windowList.Count == 0)  
         {
             if (ViewModels.Settings.Data.RestoreBounds.IsEmpty())  // first run
                 return CenterInPrimaryDisplay(newWindow);
@@ -197,15 +194,11 @@ public partial class App : Application
         }
 
         // open relative to the top window's last normal position
-        IntPtr targetWindow = Process.GetCurrentProcess().MainWindowHandle;
+        Debug.Assert(currentMainWindow is not null);
 
-        foreach (MainWindow window in windowList)
-        {
-            if (targetWindow == window.WindowPtr)
-                return GetNewWindowPosition(window.RestoreBounds); 
-        }
+        if (currentMainWindow is not null)
+            return GetNewWindowPosition(currentMainWindow.RestoreBounds); 
         
-        Debug.Fail("failed to determine new window position");
         return CenterInPrimaryDisplay(newWindow); 
     }
 
@@ -319,5 +312,12 @@ public partial class App : Application
             arguments.Add(sb.ToString());
 
         return arguments;
+    }
+
+    public void RecordWindowActivated(object sender, WindowActivatedEventArgs args)
+    {
+        // used to determine where a new window is opened
+        if (args.WindowActivationState != WindowActivationState.Deactivated)
+            currentMainWindow = (MainWindow)sender;
     }
 }
