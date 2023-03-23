@@ -1,8 +1,6 @@
 ﻿using SudokuSolver.Utilities;
 using SudokuSolver.Views;
 
-using System.Text;
-
 // not to be confused with Windows.System.DispatcherQueue
 using DispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue;
 
