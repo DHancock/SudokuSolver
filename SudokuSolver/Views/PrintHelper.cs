@@ -25,9 +25,9 @@ internal sealed class PrintHelper
     private string? headerText;
     
 
-    public PrintHelper(Window window)
+    public PrintHelper(MainWindow window)
     {
-        hWnd = WindowNative.GetWindowHandle(window);
+        hWnd = window.WindowPtr;
         dispatcherQueue = window.DispatcherQueue;
         
         printManager = PrintManagerInterop.GetForWindow(hWnd);
