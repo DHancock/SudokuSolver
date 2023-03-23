@@ -280,9 +280,13 @@ public partial class App : Application
 
     private static bool GetIsPackaged()
     {
+#if DEBUG
         uint length = 0;
         WIN32_ERROR error = PInvoke.GetCurrentPackageFullName(ref length, null);
         return error == WIN32_ERROR.ERROR_INSUFFICIENT_BUFFER;
+#else
+        return false;
+#endif
     }
 
     // The command line is constructed by the os when a file is dragged 
