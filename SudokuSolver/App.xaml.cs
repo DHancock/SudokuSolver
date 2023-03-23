@@ -163,6 +163,11 @@ public partial class App : Application
         bool found = windowList.Remove(window);
         Debug.Assert(found);
 
+        // If all the other windows are minimized then another window won't be
+        // automatically activated. Until it's known, use the last one opended.
+        if (!appClosing && ReferenceEquals(currentMainWindow, window))
+            currentMainWindow = windowList.Last();
+
         return appClosing;
     }
 
