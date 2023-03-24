@@ -19,7 +19,7 @@ internal class SudokuTraceListener : TraceListener
     public SudokuTraceListener(string path) : base(nameof(SudokuTraceListener))
     {
         Path = path;
-        writeMutex = new Mutex(initiallyOwned: false, "C604E038-148B-4E44-9C8F-5CCA9B9EFA8F");
+        writeMutex = new Mutex(initiallyOwned: false, "Global\\C604E038-148B-4E44-9C8F-5CCA9B9EFA8F");
     }
 
 
@@ -63,7 +63,7 @@ internal class SudokuTraceListener : TraceListener
     {
         if (message is not null)
         {
-            message = $"{DateTime.Now:HH\\:mm\\:ss} - {Environment.ProcessId:X8}: {message}";
+            message = $"{DateTime.Now:HH\\:mm\\:ss} - {Environment.ProcessId,6}: {message}";
 
             lock (lockObject)
             {
