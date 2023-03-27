@@ -78,7 +78,7 @@ internal sealed partial class MainWindow : SubClassWindow
         }
 
         // always set the window icon, it's used in the task switcher
-        SetWindowIconFromAppIcon();
+        appWindow.SetIcon("Resources\\app.ico");
         UpdateWindowTitle();
 
         if (creator is not null)
