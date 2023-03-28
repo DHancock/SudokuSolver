@@ -23,10 +23,9 @@ internal sealed partial class CustomTitleBar : UserControl
                 UpdateThemeAndTransparency(s.ActualTheme);
             };
 
-            Loaded += async (s, a) =>
+            Loaded += (s, a) =>
             {
                 UpdateTitleBarPadding(ActualSize.X);
-                windowIcon.Source = await Utils.LoadEmbeddedImageResource("SudokuSolver.Resources.app.png");
             };
         }
     }

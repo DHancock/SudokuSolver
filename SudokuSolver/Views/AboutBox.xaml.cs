@@ -19,10 +19,10 @@ public sealed partial class AboutBox : ContentDialog
             VersionTextBlock.Text += " (D)";
 #endif
 
-        Loaded += async (s, e) =>
+        Loaded += (s, e) =>
         {
-            string path = ActualTheme == ElementTheme.Light ? "SudokuSolver.Resources.about_light.png" : "SudokuSolver.Resources.about_dark.png";
-            AboutImage.Source = await Utils.LoadEmbeddedImageResource(path);
+            string fileName = ActualTheme == ElementTheme.Light ? "about_light.png" : "about_dark.png";
+            AboutImage.Source = new BitmapImage(new Uri("ms-appx:///Resources/" + fileName));
         };
     }
 }
