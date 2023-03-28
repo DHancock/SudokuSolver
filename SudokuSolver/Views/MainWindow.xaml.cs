@@ -207,7 +207,7 @@ internal sealed partial class MainWindow : Window
 
         Status status = Status.Continue;
 
-        if (!processingClose)  // the first user attempt to close, a second will always succeed
+        if (IsPuzzleModified && !processingClose)  // the first user attempt to close, a second will always succeed
         {
             processingClose = true;
 
@@ -238,9 +238,14 @@ internal sealed partial class MainWindow : Window
         }
     }
 
+    private bool IsPuzzleModified => Puzzle.ViewModel!.IsModified;
+
     private async void NewClickHandler(object sender, RoutedEventArgs e)
     {
-        Status status = await SaveExistingFirst();
+        Status status = Status.Continue;
+
+        if (IsPuzzleModified)
+            status = await SaveExistingFirst();
 
         if (status != Status.Cancelled)
         {
@@ -251,7 +256,10 @@ internal sealed partial class MainWindow : Window
 
     private async void OpenClickHandler(object sender, RoutedEventArgs e)
     {
-        Status status = await SaveExistingFirst();
+        Status status = Status.Continue;
+
+        if (IsPuzzleModified)
+            status = await SaveExistingFirst();
 
         if (status != Status.Cancelled)
         {
@@ -337,26 +345,22 @@ internal sealed partial class MainWindow : Window
     private async Task<Status> SaveExistingFirst()
     {
         Status status = Status.Continue;
+        string path;
 
-        if (Puzzle.ViewModel!.Modified)
+        if (SourceFile is null)
+            path = App.cNewPuzzleName;
+        else
+            path = SourceFile.Path;
+
+        ContentDialogResult result = await new ConfirmSaveDialog(path, Content.XamlRoot, layoutRoot.ActualTheme).ShowAsync();
+
+        if (result == ContentDialogResult.Primary)
         {
-            string path;
-
-            if (SourceFile is null)
-                path = App.cNewPuzzleName;
-            else
-                path = SourceFile.Path;
-
-            ContentDialogResult result = await new ConfirmSaveDialog(path, Content.XamlRoot, layoutRoot.ActualTheme).ShowAsync();
-
-            if (result == ContentDialogResult.Primary)
-            {
-                status = await Save();  // if it's a new file, the Save As picker could be cancelled
-            }
-            else if (result == ContentDialogResult.None)
-            {
-                status = Status.Cancelled;
-            }
+            status = await Save();  // if it's a new file, the Save As picker could be cancelled
+        }
+        else if (result == ContentDialogResult.None)
+        {
+            status = Status.Cancelled;
         }
 
         return status;
@@ -464,14 +468,14 @@ internal sealed partial class MainWindow : Window
 
     private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(Puzzle.ViewModel.Modified))
+        if (e.PropertyName == nameof(Puzzle.ViewModel.IsModified))
             UpdateWindowTitle();
     }
 
     private void UpdateWindowTitle()
     {
         string filePart = SourceFile is null ? App.cNewPuzzleName : SourceFile.DisplayName;
-        string modified = Puzzle.ViewModel!.Modified ? "*" : string.Empty;
+        string modified = IsPuzzleModified ? "*" : string.Empty;
         string title;
 
         if (layoutRoot.FlowDirection == FlowDirection.LeftToRight)
