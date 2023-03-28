@@ -28,8 +28,8 @@
             <ColumnDefinition x:Name="TitleColumn" Width="Auto"/>
             <ColumnDefinition x:Name="RightPaddingColumn" Width="0"/>
         </Grid.ColumnDefinitions>
-        
-        <ImageIcon Grid.Column="1" x:Name="windowIcon" Width="16" Height="16" HorizontalAlignment="Left" Margin="12,0,0,0"/>
+
+        <Image Grid.Column="1" x:Name="windowIcon" Source="ms-appx:///Resources/app.png" Height="16" HorizontalAlignment="Left" Margin="12,0,0,0"/>
         <TextBlock Grid.Column="2" x:Name="windowTitle" VerticalAlignment="Center" Foreground="{ThemeResource WindowCaptionForeground}" TextTrimming="CharacterEllipsis"/>
     </Grid>
 </UserControl>

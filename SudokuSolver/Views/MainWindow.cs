@@ -3,7 +3,7 @@
 
 namespace SudokuSolver.Views
 {
-    internal sealed partial class MainWindow : SubClassWindow
+    internal sealed partial class MainWindow : Window
     {
         WindowsSystemDispatcherQueueHelper? m_wsdqHelper; // See separate sample below for implementation
         Microsoft.UI.Composition.SystemBackdrops.MicaController? m_micaController;
