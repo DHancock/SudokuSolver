@@ -10,7 +10,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
     public CellList Cells { get; }
     public Settings.PerViewSettings ViewSettings { get; }
 
-    private bool modified = false;
+    private bool isModified = false;
 
     public PuzzleViewModel(Settings.PerViewSettings viewSettings)
     {
@@ -65,7 +65,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
             if (modelFunction(index, newValue))
             {
                 UpdateView();
-                Modified = true;
+                IsModified = true;
             }
             else
             {
@@ -77,7 +77,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
     public void Save(Stream stream)
     {
         Model.Save(stream);
-        Modified = false;
+        IsModified = false;
     }
 
     public void Open(Stream stream)
@@ -86,7 +86,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         {
             Model.Clear();
             Model.Open(stream);
-            Modified = false;
+            IsModified = false;
         }
         catch
         {
@@ -117,7 +117,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
     {
         Model.Clear();
         UpdateView();
-        Modified = false;
+        IsModified = false;
     }
 
     public bool ShowPossibles
@@ -171,14 +171,14 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         }
     }
 
-    public bool Modified
+    public bool IsModified
     {
-        get => modified;
+        get => isModified;
         set
         {
-            if (modified != value)
+            if (isModified != value)
             {
-                modified = value;
+                isModified = value;
                 NotifyPropertyChanged();
             }
         }

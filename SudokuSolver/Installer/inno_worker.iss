@@ -11,7 +11,7 @@
 #endif
 
 #define appDisplayName "Sudoku Solver"
-#define appVer "1.5.1"
+#define appVer "1.5.2"
 #define appName "SudokuSolver"
 #define appExeName appName + ".exe"
 #define appId "sudukosolver.8628521D92E74106"
