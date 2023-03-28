@@ -31,14 +31,13 @@ public partial class App : Application
     /// </summary>
     public App(AppInstance instance)
     {
-        Debug.Assert(instance.IsCurrent);
+        InitializeComponent();
 
         uiThreadDispatcher = DispatcherQueue.GetForCurrentThread();
 
+        Debug.Assert(instance.IsCurrent);
         appInstance = instance;
         appInstance.Activated += MainInstance_Activated;
-
-        InitializeComponent();
     }
 
     // Invoked on the ui thread when the application is launched normally
@@ -165,8 +164,8 @@ public partial class App : Application
 
         // If all the other windows are minimized then another window won't be
         // automatically activated. Until it's known, use the last one opended.
-        if (!appClosing && ReferenceEquals(currentMainWindow, window))
-            currentMainWindow = windowList.Last();
+        if (ReferenceEquals(currentMainWindow, window))
+            currentMainWindow = appClosing ? null : windowList[windowList.Count - 1];
 
         return appClosing;
     }
@@ -208,8 +207,8 @@ public partial class App : Application
     private static RectInt32 CenterInPrimaryDisplay(MainWindow window)
     {
         double scaleFactor = window.GetScaleFactor();
-        int width = MainWindow.ConvertToDeviceSize(window.InitialWidth, scaleFactor);
-        int height = MainWindow.ConvertToDeviceSize(window.InitialHeight, scaleFactor);
+        int width = MainWindow.ConvertToDeviceSize(MainWindow.InitialWidth, scaleFactor);
+        int height = MainWindow.ConvertToDeviceSize(MainWindow.InitialHeight, scaleFactor);
 
         RectInt32 windowArea;
         RectInt32 workArea = DisplayArea.Primary.WorkArea;
