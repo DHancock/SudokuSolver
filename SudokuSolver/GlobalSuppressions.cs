@@ -5,6 +5,7 @@
 
 [assembly: SuppressMessage("Style", "IDE0017:Simplify object initialization")]
 [assembly: SuppressMessage("Style", "IDE0028:Simplify collection initialization")]
+[assembly: SuppressMessage("Style", "IDE0056:Use index operator")]
 [assembly: SuppressMessage("Style", "IDE0057:Use range operator")]
 [assembly: SuppressMessage("Style", "IDE0063:Use simple 'using' statement")]
 [assembly: SuppressMessage("Style", "IDE0066:Convert switch statement to expression")]
