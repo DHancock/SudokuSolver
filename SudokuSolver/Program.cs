@@ -1,4 +1,5 @@
 ﻿using Microsoft.UI.Dispatching;
+
 using DispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue;
 
 namespace SudokuSolver;
@@ -11,46 +12,45 @@ public static class Program
     private static extern void XamlCheckProcessRequirements();
 
     [STAThread]
-    static async Task<int> Main(string[] args)
+    static async Task Main(string[] args)
     {
-        XamlCheckProcessRequirements();
-        ComWrappersSupport.InitializeComWrappers();
-
-        if (args.Length == 1)
-        {
-            switch (args[0])
-            {
-                case "/register": RegisterFileTypeActivation(); return 1;
-                case "/unregister": UnregisterFileTypeActivation(); return 2;
-            }
-        }
-
-        AppInstance appInstance = AppInstance.FindOrRegisterForKey(cAppKey);
-
-        if (!appInstance.IsCurrent)
+        if (Bootstrap.TryInitialize(FindRollForwardSdkVersion(3000), out int hresult))
         {
             try
             {
-                AppActivationArguments aea = AppInstance.GetCurrent().GetActivatedEventArgs();
-                await appInstance.RedirectActivationToAsync(aea);
-                return 3;
+                if ((args.Length == 1) && string.Equals(args[0], "/register", StringComparison.Ordinal))
+                {
+                    RegisterFileTypeActivation();
+                }
+                else if ((args.Length == 1) && string.Equals(args[0], "/unregister", StringComparison.Ordinal))
+                {
+                    UnregisterFileTypeActivation();
+                }
+                else
+                {
+                    AppInstance appInstance = AppInstance.FindOrRegisterForKey(cAppKey);
+
+                    if (!appInstance.IsCurrent)
+                    {
+                        AppActivationArguments aea = AppInstance.GetCurrent().GetActivatedEventArgs();
+                        await appInstance.RedirectActivationToAsync(aea);
+                    }
+                    else
+                    {
+                        Application.Start((p) =>
+                        {
+                            var context = new DispatcherQueueSynchronizationContext(DispatcherQueue.GetForCurrentThread());
+                            SynchronizationContext.SetSynchronizationContext(context);
+                            _ = new App(appInstance);
+                        });
+                    }
+                }
             }
-            catch (Exception ex)
+            finally
             {
-                Debug.Fail(ex.ToString());
+                Bootstrap.Shutdown();
             }
-
-            return 4;  // enforce single instancing
         }
-
-        Application.Start((p) =>
-        {
-            var context = new DispatcherQueueSynchronizationContext(DispatcherQueue.GetForCurrentThread());
-            SynchronizationContext.SetSynchronizationContext(context);
-            _ = new App(appInstance);
-        });
-
-        return 0;
     }
 
     private static void RegisterFileTypeActivation()
@@ -59,47 +59,61 @@ public static class Program
         string[] verbs = new[] { "open" };
         string logo = $"{Environment.ProcessPath},0";
 
-        // multiple registrations for the same path won't create additional registry entries
-        // however it will cause all desktop icons to be refreshed, so should be avoided
         ActivationRegistrationManager.RegisterForFileTypeActivation(fileTypes, logo, App.cDisplayName, verbs, string.Empty);
     }
 
     private static void UnregisterFileTypeActivation()
     {
-        try
-        {
-            string[] fileTypes = new[] { App.cFileExt };
-            ActivationRegistrationManager.UnregisterForFileTypeActivation(fileTypes, Environment.ProcessPath);
-        }
-        catch (Exception ex)
-        {
-            // a file not found exception probably means the file type hasn't been
-            // registered for this application's path
-            Debug.Fail(ex.ToString());
-        }
+        string[] fileTypes = new[] { App.cFileExt };
+
+        ActivationRegistrationManager.UnregisterForFileTypeActivation(fileTypes, Environment.ProcessPath);
     }
 
-    /*
-        As of WinAppSdk 1.2.4, registration creates most of the usual file extension association registry entries,
-        generating a prod id key value in the form of "App.xxxxxxxxxxxxxxxx.File":
+    private static uint FindRollForwardSdkVersion(uint minimumPackageMajorVersion)
+    {
+        const string cMicrosoft = "8wekyb3d8bbwe";
 
-        HKCU\Software\Classes\.sdku\OpenWithProgids
-        HKCU\Software\Classes\App.xxxxxxxxxxxxxxxx.File
+        object lockObject = new object();
+        PackageManager packageManager = new PackageManager();
+        ProcessorArchitecture architecture = GetProcessorArchitecture();
 
-        It doesn't create this usual file association entry containing the file extension:
+        uint latestPackageMajorVersion = minimumPackageMajorVersion;
 
-        HKCU\Software\Classes\Applications\<app name.exe>\SupportedTypes -> name of .sdku
+        Parallel.ForEach(packageManager.FindPackagesForUserWithPackageTypes("", PackageTypes.Main), package =>
+        {
+            if ((package.Id.Architecture == architecture) &&
+                (package.Id.Version.Major > minimumPackageMajorVersion) &&
+                string.Equals(package.Id.PublisherId, cMicrosoft, StringComparison.Ordinal) &&
+                package.Id.FullName.StartsWith("Microsoft.WinAppRuntime.DDLM.") &&
+                (package.Dependencies.Count == 1))
+            {
+                // check the DDLM package has a dependency on a framework package
+                Windows.ApplicationModel.Package dependency = package.Dependencies[0];
 
-        It does create other entries with the prog id key, but minus the ".File" part. It lists the file extension 
-        associations for that key under: 
+                if (dependency.IsFramework &&
+                    dependency.Id.FullName.StartsWith("Microsoft.WindowsAppRuntime.1."))
+                {
+                    lock (lockObject)
+                    {
+                        if (latestPackageMajorVersion < dependency.Id.Version.Major)
+                            latestPackageMajorVersion = dependency.Id.Version.Major;
+                    }
+                }
+            }
+        });
 
-        HKCU\Software\Microsoft\WindowsAppRuntimeApplications\App.xxxxxxxxxxxxxxxx
+        return 0x00010000 + (latestPackageMajorVersion / 1000);
+    }
 
-        It also adds it as a named value under:
+    private static ProcessorArchitecture GetProcessorArchitecture()
+    {
+        switch (RuntimeInformation.ProcessArchitecture)
+        {
+            case Architecture.X86: return ProcessorArchitecture.X86;
+            case Architecture.X64: return ProcessorArchitecture.X64;
+            case Architecture.Arm64: return ProcessorArchitecture.Arm64;
 
-        HKCU\Software\RegisteredApplications
-
-        Neither of the last two are deleted on unregistration, but the .sdku name is removed from 
-        the WindowsAppRuntimeApplications\App.xxxxxxxxxxxxxxxx\Capabilties\FileAssociations
-    */
+            default: return ProcessorArchitecture.Unknown;
+        }
+    }
 }
