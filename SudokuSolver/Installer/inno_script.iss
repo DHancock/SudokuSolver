@@ -407,16 +407,14 @@ begin
 end;
 
 
-// If this install is updating from any version less than 1.6 then the older version 
-// must be uninstalled first. Those were selfcontained builds and the extra dlls left
-// in the install directory won't be automatically deleted on upgrade. However these
-// dlls will cause the framework dependent app to trap on start up.
+// The remnants of a self contained install dlls will cause a framework dependent 
+// app to trap on start. Have to uninstall first. Down grading from framework
+// dependent to an old self contained version also causes the app to fail. 
+// The old installer releases will be removed from GitHub.
 procedure CurStepChanged(CurStep: TSetupStep);
 var
-  RegKey: String;
-  InstalledVersion: String;
-  UninstallerPath: String;
-  ResultCode: Integer;
+  ResultCode, Attempts: Integer;
+  RegKey, InstalledVersion, UninstallerPath: String; 
 begin
   if (CurStep = ssInstall) then
   begin
@@ -428,22 +426,27 @@ begin
       begin
         UninstallerPath := RemoveQuotes(UninstallerPath);
         
-        if (Exec(UninstallerPath, '/VERYSILENT', '', SW_HIDE, ewWaitUntilTerminated, ResultCode)) then
+        Exec(UninstallerPath, '/VERYSILENT', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+        Log('Uninstall version: ' + InstalledVersion + ' returned: ' + IntToStr(ResultCode));
+        
+        if ResultCode = 0 then // wait until the uninstall has completed
         begin
-          Log('Uninstall version: ' + InstalledVersion + ' returned: ' + IntToStr(ResultCode));
-          
-          if ResultCode = 0 then
-          begin
-            // wait until old the uninstaller has been deleted. Windows cannot delete running exe's so the 
-            // uninstaller first copies itself to temp, starts the temp version and then quits. As such
-            // using "ewWaitUntilTerminated" on starting the original may not work as expected...
-            
-            while FileExists(UninstallerPath) do
-              Sleep(125);
-              
-            Log('Uninstall completed');
+          Attempts := 12 * 30 ;
+           
+          while FileExists(UninstallerPath) and (Attempts > 0) do
+          Begin
+            Sleep(125);
+            Attempts := Attempts - 1;
           end;
-        end;  
+            
+          Log('Uninstall completed, Attempts: ' + IntToStr(Attempts));
+        end;
+      
+        if (ResultCode <> 0) or FileExists(UninstallerPath) then
+        begin
+          SuppressibleMsgBox('Setup failed to uninstall a previous version.', mbCriticalError, MB_OK, IDOK) ;
+          Abort;
+        end;
       end;
     end;
   end;
