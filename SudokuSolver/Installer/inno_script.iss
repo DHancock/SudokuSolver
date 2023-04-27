@@ -431,7 +431,7 @@ begin
         
         if ResultCode = 0 then // wait until the uninstall has completed
         begin
-          Attempts := 12 * 30 ;
+          Attempts := 8 * 30 ;
            
           while FileExists(UninstallerPath) and (Attempts > 0) do
           Begin
