@@ -78,6 +78,8 @@ function IsNetDesktopInstalled() : Boolean; forward;
 function GetPlatformStr() : String; forward;
 function OnDownloadProgress(const Url, FileName: String; const Progress, ProgressMax: Int64) : Boolean; forward;
 procedure AddDownload(const Url, Title: String; const CheckFunction: TCheckFunc); forward;
+function VersionComparer(const A, B: String): Integer; forward;
+function IsSelfcontained(const Version: String): Boolean; forward;
 function IsAppRunning: Boolean; forward;
   
   
@@ -405,10 +407,10 @@ begin
 end;
 
 
-// If this install is updating from version 1.5 (the first version with an installer)
-// then uninstall version 1.5 first. It hit a bug in WinAppSdk 1.2.4 which will break
-// app single instancing. The registered app path is unfortunately case sensitive.
-// Version 1.5 has been deleted from the GitHub releases.
+// If this install is updating from any version less than 1.6 then the older version 
+// must be uninstalled first. Those were selfcontained builds and the extra dlls left
+// in the install directory won't be automatically deleted on upgrade. However these
+// dlls will cause the framework dependent app to trap on start up.
 procedure CurStepChanged(CurStep: TSetupStep);
 var
   RegKey: String;
@@ -420,7 +422,7 @@ begin
   begin
     RegKey := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#appId}_is1';
 
-    if RegQueryStringValue(HKCU, RegKey, 'DisplayVersion', InstalledVersion) and (InstalledVersion = '1.5') then
+    if RegQueryStringValue(HKCU, RegKey, 'DisplayVersion', InstalledVersion) and IsSelfcontained(InstalledVersion) then
     begin
       if RegQueryStringValue(HKCU, RegKey, 'UninstallString', UninstallerPath) then
       begin
@@ -428,7 +430,7 @@ begin
         
         if (Exec(UninstallerPath, '/VERYSILENT', '', SW_HIDE, ewWaitUntilTerminated, ResultCode)) then
         begin
-          Log('Uninstall version 1.5 returned: ' + IntToStr(ResultCode));
+          Log('Uninstall version: ' + InstalledVersion + ' returned: ' + IntToStr(ResultCode));
           
           if ResultCode = 0 then
           begin
@@ -445,4 +447,28 @@ begin
       end;
     end;
   end;
+end;
+
+
+function IsSelfcontained(const Version: String): Boolean;
+begin
+  Result := VersionComparer(Version, '1.6') < 0 ;
+end;
+  
+
+// A < B returns -ve
+// A = B returns 0
+// A > B returns +ve
+function VersionComparer(const A, B: String): Integer;
+var
+  X, Y: Int64;
+begin
+
+  if not StrToVersion(A, X) then
+    Log('StrToVersion() failed for A: ' + A) ;
+    
+  if not StrToVersion(B, Y) then
+    Log('StrToVersion() failed for B: ' + B) ;
+  
+  Result := ComparePackedVersion(X, Y) ;
 end;
