@@ -142,84 +142,87 @@ var
 begin
   NeedsRestart := false;
   Result := ''; 
-
   Count := GetArrayLength(DownloadsList);
   
   if Count > 0 then
   begin
     DownloadPage := CreateDownloadPage(SetupMessage(msgWizardPreparing), SetupMessage(msgPreparingDesc), @OnDownloadProgress);
-    DownloadPage.Show;
-    
+    DownloadPage.Show;       
     Index := 0;
+    
+    try
+      try
+        repeat
+          Dependency := DownloadsList[Index];
 
-    repeat
-      Dependency := DownloadsList[Index];
-
-      DownloadPage.Clear;
-      DownloadPage.Add(Dependency.Url, ExtractFileName(Dependency.Url), '');
-      
-      repeat 
-        Retry := false;
-        try
-          DownloadPage.Download;
-        except
-        
-          if DownloadPage.AbortedByUser then
-          begin
-            Result := 'Download of ' + Dependency.Title + ' was cancelled.';
-            Index := Count;
-            break;
-          end
-          else
-          begin
-            case SuppressibleMsgBox(AddPeriod(GetExceptionMessage), mbError, MB_ABORTRETRYIGNORE, IDIGNORE) of
-              IDABORT: begin
+          DownloadPage.Clear;
+          DownloadPage.Add(Dependency.Url, ExtractFileName(Dependency.Url), '');
+          
+          repeat 
+            Retry := false;
+            try
+              DownloadPage.Download;
+            except
+            
+              if DownloadPage.AbortedByUser then
+              begin
                 Result := 'Download of ' + Dependency.Title + ' was cancelled.';
                 Index := Count;
                 break;
-              end;
-              IDRETRY: begin
-                Retry := True;
-              end;
+              end
+              else
+              begin
+                case SuppressibleMsgBox(AddPeriod(GetExceptionMessage), mbError, MB_ABORTRETRYIGNORE, IDIGNORE) of
+                  IDABORT: begin
+                    Result := 'Download of ' + Dependency.Title + ' was cancelled.';
+                    Index := Count;
+                    break;
+                  end;
+                  IDRETRY: begin
+                    Retry := True;
+                  end;
+                end;
+              end; 
             end;
-          end; 
-        end;
-      until not Retry;
+          until not Retry;
 
-      if Result = '' then
-      begin
-        DownloadPage.AbortButton.Hide;
-        DownloadPage.SetText('Installing the ' + Dependency.Title, '');
-        DownloadPage.ProgressBar.Style := npbstMarquee;
-        
-        ExeFilePath := ExpandConstant('{tmp}\') + ExtractFileName(Dependency.Url);
+          if Result = '' then
+          begin
+            DownloadPage.AbortButton.Hide;
+            DownloadPage.SetText('Installing the ' + Dependency.Title, '');
+            DownloadPage.ProgressBar.Style := npbstMarquee;
+            
+            ExeFilePath := ExpandConstant('{tmp}\') + ExtractFileName(Dependency.Url);
 
-        if not Exec(ExeFilePath, '', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
-        begin
-          Result := 'An error occured installing ' + Dependency.Title + '.'#13#10 + SysErrorMessage(ResultCode);
-          break;
-        end;
+            if not Exec(ExeFilePath, '', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+            begin
+              Result := 'An error occured installing ' + Dependency.Title + '.'#13#10 + SysErrorMessage(ResultCode);
+              break;
+            end;
 
-        DeleteFile(ExeFilePath);
-        
-        if not Dependency.CheckFunction() then
-        begin
-          Result := 'Installation of ' + Dependency.Title + ' failed.';
-          break;
-        end;
-        
-        DownloadPage.ProgressBar.Style := npbstNormal;
-        DownloadPage.AbortButton.Show;
+            DeleteFile(ExeFilePath);
+            
+            if not Dependency.CheckFunction() then
+            begin
+              Result := 'Installation of ' + Dependency.Title + ' failed.';
+              break;
+            end;
+            
+            DownloadPage.ProgressBar.Style := npbstNormal;
+            DownloadPage.AbortButton.Show;
+          end;
+
+          Index := Index + 1;
+          
+        until Index >= Count;
+      except
+        Result := 'Installing prerequesites failed.'#13#10 + GetExceptionMessage;
       end;
-
-      Index := Index + 1;
-
-    until Index >= Count;
-
-    DownloadPage.Hide;
-    DownloadPage.Free;
+    finally
+      DownloadPage.Hide;
+    end;
   end;
-end;                                                            
+end;                                              
 
 
 procedure AddDownload(const Url, Title: String; const CheckFunction: TCheckFunc); 
@@ -299,6 +302,90 @@ begin
     Log('Exec NetCoreCheck.exe failed: ' + SysErrorMessage(ResultCode));    
 
   Result := ResultCode = 0 ;
+end;
+
+
+// The remnants of a self contained install dlls will cause a framework dependent 
+// app to trap on start. Have to uninstall first. Down grading from framework
+// dependent to an old self contained version also causes the app to fail. 
+// The old installer releases will be removed from GitHub.
+procedure CurStepChanged(CurStep: TSetupStep);
+var
+  ResultCode, Attempts: Integer;
+  RegKey, InstalledVersion, UninstallerPath: String;
+  ProgressPage: TOutputMarqueeProgressWizardPage;
+begin
+  if (CurStep = ssInstall) then
+  begin
+    RegKey := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#appId}_is1';
+
+    if RegQueryStringValue(HKCU, RegKey, 'DisplayVersion', InstalledVersion) and IsSelfcontained(InstalledVersion) then
+    begin
+      if RegQueryStringValue(HKCU, RegKey, 'UninstallString', UninstallerPath) then
+      begin
+        ResultCode := 1;
+
+        ProgressPage := CreateOutputMarqueeProgressPage('Uninstall', 'Uninstalling version ' + InstalledVersion);
+        ProgressPage.Animate;
+        ProgressPage.Show;
+
+        try
+          try 
+            UninstallerPath := RemoveQuotes(UninstallerPath);
+            
+            Exec(UninstallerPath, '/VERYSILENT /SUPPRESSMSGBOXES', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+            Log('Uninstall version: ' + InstalledVersion + ' returned: ' + IntToStr(ResultCode));
+            
+            if ResultCode = 0 then // wait until the uninstall has completed
+            begin
+              Attempts := 8 * 30 ;
+               
+              while FileExists(UninstallerPath) and (Attempts > 0) do
+              begin
+                Sleep(125);
+                Attempts := Attempts - 1;
+              end;
+                
+              Log('Uninstall completed, attempts remaining: ' + IntToStr(Attempts));
+            end;
+          except
+          end;
+        finally
+          ProgressPage.Hide;
+        end;
+
+        if (ResultCode <> 0) or FileExists(UninstallerPath) then
+        begin
+          SuppressibleMsgBox('Setup failed to uninstall a previous version.', mbCriticalError, MB_OK, IDOK);
+          Abort;
+        end;
+      end;
+    end;
+  end;
+end;
+
+
+function IsSelfcontained(const Version: String): Boolean;
+begin
+  Result := VersionComparer(Version, '1.6') < 0 ;
+end;
+  
+
+// A < B returns -ve
+// A = B returns 0
+// A > B returns +ve
+function VersionComparer(const A, B: String): Integer;
+var
+  X, Y: Int64;
+begin
+
+  if not StrToVersion(A, X) then
+    Log('StrToVersion() failed for A: ' + A) ;
+    
+  if not StrToVersion(B, Y) then
+    Log('StrToVersion() failed for B: ' + B) ;
+  
+  Result := ComparePackedVersion(X, Y) ;
 end;
 
 
@@ -404,74 +491,4 @@ begin
     Log('Failed to start powershell, error: ' + IntToStr(ResultCode));
     Result := False;
   end;
-end;
-
-
-// The remnants of a self contained install dlls will cause a framework dependent 
-// app to trap on start. Have to uninstall first. Down grading from framework
-// dependent to an old self contained version also causes the app to fail. 
-// The old installer releases will be removed from GitHub.
-procedure CurStepChanged(CurStep: TSetupStep);
-var
-  ResultCode, Attempts: Integer;
-  RegKey, InstalledVersion, UninstallerPath: String; 
-begin
-  if (CurStep = ssInstall) then
-  begin
-    RegKey := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#appId}_is1';
-
-    if RegQueryStringValue(HKCU, RegKey, 'DisplayVersion', InstalledVersion) and IsSelfcontained(InstalledVersion) then
-    begin
-      if RegQueryStringValue(HKCU, RegKey, 'UninstallString', UninstallerPath) then
-      begin
-        UninstallerPath := RemoveQuotes(UninstallerPath);
-        
-        Exec(UninstallerPath, '/VERYSILENT', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
-        Log('Uninstall version: ' + InstalledVersion + ' returned: ' + IntToStr(ResultCode));
-        
-        if ResultCode = 0 then // wait until the uninstall has completed
-        begin
-          Attempts := 8 * 30 ;
-           
-          while FileExists(UninstallerPath) and (Attempts > 0) do
-          Begin
-            Sleep(125);
-            Attempts := Attempts - 1;
-          end;
-            
-          Log('Uninstall completed, Attempts: ' + IntToStr(Attempts));
-        end;
-      
-        if (ResultCode <> 0) or FileExists(UninstallerPath) then
-        begin
-          SuppressibleMsgBox('Setup failed to uninstall a previous version.', mbCriticalError, MB_OK, IDOK) ;
-          Abort;
-        end;
-      end;
-    end;
-  end;
-end;
-
-
-function IsSelfcontained(const Version: String): Boolean;
-begin
-  Result := VersionComparer(Version, '1.6') < 0 ;
-end;
-  
-
-// A < B returns -ve
-// A = B returns 0
-// A > B returns +ve
-function VersionComparer(const A, B: String): Integer;
-var
-  X, Y: Int64;
-begin
-
-  if not StrToVersion(A, X) then
-    Log('StrToVersion() failed for A: ' + A) ;
-    
-  if not StrToVersion(B, Y) then
-    Log('StrToVersion() failed for B: ' + B) ;
-  
-  Result := ComparePackedVersion(X, Y) ;
 end;
