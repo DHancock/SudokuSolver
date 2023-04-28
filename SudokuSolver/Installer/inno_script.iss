@@ -61,7 +61,7 @@ Filename: powershell.exe; Parameters: "Get-Process '{#appName}' | where Path -eq
 
 [code]
 type
-  TCheckFunc = function() : Boolean;
+  TCheckFunc = function(): Boolean;
   
   TDependencyItem = record
     Url: String;
@@ -70,13 +70,13 @@ type
   end;
   
 var
-  DownloadsList : array of TDependencyItem;
+  DownloadsList: array of TDependencyItem;
 
   
-function IsWinAppSdkInstalled() : Boolean; forward;
-function IsNetDesktopInstalled() : Boolean; forward;
-function GetPlatformStr() : String; forward;
-function OnDownloadProgress(const Url, FileName: String; const Progress, ProgressMax: Int64) : Boolean; forward;
+function IsWinAppSdkInstalled(): Boolean; forward;
+function IsNetDesktopInstalled(): Boolean; forward;
+function GetPlatformStr(): String; forward;
+function OnDownloadProgress(const Url, FileName: String; const Progress, ProgressMax: Int64): Boolean; forward;
 procedure AddDownload(const Url, Title: String; const CheckFunction: TCheckFunc); forward;
 function VersionComparer(const A, B: String): Integer; forward;
 function IsSelfcontained(const Version: String): Boolean; forward;
@@ -85,8 +85,8 @@ function IsAppRunning: Boolean; forward;
   
 function InitializeSetup(): Boolean;
 var 
-  UpdateNet, UpdateWinAppSdk : Boolean;
-  IniFile, DownloadUrl, Message : String;
+  UpdateNet, UpdateWinAppSdk: Boolean;
+  IniFile, DownloadUrl, Message: String;
 begin
   Result := true;
   
@@ -135,8 +135,8 @@ end;
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 var
   Retry: Boolean;
-  ExeFilePath : String;
-  Dependency : TDependencyItem;
+  ExeFilePath: String;
+  Dependency: TDependencyItem;
   ResultCode, Count, Index: Integer;
   DownloadPage: TDownloadWizardPage;
 begin
@@ -250,7 +250,7 @@ begin
 end;
  
 
-function GetPlatformStr() : String;
+function GetPlatformStr(): String;
 begin
   case ProcessorArchitecture of
     paX86: Result := 'x86';
@@ -261,7 +261,7 @@ end;
 
 
 // returns a Windows.System.ProcessorArchitecture enum value
-function GetPlatformParamStr() : String;
+function GetPlatformParamStr(): String;
 begin
   case ProcessorArchitecture of
     paX86: Result := '0';
@@ -271,12 +271,12 @@ begin
 end;
 
 
-function IsWinAppSdkInstalled() : Boolean;
+function IsWinAppSdkInstalled(): Boolean;
 var
-  ExeFilePath : String;
-  ResultCode : Integer;
+  ExeFilePath: String;
+  ResultCode: Integer;
 begin
-  ExeFilePath := ExpandConstant('{tmp}\CheckWinAppSdk.exe') ;
+  ExeFilePath := ExpandConstant('{tmp}\CheckWinAppSdk.exe');
 
   if not FileExists(ExeFilePath) then
     ExtractTemporaryFile('CheckWinAppSdk.exe');
@@ -284,16 +284,16 @@ begin
   if not Exec(ExeFilePath, '3000 ' + GetPlatformParamStr, '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
     Log('Exec CheckWinAppSdk.exe failed: ' + SysErrorMessage(ResultCode));    
 
-  Result := ResultCode = 0 ;
+  Result := ResultCode = 0;
 end;
 
 
-function IsNetDesktopInstalled() : Boolean;
+function IsNetDesktopInstalled(): Boolean;
 var
-  ExeFilePath : String;
-  ResultCode : Integer;
+  ExeFilePath: String;
+  ResultCode: Integer;
 begin
-  ExeFilePath := ExpandConstant('{tmp}\NetCoreCheck.exe') ;
+  ExeFilePath := ExpandConstant('{tmp}\NetCoreCheck.exe');
 
   if not FileExists(ExeFilePath) then
     ExtractTemporaryFile('NetCoreCheck.exe');
@@ -301,7 +301,7 @@ begin
   if not Exec(ExeFilePath, '-n Microsoft.WindowsDesktop.App -v 6.0.16 -r LatestMajor', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
     Log('Exec NetCoreCheck.exe failed: ' + SysErrorMessage(ResultCode));    
 
-  Result := ResultCode = 0 ;
+  Result := ResultCode = 0;
 end;
 
 
@@ -338,7 +338,7 @@ begin
             
             if ResultCode = 0 then // wait until the uninstall has completed
             begin
-              Attempts := 8 * 30 ;
+              Attempts := 8 * 30;
                
               while FileExists(UninstallerPath) and (Attempts > 0) do
               begin
@@ -367,7 +367,7 @@ end;
 
 function IsSelfcontained(const Version: String): Boolean;
 begin
-  Result := VersionComparer(Version, '1.6') < 0 ;
+  Result := VersionComparer(Version, '1.6') < 0;
 end;
   
 
@@ -380,12 +380,12 @@ var
 begin
 
   if not StrToVersion(A, X) then
-    Log('StrToVersion() failed for A: ' + A) ;
+    Log('StrToVersion() failed for A: ' + A);
     
   if not StrToVersion(B, Y) then
-    Log('StrToVersion() failed for B: ' + B) ;
+    Log('StrToVersion() failed for B: ' + B);
   
-  Result := ComparePackedVersion(X, Y) ;
+  Result := ComparePackedVersion(X, Y);
 end;
 
 
@@ -434,7 +434,7 @@ begin
     PageText := TNewStaticText.Create(UninstallProgressForm);
     PageText.Parent := NewPage;
     PageText.Top := CautionImage.Top;
-    PageText.Left := CautionImage.Left + CautionImage.Width + ScaleX(20) ;
+    PageText.Left := CautionImage.Left + CautionImage.Width + ScaleX(20);
     PageText.Width := UninstallProgressForm.StatusLabel.Width - PageText.Left;
     PageText.Height := ScaleX(300);
     PageText.AutoSize := False;
