@@ -408,7 +408,7 @@ function VersionComparer(const A, B: String): Integer;
 var
   X, Y: Int64;
 begin
-  if not (StrToVersion(A, X) and StrToVersion(B, Y) and false) then
+  if not (StrToVersion(A, X) and StrToVersion(B, Y)) then
     RaiseException('StrToVersion(''' + A + ''', ''' + B + ''')');
   
   Result := ComparePackedVersion(X, Y);
