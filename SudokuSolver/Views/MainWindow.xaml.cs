@@ -319,7 +319,9 @@ internal sealed partial class MainWindow : Window
         await HandleWindowClosing();
     }
 
-    public static bool IsPrintingAvailable => PrintManager.IsSupported();
+    public static bool IsPrintingAvailable => PrintManager.IsSupported() && !IntegrityLevel.IsElevated;
+
+    public static bool IsFileDialogAvailable => !IntegrityLevel.IsElevated;
 
     private async Task<Error> OpenFile(StorageFile file)
     {

@@ -35,19 +35,19 @@
                         </MenuFlyoutItem.KeyboardAccelerators>
                     </MenuFlyoutItem>
 
-                    <MenuFlyoutItem Text="Open" Click="OpenClickHandler" AccessKey="0">
+                    <MenuFlyoutItem Text="Open" Click="OpenClickHandler" IsEnabled="{x:Bind local:MainWindow.IsFileDialogAvailable}" AccessKey="0">
                         <MenuFlyoutItem.KeyboardAccelerators>
                             <KeyboardAccelerator Key="O" Modifiers="Control" />
                         </MenuFlyoutItem.KeyboardAccelerators>
                     </MenuFlyoutItem>
 
-                    <MenuFlyoutItem Text="Save" Click="SaveClickHandler" AccessKey="S">
+                    <MenuFlyoutItem Text="Save" Click="SaveClickHandler" IsEnabled="{x:Bind local:MainWindow.IsFileDialogAvailable}" AccessKey="S">
                         <MenuFlyoutItem.KeyboardAccelerators>
                             <KeyboardAccelerator Key="S" Modifiers="Control" />
                         </MenuFlyoutItem.KeyboardAccelerators>
                     </MenuFlyoutItem>
 
-                    <MenuFlyoutItem Text="Save As..." Click="SaveAsClickHandler" AccessKey="A">
+                    <MenuFlyoutItem Text="Save As..." Click="SaveAsClickHandler" IsEnabled="{x:Bind local:MainWindow.IsFileDialogAvailable}" AccessKey="A">
                         <MenuFlyoutItem.KeyboardAccelerators>
                             <KeyboardAccelerator Key="S" Modifiers="Control,Shift"/>
                         </MenuFlyoutItem.KeyboardAccelerators>
