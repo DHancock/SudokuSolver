@@ -51,6 +51,9 @@ internal class SimpleRegion
         Int32 right = rect.Right() - subtracted.Right();
         Int32 bottom = rect.Bottom() - subtracted.Bottom();
 
+        if ((top < 0) && (left < 0) && (right < 0) && (bottom < 0))
+            return;
+ 
         if (top > 0)
             results.Add(new RectInt32(rect.X, rect.Y, rect.Width, top));
 

@@ -18,7 +18,7 @@ internal static class IntegrityLevel
         }
         catch (Exception ex)
         {
-            Trace.WriteLine(ex.ToString());
+            Debug.Fail(ex.ToString());
         }
 
         return false;
