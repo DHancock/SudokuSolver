@@ -37,9 +37,6 @@ internal class SimpleRegion
 
     private static void Subtract(RectInt32 rect, RectInt32 subtracted, List<RectInt32> results)
     {
-        if (rect.Equals(subtracted))
-            return;
-
         if (rect.DoesNotIntersect(subtracted))
         {
             results.Add(rect);

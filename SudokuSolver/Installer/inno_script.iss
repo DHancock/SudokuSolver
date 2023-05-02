@@ -66,6 +66,7 @@ type
   TDependencyItem = record
     Url: String;
     Title: String;
+    Installed: Boolean;
     CheckFunction: TCheckFunc;
   end;
   
@@ -85,12 +86,14 @@ function UninstallSelfContainedVersion: String; forward;
 function DownloadAndInstallPrerequesites: String; forward;
 function NewLine: String; forward;
 function IsDowngradeInstall: Boolean; forward;
-  
+function IsValidUrl(Url: String): Boolean; forward;
+function GetNetDesktopRuntimeUrl: String; forward;
+function GetWinAppSdkUrl: String; forward;
+
   
 function InitializeSetup: Boolean;
 var 
-  UpdateNet, UpdateWinAppSdk: Boolean;
-  IniFile, DownloadUrl, Message: String;
+  DownloadUrl, Message: String;
 begin
   Result := true;
   
@@ -98,40 +101,59 @@ begin
     if IsDowngradeInstall then
       RaiseException('Downgrading isn''t supported.' + NewLine + 'Please uninstall the current version first.');
     
-    UpdateNet := not IsNetDesktopInstalled;
-    UpdateWinAppSdk := not IsWinAppSdkInstalled;
-
-    if UpdateNet or UpdateWinAppSdk then  
+    if not IsNetDesktopInstalled then
     begin
-      Result := false;
-     
-      if DownloadTemporaryFile('https://raw.githubusercontent.com/DHancock/Common/main/versions.ini', 'versions.ini', '', @OnDownloadProgress) > 0 then
-      begin
-        IniFile := ExpandConstant('{tmp}\versions.ini');
-
-        if UpdateNet then
-        begin
-          DownloadUrl := GetIniString('NetDesktopRuntime', GetPlatformStr, '', IniFile);
-          Result := Length(DownloadUrl) > 0;
-          AddDownload(DownloadUrl, 'Net Desktop Runtime', @IsNetDesktopInstalled);
-        end;
-
-        if UpdateWinAppSdk then
-        begin
-          DownloadUrl := GetIniString('WinAppSdk', GetPlatformStr, '', IniFile);
-          Result := Length(DownloadUrl) > 0;
-          AddDownload(DownloadUrl, 'Windows App SDK', @IsWinAppSdkInstalled);
-        end;
-      end;
-  
-      if not Result then
-        RaiseException('Unable to determine the download Url.');
+      DownloadUrl := GetNetDesktopRuntimeUrl;
+      
+      if IsValidUrl(DownloadUrl) then
+        AddDownload(DownloadUrl, 'Net Desktop Runtime', @IsNetDesktopInstalled)
+      else
+        RaiseException('Invalid Net Desktop Runtime installer download url');
     end;
-    
+
+    if not IsWinAppSdkInstalled then
+    begin
+      DownloadUrl := GetWinAppSdkUrl;
+      
+      if IsValidUrl(DownloadUrl) then
+        AddDownload(DownloadUrl, 'Windows App SDK', @IsWinAppSdkInstalled)
+      else
+        RaiseException('Invalid Windows App SDK installer download url');
+    end;    
   except
     Message := 'An error occured when checking install prerequesites:' + NewLine + GetExceptionMessage;
     SuppressibleMsgBox(Message, mbCriticalError, MB_OK, IDOK);
     Result := false;
+  end;
+end;
+
+
+function IsValidUrl(Url: String): Boolean;
+begin
+  Result := DownloadTemporaryFileSize(Url) > 0;
+end;
+  
+  
+function GetNetDesktopRuntimeUrl: String;
+begin
+  case ProcessorArchitecture of
+    paX86: Result := 'https://download.visualstudio.microsoft.com/download/pr/78caa28b-2982-43ed-8b9c-20e3369f0795/c771e9fd12a67068436115cf295740f7/dotnet-runtime-6.0.16-win-x86.exe';
+    paX64: Result := 'https://download.visualstudio.microsoft.com/download/pr/456fdf02-f100-4664-916d-fd46c192efea/619bbd8426537632b7598b4c7c467cf1/dotnet-runtime-6.0.16-win-x64.exe';
+    paARM64: Result := 'https://download.visualstudio.microsoft.com/download/pr/91b97f3d-7783-4be3-ada2-6f1d4b299088/8d98117ad78ad15945f28a4e4bd0f79d/dotnet-runtime-6.0.16-win-arm64.exe';
+  else
+    RaiseException('unknown ProcessorArchitecture'); 
+  end;
+end;
+
+
+function GetWinAppSdkUrl: String;
+begin
+  case ProcessorArchitecture of
+    paX86: Result := 'https://aka.ms/windowsappsdk/1.3/latest/windowsappruntimeinstall-x86.exe';
+    paX64: Result := 'https://aka.ms/windowsappsdk/1.3/latest/windowsappruntimeinstall-x64.exe';
+    paARM64: Result := 'https://aka.ms/windowsappsdk/1.3/latest/windowsappruntimeinstall-arm64.exe';
+  else
+    RaiseException('unknown ProcessorArchitecture'); 
   end;
 end;
 
@@ -192,49 +214,54 @@ begin
         repeat
           Dependency := DownloadsList[Index];
 
-          DownloadPage.Clear;
-          DownloadPage.Add(Dependency.Url, ExtractFileName(Dependency.Url), '');
-          
-          repeat 
-            Retry := false;
-            try
-              DownloadPage.Download;
-            except
-            
-              if DownloadPage.AbortedByUser then
-                RaiseException('Download of ' + Dependency.Title + ' was cancelled.')
-              else
-              begin
-                case SuppressibleMsgBox(AddPeriod(GetExceptionMessage), mbError, MB_ABORTRETRYIGNORE, IDIGNORE) of
-                  IDABORT: 
-                    RaiseException('Download of ' + Dependency.Title + ' was aborted.');
-                  IDRETRY:
-                    Retry := True;
-                end;
-              end; 
-            end;
-          until not Retry;
-
-          if Result = '' then
+          if not Dependency.Installed then
           begin
-            DownloadPage.AbortButton.Hide;
-            DownloadPage.SetText('Installing the ' + Dependency.Title, '');
-            DownloadPage.ProgressBar.Style := npbstMarquee;
+            DownloadPage.Clear;
+            DownloadPage.Add(Dependency.Url, ExtractFileName(Dependency.Url), '');
             
-            ExeFilePath := ExpandConstant('{tmp}\') + ExtractFileName(Dependency.Url);
+            repeat 
+              Retry := false;
+              try
+                DownloadPage.Download;
+              except
+              
+                if DownloadPage.AbortedByUser then
+                  RaiseException('Download of ' + Dependency.Title + ' was cancelled.')
+                else
+                begin
+                  case SuppressibleMsgBox(AddPeriod(GetExceptionMessage), mbError, MB_ABORTRETRYIGNORE, IDIGNORE) of
+                    IDABORT: 
+                      RaiseException('Download of ' + Dependency.Title + ' was aborted.');
+                    IDRETRY:
+                      Retry := True;
+                  end;
+                end; 
+              end;
+            until not Retry;
 
-            if not Exec(ExeFilePath, '', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
-              RaiseException('An error occured installing ' + Dependency.Title + '.' + NewLine + SysErrorMessage(ResultCode));
+            if Result = '' then
+            begin
+              DownloadPage.AbortButton.Hide;
+              DownloadPage.SetText('Installing the ' + Dependency.Title, '');
+              DownloadPage.ProgressBar.Style := npbstMarquee;
+              
+              ExeFilePath := ExpandConstant('{tmp}\') + ExtractFileName(Dependency.Url);
 
-            DeleteFile(ExeFilePath);
-            
-            if not Dependency.CheckFunction() then
-              RaiseException('Installation of ' + Dependency.Title + ' failed.');
+              if not Exec(ExeFilePath, '', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+                RaiseException('An error occured installing ' + Dependency.Title + '.' + NewLine + SysErrorMessage(ResultCode));
 
-            DownloadPage.ProgressBar.Style := npbstNormal;
-            DownloadPage.AbortButton.Show;
+              DeleteFile(ExeFilePath);
+              
+              if not Dependency.CheckFunction() then
+                RaiseException('Installation of ' + Dependency.Title + ' failed.');
+
+              DownloadsList[Index].Installed := true;
+              
+              DownloadPage.ProgressBar.Style := npbstNormal;
+              DownloadPage.AbortButton.Show;
+            end;
           end;
-
+          
           Index := Index + 1;
           
         until Index >= Count;
@@ -255,8 +282,9 @@ var
 begin
   Dependency.Url := Url;
   Dependency.Title := Title;
+  Dependency.Installed := false;
   Dependency.CheckFunction := CheckFunction;
-
+  
   // a linked list isn't possible because forward type declarations arn't supported 
   Count := GetArrayLength(DownloadsList);
   SetArrayLength(DownloadsList, Count + 1);
