@@ -10,7 +10,7 @@ public static class Program
     [STAThread]
     static async Task Main(string[] args)
     {
-        if (Bootstrap.TryInitialize(0x00010003, out int hresult))
+        if (Bootstrap.TryInitialize(0x00010003, null, new PackageVersion(3000, 820, 152), Bootstrap.InitializeOptions.OnNoMatch_ShowUI, out int hresult))
         {
             try
             {
