@@ -233,6 +233,9 @@ internal sealed partial class MainWindow : Window
                 await Settings.Data.Save();
             }
 
+            // avoids flashing on close when window theme != system theme
+            appWindow.Hide();
+            
             // calling Close() doesn't raise an AppWindow.Closing event
             Close();
         }
