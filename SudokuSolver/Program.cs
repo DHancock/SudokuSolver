@@ -1,4 +1,6 @@
 ﻿using Microsoft.UI.Dispatching;
+using SdkRelease = Microsoft.WindowsAppSDK.Release;
+using RuntimeVersion = Microsoft.WindowsAppSDK.Runtime.Version;
 using DispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue;
 
 namespace SudokuSolver;
@@ -10,7 +12,7 @@ public static class Program
     [STAThread]
     static async Task Main(string[] args)
     {
-        if (Bootstrap.TryInitialize(0x00010003, null, new PackageVersion(3000, 820, 152), Bootstrap.InitializeOptions.OnNoMatch_ShowUI, out int hresult))
+        if (InitializeWinAppSdk())
         {
             try
             {
@@ -64,4 +66,20 @@ public static class Program
 
         ActivationRegistrationManager.UnregisterForFileTypeActivation(fileTypes, Environment.ProcessPath);
     }
+
+    private static bool InitializeWinAppSdk()
+    {
+        uint sdkVersion = SdkRelease.MajorMinor;
+        PackageVersion minRuntimeVersion = new PackageVersion(RuntimeVersion.Major, RuntimeVersion.Minor, RuntimeVersion.Build);
+        Bootstrap.InitializeOptions options = Bootstrap.InitializeOptions.OnNoMatch_ShowUI;
+
+        if (!Bootstrap.TryInitialize(sdkVersion, null, minRuntimeVersion, options, out int hResult))
+        {
+            Trace.WriteLine($"Bootstrap initialize failed, error: 0x{hResult:X}");
+            return false;
+        }
+
+        return true;
+    }
 }
+
