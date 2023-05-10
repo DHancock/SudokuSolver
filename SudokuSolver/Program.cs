@@ -12,15 +12,18 @@ public static class Program
     [STAThread]
     static async Task Main(string[] args)
     {
-        if (InitializeWinAppSdk())
+        bool isRegister = (args.Length == 1) && string.Equals(args[0], "/register", StringComparison.Ordinal);
+        bool isUnregister = (args.Length == 1) && string.Equals(args[0], "/unregister", StringComparison.Ordinal);
+
+        if (InitializeWinAppSdk(noUI: isRegister || isUnregister))
         {
             try
             {
-                if ((args.Length == 1) && string.Equals(args[0], "/register", StringComparison.Ordinal))
+                if (isRegister)
                 {
                     RegisterFileTypeActivation();
                 }
-                else if ((args.Length == 1) && string.Equals(args[0], "/unregister", StringComparison.Ordinal))
+                else if (isUnregister)
                 {
                     UnregisterFileTypeActivation();
                 }
@@ -67,11 +70,11 @@ public static class Program
         ActivationRegistrationManager.UnregisterForFileTypeActivation(fileTypes, Environment.ProcessPath);
     }
 
-    private static bool InitializeWinAppSdk()
+    private static bool InitializeWinAppSdk(bool noUI)
     {
         uint sdkVersion = SdkRelease.MajorMinor;
         PackageVersion minRuntimeVersion = new PackageVersion(RuntimeVersion.Major, RuntimeVersion.Minor, RuntimeVersion.Build);
-        Bootstrap.InitializeOptions options = Bootstrap.InitializeOptions.OnNoMatch_ShowUI;
+        Bootstrap.InitializeOptions options = noUI ? Bootstrap.InitializeOptions.None : Bootstrap.InitializeOptions.OnNoMatch_ShowUI;
 
         if (!Bootstrap.TryInitialize(sdkVersion, null, minRuntimeVersion, options, out int hResult))
         {
