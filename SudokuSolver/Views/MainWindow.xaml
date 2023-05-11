@@ -7,80 +7,78 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <ContentControl x:Name="layoutRoot" Style="{StaticResource WindowContentStyle}" RequestedTheme="{x:Bind ViewModel.Theme, Mode=OneWay}">
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+    <Grid x:Name="layoutRoot" RequestedTheme="{x:Bind ViewModel.Theme, Mode=OneWay}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-            <local:CustomTitleBar x:Name="CustomTitleBar"/>
+        <local:CustomTitleBar x:Name="CustomTitleBar"/>
 
-            <!-- used to add print preview pages to the visual tree -->
-            <Canvas x:Name="PrintCanvas" Opacity="0"/>
+        <!-- used to add print preview pages to the visual tree -->
+        <Canvas x:Name="PrintCanvas" Opacity="0"/>
 
-            <MenuBar x:Name="Menu" Grid.Row="1" HorizontalAlignment="Left">
-                <MenuBarItem Title="File" AccessKey="F">
+        <MenuBar x:Name="Menu" Grid.Row="1" HorizontalAlignment="Left">
+            <MenuBarItem Title="File" AccessKey="F">
 
-                    <MenuFlyoutItem x:Name="FileMenuItem" Text="New" Click="NewClickHandler" AccessKey="N">
-                        <MenuFlyoutItem.KeyboardAccelerators>
-                            <KeyboardAccelerator Key="N" Modifiers="Control" />
-                        </MenuFlyoutItem.KeyboardAccelerators>
-                    </MenuFlyoutItem>
+                <MenuFlyoutItem x:Name="FileMenuItem" Text="New" Click="NewClickHandler" AccessKey="N">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="N" Modifiers="Control" />
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
 
-                    <MenuFlyoutItem Text="New Window" Click="NewWindowClickHandler" AccessKey="W">
-                        <MenuFlyoutItem.KeyboardAccelerators>
-                            <KeyboardAccelerator Key="N" Modifiers="Control,Shift" />
-                        </MenuFlyoutItem.KeyboardAccelerators>
-                    </MenuFlyoutItem>
+                <MenuFlyoutItem Text="New Window" Click="NewWindowClickHandler" AccessKey="W">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="N" Modifiers="Control,Shift" />
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
 
-                    <MenuFlyoutItem Text="Open" Click="OpenClickHandler" IsEnabled="{x:Bind local:MainWindow.IsFileDialogAvailable}" AccessKey="0">
-                        <MenuFlyoutItem.KeyboardAccelerators>
-                            <KeyboardAccelerator Key="O" Modifiers="Control" />
-                        </MenuFlyoutItem.KeyboardAccelerators>
-                    </MenuFlyoutItem>
+                <MenuFlyoutItem Text="Open" Click="OpenClickHandler" IsEnabled="{x:Bind local:MainWindow.IsFileDialogAvailable}" AccessKey="0">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="O" Modifiers="Control" />
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
 
-                    <MenuFlyoutItem Text="Save" Click="SaveClickHandler" IsEnabled="{x:Bind local:MainWindow.IsFileDialogAvailable}" AccessKey="S">
-                        <MenuFlyoutItem.KeyboardAccelerators>
-                            <KeyboardAccelerator Key="S" Modifiers="Control" />
-                        </MenuFlyoutItem.KeyboardAccelerators>
-                    </MenuFlyoutItem>
+                <MenuFlyoutItem Text="Save" Click="SaveClickHandler" IsEnabled="{x:Bind local:MainWindow.IsFileDialogAvailable}" AccessKey="S">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="S" Modifiers="Control" />
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
 
-                    <MenuFlyoutItem Text="Save As..." Click="SaveAsClickHandler" IsEnabled="{x:Bind local:MainWindow.IsFileDialogAvailable}" AccessKey="A">
-                        <MenuFlyoutItem.KeyboardAccelerators>
-                            <KeyboardAccelerator Key="S" Modifiers="Control,Shift"/>
-                        </MenuFlyoutItem.KeyboardAccelerators>
-                    </MenuFlyoutItem>
+                <MenuFlyoutItem Text="Save As..." Click="SaveAsClickHandler" IsEnabled="{x:Bind local:MainWindow.IsFileDialogAvailable}" AccessKey="A">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="S" Modifiers="Control,Shift"/>
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
 
-                    <MenuFlyoutSeparator />
-                    <MenuFlyoutItem Text="Print..." Click="PrintClickHandler" IsEnabled="{x:Bind local:MainWindow.IsPrintingAvailable}" AccessKey="P">
-                        <MenuFlyoutItem.KeyboardAccelerators>
-                            <KeyboardAccelerator Key="P" Modifiers="Control"/>
-                        </MenuFlyoutItem.KeyboardAccelerators>
-                    </MenuFlyoutItem>
+                <MenuFlyoutSeparator />
+                <MenuFlyoutItem Text="Print..." Click="PrintClickHandler" IsEnabled="{x:Bind local:MainWindow.IsPrintingAvailable}" AccessKey="P">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="P" Modifiers="Control"/>
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
 
-                    <MenuFlyoutSeparator />
-                    <MenuFlyoutItem Text="Close" Click="CloseClickHandler" AccessKey="X">
-                        <MenuFlyoutItem.KeyboardAccelerators>
-                            <KeyboardAccelerator Key="W" Modifiers="Control"/>
-                        </MenuFlyoutItem.KeyboardAccelerators>
-                    </MenuFlyoutItem>
-                </MenuBarItem>
+                <MenuFlyoutSeparator />
+                <MenuFlyoutItem Text="Close" Click="CloseClickHandler" AccessKey="X">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="W" Modifiers="Control"/>
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+            </MenuBarItem>
 
-                <MenuBarItem Title="View" AccessKey="V">
-                    <ToggleMenuFlyoutItem Text="Possibles" IsChecked="{x:Bind Puzzle.ViewModel.ShowPossibles, Mode=TwoWay}" AccessKey="P"/>
-                    <ToggleMenuFlyoutItem Text="Solution" IsChecked="{x:Bind Puzzle.ViewModel.ShowSolution, Mode=TwoWay}" AccessKey="S"/>
+            <MenuBarItem Title="View" AccessKey="V">
+                <ToggleMenuFlyoutItem Text="Possibles" IsChecked="{x:Bind Puzzle.ViewModel.ShowPossibles, Mode=TwoWay}" AccessKey="P"/>
+                <ToggleMenuFlyoutItem Text="Solution" IsChecked="{x:Bind Puzzle.ViewModel.ShowSolution, Mode=TwoWay}" AccessKey="S"/>
 
-                    <MenuFlyoutSeparator />
-                    <ToggleMenuFlyoutItem Text="Dark theme" IsChecked="{x:Bind ViewModel.IsDarkThemed, Mode=TwoWay}" AccessKey="D"/>
+                <MenuFlyoutSeparator />
+                <ToggleMenuFlyoutItem Text="Dark theme" IsChecked="{x:Bind ViewModel.IsDarkThemed, Mode=TwoWay}" AccessKey="D"/>
 
-                    <MenuFlyoutSeparator />
-                    <MenuFlyoutItem x:Name="ViewMenuItem" Text="About..." Click="AboutClickHandler" AccessKey="A"/>
-                </MenuBarItem>
-            </MenuBar>
+                <MenuFlyoutSeparator />
+                <MenuFlyoutItem x:Name="ViewMenuItem" Text="About..." Click="AboutClickHandler" AccessKey="A"/>
+            </MenuBarItem>
+        </MenuBar>
 
-            <local:PuzzleView x:Name="Puzzle" Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="8,0,8,8"/>
-        </Grid>
-    </ContentControl>
+        <local:PuzzleView x:Name="Puzzle" Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="8,0,8,8"/>
+    </Grid>
 </Window>

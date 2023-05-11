@@ -4,7 +4,6 @@ MINMAXINFO
 SetWindowSubclass
 DefSubclassProc
 WM_GETMINMAXINFO
-CreateDispatcherQueueController
 SetForegroundWindow
 GetForegroundWindow
 GetCurrentPackageFullName
