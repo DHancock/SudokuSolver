@@ -47,16 +47,7 @@ internal sealed partial class MainWindow : Window
         // each window needs a local copy of the common view settings
         Settings.PerViewSettings viewSettings = Settings.Data.ViewSettings.Clone();
 
-        // acrylic also works, but isn't recommended according to the UI guidelines
-        if (!TrySetMicaBackdrop(viewSettings.Theme))
-        {
-            layoutRoot.Loaded += (s, e) =>
-            {
-                // the visual states won't exist until after OnApplyTemplate() has completed
-                bool stateFound = VisualStateManager.GoToState(layoutRoot, "BackdropNotSupported", false);
-                Debug.Assert(stateFound);
-            };
-        }
+        SystemBackdrop = new MicaBackdrop();
 
         ViewModel = new WindowViewModel(viewSettings);
         Puzzle.ViewModel = new PuzzleViewModel(viewSettings);
@@ -233,9 +224,6 @@ internal sealed partial class MainWindow : Window
                 await Settings.Data.Save();
             }
 
-            // avoids flashing on close when window theme != system theme
-            appWindow.Hide();
-            
             // calling Close() doesn't raise an AppWindow.Closing event
             Close();
         }
