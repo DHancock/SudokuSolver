@@ -336,7 +336,10 @@ begin
   if not FileExists(ExeFilePath) then
     ExtractTemporaryFile('CheckWinAppSdk.exe');
 
-  if not Exec(ExeFilePath, '3000 ' + GetPlatformParamStr, '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+  // WinAppSdk 1.3.1 is 3000.851.1712.0
+  // Check for any 1.3.n version where n >= 1
+
+  if not Exec(ExeFilePath, '3000.851.1712.0' + ' ' + GetPlatformParamStr, '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
     Log('Exec CheckWinAppSdk.exe failed: ' + SysErrorMessage(ResultCode));    
 
   Result := ResultCode = 0;
