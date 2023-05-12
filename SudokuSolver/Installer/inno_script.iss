@@ -1,6 +1,5 @@
 ; This script assumes that all release configurations have been published
-; and is framework dependent targeting a minimum WinAppSdk version of 1.3
-; but will roll forward to any later 1.n version.
+; and is framework dependent targeting a WinAppSdk release of 1.3.n where n >= 1
 ; Inno 6.2.2
 
 #define appDisplayName "Sudoku Solver"
