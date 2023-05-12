@@ -191,11 +191,11 @@ internal sealed partial class MainWindow : Window
         double dpi = PInvoke.GetDpiForWindow((HWND)WindowPtr);
         return dpi / 96.0;
     }
+
     private async Task HandleWindowClosing()
     {
         // This is called from the File menu's close click handler and
         // also the AppWindow.Closing event handler. 
-
         Status status = Status.Continue;
 
         if (IsPuzzleModified && !processingClose)  // the first user attempt to close, a second will always succeed
@@ -223,6 +223,9 @@ internal sealed partial class MainWindow : Window
                 Settings.Data.WindowState = WindowState;
                 await Settings.Data.Save();
             }
+
+            // stop any further window drawing on close
+            appWindow.Hide();
 
             // calling Close() doesn't raise an AppWindow.Closing event
             Close();
