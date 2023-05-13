@@ -9,6 +9,9 @@ namespace SudokuSolver.Views
 
         public ErrorDialog(XamlRoot xamlRoot) : base()
         {
+            // for entrance transition animation
+            Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style;
+
             XamlRoot = xamlRoot;
             Title = App.cDisplayName;
             PrimaryButtonText = "OK";
