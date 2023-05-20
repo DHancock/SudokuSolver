@@ -10,18 +10,45 @@ internal sealed partial class Cell : UserControl
     private static readonly string[] sLookUp = new[] { string.Empty, "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 
     private readonly PossibleTextBlock[] possibleTBs;
-    
+
+    public event EventHandler<SelectedCellChangedEventArgs>? SelectionChanged;
+
+    private bool isSelected = false;
+
     public Cell()
     {
         this.InitializeComponent();
 
         IsTabStop = true;
         IsHitTestVisible = true;
-
         LosingFocus += Cell_LosingFocus;
 
         possibleTBs = new PossibleTextBlock[9] { PossibleValue0, PossibleValue1, PossibleValue2, PossibleValue3, PossibleValue4, PossibleValue5, PossibleValue6, PossibleValue7, PossibleValue8 };
     }
+
+    public bool IsSelected
+    {
+        get => isSelected;
+        set
+        {
+            if (isSelected != value)
+            {
+                isSelected = value;
+
+                SelectionChanged?.Invoke(this, new SelectedCellChangedEventArgs(Data.Index, value));
+               
+                if (!isSelected)
+                {
+                    bool stateFound = VisualStateManager.GoToState(this, "None", false);
+                    Debug.Assert(stateFound);
+                }
+            }
+        }
+    }
+
+    internal record SelectedCellChangedEventArgs(int CellIndex, bool IsSelected);
+
+    private bool IsFocused => FocusState != FocusState.Unfocused;
 
     protected override void OnPointerPressed(PointerRoutedEventArgs e)
     {
@@ -30,9 +57,14 @@ internal sealed partial class Cell : UserControl
     }
 
     protected override void OnLostFocus(RoutedEventArgs e)
-    { 
-        bool stateFound = VisualStateManager.GoToState(this, "Unfocused", false);
-        Debug.Assert(stateFound);
+    {
+        Debug.Assert(IsSelected, "lost focus on an unselected cell");
+
+        if (IsSelected)
+        {
+            bool stateFound = VisualStateManager.GoToState(this, "SelectedUnfocused", false);
+            Debug.Assert(stateFound);
+        }
     }
 
     // Above every thing else in the visual tree is a scroll viewer that's
@@ -49,7 +81,9 @@ internal sealed partial class Cell : UserControl
 
     protected override void OnGotFocus(RoutedEventArgs e)
     {
-        bool stateFound = VisualStateManager.GoToState(this, "Focused", false);
+        IsSelected = true;
+
+        bool stateFound = VisualStateManager.GoToState(this, "SelectedFocused", false);
         Debug.Assert(stateFound);
     }
 
@@ -68,17 +102,17 @@ internal sealed partial class Cell : UserControl
     private static void CellDataChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         Cell cell = (Cell)d;
-        ViewModels.Cell data = (ViewModels.Cell)e.NewValue;
+        ViewModels.Cell viewModelCell = (ViewModels.Cell)e.NewValue;
 
-        if (data.HasValue)
+        if (viewModelCell.HasValue)
         {
             // sets the colour of the cell value text, be it user entered, calculated or trial and error.
-            bool stateFound = VisualStateManager.GoToState(cell, data.Origin.ToString(), false);
+            bool stateFound = VisualStateManager.GoToState(cell, viewModelCell.Origin.ToString(), false);
             Debug.Assert(stateFound); 
 
-            if (((ViewModels.PuzzleViewModel)cell.DataContext).ShowSolution || (data.Origin == Origins.User))
+            if (((ViewModels.PuzzleViewModel)cell.DataContext).ShowSolution || (viewModelCell.Origin == Origins.User) || (viewModelCell.Origin == Origins.Given))
             {
-                cell.CellValue.Text = sLookUp[data.Value];
+                cell.CellValue.Text = sLookUp[viewModelCell.Value];
             }
             else
             {
@@ -98,16 +132,16 @@ internal sealed partial class Cell : UserControl
 
                 for (int i = 1; i < 10; i++)
                 {
-                    if (data.Possibles[i])
+                    if (viewModelCell.Possibles[i])
                     {
                         PossibleTextBlock tb = cell.possibleTBs[writeIndex++];
                         tb.Text = sLookUp[i];
 
                         bool stateFound;
 
-                        if (data.VerticalDirections[i])
+                        if (viewModelCell.VerticalDirections[i])
                             stateFound = VisualStateManager.GoToState(tb, "Vertical", false);
-                        else if (data.HorizontalDirections[i])
+                        else if (viewModelCell.HorizontalDirections[i])
                             stateFound = VisualStateManager.GoToState(tb, "Horizontal", false);
                         else
                             stateFound = VisualStateManager.GoToState(tb, "None", false);
@@ -166,7 +200,7 @@ internal sealed partial class Cell : UserControl
         else if (newValue >= 0)
         {
             e.Handled = true;
-            ((ViewModels.PuzzleViewModel)this.DataContext).UpdateCellForKeyDown(this.Data.Index, newValue);
+            ((ViewModels.PuzzleViewModel)this.DataContext).UpdateCellForKeyDown(Data.Index, newValue);
         }
     }
 }

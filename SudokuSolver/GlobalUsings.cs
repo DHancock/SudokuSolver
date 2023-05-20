@@ -1,6 +1,4 @@
 ﻿global using Microsoft.UI;
-global using Microsoft.UI.Composition;
-global using Microsoft.UI.Composition.SystemBackdrops;
 global using Microsoft.UI.Windowing;
 global using Microsoft.UI.Xaml;
 global using Microsoft.UI.Xaml.Controls;
@@ -27,6 +25,7 @@ global using System.Windows.Input;
 global using System.Xml.Linq;
 
 global using Windows.ApplicationModel.Activation;
+global using Windows.ApplicationModel.DataTransfer;
 global using Windows.Foundation;
 global using Windows.Foundation.Collections;
 global using Windows.Graphics;

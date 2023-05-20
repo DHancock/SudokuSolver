@@ -21,7 +21,6 @@ internal sealed partial class MainWindow : Window
     public WindowViewModel ViewModel { get; }
 
     private readonly SUBCLASSPROC subClassDelegate;
-    private readonly AppWindow appWindow;
     private PointInt32 restorePosition;
     private SizeInt32 restoreSize;
     private PrintHelper? printHelper;
@@ -35,8 +34,6 @@ internal sealed partial class MainWindow : Window
         InitializeComponent();
 
         WindowPtr = WindowNative.GetWindowHandle(this);
-        appWindow = AppWindow.GetFromWindowId(Win32Interop.GetWindowIdFromWindow(WindowPtr));
-        appWindow.Changed += AppWindow_Changed;
 
         // sub class to set a minimum window size
         subClassDelegate = new SUBCLASSPROC(NewSubWindowProc);
@@ -47,13 +44,14 @@ internal sealed partial class MainWindow : Window
         // each window needs a local copy of the common view settings
         Settings.PerViewSettings viewSettings = Settings.Data.ViewSettings.Clone();
 
+        layoutRoot.RequestedTheme = viewSettings.Theme;
         SystemBackdrop = new MicaBackdrop();
 
         ViewModel = new WindowViewModel(viewSettings);
         Puzzle.ViewModel = new PuzzleViewModel(viewSettings);
         Puzzle.ViewModel.PropertyChanged += ViewModel_PropertyChanged;  // used to update the window title
 
-        appWindow.Closing += async (s, args) =>
+        AppWindow.Closing += async (s, args) =>
         {
             // the await call creates a continuation routine, so must cancel the close here
             // and handle the actual closing explicitly when the continuation routine runs...
@@ -62,13 +60,14 @@ internal sealed partial class MainWindow : Window
         };
 
         Activated += App.Instance.RecordWindowActivated;
+        AppWindow.Changed += AppWindow_Changed;
 
         if (AppWindowTitleBar.IsCustomizationSupported())
         {
-            CustomTitleBar.ParentAppWindow = appWindow;
+            CustomTitleBar.ParentAppWindow = AppWindow;
             CustomTitleBar.UpdateThemeAndTransparency(viewSettings.Theme);
             Activated += CustomTitleBar.ParentWindow_Activated;
-            appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+            AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
 
             // the last event received will have the correct dimensions
             layoutRoot.SizeChanged += (s, a) => SetWindowDragRegions();
@@ -81,8 +80,10 @@ internal sealed partial class MainWindow : Window
             // the drag regions need to be adjusted for menu fly outs
             FileMenuItem.Loaded += (s, a) => ClearWindowDragRegions();
             ViewMenuItem.Loaded += (s, a) => ClearWindowDragRegions();
+            UndoMenuItem.Loaded += (s, a) => ClearWindowDragRegions();
             FileMenuItem.Unloaded += (s, a) => SetWindowDragRegions();
             ViewMenuItem.Unloaded += (s, a) => SetWindowDragRegions();
+            UndoMenuItem.Unloaded += (s, a) => SetWindowDragRegions();
         }
         else
         {
@@ -90,13 +91,13 @@ internal sealed partial class MainWindow : Window
         }
 
         // always set the window icon, it's used in the task switcher
-        appWindow.SetIcon("Resources\\app.ico");
+        AppWindow.SetIcon("Resources\\app.ico");
         UpdateWindowTitle();
 
         if (creator is not null)
-            appWindow.MoveAndResize(App.Instance.GetNewWindowPosition(creator.RestoreBounds));
+            AppWindow.MoveAndResize(App.Instance.GetNewWindowPosition(creator.RestoreBounds));
         else
-            appWindow.MoveAndResize(App.Instance.GetNewWindowPosition(this));
+            AppWindow.MoveAndResize(App.Instance.GetNewWindowPosition(this));
 
         // setting the presenter will also activate the window
         if (Settings.Data.WindowState == WindowState.Minimized)
@@ -105,9 +106,7 @@ internal sealed partial class MainWindow : Window
             WindowState = Settings.Data.WindowState;
        
         layoutRoot.Loaded += async (s, e) =>
-        {
-            layoutRoot.RequestedTheme = viewSettings.Theme;
-            
+        {            
             // set the duration for the next theme transition
             Puzzle.BackgroundBrushTransition.Duration = new TimeSpan(0, 0, 0, 0, 250);
 
@@ -119,6 +118,11 @@ internal sealed partial class MainWindow : Window
                     SourceFile = storagefile;
             }
         };
+
+        Clipboard.ContentChanged += async (s, o) =>
+        {
+            await Puzzle.ViewModel.ClipboardContentChanged();
+        };
     }
 
     private void AppWindow_Changed(AppWindow sender, AppWindowChangedEventArgs args)
@@ -126,10 +130,10 @@ internal sealed partial class MainWindow : Window
         if (WindowState == WindowState.Normal)
         {
             if (args.DidPositionChange)
-                restorePosition = appWindow.Position;
+                restorePosition = AppWindow.Position;
 
             if (args.DidSizeChange)
-                restoreSize = appWindow.Size;
+                restoreSize = AppWindow.Size;
         }
     }
 
@@ -151,7 +155,7 @@ internal sealed partial class MainWindow : Window
     {
         get
         {
-            if (appWindow.Presenter is OverlappedPresenter op)
+            if (AppWindow.Presenter is OverlappedPresenter op)
             {
                 switch (op.State)
                 {
@@ -166,7 +170,7 @@ internal sealed partial class MainWindow : Window
 
         set
         {
-            if (appWindow.Presenter is OverlappedPresenter op)
+            if (AppWindow.Presenter is OverlappedPresenter op)
             {
                 switch (value)
                 {
@@ -225,7 +229,7 @@ internal sealed partial class MainWindow : Window
             }
 
             // stop any further window drawing on close
-            appWindow.Hide();
+            AppWindow.Hide();
 
             // calling Close() doesn't raise an AppWindow.Closing event
             Close();
@@ -485,17 +489,17 @@ internal sealed partial class MainWindow : Window
             Title = title;
 
         // the app window's title is used in the task switcher
-        appWindow.Title = title;
+        AppWindow.Title = title;
     }
 
     private void ClearWindowDragRegions()
     {
         Debug.Assert(AppWindowTitleBar.IsCustomizationSupported());
-        Debug.Assert(appWindow.TitleBar.ExtendsContentIntoTitleBar);
+        Debug.Assert(AppWindow.TitleBar.ExtendsContentIntoTitleBar);
 
         // clear all drag rectangles to allow mouse interaction with menu fly outs,  
         // including clicks anywhere in the window used to dismiss the menu
-        appWindow.TitleBar.SetDragRectangles(new[] { new RectInt32(0, 0, 0, 0) });
+        AppWindow.TitleBar.SetDragRectangles(new[] { new RectInt32(0, 0, 0, 0) });
     }
 
     private void SetWindowDragRegions()
@@ -503,11 +507,11 @@ internal sealed partial class MainWindow : Window
         if (Menu.IsLoaded && Puzzle.IsLoaded)
         {
             Debug.Assert(AppWindowTitleBar.IsCustomizationSupported());
-            Debug.Assert(appWindow.TitleBar.ExtendsContentIntoTitleBar);
+            Debug.Assert(AppWindow.TitleBar.ExtendsContentIntoTitleBar);
 
             double scale = Puzzle.XamlRoot.RasterizationScale;
 
-            RectInt32 windowRect = new RectInt32(0, 0, appWindow.ClientSize.Width, appWindow.ClientSize.Height);
+            RectInt32 windowRect = new RectInt32(0, 0, AppWindow.ClientSize.Width, AppWindow.ClientSize.Height);
             RectInt32 menuRect = ScaledRect(Menu.ActualOffset, Menu.ActualSize, scale);
             RectInt32 puzzleRect = ScaledRect(Puzzle.ActualOffset, Puzzle.ActualSize, scale);
 
@@ -515,7 +519,7 @@ internal sealed partial class MainWindow : Window
             region.Subtract(menuRect);
             region.Subtract(puzzleRect);
 
-            appWindow.TitleBar.SetDragRectangles(region.ToArray());
+            AppWindow.TitleBar.SetDragRectangles(region.ToArray());
         }
     }
 
