@@ -10,7 +10,7 @@ public static class Program
     private const string cAppKey = "586A28D4-3FF0-42B2-829B-5F02BBFC8352";
 
     [STAThread]
-    static async Task Main(string[] args)
+    static void Main(string[] args)
     {
         bool isRegister = (args.Length == 1) && string.Equals(args[0], "/register", StringComparison.Ordinal);
         bool isUnregister = (args.Length == 1) && string.Equals(args[0], "/unregister", StringComparison.Ordinal);
@@ -34,7 +34,7 @@ public static class Program
                     if (!appInstance.IsCurrent)
                     {
                         AppActivationArguments aea = AppInstance.GetCurrent().GetActivatedEventArgs();
-                        await appInstance.RedirectActivationToAsync(aea);
+                        RedirectActivationTo(aea, appInstance);
                     }
                     else
                     {
@@ -83,6 +83,20 @@ public static class Program
         }
 
         return true;
+    }
+
+    public static void RedirectActivationTo(AppActivationArguments args, AppInstance keyInstance)
+    {
+        ManualResetEventSlim mres = new ManualResetEventSlim();
+
+        // avoids the need for an async main entry point, which breaks the clipboard...
+        Task.Run(() =>
+        {
+            keyInstance.RedirectActivationToAsync(args).AsTask().Wait();
+            mres.Set();
+        });
+
+        mres.Wait();
     }
 }
 

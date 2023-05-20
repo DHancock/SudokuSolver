@@ -22,18 +22,29 @@
                         <Setter Target="CellValue.Foreground" Value="{ThemeResource TrialCellValueBrush}"/>
                     </VisualState.Setters>
                 </VisualState>
+                <VisualState x:Name="Given">
+                    <VisualState.Setters>
+                        <Setter Target="CellValue.Foreground" Value="{ThemeResource SystemControlPageTextBaseHighBrush}"/>
+                    </VisualState.Setters>
+                </VisualState>
 
                 <VisualState x:Name="User"/>
             </VisualStateGroup>
 
-            <VisualStateGroup x:Name="CellFocusStates">
-                <VisualState x:Name="Focused">
+            <VisualStateGroup x:Name="CellSelectedStates">
+                <VisualState x:Name="SelectedFocused">
                     <VisualState.Setters>
                         <Setter Target="CellCanvas.Background" Value="{ThemeResource SystemControlHighlightAccentBrush}"/>
                     </VisualState.Setters>
                 </VisualState>
 
-                <VisualState x:Name="Unfocused"/>
+                <VisualState x:Name="SelectedUnfocused">
+                    <VisualState.Setters>
+                        <Setter Target="CellCanvas.Background" Value="{ThemeResource SystemControlBackgroundListLowBrush}"/>
+                    </VisualState.Setters>
+                </VisualState>
+                
+                <VisualState x:Name="None"/>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
         

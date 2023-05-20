@@ -42,6 +42,9 @@ internal sealed class PuzzleModel
         {
             if (cell.HasValue)
             {
+                if (cell.Origin == Origins.User)
+                    cell.Origin = Origins.Given;
+
                 xmlTree.Add(new XElement(Cx.Cell, new XElement(Cx.x, cell.Index % 9),
                                                   new XElement(Cx.y, cell.Index / 9),
                                                   new XElement(Cx.value, cell.Value),
@@ -114,7 +117,7 @@ internal sealed class PuzzleModel
     {
         foreach (XElement cell in document.Descendants(Cx.Cell))
         {
-            if (Enum.TryParse(cell.Element(Cx.origin)?.Value, out Origins o) && (o == Origins.User)
+            if (Enum.TryParse(cell.Element(Cx.origin)?.Value, out Origins origin) && ((origin == Origins.User) || (origin == Origins.Given))
                 && int.TryParse(cell.Element(Cx.x)?.Value, out int x) && (x >= 0) && (x < 9)
                 && int.TryParse(cell.Element(Cx.y)?.Value, out int y) && (y >= 0) && (y < 9)
                 && int.TryParse(cell.Element(Cx.value)?.Value, out int value) && (value > 0) && (value < 10))
@@ -122,7 +125,7 @@ internal sealed class PuzzleModel
                 int index = x + (y * 9);
 
                 Cells[index].Value = value;
-                Cells[index].Origin = Origins.User;
+                Cells[index].Origin = origin;
             }
         }
 
@@ -156,10 +159,10 @@ internal sealed class PuzzleModel
         return true;
     }
 
-
     public bool Edit(int index, int newValue)
     {
         int previousValue = Cells[index].Value;
+        Origins previousOrigin = Cells[index].Origin;
 
         // delete the exiting value to recalculate the possibles
         SetCellValue(index, 0, Origins.NotDefined);
@@ -168,7 +171,7 @@ internal sealed class PuzzleModel
             return true;
 
         // revert model
-        SetCellValue(index, previousValue, Origins.User);
+        SetCellValue(index, previousValue, previousOrigin);
         AttemptSimpleTrialAndError();
         return false;
     }
@@ -243,13 +246,18 @@ internal sealed class PuzzleModel
     {
         foreach (Cell cell in Cells.CubeRowColumnMinus(index))
         {
-            if (cell.HasValue && (cell.Origin == Origins.User) && (cell.Value == newValue))
+            if (cell.HasValue && ((cell.Origin == Origins.User) || (cell.Origin == Origins.Given)) && (cell.Value == newValue))
                 return false;
         }
 
         return true;
     }
 
+    public void SetOriginToGiven()
+    {
+        foreach (Cell cell in Cells.Where(c => c.Origin == Origins.User))
+            cell.Origin = Origins.Given;
+    }
 
     private void SimpleEliminationForCell(Cell updatedCell, Stack<Cell> cellsToUpdate)
     {
@@ -714,6 +722,7 @@ internal sealed class PuzzleModel
 
     public bool CompletedCellCountIsValid => Cells.Count(cell =>
                                                 (cell.Origin == Origins.User) ||
+                                                (cell.Origin == Origins.Given) ||
                                                 (cell.Origin == Origins.Trial) ||
                                                 (cell.Origin == Origins.Calculated)) == CompletedCellsCount;
 
@@ -848,7 +857,7 @@ internal sealed class PuzzleModel
             // it's much simpler to just start from scratch and rebuild it...
             foreach (Cell cell in Cells)
             {
-                if (cell.Origin == Origins.User)
+                if ((cell.Origin == Origins.User) || (cell.Origin == Origins.Given))
                     cellsToUpdate.Push(cell);
                 else
                     cell.Reset(); 

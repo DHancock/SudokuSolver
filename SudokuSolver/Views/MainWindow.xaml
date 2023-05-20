@@ -67,6 +67,56 @@
                 </MenuFlyoutItem>
             </MenuBarItem>
 
+            <MenuBarItem Title="Edit" AccessKey="E" >
+                <MenuFlyoutItem x:Name="UndoMenuItem" Text="Undo" Command="{x:Bind Puzzle.ViewModel.UndoCommand}" AccessKey="U">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="Z" Modifiers="Control"/>
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem Text="Redo" Command="{x:Bind Puzzle.ViewModel.RedoCommand}" AccessKey="R">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="Y" Modifiers="Control"/>
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+
+                <MenuFlyoutSeparator />
+
+                <MenuFlyoutItem Text="Cut" Command="{x:Bind Puzzle.ViewModel.CutCommand}" AccessKey="T">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="X" Modifiers="Control"/>
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem Text="Copy" Command="{x:Bind Puzzle.ViewModel.CopyCommand}" AccessKey="C">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="C" Modifiers="Control"/>
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+
+                <MenuFlyoutItem Text="Paste" Command="{x:Bind Puzzle.ViewModel.PasteCommand}" AccessKey="P">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="V" Modifiers="Control"/>
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem Text="Delete" Command="{x:Bind Puzzle.ViewModel.DeleteCommand}" AccessKey="D">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="Delete"/>
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+
+                <MenuFlyoutSeparator />
+
+                <MenuFlyoutItem Text="Colours..." AccessKey="L">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="L" Modifiers="Control"/>
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+
+                <MenuFlyoutSeparator />
+
+                <MenuFlyoutItem Text="Mark as given" Command="{x:Bind Puzzle.ViewModel.MarkAsGivenCommand}" AccessKey="M">
+                </MenuFlyoutItem>
+            </MenuBarItem>
+
             <MenuBarItem Title="View" AccessKey="V">
                 <ToggleMenuFlyoutItem Text="Possibles" IsChecked="{x:Bind Puzzle.ViewModel.ShowPossibles, Mode=TwoWay}" AccessKey="P"/>
                 <ToggleMenuFlyoutItem Text="Solution" IsChecked="{x:Bind Puzzle.ViewModel.ShowSolution, Mode=TwoWay}" AccessKey="S"/>
