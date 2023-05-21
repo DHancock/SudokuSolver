@@ -11,7 +11,7 @@ internal sealed partial class Cell : UserControl
 
     private readonly PossibleTextBlock[] possibleTBs;
 
-    public event EventHandler<SelectedCellChangedEventArgs>? SelectionChanged;
+    public event EventHandler<SelectionChangedEventArgs>? SelectionChanged;
 
     private bool isSelected = false;
 
@@ -35,7 +35,7 @@ internal sealed partial class Cell : UserControl
             {
                 isSelected = value;
 
-                SelectionChanged?.Invoke(this, new SelectedCellChangedEventArgs(Data.Index, value));
+                SelectionChanged?.Invoke(this, new SelectionChangedEventArgs(Data.Index, value));
                
                 if (!isSelected)
                 {
@@ -46,9 +46,7 @@ internal sealed partial class Cell : UserControl
         }
     }
 
-    internal record SelectedCellChangedEventArgs(int CellIndex, bool IsSelected);
-
-    private bool IsFocused => FocusState != FocusState.Unfocused;
+    internal record SelectionChangedEventArgs(int CellIndex, bool IsSelected);
 
     protected override void OnPointerPressed(PointerRoutedEventArgs e)
     {
@@ -59,12 +57,8 @@ internal sealed partial class Cell : UserControl
     protected override void OnLostFocus(RoutedEventArgs e)
     {
         Debug.Assert(IsSelected, "lost focus on an unselected cell");
-
-        if (IsSelected)
-        {
-            bool stateFound = VisualStateManager.GoToState(this, "SelectedUnfocused", false);
-            Debug.Assert(stateFound);
-        }
+        bool stateFound = VisualStateManager.GoToState(this, "SelectedUnfocused", false);
+        Debug.Assert(stateFound);
     }
 
     // Above every thing else in the visual tree is a scroll viewer that's
@@ -82,16 +76,15 @@ internal sealed partial class Cell : UserControl
     protected override void OnGotFocus(RoutedEventArgs e)
     {
         IsSelected = true;
-
         bool stateFound = VisualStateManager.GoToState(this, "SelectedFocused", false);
         Debug.Assert(stateFound);
     }
 
     public static readonly DependencyProperty DataProperty =
         DependencyProperty.Register(nameof(Data),
-        typeof(ViewModels.Cell),
-        typeof(Cell),
-        new PropertyMetadata(null, CellDataChangedCallback));
+            typeof(ViewModels.Cell),
+            typeof(Cell),
+            new PropertyMetadata(null, CellDataChangedCallback));
 
     public ViewModels.Cell Data
     {

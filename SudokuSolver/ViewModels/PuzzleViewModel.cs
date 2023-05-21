@@ -11,17 +11,16 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
     public Settings.PerViewSettings ViewSettings { get; }
 
     private bool isModified = false;
-    private bool canCutCopyDelete = false;
-    private bool canPaste = false;
+    private int clipboardValue = 0;
     private int selectedIndex = -1;
 
     public RelayCommand UndoCommand { get; }
     public RelayCommand RedoCommand { get; }
-    public RelayCommand MarkAsGivenCommand { get; }
     public RelayCommand CutCommand { get; }
     public RelayCommand CopyCommand { get; }
     public RelayCommand PasteCommand { get; }
     public RelayCommand DeleteCommand { get; }
+    public RelayCommand MarkAsGivenCommand { get; }
 
     public PuzzleViewModel(Settings.PerViewSettings viewSettings)
     {
@@ -32,10 +31,10 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         UndoCommand = new RelayCommand(ExecuteUndo, CanUndo);
         RedoCommand = new RelayCommand(ExecuteRedo, CanRedo);
 
-        CutCommand = new RelayCommand(ExecuteCut, p => canCutCopyDelete);
-        CopyCommand = new RelayCommand(ExecuteCopy, p => canCutCopyDelete);
-        PasteCommand = new RelayCommand(ExecutePaste, p => canPaste);
-        DeleteCommand = new RelayCommand(ExecuteDelete, p => canCutCopyDelete);
+        CutCommand = new RelayCommand(ExecuteCut, CanCutCopyDelete);
+        CopyCommand = new RelayCommand(ExecuteCopy, CanCutCopyDelete);
+        PasteCommand = new RelayCommand(ExecutePaste, CanPaste);
+        DeleteCommand = new RelayCommand(ExecuteDelete, CanCutCopyDelete);
 
         MarkAsGivenCommand = new RelayCommand(ExecuteMarkAsGiven, CanMarkAsGiven);
     }
@@ -203,7 +202,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
                 NotifyPropertyChanged();
             }
 
-            MarkAsGivenCommand.RaiseCanExecuteChanged();
+            UpdateCommandsCanExecute();
         }
     }
 
@@ -216,34 +215,30 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
 
     public void ExecuteRedo(object? param) {}
 
-    public void SelectedCellChanged(int index)
+
+    public void HandleSelectedIndexChanged(object sender, int e)
     {
-        if (selectedIndex != index)
-        {
-            selectedIndex = index;
-
-            Debug.WriteLine($"UpdateCellForSelection new selected: {index}");
-
-            if (canCutCopyDelete != Cells[index].HasValue)
-            {
-                canCutCopyDelete = Cells[index].HasValue;
-
-                CutCommand.RaiseCanExecuteChanged();
-                CopyCommand.RaiseCanExecuteChanged();
-                DeleteCommand.RaiseCanExecuteChanged();
-            }
-        }
+        selectedIndex = e;
+        UpdateCommandsCanExecute();
     }
+
+    private void UpdateCommandsCanExecute()
+    {
+        CutCommand.RaiseCanExecuteChanged();
+        CopyCommand.RaiseCanExecuteChanged();
+        DeleteCommand.RaiseCanExecuteChanged();
+        PasteCommand.RaiseCanExecuteChanged();
+        MarkAsGivenCommand.RaiseCanExecuteChanged();
+    }
+
+    private bool CanCutCopyDelete(object? param) => (selectedIndex >= 0) && Cells[selectedIndex].HasValue;
+
+    private bool CanPaste(object? param) => (selectedIndex >= 0) && (clipboardValue > 0);
 
     public async Task ClipboardContentChanged()
     {
-        bool newValue = await ReadClipboardNumber() > 0;
-
-        if (canPaste != newValue)
-        {
-            canPaste = newValue;
-            PasteCommand.RaiseCanExecuteChanged();
-        }
+        clipboardValue = await ReadClipboardNumber();
+        PasteCommand.RaiseCanExecuteChanged();
     }
 
     private static async Task<int> ReadClipboardNumber()
@@ -271,13 +266,16 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
 
     public void ExecuteCut(object? param) 
     {
-        ExecuteCopy(null);
-        ExecuteDelete(null);
+        if (CanCutCopyDelete(param))
+        {
+            ExecuteCopy(null);
+            ExecuteDelete(null);
+        }
     }
 
     public void ExecuteCopy(object? param) 
     {
-        if (selectedIndex >= 0)
+        if (CanCutCopyDelete(param))
         {
             DataPackage dp = new DataPackage();
             dp.SetText(Cells[selectedIndex].Value.ToString());
@@ -285,20 +283,15 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         }
     }
 
-    public async void ExecutePaste(object? param) 
+    public void ExecutePaste(object? param)
     {
-        if (selectedIndex >= 0)
-        {
-            int newValue = await ReadClipboardNumber();
-
-            if (newValue > 0)
-                UpdateCellForKeyDown(selectedIndex, newValue);
-        }
+        if (CanPaste(param))
+            UpdateCellForKeyDown(selectedIndex, clipboardValue);
     }
-
-    public void ExecuteDelete(object? param) 
+    
+    public void ExecuteDelete(object? param)
     {
-        if (selectedIndex >= 0)
+        if (CanCutCopyDelete(param))
             UpdateCellForKeyDown(selectedIndex, 0);
     }
 
@@ -306,9 +299,12 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
 
     public void ExecuteMarkAsGiven(object? param) 
     {
-        Model.SetOriginToGiven();
-        UpdateView();
-        IsModified = true;
+        if (CanMarkAsGiven(param))
+        {
+            Model.SetOriginToGiven();
+            UpdateView();
+            IsModified = true;
+        }
     }
 
 

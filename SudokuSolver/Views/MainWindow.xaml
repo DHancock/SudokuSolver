@@ -129,6 +129,6 @@
             </MenuBarItem>
         </MenuBar>
 
-        <local:PuzzleView x:Name="Puzzle" Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="8,0,8,8"/>
+        <local:PuzzleView x:Name="Puzzle" Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="8,0,8,8" SelectedIndexChanged="{x:Bind Puzzle.ViewModel.HandleSelectedIndexChanged}"/>
     </Grid>
 </Window>
