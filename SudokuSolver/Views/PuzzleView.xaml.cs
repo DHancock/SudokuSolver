@@ -38,7 +38,7 @@ internal partial class PuzzleView : UserControl
 
     public BrushTransition BackgroundBrushTransition => PuzzleBrushTransition;
 
-    private void HandleSelectionChanged(object sender, Cell.SelectionChangedEventArgs e)
+    private void Cell_SelectionChanged(object sender, Cell.SelectionChangedEventArgs e)
     {
         if (e.IsSelected) 
         {

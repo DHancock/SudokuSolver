@@ -216,7 +216,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
     public void ExecuteRedo(object? param) {}
 
 
-    public void HandleSelectedIndexChanged(object sender, int e)
+    public void Puzzle_SelectedIndexChanged(object sender, int e)
     {
         selectedIndex = e;
         UpdateCommandsCanExecute();
