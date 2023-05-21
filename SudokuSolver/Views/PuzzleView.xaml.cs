@@ -1,6 +1,4 @@
-﻿using Microsoft.UI.Xaml.Media;
-
-using SudokuSolver.ViewModels;
+﻿using SudokuSolver.ViewModels;
 
 namespace SudokuSolver.Views;
 
@@ -10,8 +8,8 @@ namespace SudokuSolver.Views;
 internal partial class PuzzleView : UserControl
 {
     private PuzzleViewModel? viewModel;
-    private readonly Cell[] cells = new Cell[9 * 9];
-    private int lastSelectedIndex = -1;
+    private Cell? lastSelectedCell;
+    public event EventHandler<int>? SelectedIndexChanged;
 
     public bool IsPrintView { get; set; } = false;
 
@@ -24,27 +22,6 @@ internal partial class PuzzleView : UserControl
             // printers generally have much higher resolutions than monitors
             if (!IsPrintView)
                 Grid.AdaptForScaleFactor(e.NewSize.Width);
-        };
-
-        Loaded += (s, e) =>
-        {
-            for (int index = 0; index < cells.Length; index++)
-            {
-                cells[index] = (Cell)Grid.Children[index];
-
-                cells[index].SelectionChanged += (s, args) =>
-                {
-                    if (args.IsSelected) // enforce single selection
-                    {
-                        ViewModel?.SelectedCellChanged(args.CellIndex);
-
-                        if ((lastSelectedIndex >= 0) && (lastSelectedIndex != args.CellIndex))
-                            cells[lastSelectedIndex].IsSelected = false;
-
-                        lastSelectedIndex = args.CellIndex;
-                    }
-                };
-            }
         };
     }
 
@@ -60,4 +37,27 @@ internal partial class PuzzleView : UserControl
     }
 
     public BrushTransition BackgroundBrushTransition => PuzzleBrushTransition;
+
+    private void HandleSelectionChanged(object sender, Cell.SelectionChangedEventArgs e)
+    {
+        if (e.IsSelected) 
+        {
+            SelectedIndexChanged?.Invoke(this, e.CellIndex);
+
+            // enforce single selection
+            if (lastSelectedCell is not null)
+                lastSelectedCell.IsSelected = false;
+
+            lastSelectedCell = (Cell)sender;
+        }
+    }
+
+    public void FocusLastSelectedCell()
+    {
+        if (lastSelectedCell is not null)
+        {
+            bool success = lastSelectedCell.Focus(FocusState.Programmatic);
+            Debug.Assert(success);
+        }
+    }
 }

@@ -90,6 +90,11 @@ internal sealed partial class MainWindow : Window
             CustomTitleBar.Visibility = Visibility.Collapsed;
         }
 
+        // transfer focus back to the last selected cell, if there was one
+        FileMenuItem.Unloaded += (s, a) => Puzzle.FocusLastSelectedCell();
+        ViewMenuItem.Unloaded += (s, a) => Puzzle.FocusLastSelectedCell();
+        UndoMenuItem.Unloaded += (s, a) => Puzzle.FocusLastSelectedCell();
+
         // always set the window icon, it's used in the task switcher
         AppWindow.SetIcon("Resources\\app.ico");
         UpdateWindowTitle();
