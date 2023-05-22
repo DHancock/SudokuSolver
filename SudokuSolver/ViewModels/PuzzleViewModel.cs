@@ -6,10 +6,13 @@ namespace SudokuSolver.ViewModels;
 
 internal sealed class PuzzleViewModel : INotifyPropertyChanged
 {
-    private PuzzleModel Model { get; }
+    private const int cMaxUndoCount = 10;
     public CellList Cells { get; }
-    public Settings.PerViewSettings ViewSettings { get; }
 
+    private readonly UndoHelper undoHelper;
+    private readonly Settings.PerViewSettings viewSettings;
+
+    private PuzzleModel model;
     private bool isModified = false;
     private int clipboardValue = 0;
     private int selectedIndex = -1;
@@ -22,11 +25,14 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
     public RelayCommand DeleteCommand { get; }
     public RelayCommand MarkAsGivenCommand { get; }
 
-    public PuzzleViewModel(Settings.PerViewSettings viewSettings)
+    public PuzzleViewModel(Settings.PerViewSettings perViewSettings)
     {
-        Model = new PuzzleModel();
+        model = new PuzzleModel();
         Cells = new CellList();
-        ViewSettings = viewSettings;
+        viewSettings = perViewSettings;
+
+        undoHelper = new UndoHelper(cMaxUndoCount);
+        undoHelper.Add(model);
 
         UndoCommand = new RelayCommand(ExecuteUndo, CanUndo);
         RedoCommand = new RelayCommand(ExecuteRedo, CanRedo);
@@ -51,23 +57,23 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         if (newValue > 0)
         {
             if (currentValue == 0)
-                return Model.Add;
+                return model.Add;
 
             if (currentValue != newValue)
             {
                 if ((cell.Origin == Origins.User) || (cell.Origin == Origins.Given))
-                    return Model.Edit;
+                    return model.Edit;
 
                 if ((currentOrigin == Origins.Trial) || (currentOrigin == Origins.Calculated))
-                    return Model.EditForced;
+                    return model.EditForced;
             }
 
             if ((currentValue == newValue) && ((currentOrigin == Origins.Trial) || (currentOrigin == Origins.Calculated)))
-                return Model.SetOrigin;
+                return model.SetOrigin;
         }
 
         if ((newValue == 0) && (currentValue > 0) && ((cell.Origin == Origins.User) || (cell.Origin == Origins.Given)))
-            return Model.Delete;
+            return model.Delete;
 
         // typical changes that require no action are deleting an empty cell, 
         // deleting a cell containing a calculated value which would then just 
@@ -85,7 +91,9 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
             if (modelFunction(index, newValue))
             {
                 UpdateView();
+                undoHelper.Add(model);
                 IsModified = true;
+                RaiseCanExecuteChanged();
             }
             else
             {
@@ -96,7 +104,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
 
     public void Save(Stream stream)
     {
-        Model.Save(stream);
+        model.Save(stream);
         IsModified = false;
     }
 
@@ -104,25 +112,27 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
     {
         try
         {
-            Model.Clear();
-            Model.Open(stream);
+            model.Clear();
+            model.Open(stream);
             IsModified = false;
         }
         catch
         {
-            Model.Clear();
+            model.Clear();
             throw;
         }
         finally
         {
             UpdateView();
+            undoHelper.Add(model);
+            RaiseCanExecuteChanged();
         }
     }
 
     private void UpdateView()
     {
         // update the view model's observable collection, causing a ui update
-        foreach (Models.Cell modelCell in Model.Cells)
+        foreach (Models.Cell modelCell in model.Cells)
         {
             int index = modelCell.Index;
 
@@ -130,24 +140,26 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
                 Cells[index] = new Cell(modelCell);
         }
 
-        Debug.Assert(Model.CompletedCellCountIsValid);
+        Debug.Assert(model.CompletedCellCountIsValid);
     }
 
     public void New()
     {
-        Model.Clear();
+        model.Clear();
         UpdateView();
+        undoHelper.Add(model);
         IsModified = false;
+        RaiseCanExecuteChanged();
     }
 
     public bool ShowPossibles
     {
-        get => ViewSettings.ShowPossibles;
+        get => viewSettings.ShowPossibles;
         set
         {
-            if (ViewSettings.ShowPossibles != value)
+            if (viewSettings.ShowPossibles != value)
             {
-                ViewSettings.ShowPossibles = value;
+                viewSettings.ShowPossibles = value;
                 Settings.Data.ViewSettings.ShowPossibles = value;
                 UpdateViewForShowPossiblesStateChange();
                 NotifyPropertyChanged();
@@ -157,12 +169,12 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
    
     public bool ShowSolution
     {
-        get => ViewSettings.ShowSolution;
+        get => viewSettings.ShowSolution;
         set
         {
-            if (ViewSettings.ShowSolution != value)
+            if (viewSettings.ShowSolution != value)
             {
-                ViewSettings.ShowSolution = value;
+                viewSettings.ShowSolution = value;
                 Settings.Data.ViewSettings.ShowSolution = value;
                 UpdateViewForShowSolutionStateChange();
                 NotifyPropertyChanged();
@@ -201,29 +213,46 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
                 isModified = value;
                 NotifyPropertyChanged();
             }
-
-            UpdateCommandsCanExecute();
         }
     }
 
-    public bool CanUndo(object? param) => false;
+    public bool CanUndo(object? param = null) => undoHelper.CanUndo;
 
-    public void ExecuteUndo(object? param) {}
+    public void ExecuteUndo(object? param) 
+    {
+        if (CanUndo())
+        {
+            model = undoHelper.UndoPop();
+            UpdateView();
+            IsModified = true;
+            RaiseCanExecuteChanged();
+        }
+    }
 
 
-    public bool CanRedo(object? param) => false;
+    public bool CanRedo(object? param = null) => undoHelper.CanRedo;
 
-    public void ExecuteRedo(object? param) {}
-
+    public void ExecuteRedo(object? param) 
+    {
+        if (CanRedo())
+        {
+            model = undoHelper.RedoPop();
+            UpdateView();
+            IsModified = true;
+            RaiseCanExecuteChanged();
+        }
+    }
 
     public void Puzzle_SelectedIndexChanged(object sender, int e)
     {
         selectedIndex = e;
-        UpdateCommandsCanExecute();
+        RaiseCanExecuteChanged();
     }
 
-    private void UpdateCommandsCanExecute()
+    private void RaiseCanExecuteChanged()
     {
+        UndoCommand.RaiseCanExecuteChanged();
+        RedoCommand.RaiseCanExecuteChanged();
         CutCommand.RaiseCanExecuteChanged();
         CopyCommand.RaiseCanExecuteChanged();
         DeleteCommand.RaiseCanExecuteChanged();
@@ -231,9 +260,9 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         MarkAsGivenCommand.RaiseCanExecuteChanged();
     }
 
-    private bool CanCutCopyDelete(object? param) => (selectedIndex >= 0) && Cells[selectedIndex].HasValue;
+    private bool CanCutCopyDelete(object? param = null) => (selectedIndex >= 0) && Cells[selectedIndex].HasValue;
 
-    private bool CanPaste(object? param) => (selectedIndex >= 0) && (clipboardValue > 0);
+    private bool CanPaste(object? param = null) => (selectedIndex >= 0) && (clipboardValue > 0);
 
     public async Task ClipboardContentChanged()
     {
@@ -266,16 +295,16 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
 
     public void ExecuteCut(object? param) 
     {
-        if (CanCutCopyDelete(param))
+        if (CanCutCopyDelete())
         {
-            ExecuteCopy(null);
-            ExecuteDelete(null);
+            ExecuteCopy();
+            ExecuteDelete();
         }
     }
 
-    public void ExecuteCopy(object? param) 
+    public void ExecuteCopy(object? param = null) 
     {
-        if (CanCutCopyDelete(param))
+        if (CanCutCopyDelete())
         {
             DataPackage dp = new DataPackage();
             dp.SetText(Cells[selectedIndex].Value.ToString());
@@ -285,23 +314,23 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
 
     public void ExecutePaste(object? param)
     {
-        if (CanPaste(param))
+        if (CanPaste())
             UpdateCellForKeyDown(selectedIndex, clipboardValue);
     }
     
-    public void ExecuteDelete(object? param)
+    public void ExecuteDelete(object? param = null)
     {
-        if (CanCutCopyDelete(param))
+        if (CanCutCopyDelete())
             UpdateCellForKeyDown(selectedIndex, 0);
     }
 
-    public bool CanMarkAsGiven(object? param) => Cells.Any(c => c.Origin == Origins.User);
+    public bool CanMarkAsGiven(object? param = null) => Cells.Any(c => c.Origin == Origins.User);
 
     public void ExecuteMarkAsGiven(object? param) 
     {
-        if (CanMarkAsGiven(param))
+        if (CanMarkAsGiven())
         {
-            Model.SetOriginToGiven();
+            model.SetOriginToGiven();
             UpdateView();
             IsModified = true;
         }
