@@ -2,7 +2,7 @@
 
 namespace SudokuSolver.ViewModels;
 
-internal class UndoHelper
+internal sealed class UndoHelper
 {
     private readonly LimitedSizeStack undoStack;
     private readonly LimitedSizeStack redoStack;
@@ -14,7 +14,7 @@ internal class UndoHelper
         redoStack = new LimitedSizeStack(maxCount);
     }
 
-    public void Add(PuzzleModel model)
+    public void Push(PuzzleModel model)
     {
         // can only redo what's been undone
         redoStack.Clear();
@@ -25,7 +25,7 @@ internal class UndoHelper
         currentModel = new PuzzleModel(model);
     }
 
-    public PuzzleModel UndoPop()
+    public PuzzleModel PopUndo()
     {
         if (currentModel is not null)
             redoStack.Push(currentModel);
@@ -35,7 +35,7 @@ internal class UndoHelper
         return new PuzzleModel(currentModel);
     }
 
-    public PuzzleModel RedoPop()
+    public PuzzleModel PopRedo()
     {
         if (currentModel is not null)
             undoStack.Push(currentModel);
@@ -50,10 +50,10 @@ internal class UndoHelper
     public bool CanRedo => redoStack.Count > 0;
 
 
-    private class LimitedSizeStack
+    private sealed class LimitedSizeStack
     {
         private readonly int maxCount;
-        readonly LinkedList<PuzzleModel> list = new LinkedList<PuzzleModel>();
+        private readonly LinkedList<PuzzleModel> list = new LinkedList<PuzzleModel>();
 
         public LimitedSizeStack(int maxCount)
         {

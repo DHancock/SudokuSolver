@@ -32,7 +32,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         viewSettings = perViewSettings;
 
         undoHelper = new UndoHelper(cMaxUndoCount);
-        undoHelper.Add(model);
+        undoHelper.Push(model);
 
         UndoCommand = new RelayCommand(ExecuteUndo, CanUndo);
         RedoCommand = new RelayCommand(ExecuteRedo, CanRedo);
@@ -91,7 +91,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
             if (modelFunction(index, newValue))
             {
                 UpdateView();
-                undoHelper.Add(model);
+                undoHelper.Push(model);
                 IsModified = true;
                 RaiseCanExecuteChanged();
             }
@@ -124,7 +124,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         finally
         {
             UpdateView();
-            undoHelper.Add(model);
+            undoHelper.Push(model);
             RaiseCanExecuteChanged();
         }
     }
@@ -147,7 +147,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
     {
         model.Clear();
         UpdateView();
-        undoHelper.Add(model);
+        undoHelper.Push(model);
         IsModified = false;
         RaiseCanExecuteChanged();
     }
@@ -222,7 +222,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
     {
         if (CanUndo())
         {
-            model = undoHelper.UndoPop();
+            model = undoHelper.PopUndo();
             UpdateView();
             IsModified = true;
             RaiseCanExecuteChanged();
@@ -236,7 +236,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
     {
         if (CanRedo())
         {
-            model = undoHelper.RedoPop();
+            model = undoHelper.PopRedo();
             UpdateView();
             IsModified = true;
             RaiseCanExecuteChanged();
