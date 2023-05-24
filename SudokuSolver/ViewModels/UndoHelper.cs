@@ -4,14 +4,16 @@ namespace SudokuSolver.ViewModels;
 
 internal sealed class UndoHelper
 {
+    private const int cMaxUndoCount = 20;
+
     private readonly LimitedSizeStack undoStack;
     private readonly LimitedSizeStack redoStack;
     private PuzzleModel? currentModel;
 
-    public UndoHelper(int maxCount)
+    public UndoHelper()
     {
-        undoStack = new LimitedSizeStack(maxCount);
-        redoStack = new LimitedSizeStack(maxCount);
+        undoStack = new LimitedSizeStack(cMaxUndoCount);
+        redoStack = new LimitedSizeStack(cMaxUndoCount);
     }
 
     public void Push(PuzzleModel model)

@@ -6,7 +6,6 @@ namespace SudokuSolver.ViewModels;
 
 internal sealed class PuzzleViewModel : INotifyPropertyChanged
 {
-    private const int cMaxUndoCount = 20;
     public CellList Cells { get; }
 
     private readonly UndoHelper undoHelper;
@@ -31,7 +30,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         Cells = new CellList();
         viewSettings = perViewSettings;
 
-        undoHelper = new UndoHelper(cMaxUndoCount);
+        undoHelper = new UndoHelper();
         undoHelper.Push(model);
 
         UndoCommand = new RelayCommand(ExecuteUndo, CanUndo);
