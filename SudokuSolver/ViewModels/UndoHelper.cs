@@ -6,14 +6,14 @@ internal sealed class UndoHelper
 {
     private const int cMaxUndoCount = 20;
 
-    private readonly LimitedSizeStack undoStack;
-    private readonly LimitedSizeStack redoStack;
+    private readonly UndoStack<PuzzleModel> undoStack;
+    private readonly Stack<PuzzleModel> redoStack;
     private PuzzleModel? currentModel;
 
     public UndoHelper()
     {
-        undoStack = new LimitedSizeStack(cMaxUndoCount);
-        redoStack = new LimitedSizeStack(cMaxUndoCount);
+        undoStack = new UndoStack<PuzzleModel>(cMaxUndoCount);
+        redoStack = new Stack<PuzzleModel>(cMaxUndoCount);
     }
 
     public void Push(PuzzleModel model)
@@ -52,38 +52,36 @@ internal sealed class UndoHelper
     public bool CanRedo => redoStack.Count > 0;
 
 
-    private sealed class LimitedSizeStack
+    private sealed class UndoStack<T> where T : new()
     {
         private readonly int maxCount;
-        private readonly LinkedList<PuzzleModel> list = new LinkedList<PuzzleModel>();
+        private readonly LinkedList<T> list = new LinkedList<T>();
 
-        public LimitedSizeStack(int maxCount)
+        public UndoStack(int maxCount)
         {
             this.maxCount = maxCount;
         }
 
-        public void Push(PuzzleModel model)
+        public void Push(T item)
         {
-            list.AddFirst(model);
+            list.AddFirst(item);
 
             if (list.Count > maxCount)
                 list.RemoveLast();
         }
 
-        public PuzzleModel Pop()
+        public T Pop()
         {
             if (list.Count > 0)
             {
-                PuzzleModel model = list.First();
+                T item = list.First();
                 list.RemoveFirst();
-                return model;
+                return item;
             }
 
             Debug.Fail("attempted Pop() from an empty list");
-            return new PuzzleModel();
+            return new T();
         }
-
-        public void Clear() => list.Clear();
 
         public int Count => list.Count;
     }
