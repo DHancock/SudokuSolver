@@ -8,15 +8,7 @@ internal sealed partial class SettingsWindow : WindowBase
     {
         this.InitializeComponent();
 
-        OverlappedPresenter presenter = (OverlappedPresenter)AppWindow.Presenter ;
-
-        presenter.IsMaximizable = false;
-        presenter.IsMinimizable = false;
-        presenter.IsResizable = true;
-
-
         this.SystemBackdrop = new MicaBackdrop();
-
 
         AppWindow.SetIcon("Resources\\app.ico");
 
@@ -43,11 +35,13 @@ internal sealed partial class SettingsWindow : WindowBase
 
         AppWindow.Closing += async (s, e) =>
         {
+            bool lastWindow = App.Instance.UnRegisterWindow(this);
+
+            // record now, a puzzle window could be the last window
+            Settings.Data.SettingsRestoreBounds = RestoreBounds;
+
             AppWindow.Hide();
 
-            Settings.Data.SettingsRestoreBounds = RestoreBounds;
-            bool lastWindow = App.Instance.UnRegisterWindow(this);
-            
             if (lastWindow)
                 await Settings.Data.Save();
         };

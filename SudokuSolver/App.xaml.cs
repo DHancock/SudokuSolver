@@ -55,7 +55,7 @@ public partial class App : Application
                 CreateNewWindow(storageFile: null);
             else
             {
-                IList<string> commandLine = Environment.GetCommandLineArgs();
+                IReadOnlyList<string> commandLine = Environment.GetCommandLineArgs();
 
                 bool windowCreated = await ProcessCommandLine(commandLine);
 
@@ -99,7 +99,7 @@ public partial class App : Application
     {
         if (args.Data is ILaunchActivatedEventArgs launchData)
         {
-            IList<string> commandLine = SplitLaunchActivationCommandLine(launchData.Arguments);
+            IReadOnlyList<string> commandLine = SplitLaunchActivationCommandLine(launchData.Arguments);
 
             bool windowCreated = await ProcessCommandLine(commandLine);
                 
@@ -108,7 +108,7 @@ public partial class App : Application
         }
     }
 
-    private async Task<bool> ProcessCommandLine(IList<string> args)
+    private async Task<bool> ProcessCommandLine(IReadOnlyList<string> args)
     {
         bool windowCreated = false;
 
@@ -152,13 +152,15 @@ public partial class App : Application
             }
             else
             {
-                AttemptBumpWindowToFront(settingsWindow);
+                bool success = AttemptSwitchToWindow(settingsWindow);
+                Debug.Assert(success);
             }
         }
     }
 
     private static bool AttemptBumpWindowToFront(WindowBase window)
     {
+        // this will also switch the app to the foreground
         HWND foreground = PInvoke.GetForegroundWindow();
         HWND target = (HWND)window.WindowPtr;
 
@@ -299,7 +301,7 @@ public partial class App : Application
 
     // The command line is constructed by the os when a file is dragged 
     // and dropped onto the exe (or it's shortcut), so really should be well formed.
-    private static IList<string> SplitLaunchActivationCommandLine(string commandLine)
+    private static IReadOnlyList<string> SplitLaunchActivationCommandLine(string commandLine)
     {
         List<string> arguments = new List<string>();
         StringBuilder sb = new StringBuilder();
@@ -340,4 +342,6 @@ public partial class App : Application
 
         return AdjustWindowBoundsForDisplay(ViewModels.Settings.Data.SettingsRestoreBounds);
     }
+
+    internal WindowBase? CurrentWindow => currentWindow;
 }
