@@ -16,12 +16,12 @@ public partial class App : Application
     public const string cNewPuzzleName = "Untitled";
 
     public static bool IsPackaged { get; } = GetIsPackaged();
-    public static App Instance => (App)Application.Current;
+    public static App Instance => (App)Current;
 
     private readonly DispatcherQueue uiThreadDispatcher;
     private readonly AppInstance appInstance;
-    private readonly List<MainWindow> windowList = new List<MainWindow>();
-    private MainWindow? currentMainWindow;
+    private readonly List<WindowBase> windowList = new List<WindowBase>();
+    private WindowBase? currentWindow;
 
     private bool appClosing = false;
 
@@ -104,7 +104,7 @@ public partial class App : Application
             bool windowCreated = await ProcessCommandLine(commandLine);
                 
             if (!windowCreated)
-                TrySwitchToMainWindow();
+                AttemptSwitchToWindow(currentWindow);
         }
     }
 
@@ -134,28 +134,41 @@ public partial class App : Application
         {
             MainWindow window = new MainWindow(storageFile, creator);
             windowList.Add(window);
-            TryBumpWindowToFront(window);
+            AttemptBumpWindowToFront(window);
         }
     }
 
-    private static bool TryBumpWindowToFront(MainWindow window)
+    internal void ShowSettingsWindow()
+    {
+        if (!appClosing)
+        {
+            WindowBase? settingsWindow = windowList.FirstOrDefault(w => w is SettingsWindow);
+
+            if (settingsWindow is null)
+            {
+                settingsWindow = new SettingsWindow();
+                windowList.Add(settingsWindow);
+                settingsWindow.Activate();
+            }
+            else
+            {
+                AttemptBumpWindowToFront(settingsWindow);
+            }
+        }
+    }
+
+    private static bool AttemptBumpWindowToFront(WindowBase window)
     {
         HWND foreground = PInvoke.GetForegroundWindow();
         HWND target = (HWND)window.WindowPtr;
 
         if (target != foreground)
-        {
-            if (PInvoke.SetForegroundWindow(target))
-                return true;
-
-            Debug.WriteLine("SetForegroundWindow() was refused");
-            return false;
-        }
+            return PInvoke.SetForegroundWindow(target);
 
         return true;
     }
 
-    internal bool UnRegisterWindow(MainWindow window)
+    internal bool UnRegisterWindow(WindowBase window)
     {
         appClosing = windowList.Count == 1;
 
@@ -164,22 +177,22 @@ public partial class App : Application
 
         // If all the other windows are minimized then another window won't be
         // automatically activated. Until it's known, use the last one opended.
-        if (ReferenceEquals(currentMainWindow, window))
-            currentMainWindow = appClosing ? null : windowList[windowList.Count - 1];
+        if (ReferenceEquals(currentWindow, window))
+            currentWindow = windowList.LastOrDefault();
 
         return appClosing;
     }
 
-    private bool TrySwitchToMainWindow()
+    private static bool AttemptSwitchToWindow(WindowBase? window)
     {
-        Debug.Assert(currentMainWindow is not null);
+        Debug.Assert(window is not null);
 
-        if (currentMainWindow is not null)
+        if (window is not null)
         {
-            if (currentMainWindow.WindowState == WindowState.Minimized)
-                currentMainWindow.WindowState = WindowState.Normal;
+            if (window.WindowState == WindowState.Minimized)
+                window.WindowState = WindowState.Normal;
 
-            return TryBumpWindowToFront(currentMainWindow);
+            return AttemptBumpWindowToFront(window);
         }
 
         return false;
@@ -187,28 +200,17 @@ public partial class App : Application
 
     internal RectInt32 GetNewWindowPosition(MainWindow newWindow)
     {
-        if (windowList.Count == 0)  
-        {
-            if (ViewModels.Settings.Data.RestoreBounds.IsEmpty())  // first run
-                return CenterInPrimaryDisplay(newWindow);
+        if (ViewModels.Settings.Data.RestoreBounds.IsEmpty())  // first run
+            return CenterInPrimaryDisplay(newWindow);
 
-            return GetNewWindowPosition(ViewModels.Settings.Data.RestoreBounds);
-        }
-
-        // open relative to the top window's last normal position
-        Debug.Assert(currentMainWindow is not null);
-
-        if (currentMainWindow is not null)
-            return GetNewWindowPosition(currentMainWindow.RestoreBounds); 
-        
-        return CenterInPrimaryDisplay(newWindow); 
+        return GetNewWindowPosition(ViewModels.Settings.Data.RestoreBounds);
     }
 
-    private static RectInt32 CenterInPrimaryDisplay(MainWindow window)
+    private static RectInt32 CenterInPrimaryDisplay(WindowBase window)
     {
         double scaleFactor = window.GetScaleFactor();
-        int width = MainWindow.ConvertToDeviceSize(MainWindow.InitialWidth, scaleFactor);
-        int height = MainWindow.ConvertToDeviceSize(MainWindow.InitialHeight, scaleFactor);
+        int width = WindowBase.ConvertToDeviceSize(window.InitialWidth, scaleFactor);
+        int height = WindowBase.ConvertToDeviceSize(window.InitialHeight, scaleFactor);
 
         RectInt32 windowArea;
         RectInt32 workArea = DisplayArea.Primary.WorkArea;
@@ -237,18 +239,22 @@ public partial class App : Application
         
         while ((index < windowList.Count) && (resetCount < windowList.Count))
         {
-            MainWindow existingWindow = windowList[index++];
-            PointInt32 existingPos = existingWindow.RestoreBounds.TopLeft();
-            double scaleFactor = existingWindow.GetScaleFactor();
-            int clientTitleBarHeight = MainWindow.ConvertToDeviceSize(cTitleBarHeight, scaleFactor);
+            WindowBase existingWindow = windowList[index++];
 
-            newPos = AdjustWindowBoundsForDisplay(new RectInt32(newPos.X, newPos.Y, bounds.Width, bounds.Height)).TopLeft();
-
-            if (TitleBarOverlaps(existingPos, newPos, clientTitleBarHeight))
+            if (existingWindow is MainWindow)
             {
-                newPos = existingPos.Offset(clientTitleBarHeight + 1);
-                index = 0;
-                ++resetCount;  // avoid an infinate loop if the position cannot be adjusted due to display limits
+                PointInt32 existingPos = existingWindow.RestoreBounds.TopLeft();
+                double scaleFactor = existingWindow.GetScaleFactor();
+                int clientTitleBarHeight = WindowBase.ConvertToDeviceSize(cTitleBarHeight, scaleFactor);
+
+                newPos = AdjustWindowBoundsForDisplay(new RectInt32(newPos.X, newPos.Y, bounds.Width, bounds.Height)).TopLeft();
+
+                if (TitleBarOverlaps(existingPos, newPos, clientTitleBarHeight))
+                {
+                    newPos = existingPos.Offset(clientTitleBarHeight + 1);
+                    index = 0;
+                    ++resetCount;  // avoid an infinate loop if the position cannot be adjusted due to display limits
+                }
             }
         }
 
@@ -322,8 +328,16 @@ public partial class App : Application
 
     public void RecordWindowActivated(object sender, WindowActivatedEventArgs args)
     {
-        // used to determine where a new window is opened
-        if (args.WindowActivationState != WindowActivationState.Deactivated)
-            currentMainWindow = (MainWindow)sender;
+        // used to determine which window to activate on launch redirection
+        if (args.WindowActivationState != WindowActivationState.Deactivated) 
+            currentWindow = (WindowBase)sender;
+    }
+
+    internal static RectInt32 GetSettingsWindowPosition(SettingsWindow window)
+    {
+        if (ViewModels.Settings.Data.SettingsRestoreBounds.IsEmpty())  // first run
+            return CenterInPrimaryDisplay(window);
+
+        return AdjustWindowBoundsForDisplay(ViewModels.Settings.Data.SettingsRestoreBounds);
     }
 }

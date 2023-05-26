@@ -25,6 +25,8 @@ internal class Settings
 
     public RectInt32 RestoreBounds { get; set; } = default;
 
+    public RectInt32 SettingsRestoreBounds { get; set; } = default;
+
     public async Task Save()
     {
         await Inner.Save(this);
