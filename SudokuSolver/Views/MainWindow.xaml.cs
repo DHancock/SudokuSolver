@@ -72,9 +72,9 @@ internal sealed partial class MainWindow : WindowBase
         }
 
         // transfer focus back to the last selected cell, if there was one
-        FileMenuItem.Unloaded += (s, a) => Puzzle.FocusLastSelectedCell();
-        ViewMenuItem.Unloaded += (s, a) => Puzzle.FocusLastSelectedCell();
-        UndoMenuItem.Unloaded += (s, a) => Puzzle.FocusLastSelectedCell();
+        FileMenuItem.Unloaded += (s, a) => FocusLastSelectedCell();
+        ViewMenuItem.Unloaded += (s, a) => FocusLastSelectedCell();
+        UndoMenuItem.Unloaded += (s, a) => FocusLastSelectedCell();
 
         // always set the window icon, it's used in the task switcher
         AppWindow.SetIcon("Resources\\app.ico");
@@ -109,9 +109,19 @@ internal sealed partial class MainWindow : WindowBase
         {
             await Puzzle.ViewModel.ClipboardContentChanged();
         };
+
+        Activated += (s, e) =>
+        {
+            if (e.WindowActivationState != WindowActivationState.Deactivated)
+                Puzzle.FocusLastSelectedCell();
+        };
     }
 
-
+    private void FocusLastSelectedCell()
+    {
+        if (App.Instance.CurrentWindow == this)
+            Puzzle.FocusLastSelectedCell();
+    }
 
     private async Task HandleWindowClosing()
     {
@@ -138,18 +148,18 @@ internal sealed partial class MainWindow : WindowBase
         {
             bool lastWindow = App.Instance.UnRegisterWindow(this);
 
-            if (lastWindow)
-            {
-                Settings.Data.RestoreBounds = RestoreBounds;
-                Settings.Data.WindowState = WindowState;
-                await Settings.Data.Save();
-            }
+            // record now, the settings window could be the last window
+            Settings.Data.RestoreBounds = RestoreBounds;
+            Settings.Data.WindowState = WindowState;
 
             // stop any further window drawing on close
             AppWindow.Hide();
 
             // calling Close() doesn't raise an AppWindow.Closing event
             Close();
+
+            if (lastWindow)
+                await Settings.Data.Save();
         }
     }
 
