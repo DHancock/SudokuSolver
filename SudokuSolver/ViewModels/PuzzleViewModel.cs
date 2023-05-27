@@ -242,9 +242,13 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         }
     }
 
-    public void Puzzle_SelectedIndexChanged(object sender, int e)
+    public void Puzzle_SelectedIndexChanged(object sender, Views.Cell.SelectionChangedEventArgs e)
     {
-        selectedIndex = e;
+        if (e.IsSelected)
+            selectedIndex = e.Index;
+        else if (selectedIndex == e.Index)
+            selectedIndex = -1;
+
         RaiseCanExecuteChanged();
     }
 

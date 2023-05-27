@@ -8,13 +8,15 @@ namespace SudokuSolver.Views;
 internal sealed partial class Cell : UserControl
 {
     private static readonly string[] sLookUp = new[] { string.Empty, "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+    private enum VisualState { None, SelectedFocused, SelectedUnfocused }
+    private VisualState currentVisualState = VisualState.None;
 
     private readonly PossibleTextBlock[] possibleTBs;
 
     public event EventHandler<SelectionChangedEventArgs>? SelectionChanged;
 
     private bool isSelected = false;
-
+    
     public Cell()
     {
         this.InitializeComponent();
@@ -36,29 +38,37 @@ internal sealed partial class Cell : UserControl
                 isSelected = value;
 
                 SelectionChanged?.Invoke(this, new SelectionChangedEventArgs(Data.Index, value));
-               
-                if (!isSelected)
-                {
-                    bool stateFound = VisualStateManager.GoToState(this, "None", false);
-                    Debug.Assert(stateFound);
-                }
+
+                if (!isSelected) // set by the puzzle to enforce single selection
+                    GoToVisualState(VisualState.None);
             }
         }
     }
 
-    internal record SelectionChangedEventArgs(int CellIndex, bool IsSelected);
+    internal record SelectionChangedEventArgs(int Index, bool IsSelected);
 
     protected override void OnPointerPressed(PointerRoutedEventArgs e)
     {
-        bool focused = Focus(FocusState.Programmatic);
-        Debug.Assert(focused);
+        IsSelected = !IsSelected;
+
+        if (IsSelected)
+        {
+            bool success = Focus(FocusState.Programmatic);
+            Debug.Assert(success);
+
+            if (success)
+                GoToVisualState(VisualState.SelectedFocused);
+        }
+        else
+            GoToVisualState(VisualState.None);
     }
 
     protected override void OnLostFocus(RoutedEventArgs e)
     {
-        Debug.Assert(IsSelected, "lost focus on an unselected cell");
-        bool stateFound = VisualStateManager.GoToState(this, "SelectedUnfocused", false);
-        Debug.Assert(stateFound);
+        if (IsSelected)
+            GoToVisualState(VisualState.SelectedUnfocused);
+        else
+            GoToVisualState(VisualState.None);
     }
 
     // Above every thing else in the visual tree is a scroll viewer that's
@@ -75,10 +85,22 @@ internal sealed partial class Cell : UserControl
 
     protected override void OnGotFocus(RoutedEventArgs e)
     {
-        IsSelected = true;
-        bool stateFound = VisualStateManager.GoToState(this, "SelectedFocused", false);
-        Debug.Assert(stateFound);
+        if (!IsSelected) 
+            IsSelected = true; // user tabbed to cell, or window switched to foreground
+
+        GoToVisualState(VisualState.SelectedFocused);
     }
+
+    private void GoToVisualState(VisualState state)
+    {
+        if (state != currentVisualState)
+        {
+            bool stateFound = VisualStateManager.GoToState(this, state.ToString(), false);
+            Debug.Assert(stateFound, $"unknown visual state: {state.ToString()}");
+            currentVisualState = state;
+        }
+    }
+
 
     public static readonly DependencyProperty DataProperty =
         DependencyProperty.Register(nameof(Data),
@@ -160,40 +182,46 @@ internal sealed partial class Cell : UserControl
     // the view model cell list is an observable collection bound to ui cells.
     protected override void OnKeyDown(KeyRoutedEventArgs e)
     {
-        Cell? nextCell = null;
-        int newValue = -1;
+        if (!IsSelected)  // keyboard focus != selected
+            return;
 
+        Cell? nextCell = null;
+        
         switch (e.Key)
         {
             case VirtualKey.Left:   nextCell = (Cell)XYFocusLeft; break;
             case VirtualKey.Right:  nextCell = (Cell)XYFocusRight; break;
             case VirtualKey.Up:     nextCell = (Cell)XYFocusUp; break;
             case VirtualKey.Down:   nextCell = (Cell)XYFocusDown; break;
-
-            case > VirtualKey.Number0 and <= VirtualKey.Number9:
-                newValue = e.Key - VirtualKey.Number0;
-                break;
-
-            case > VirtualKey.NumberPad0 and <= VirtualKey.NumberPad9:
-                newValue = e.Key - VirtualKey.NumberPad0;
-                break;
-
-            case VirtualKey.Delete: newValue = 0; break;
-            case VirtualKey.Back:   newValue = 0; break;
-
             default:break;
         }
 
         if (nextCell is not null)
         {
-            e.Handled = true;
             bool focused = nextCell.Focus(FocusState.Programmatic);
             Debug.Assert(focused);
         }
-        else if (newValue >= 0)
+        else
         {
-            e.Handled = true;
-            ((ViewModels.PuzzleViewModel)this.DataContext).UpdateCellForKeyDown(Data.Index, newValue);
+            int newValue = -1;
+
+            switch (e.Key)
+            {
+                case > VirtualKey.Number0 and <= VirtualKey.Number9:
+                    newValue = e.Key - VirtualKey.Number0;
+                    break;
+
+                case > VirtualKey.NumberPad0 and <= VirtualKey.NumberPad9:
+                    newValue = e.Key - VirtualKey.NumberPad0;
+                    break;
+
+                case VirtualKey.Delete: newValue = 0; break;
+                case VirtualKey.Back: newValue = 0; break;
+                default: break;
+            }
+
+            if (newValue >= 0)
+                ((ViewModels.PuzzleViewModel)this.DataContext).UpdateCellForKeyDown(Data.Index, newValue);
         }
     }
 }
