@@ -897,4 +897,31 @@ internal sealed class PuzzleModel
         }
         while (cellsToUpdate.Count > 0);
     }
+
+    public override string? ToString()
+    {
+        if (CompletedCellsCount == 0)
+            return "empty";
+
+        StringBuilder sb = new StringBuilder();
+        int count = CompletedCellsCount;
+
+        for (int index = 0; index < Cells.Count; index++)
+        {
+            if (Cells[index].HasValue)
+            {
+                sb.Append(Cells[index].Value);
+
+                if (--count == 0)
+                    break;
+            }
+            else
+                sb.Append('-');
+
+            if (((index + 1) % 9) == 0)
+                sb.Append(Environment.NewLine);
+        }
+
+        return sb.ToString();
+    }
 }
