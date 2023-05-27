@@ -171,6 +171,8 @@ internal sealed partial class MainWindow : WindowBase
             Puzzle.ViewModel!.New();
             SourceFile = null;
         }
+
+        FocusLastSelectedCell();
     }
 
     private async void OpenClickHandler(object sender, RoutedEventArgs e)
@@ -196,7 +198,10 @@ internal sealed partial class MainWindow : WindowBase
                     SourceFile = file;
             }
         }
+        
+        FocusLastSelectedCell();
     }
+
 
     private void NewWindowClickHandler(object sender, RoutedEventArgs e)
     {
