@@ -111,11 +111,17 @@ internal sealed partial class MainWindow : WindowBase
         {
             await Puzzle.ViewModel.ClipboardContentChanged();
         };
+
+        Activated += (s, e) => 
+        {
+            if (e.WindowActivationState != WindowActivationState.Deactivated)
+                FocusLastSelectedCell();
+        };
     }
 
     private void FocusLastSelectedCell()
     {
-        if ((App.Instance.CurrentWindow == this) && !aboutBoxOpen && !errorDialogOpen && !processingClose)
+        if ((App.Instance.CurrentWindow == this) && !(aboutBoxOpen || errorDialogOpen || processingClose))
             Puzzle.FocusLastSelectedCell();
     }
 
