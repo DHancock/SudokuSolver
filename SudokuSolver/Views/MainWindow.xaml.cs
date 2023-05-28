@@ -20,6 +20,8 @@ internal sealed partial class MainWindow : WindowBase
     private bool processingClose = false;
     private AboutBox? aboutBox;
     private ErrorDialog? errorDialog;
+    private bool aboutBoxOpen = false;
+    private bool errorDialogOpen = false;
 
     public MainWindow(StorageFile? storagefile, MainWindow? creator)
     {
@@ -113,7 +115,7 @@ internal sealed partial class MainWindow : WindowBase
 
     private void FocusLastSelectedCell()
     {
-        if (App.Instance.CurrentWindow == this)
+        if ((App.Instance.CurrentWindow == this) && !aboutBoxOpen && !errorDialogOpen && !processingClose)
             Puzzle.FocusLastSelectedCell();
     }
 
@@ -137,6 +139,7 @@ internal sealed partial class MainWindow : WindowBase
         if (status == Status.Cancelled)  // the save existing prompt was cancelled
         {
             processingClose = false;
+            FocusLastSelectedCell();
         }
         else
         {
@@ -365,14 +368,34 @@ internal sealed partial class MainWindow : WindowBase
 
     private async void AboutClickHandler(object sender, RoutedEventArgs e)
     {
-        aboutBox ??= new AboutBox(Content.XamlRoot);
+        if (aboutBox is null)
+        {
+            aboutBox = new AboutBox(Content.XamlRoot);
+            aboutBox.Closed += (s, e) =>
+            {
+                aboutBoxOpen = false;
+                FocusLastSelectedCell();
+            };
+        }
+
+        aboutBoxOpen = true;
         aboutBox.RequestedTheme = layoutRoot.ActualTheme;
         await aboutBox.ShowAsync();
     }
 
     private async Task ShowErrorDialog(string message, string details)
     {
-        errorDialog ??= new ErrorDialog(Content.XamlRoot);
+        if (errorDialog is null)
+        {
+            errorDialog = new ErrorDialog(Content.XamlRoot);
+            errorDialog.Closed += (s, e) =>
+            {
+                errorDialogOpen = false;
+                FocusLastSelectedCell();
+            };
+        }
+
+        errorDialogOpen = true;
         errorDialog.RequestedTheme = layoutRoot.ActualTheme;
         errorDialog.Message = message;
         errorDialog.Details = details;

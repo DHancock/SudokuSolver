@@ -182,9 +182,6 @@ internal sealed partial class Cell : UserControl
     // the view model cell list is an observable collection bound to ui cells.
     protected override void OnKeyDown(KeyRoutedEventArgs e)
     {
-        if (!IsSelected)  // keyboard focus != selected
-            return;
-
         Cell? nextCell = null;
         
         switch (e.Key)
@@ -201,7 +198,7 @@ internal sealed partial class Cell : UserControl
             bool focused = nextCell.Focus(FocusState.Programmatic);
             Debug.Assert(focused);
         }
-        else
+        else if (IsSelected)  // keyboard focus != selected
         {
             int newValue = -1;
 
