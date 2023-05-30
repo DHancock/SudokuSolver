@@ -13,7 +13,7 @@ internal sealed partial class Cell : UserControl
 
     private readonly PossibleTextBlock[] possibleTBs;
 
-    public event EventHandler<SelectionChangedEventArgs>? SelectionChanged;
+    public event TypedEventHandler<Cell, SelectionChangedEventArgs>? SelectionChanged;
 
     private bool isSelected = false;
     
