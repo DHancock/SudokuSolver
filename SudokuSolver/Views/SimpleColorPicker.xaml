@@ -8,1836 +8,1849 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
     mc:Ignorable="d">
     <UserControl.Resources>
-
-        <Flyout x:Key="MiniPalette" Placement="Bottom">
-            <Flyout.FlyoutPresenterStyle>
-                <Style TargetType="FlyoutPresenter">
-                    <Setter Property="Background" Value="{ThemeResource SplitButtonBackground}"/>
-                    <Setter Property="CornerRadius" Value="{ThemeResource OverlayCornerRadius}"/>
-                </Style>
-            </Flyout.FlyoutPresenterStyle>
-            <VariableSizedWrapGrid Orientation="Vertical" MaximumRowsOrColumns="10">
-                <VariableSizedWrapGrid.Resources>
-                    <Style TargetType="Border">
-                        <Setter Property="Width" Value="20"/>
-                        <Setter Property="Height" Value="20"/>
-                        <Setter Property="Margin" Value="0.75"/>
-                        <Setter Property="BorderThickness" Value="0"/>
-                        <Setter Property="CornerRadius" Value="3"/>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="HighContrast">
+                    <SolidColorBrush x:Key="FlyoutBackground" Color="White"/>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="FlyoutBackground" Color="GhostWhite"/>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="FlyoutBackground" Color="DimGray"/>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        
+            <Flyout x:Key="MiniPalette" Placement="Bottom">
+                <Flyout.FlyoutPresenterStyle>
+                    <Style TargetType="FlyoutPresenter">
+                        <Setter Property="Background" Value="{ThemeResource FlyoutBackground}"/>
+                        <Setter Property="CornerRadius" Value="{ThemeResource OverlayCornerRadius}"/>
                     </Style>
-                </VariableSizedWrapGrid.Resources>
+                </Flyout.FlyoutPresenterStyle>
+                <VariableSizedWrapGrid Orientation="Vertical" MaximumRowsOrColumns="10">
+                    <VariableSizedWrapGrid.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="Width" Value="20"/>
+                            <Setter Property="Height" Value="20"/>
+                            <Setter Property="Margin" Value="0.75"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="CornerRadius" Value="3"/>
+                        </Style>
+                    </VariableSizedWrapGrid.Resources>
                 
-                <!-- Red -->
-                <Border Background="#5F1616" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <!-- Red -->
+                    <Border Background="#5F1616" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#7F1D1D" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#7F1D1D" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#991B1B" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#991B1B" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#B91C1C" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#B91C1C" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#DC2626" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#DC2626" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#EF4444" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#EF4444" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#F87171" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#F87171" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#FCA5A5" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#FCA5A5" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#FECACA" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#FECACA" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#FEE2E2" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-
-                <!-- Amber -->
-                <Border Background="#5A270B" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#78350F" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#92400E" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#B45309" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#D97706" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#F59E0B" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#FBBF24" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#FCD34D" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#FDE68A" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#FEF3C7" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#FEE2E2" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
 
-                <!-- Lime -->
-                <Border Background="#23350C" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <!-- Amber -->
+                    <Border Background="#5A270B" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#365314" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#78350F" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#3F6212" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#92400E" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#4D7C0F" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#B45309" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#65A30D" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#D97706" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#84CC16" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#F59E0B" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#A3E635" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#FBBF24" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#BEF264" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#FCD34D" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#D9F99D" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#FDE68A" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#ECFCCB" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#FEF3C7" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
 
-                <!-- Emerald -->
-                <Border Background="#043D2E" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <!-- Lime -->
+                    <Border Background="#23350C" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#064E3B" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#365314" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#065F46" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#3F6212" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#047857" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#4D7C0F" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#059669" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#65A30D" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#10B981" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#84CC16" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#34D399" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#A3E635" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#6EE7B7" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#BEF264" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#A7F3D0" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#D9F99D" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#D1FAE5" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#ECFCCB" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+
+                    <!-- Emerald -->
+                    <Border Background="#043D2E" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#064E3B" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#065F46" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#047857" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#059669" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#10B981" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#34D399" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#6EE7B7" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#A7F3D0" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#D1FAE5" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
  
-                <!-- Cyan -->
-                <Border Background="#124153" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <!-- Cyan -->
+                    <Border Background="#124153" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#164E63" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#164E63" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#155E75" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#155E75" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#0E7490" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#0E7490" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#0891B2" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#0891B2" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#06B6D4" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#06B6D4" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#22D3EE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#22D3EE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#67E8F9" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#67E8F9" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#A5F3FC" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#A5F3FC" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#CFFAFE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#CFFAFE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
   
-                <!-- Blue -->
-                <Border Background="#152960" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <!-- Blue -->
+                    <Border Background="#152960" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#1E3A8A" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#1E3A8A" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#1E40AF" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#1E40AF" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#1D4ED8" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#1D4ED8" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#2563EB" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#2563EB" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#3B82F6" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#3B82F6" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#60A5FA" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#60A5FA" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#93C5FD" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#93C5FD" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#BFDBFE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#BFDBFE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#DBEAFE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
- 
-                <!-- Violet -->
-                <Border Background="#311361" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#4C1D95" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#5B21B6" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#6D28D9" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#7C3AED" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#8B5CF6" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#A78BFA" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#C4B5FD" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#DDD6FE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#EDE9FE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#DBEAFE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
  
-                <!-- Fuchsia -->
-                <Border Background="#46104A" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <!-- Violet -->
+                    <Border Background="#311361" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#701A75" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#4C1D95" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#86198F" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#5B21B6" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#A21CAF" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#6D28D9" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#C026D3" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#7C3AED" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#D946EF" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#8B5CF6" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#E879F9" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#A78BFA" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#F0ABFC" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#C4B5FD" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#F5D0FE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#DDD6FE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#FAE8FF" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#EDE9FE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+ 
+                    <!-- Fuchsia -->
+                    <Border Background="#46104A" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#701A75" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#86198F" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#A21CAF" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#C026D3" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#D946EF" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#E879F9" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#F0ABFC" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#F5D0FE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#FAE8FF" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
   
-                <!-- Rose -->
-                <Border Background="#550B22" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <!-- Rose -->
+                    <Border Background="#550B22" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#881337" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#881337" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#9F1239" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#9F1239" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#BE123C" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#BE123C" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#E11D48" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#E11D48" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#F43F5E" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#F43F5E" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#FB7185" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#FB7185" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#FDA4AF" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#FDA4AF" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#FECDD3" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#FECDD3" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#FFE4E6" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#FFE4E6" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <!-- True Gray -->
-                <Border Background="#000000" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <!-- True Gray -->
+                    <Border Background="#000000" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#171717" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#171717" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#262626" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#262626" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#404040" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#404040" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#525252" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#525252" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#737373" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#737373" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#A3A3A3" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#A3A3A3" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#D4D4D4" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#D4D4D4" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#E5E5E5" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#E5E5E5" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#FFFFFF" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#FFFFFF" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
 
-            </VariableSizedWrapGrid>
+                </VariableSizedWrapGrid>
 
-        </Flyout>
+            </Flyout>
 
-        <Flyout x:Key="FullPalette" Placement="Bottom">
-            <Flyout.FlyoutPresenterStyle>
-                <Style TargetType="FlyoutPresenter">
-                    <Setter Property="Background" Value="{ThemeResource SplitButtonBackground}"/>
-                    <Setter Property="CornerRadius" Value="{ThemeResource OverlayCornerRadius}"/>
-                </Style>
-            </Flyout.FlyoutPresenterStyle>
-            <VariableSizedWrapGrid Orientation="Vertical" MaximumRowsOrColumns="10">
-                <VariableSizedWrapGrid.Resources>
-                    <Style TargetType="Border">
-                        <Setter Property="Width" Value="20"/>
-                        <Setter Property="Height" Value="20"/>
-                        <Setter Property="Margin" Value="0.75"/>
-                        <Setter Property="BorderThickness" Value="0"/>
-                        <Setter Property="CornerRadius" Value="3"/>
+            <Flyout x:Key="FullPalette" Placement="Bottom">
+                <Flyout.FlyoutPresenterStyle>
+                    <Style TargetType="FlyoutPresenter">
+                        <Setter Property="Background" Value="{ThemeResource FlyoutBackground}"/>
+                        <Setter Property="CornerRadius" Value="{ThemeResource OverlayCornerRadius}"/>
                     </Style>
-                </VariableSizedWrapGrid.Resources>
+                </Flyout.FlyoutPresenterStyle>
+                <VariableSizedWrapGrid Orientation="Vertical" MaximumRowsOrColumns="10">
+                    <VariableSizedWrapGrid.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="Width" Value="20"/>
+                            <Setter Property="Height" Value="20"/>
+                            <Setter Property="Margin" Value="0.75"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="CornerRadius" Value="3"/>
+                        </Style>
+                    </VariableSizedWrapGrid.Resources>
                 
-                <!-- Red -->
-                <Border Background="#5F1616" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#7F1D1D" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#991B1B" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#B91C1C" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#DC2626" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#EF4444" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#F87171" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#FCA5A5" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#FECACA" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#FEE2E2" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-
-
-                <!-- Orange -->
-
-                <Border Background="#58200D" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#7C2D12" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#9A3412" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#C2410C" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#EA580C" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#F97316" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#FB923C" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#FDBA74" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#FED7AA" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#FFEDD5" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-
-                <!-- Amber -->
-                <Border Background="#5A270B" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#78350F" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#92400E" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#B45309" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#D97706" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#F59E0B" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#FBBF24" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#FCD34D" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#FDE68A" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#FEF3C7" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-
-                <!-- Yellow -->
-                <Border Background="#532E0D" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#713F12" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#854D0E" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#A16207" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#CA8A04" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#EAB308" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#FACC15" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#FDE047" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#FEF08A" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#FEF9C3" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <!-- Lime -->
-                <Border Background="#23350C" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#365314" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#3F6212" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#4D7C0F" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#65A30D" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#84CC16" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#A3E635" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#BEF264" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#D9F99D" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#ECFCCB" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <!-- Green -->
-                <Border Background="#0E3D20" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#14532D" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#166534" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#15803D" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#16A34A" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#22C55E" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#4ADE80" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#86EFAC" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#BBF7D0" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#DCFCE7" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-
-                <!-- Emerald -->
-                <Border Background="#043D2E" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#064E3B" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#065F46" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#047857" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#059669" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#10B981" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#34D399" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#6EE7B7" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#A7F3D0" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#D1FAE5" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <!-- Teal -->
-                <Border Background="#0F3D39" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#134E4A" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#115E59" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#0F766E" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#0D9488" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#14B8A6" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#2DD4BF" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#5EEAD4" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#99F6E4" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#CCFBF1" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <!-- Cyan -->
-                <Border Background="#124153" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#164E63" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#155E75" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#0E7490" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#0891B2" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#06B6D4" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#22D3EE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#67E8F9" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#A5F3FC" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#CFFAFE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <!-- Light Blue -->
-                <Border Background="#0A3D5B" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#0C4A6E" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#075985" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#0369A1" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#0284C7" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#0EA5E9" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#38BDF8" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#7DD3FC" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#BAE6FD" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#E0F2FE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <!-- Blue -->
-                <Border Background="#152960" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#1E3A8A" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#1E40AF" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#1D4ED8" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#2563EB" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#3B82F6" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#60A5FA" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#93C5FD" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#BFDBFE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#DBEAFE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <!-- Indigo -->
-                <Border Background="#222059" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#312E81" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#3730A3" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#4338CA" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#4F46E5" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#6366F1" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#818CF8" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#A5B4FC" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#C7D2FE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#E0E7FF" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <!-- Violet -->
-                <Border Background="#311361" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#4C1D95" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#5B21B6" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#6D28D9" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#7C3AED" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#8B5CF6" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#A78BFA" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#C4B5FD" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#DDD6FE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#EDE9FE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <!-- Purple -->
-                <Border Background="#361154" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#581C87" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#6B21A8" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#7E22CE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#9333EA" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#A855F7" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#C084FC" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#D8B4FE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#E9D5FF" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#F3E8FF" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <!-- Fuchsia -->
-                <Border Background="#46104A" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#701A75" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#86198F" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#A21CAF" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#C026D3" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#D946EF" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#E879F9" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#F0ABFC" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#F5D0FE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#FAE8FF" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <!-- Red -->
+                    <Border Background="#5F1616" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#7F1D1D" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#991B1B" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#B91C1C" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#DC2626" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#EF4444" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#F87171" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#FCA5A5" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#FECACA" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#FEE2E2" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+
+
+                    <!-- Orange -->
+
+                    <Border Background="#58200D" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#7C2D12" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#9A3412" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#C2410C" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#EA580C" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#F97316" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#FB923C" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#FDBA74" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#FED7AA" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#FFEDD5" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+
+                    <!-- Amber -->
+                    <Border Background="#5A270B" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#78350F" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#92400E" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#B45309" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#D97706" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#F59E0B" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#FBBF24" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#FCD34D" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#FDE68A" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#FEF3C7" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+
+                    <!-- Yellow -->
+                    <Border Background="#532E0D" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#713F12" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#854D0E" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#A16207" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#CA8A04" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#EAB308" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#FACC15" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#FDE047" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#FEF08A" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#FEF9C3" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <!-- Lime -->
+                    <Border Background="#23350C" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#365314" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#3F6212" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#4D7C0F" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#65A30D" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#84CC16" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#A3E635" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#BEF264" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#D9F99D" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#ECFCCB" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <!-- Green -->
+                    <Border Background="#0E3D20" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#14532D" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#166534" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#15803D" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#16A34A" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#22C55E" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#4ADE80" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#86EFAC" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#BBF7D0" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#DCFCE7" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+
+                    <!-- Emerald -->
+                    <Border Background="#043D2E" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#064E3B" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#065F46" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#047857" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#059669" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#10B981" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#34D399" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#6EE7B7" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#A7F3D0" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#D1FAE5" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <!-- Teal -->
+                    <Border Background="#0F3D39" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#134E4A" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#115E59" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#0F766E" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#0D9488" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#14B8A6" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#2DD4BF" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#5EEAD4" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#99F6E4" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#CCFBF1" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <!-- Cyan -->
+                    <Border Background="#124153" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#164E63" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#155E75" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#0E7490" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#0891B2" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#06B6D4" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#22D3EE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#67E8F9" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#A5F3FC" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#CFFAFE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <!-- Light Blue -->
+                    <Border Background="#0A3D5B" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#0C4A6E" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#075985" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#0369A1" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#0284C7" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#0EA5E9" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#38BDF8" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#7DD3FC" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#BAE6FD" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#E0F2FE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <!-- Blue -->
+                    <Border Background="#152960" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#1E3A8A" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#1E40AF" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#1D4ED8" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#2563EB" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#3B82F6" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#60A5FA" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#93C5FD" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#BFDBFE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#DBEAFE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <!-- Indigo -->
+                    <Border Background="#222059" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#312E81" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#3730A3" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#4338CA" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#4F46E5" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#6366F1" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#818CF8" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#A5B4FC" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#C7D2FE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#E0E7FF" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <!-- Violet -->
+                    <Border Background="#311361" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#4C1D95" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#5B21B6" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#6D28D9" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#7C3AED" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#8B5CF6" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#A78BFA" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#C4B5FD" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#DDD6FE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#EDE9FE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <!-- Purple -->
+                    <Border Background="#361154" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#581C87" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#6B21A8" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#7E22CE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#9333EA" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#A855F7" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#C084FC" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#D8B4FE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#E9D5FF" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#F3E8FF" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <!-- Fuchsia -->
+                    <Border Background="#46104A" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#701A75" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#86198F" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#A21CAF" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#C026D3" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#D946EF" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#E879F9" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#F0ABFC" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#F5D0FE" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#FAE8FF" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
                 
-                <!-- Pink -->
-                <Border Background="#5E1131" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <!-- Pink -->
+                    <Border Background="#5E1131" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#831843" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#831843" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#9D174D" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#9D174D" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#BE185D" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#BE185D" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#DB2777" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#DB2777" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#EC4899" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#EC4899" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#F472B6" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#F472B6" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#F9A8D4" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#F9A8D4" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#FBCFE8" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#FBCFE8" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#FCE7F3" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#FCE7F3" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <!-- Rose -->
-                <Border Background="#550B22" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <!-- Rose -->
+                    <Border Background="#550B22" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#881337" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#881337" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#9F1239" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#9F1239" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#BE123C" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#BE123C" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#E11D48" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#E11D48" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#F43F5E" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#F43F5E" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#FB7185" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#FB7185" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#FDA4AF" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#FDA4AF" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#FECDD3" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#FECDD3" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#FFE4E6" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#FFE4E6" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <!-- Blue Gray -->
-                <Border Background="#090E1A" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <!-- Blue Gray -->
+                    <Border Background="#090E1A" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#0F172A" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#0F172A" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#1E293B" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#1E293B" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#334155" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#334155" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#475569" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#475569" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#64748B" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#64748B" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#94A3B8" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#94A3B8" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#CBD5E1" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#CBD5E1" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#E2E8F0" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#E2E8F0" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
-                <Border Background="#F1F5F9" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-
-
-                <!-- True Gray -->
-                <Border Background="#000000" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#171717" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#262626" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#404040" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#525252" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#737373" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#A3A3A3" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#D4D4D4" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#E5E5E5" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
-
-                <Border Background="#FFFFFF" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
-                    <Border.ScaleTransition>
-                        <Vector3Transition/>
-                    </Border.ScaleTransition>
-                </Border>
+                    <Border Background="#F1F5F9" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
 
 
-            </VariableSizedWrapGrid>
-        </Flyout>
+
+                    <!-- True Gray -->
+                    <Border Background="#000000" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#171717" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#262626" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#404040" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#525252" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#737373" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#A3A3A3" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#D4D4D4" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#E5E5E5" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+                    <Border Background="#FFFFFF" PointerEntered="BPE" PointerExited="BPX" PointerReleased="BPR">
+                        <Border.ScaleTransition>
+                            <Vector3Transition/>
+                        </Border.ScaleTransition>
+                    </Border>
+
+
+                </VariableSizedWrapGrid>
+            </Flyout>
+        </ResourceDictionary>
     </UserControl.Resources>
 
     <SplitButton x:Name="PickButton" Padding="0">
