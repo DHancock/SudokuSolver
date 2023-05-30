@@ -18,7 +18,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <local:CustomTitleBar x:Name="CustomTitleBar"/>
+        <local:CustomTitleBar x:Name="CustomTitleBar" IconSourceUri="ms-appx:///Resources/app.png"/>
 
         <!-- used to add print preview pages to the visual tree -->
         <Canvas x:Name="PrintCanvas" Opacity="0"/>

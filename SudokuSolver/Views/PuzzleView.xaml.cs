@@ -9,7 +9,7 @@ internal partial class PuzzleView : UserControl
 {
     private PuzzleViewModel? viewModel;
     private Cell? lastSelectedCell;
-    public event EventHandler<Cell.SelectionChangedEventArgs>? SelectedIndexChanged;
+    public event TypedEventHandler<PuzzleView, Cell.SelectionChangedEventArgs>? SelectedIndexChanged;
 
     public bool IsPrintView { get; set; } = false;
 
@@ -38,7 +38,7 @@ internal partial class PuzzleView : UserControl
 
     public BrushTransition BackgroundBrushTransition => PuzzleBrushTransition;
 
-    private void Cell_SelectionChanged(object sender, Cell.SelectionChangedEventArgs e)
+    private void Cell_SelectionChanged(Cell sender, Cell.SelectionChangedEventArgs e)
     {
         SelectedIndexChanged?.Invoke(this, e);
 
@@ -48,7 +48,7 @@ internal partial class PuzzleView : UserControl
             if (lastSelectedCell is not null)
                 lastSelectedCell.IsSelected = false;
 
-            lastSelectedCell = (Cell)sender;
+            lastSelectedCell = sender;
         }
         else if (ReferenceEquals(lastSelectedCell, sender))
         {

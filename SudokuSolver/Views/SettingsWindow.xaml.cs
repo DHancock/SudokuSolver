@@ -46,4 +46,23 @@ internal sealed partial class SettingsWindow : WindowBase
                 await Settings.Data.Save();
         };
     }
+
+
+    public Color UserColor = Colors.Red;
+    public Color CalculatedColor = Colors.Green;
+
+    public void UserColorChangedEventHndler(SimpleColorPicker sender, Color newColor)
+    {
+        UserColor = newColor;
+    }
+    public void CalculatedColorChangedEventHndler(SimpleColorPicker sender, Color newColor)
+    {
+        CalculatedColor = newColor;
+    }
+
+
+    public void ButtonClick(object sender, RoutedEventArgs e)
+    {
+        ((FrameworkElement)this.Content).RequestedTheme = ElementTheme.Dark;
+    }
 }

@@ -13,13 +13,22 @@
     InitialHeight="300">
 
     <Grid x:Name="layoutRoot"> <!--RequestedTheme="{x:Bind ViewModel.Theme, Mode=OneWay}">-->
+
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <local:CustomTitleBar x:Name="CustomTitleBar"/>
-        
+        <local:CustomTitleBar x:Name="CustomTitleBar" IconSourceUri="ms-appx:///Resources/settings.png"/>
+
+        <local:SimpleColorPicker Grid.Row="1" MiniPalette="False" Color="{x:Bind UserColor, Mode=TwoWay}"/>
+        <local:SimpleColorPicker Grid.Row="2" MiniPalette="True" Color="{x:Bind CalculatedColor}" ColorChanged="{x:Bind CalculatedColorChangedEventHndler}"/>
+
+        <Button Grid.Row="5" Click="ButtonClick" Content="Dark mode"/>
+
     </Grid>
 </local:WindowBase>

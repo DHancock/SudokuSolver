@@ -104,4 +104,17 @@ internal sealed partial class CustomTitleBar : UserControl
             Debug.Assert(stateFound);
         }
     }
+
+    public string IconSourceUri 
+    {
+        set
+        {
+            if (AppWindowTitleBar.IsCustomizationSupported())
+            {
+                BitmapImage image = new BitmapImage();
+                image.UriSource = new Uri(value);
+                windowIcon.Source = image;
+            }
+        }
+    }
 }

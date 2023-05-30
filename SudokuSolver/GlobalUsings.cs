@@ -34,6 +34,7 @@ global using Windows.Graphics.Printing.OptionDetails;
 global using Windows.Storage;
 global using Windows.Storage.Pickers;
 global using Windows.System;
+global using Windows.UI;
 global using Windows.Win32;
 global using Windows.Win32.Foundation;
 global using Windows.Win32.UI.Shell;
