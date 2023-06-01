@@ -176,7 +176,7 @@ internal sealed partial class SimpleColorPicker : UserControl
     {
         if ((e.Key == VirtualKey.Up) || (e.Key == VirtualKey.Down) || (e.Key == VirtualKey.Left) || (e.Key == VirtualKey.Right))
         {
-            if ((DateTime.UtcNow - lastKeyRepeat) > TimeSpan.FromMilliseconds(130)) // throttle focus changes
+            if ((DateTime.UtcNow - lastKeyRepeat) > TimeSpan.FromMilliseconds(125)) // throttle focus changes
             {
                 VariableSizedWrapGrid grid = (VariableSizedWrapGrid)((Flyout)PickButton.Flyout).Content;
 
