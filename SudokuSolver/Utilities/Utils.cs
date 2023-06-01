@@ -8,24 +8,24 @@ internal static class Utils
         Debug.Assert(succeeded);
     }
 
-    public static int Clamp2DHorizontalIndex(int index, int total)
+    public static int Clamp2DHorizontalIndex(int newIndex, int total)
     {
-        int remainder = index % total;
+        int remainder = newIndex % total;
 
-        if (index < 0)
+        if (newIndex < 0)
             return (remainder == 0) ? 0 : total + remainder;
 
         return remainder;
     }
 
-    public static int Clamp2DVerticalIndex(int index, int cellsInRow, int total)
+    public static int Clamp2DVerticalIndex(int newIndex, int itemsInRow, int total)
     {
-        if (index < 0) // moving up from the top row, select the last index in the next column to the right
-            return index == -1 ? total - cellsInRow : (total + index + 1);
+        if (newIndex < 0) // moving up from the top row, select the last index in the next column to the right
+            return newIndex == -1 ? total - itemsInRow : (total + newIndex + 1);
 
-        if (index >= total) // moving down from the bottom row, select the first index in the next column to the left
-            return index == total ? cellsInRow - 1 : (index - total - 1);
+        if (newIndex >= total) // moving down from the bottom row, select the first index in the next column to the left
+            return newIndex == total ? itemsInRow - 1 : (newIndex - total - 1);
 
-        return index;
+        return newIndex;
     }
 }
