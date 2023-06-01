@@ -1,4 +1,5 @@
 ﻿using SudokuSolver.Common;
+using SudokuSolver.Utilities;
 
 namespace SudokuSolver.Views;
 
@@ -182,21 +183,28 @@ internal sealed partial class Cell : UserControl
     // the view model cell list is an observable collection bound to ui cells.
     protected override void OnKeyDown(KeyRoutedEventArgs e)
     {
-        Cell? nextCell = null;
-        
-        switch (e.Key)
+        if ((e.Key == VirtualKey.Up) || (e.Key == VirtualKey.Down) || (e.Key == VirtualKey.Left) || (e.Key == VirtualKey.Right))
         {
-            case VirtualKey.Left:   nextCell = (Cell)XYFocusLeft; break;
-            case VirtualKey.Right:  nextCell = (Cell)XYFocusRight; break;
-            case VirtualKey.Up:     nextCell = (Cell)XYFocusUp; break;
-            case VirtualKey.Down:   nextCell = (Cell)XYFocusDown; break;
-            default:break;
-        }
+            int newIndex;
 
-        if (nextCell is not null)
-        {
-            bool focused = nextCell.Focus(FocusState.Programmatic);
-            Debug.Assert(focused);
+            if (e.Key == VirtualKey.Up)
+            {
+                newIndex = Utils.Clamp2DVerticalIndex(Data.Index - SudokuGrid.cCellsInRow, SudokuGrid.cCellsInRow, SudokuGrid.cCellCount);
+            }
+            else if (e.Key == VirtualKey.Down)
+            {
+                newIndex = Utils.Clamp2DVerticalIndex(Data.Index + SudokuGrid.cCellsInRow, SudokuGrid.cCellsInRow, SudokuGrid.cCellCount);
+            }
+            else if (e.Key == VirtualKey.Left)
+            {
+                newIndex = Utils.Clamp2DHorizontalIndex(Data.Index - 1, SudokuGrid.cCellCount);
+            }
+            else
+            {
+                newIndex = Utils.Clamp2DHorizontalIndex(Data.Index + 1, SudokuGrid.cCellCount);
+            }
+
+            ((SudokuGrid)Parent).Children[newIndex].Focus(FocusState.Programmatic);
         }
         else if (IsSelected)  // keyboard focus != selected
         {

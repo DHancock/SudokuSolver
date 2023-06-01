@@ -1,5 +1,7 @@
 ﻿namespace SudokuSolver.Views;
 
+using SudokuSolver.Utilities;
+
 // if Microsoft.UI.Xaml.Shapes is added to the global usings there will be a
 // name conflict between Shapes.Path and System.IO.Path
 using Line = Microsoft.UI.Xaml.Shapes.Line;
@@ -11,8 +13,8 @@ internal sealed class SudokuGrid : Panel
     private double totalWidthOfBorders = 0.0;
     private double cellSize = 0.0;
 
-    private const int cCellsInRow = 9;
-    private const int cCellCount = cCellsInRow * cCellsInRow;
+    public const int cCellsInRow = 9;
+    public const int cCellCount = cCellsInRow * cCellsInRow;
     private const int cMinorGridLineCount = 12;
     private const int cMajorGridLineCount = 8;
 
@@ -20,8 +22,6 @@ internal sealed class SudokuGrid : Panel
 
     public SudokuGrid() : base()
     {
-        Loading += SudokuGrid_Loading;
-
         // Set layout rounding to false, otherwise the grid lines don't always align correctly, depending
         // on the screen scale factor. It's most noticeable on the bounding major grid lines when set to 125%. 
         UseLayoutRounding = false;
@@ -161,42 +161,6 @@ internal sealed class SudokuGrid : Panel
 
         throw new ArgumentOutOfRangeException(nameof(index));
     }
-
-    private void SudokuGrid_Loading(FrameworkElement sender, object args)
-    {
-        for (int index = 0; index < cCellCount; index++)
-        {
-            UIElement child = Children[index];
-
-            // set up the next cell to receive focus when handling arrow key events
-            child.XYFocusUp = Children[ClampVerticalIndex(index - cCellsInRow)];
-            child.XYFocusDown = Children[ClampVerticalIndex(index + cCellsInRow)];
-            child.XYFocusLeft = Children[ClampHorizontalIndex(index - 1)];
-            child.XYFocusRight = Children[ClampHorizontalIndex(index + 1)];
-        }
-    }
-
-    private static int ClampHorizontalIndex(int index)
-    {
-        int remainder = index % cCellCount;
-
-        if (index < 0)
-            return (remainder == 0) ? 0 : cCellCount + remainder;
-
-        return remainder;
-    }
-
-    private static int ClampVerticalIndex(int index)
-    {
-        if (index < 0) // moving up from the top row, select the last cell in the next column to the right
-            return index == -1 ? cCellCount - cCellsInRow : (cCellCount + index + 1);
-
-        if (index >= cCellCount) // moving down from the bottom row, select the first cell in the next column to the left
-            return index == cCellCount ? cCellsInRow - 1 : (index - cCellCount - 1);
-
-        return index;
-    }
-
 
     // Adjust the thickness of the minor grid lines depending on the ViewBox
     // scale factor. When the shrinking the grid, the lines could be interpolated
