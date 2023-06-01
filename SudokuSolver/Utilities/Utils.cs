@@ -28,18 +28,4 @@ internal static class Utils
 
         return index;
     }
-
-    //private static int ClampVerticalIndex(int index)
-    //{
-    //    if (index < 0) // moving up from the top row, select the last cell in the next column to the right
-    //        return index == -1 ? cCellCount - cCellsInRow : (cCellCount + index + 1);
-
-    //    if (index >= cCellCount) // moving down from the bottom row, select the first cell in the next column to the left
-    //        return index == cCellCount ? cCellsInRow - 1 : (index - cCellCount - 1);
-
-    //    return index;
-    //}
-
-
-
 }
