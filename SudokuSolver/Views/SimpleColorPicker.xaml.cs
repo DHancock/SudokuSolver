@@ -185,15 +185,15 @@ internal sealed partial class SimpleColorPicker : UserControl
                 int total = grid.Children.Count;
                 int newIndex;
 
-                if (e.Key == VirtualKey.Up)
+                if ((grid.Orientation == Orientation.Horizontal) && (e.Key == VirtualKey.Up) || ((grid.Orientation == Orientation.Vertical) && (e.Key == VirtualKey.Left)))
                 {
                     newIndex = Utils.Clamp2DVerticalIndex(index - colorsInRow, colorsInRow, total);
                 }
-                else if (e.Key == VirtualKey.Down)
+                else if ((grid.Orientation == Orientation.Horizontal) && (e.Key == VirtualKey.Down) || ((grid.Orientation == Orientation.Vertical) && (e.Key == VirtualKey.Right)))
                 {
                     newIndex = Utils.Clamp2DVerticalIndex(index + colorsInRow, colorsInRow, total);
                 }
-                else if (e.Key == VirtualKey.Left)
+                else if ((grid.Orientation == Orientation.Horizontal) && (e.Key == VirtualKey.Left) || ((grid.Orientation == Orientation.Vertical) && (e.Key == VirtualKey.Up)))
                 {
                     newIndex = Utils.Clamp2DHorizontalIndex(index - 1, total);
                 }
