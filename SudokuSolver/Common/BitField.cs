@@ -1,14 +1,14 @@
 ﻿namespace SudokuSolver.Common;
 
 [DebuggerTypeProxy(typeof(BitFieldDebugProxy))]
-internal struct BitField : IEquatable<BitField>
+internal struct BitField
 {
     private const nuint cSpan = 0b_0000_0011_1111_1110;
 
     private nuint data;
 
     public static readonly BitField AllTrue = new BitField(cSpan);
-    public static readonly BitField Empty = new BitField(0);
+    public static readonly BitField Empty = default;
 
     private BitField(nuint value)
     {
@@ -20,7 +20,7 @@ internal struct BitField : IEquatable<BitField>
     // of an individual bit, more like an array indexer.
     public bool this[int bit]
     {
-        get
+        readonly get
         {
             Debug.Assert((cSpan | ((nuint)1 << bit)) == cSpan);
 
@@ -38,12 +38,11 @@ internal struct BitField : IEquatable<BitField>
         }
     }
 
-    public bool IsEmpty => data == 0;
+    public  bool IsEmpty => data == 0;
 
-    public int First => (data > 0) ? BitOperations.TrailingZeroCount(data) : -1;
+    public readonly int First => (data > 0) ? BitOperations.TrailingZeroCount(data) : -1;
 
-    public int Count => BitOperations.PopCount(data);
-
+    public readonly int Count => BitOperations.PopCount(data);
 
     public static bool operator ==(BitField a, BitField b)
     {
@@ -70,7 +69,7 @@ internal struct BitField : IEquatable<BitField>
         return new BitField(~a.data & cSpan);
     }
 
-    public override bool Equals(object? obj)
+    public override readonly bool Equals(object? obj)
     {
         if (obj is BitField a)
             return this == a;
@@ -78,12 +77,7 @@ internal struct BitField : IEquatable<BitField>
         return false;
     }
 
-    public bool Equals(BitField other)
-    {
-        return data == other.data;
-    }
-
-    public override int GetHashCode() => HashCode.Combine(data);
+    public override readonly int GetHashCode() => throw new NotImplementedException();
 
 
     private sealed class BitFieldDebugProxy
