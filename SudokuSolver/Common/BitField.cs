@@ -38,7 +38,7 @@ internal struct BitField
         }
     }
 
-    public  bool IsEmpty => data == 0;
+    public readonly bool IsEmpty => data == 0;
 
     public readonly int First => (data > 0) ? BitOperations.TrailingZeroCount(data) : -1;
 
