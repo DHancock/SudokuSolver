@@ -11,6 +11,12 @@
 
             <x:Double x:Key="cell_size">50</x:Double>
 
+            <!-- work around for https://github.com/microsoft/microsoft-ui-xaml/issues/8756 -->
+            <Style TargetType="MenuFlyoutPresenter" BasedOn="{StaticResource DefaultMenuFlyoutPresenterStyle}">
+                <Setter Property="Background" Value="{ThemeResource FlyoutPresenterBackground}"/>
+                <Setter Property="BorderBrush" Value="{ThemeResource FlyoutBorderThemeBrush}"/>
+            </Style>
+
         </ResourceDictionary>
     </Application.Resources>
 </Application>
