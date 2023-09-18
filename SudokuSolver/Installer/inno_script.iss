@@ -3,9 +3,9 @@
 ; Inno 6.2.2
 
 #define appDisplayName "Sudoku Solver"
-#define appVer "1.6.0"
 #define appName "SudokuSolver"
 #define appExeName appName + ".exe"
+#define appVer RemoveFileExt(GetFileVersion("..\bin\x64\Release\publish\" + appExeName))
 #define appId "sudukosolver.8628521D92E74106"
 
 [Setup]
@@ -335,10 +335,10 @@ begin
   if not FileExists(ExeFilePath) then
     ExtractTemporaryFile('CheckWinAppSdk.exe');
 
-  // WinAppSdk 1.3.1 is 3000.851.1712.0
-  // Check for any 1.3.n version where n >= 1
+  // WinAppSdk 1.4.0 is 4000.964.11.0
+  // Check for any 1.4.n version where n >= 0
 
-  if not Exec(ExeFilePath, '3000.851.1712.0' + ' ' + GetPlatformParamStr, '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+  if not Exec(ExeFilePath, '4000.964.11.0' + ' ' + GetPlatformParamStr, '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
     Log('Exec CheckWinAppSdk.exe failed: ' + SysErrorMessage(ResultCode));    
 
   Result := ResultCode = 0;
