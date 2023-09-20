@@ -92,7 +92,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
                 UpdateView();
                 undoHelper.Push(model);
                 IsModified = true;
-                RaiseCanExecuteChanged();
+                UpdateMenuItemsDisabledState();
             }
             else
             {
@@ -124,7 +124,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         {
             UpdateView();
             undoHelper.Push(model);
-            RaiseCanExecuteChanged();
+            UpdateMenuItemsDisabledState();
         }
     }
 
@@ -148,7 +148,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         UpdateView();
         undoHelper.Push(model);
         IsModified = false;
-        RaiseCanExecuteChanged();
+        UpdateMenuItemsDisabledState();
     }
 
     public bool ShowPossibles
@@ -224,7 +224,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
             model = undoHelper.PopUndo();
             UpdateView();
             IsModified = true;
-            RaiseCanExecuteChanged();
+            UpdateMenuItemsDisabledState();
         }
     }
 
@@ -238,7 +238,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
             model = undoHelper.PopRedo();
             UpdateView();
             IsModified = true;
-            RaiseCanExecuteChanged();
+            UpdateMenuItemsDisabledState();
         }
     }
 
@@ -249,18 +249,25 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         else if (selectedIndex == e.Index)
             selectedIndex = -1;
 
-        RaiseCanExecuteChanged();
+        UpdateMenuItemsDisabledState();
     }
 
-    private void RaiseCanExecuteChanged()
+    private void UpdateMenuItemsDisabledState()
     {
-        UndoCommand.RaiseCanExecuteChanged();
-        RedoCommand.RaiseCanExecuteChanged();
-        CutCommand.RaiseCanExecuteChanged();
-        CopyCommand.RaiseCanExecuteChanged();
-        DeleteCommand.RaiseCanExecuteChanged();
-        PasteCommand.RaiseCanExecuteChanged();
-        MarkAsGivenCommand.RaiseCanExecuteChanged();
+        // an unfortunate work around for https://github.com/microsoft/microsoft-ui-xaml/issues/8894
+        // The menu flyout item will loose it's foreground color if disabled from within the ICommands execute
+        // method when the system theme is light and the app's theme is dark. Fire and forget, so always need to
+        // call the CanExecute method first when executing to check it's still valid to execute. 
+        Task.Run(() =>
+        {
+            UndoCommand.RaiseCanExecuteChanged();
+            RedoCommand.RaiseCanExecuteChanged();
+            CutCommand.RaiseCanExecuteChanged();
+            CopyCommand.RaiseCanExecuteChanged();
+            DeleteCommand.RaiseCanExecuteChanged();
+            PasteCommand.RaiseCanExecuteChanged();
+            MarkAsGivenCommand.RaiseCanExecuteChanged();
+        });
     }
 
     private bool CanCutCopyDelete(object? param = null) => (selectedIndex >= 0) && Cells[selectedIndex].HasValue;
