@@ -23,7 +23,7 @@
     <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.18-beta">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.4.230822000" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.4.230913002" />
 	<!-- the build tools are only required for packaged builds to run...
 	<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.755" />
 	-->

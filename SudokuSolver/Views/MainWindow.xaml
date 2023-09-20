@@ -101,8 +101,13 @@
                         <KeyboardAccelerator Key="V" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
-                <MenuFlyoutItem Text="Delete" Command="{x:Bind Puzzle.ViewModel.DeleteCommand}" AccessKey="D">
-                    <!-- no keyboard accelerator because it's already implemented by a focused cell -->
+
+                <!-- remove work in progress, bug fix release required -->
+
+                <!--<MenuFlyoutItem Text="Delete" Command="{x:Bind Puzzle.ViewModel.DeleteCommand}" AccessKey="D">
+                    -->
+                <!-- no keyboard accelerator because it's already implemented by a focused cell -->
+                <!--
                 </MenuFlyoutItem>
 
                 <MenuFlyoutSeparator />
@@ -119,7 +124,7 @@
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="M" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
-                </MenuFlyoutItem>
+                </MenuFlyoutItem>-->
             </MenuBarItem>
 
             <MenuBarItem Title="View" AccessKey="V">
