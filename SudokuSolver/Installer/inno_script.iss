@@ -1,5 +1,5 @@
 ; This script assumes that all release configurations have been published
-; and is framework dependent targeting a WinAppSdk release of 1.3.n where n >= 1
+; and they are WinAppSdk and .Net framework dependent.
 ; Inno 6.2.2
 
 #define appDisplayName "Sudoku Solver"
@@ -7,6 +7,9 @@
 #define appExeName appName + ".exe"
 #define appVer RemoveFileExt(GetFileVersion("..\bin\x64\Release\publish\" + appExeName))
 #define appId "sudukosolver.8628521D92E74106"
+
+#define winAppSdk_MajorMinorVersion "1.4"
+#define winAppSdk_MinPackageVersion "4000.986.611.0"  ; version 1.4.1
 
 [Setup]
 AppId={#appId}
@@ -148,9 +151,9 @@ end;
 function GetWinAppSdkUrl: String;
 begin
   case ProcessorArchitecture of
-    paX86: Result := 'https://aka.ms/windowsappsdk/1.3/latest/windowsappruntimeinstall-x86.exe';
-    paX64: Result := 'https://aka.ms/windowsappsdk/1.3/latest/windowsappruntimeinstall-x64.exe';
-    paARM64: Result := 'https://aka.ms/windowsappsdk/1.3/latest/windowsappruntimeinstall-arm64.exe';
+    paX86: Result := 'https://aka.ms/windowsappsdk/{#winAppSdk_MajorMinorVersion}/latest/windowsappruntimeinstall-x86.exe';
+    paX64: Result := 'https://aka.ms/windowsappsdk/{#winAppSdk_MajorMinorVersion}/latest/windowsappruntimeinstall-x64.exe';
+    paARM64: Result := 'https://aka.ms/windowsappsdk/{#winAppSdk_MajorMinorVersion}/latest/windowsappruntimeinstall-arm64.exe';
   else
     RaiseException('unknown ProcessorArchitecture'); 
   end;
@@ -338,7 +341,7 @@ begin
   // WinAppSdk 1.4.1 is 4000.986.611.0
   // Check for any 1.4.n version where n >= 1
 
-  if not Exec(ExeFilePath, '4000.986.611.0' + ' ' + GetPlatformParamStr, '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+  if not Exec(ExeFilePath, '{#winAppSdk_MinPackageVersion}' + ' ' + GetPlatformParamStr, '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
     Log('Exec CheckWinAppSdk.exe failed: ' + SysErrorMessage(ResultCode));    
 
   Result := ResultCode = 0;
