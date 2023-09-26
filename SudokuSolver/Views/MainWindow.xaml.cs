@@ -135,6 +135,8 @@ internal sealed partial class MainWindow : WindowBase
         {
             processingClose = true;
 
+            CloseMenuFlyouts();
+
             // cannot have more than one content dialog open at the same time
             aboutBox?.Hide();
             errorDialog?.Hide();
@@ -163,6 +165,15 @@ internal sealed partial class MainWindow : WindowBase
 
             if (lastWindow)
                 await Settings.Data.Save();
+        }
+    }
+
+    private void CloseMenuFlyouts()
+    {
+        foreach (Popup popup in VisualTreeHelper.GetOpenPopupsForXamlRoot(layoutRoot.XamlRoot))
+        {
+            if (popup.Child is MenuFlyoutPresenter)
+                popup.IsOpen = false;
         }
     }
 
