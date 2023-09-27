@@ -51,9 +51,15 @@ internal abstract class WindowBase : Window
             Marshal.StructureToPtr(minMaxInfo, lParam, true);
         }
 
-        if ((uMsg == PInvoke.WM_SYSCOMMAND) && (lParam == VK_SPACE))
+        if ((uMsg == PInvoke.WM_SYSCOMMAND) && (lParam == VK_SPACE)) // alt + space opens the right click title bar system menu
         {
-            // alt + space opens the right click title bar system menu
+            if (IsContentDialogOpen())
+            {
+                // right click works, but not via the keyboard
+                return new LRESULT(0);
+            }
+
+            // cannot have two menus active
             CloseFlyouts();
         }
 
@@ -70,6 +76,20 @@ internal abstract class WindowBase : Window
                     popup.IsOpen = false;
             }
         }
+    }
+
+    private bool IsContentDialogOpen()
+    {
+        if ((Content is not null) && (Content.XamlRoot is not null))
+        {
+            foreach (Popup popup in VisualTreeHelper.GetOpenPopupsForXamlRoot(Content.XamlRoot))
+            {
+                if (popup.Child is ContentDialog)
+                    return true;
+            }
+        }
+
+        return false;
     }
 
     public WindowState WindowState
