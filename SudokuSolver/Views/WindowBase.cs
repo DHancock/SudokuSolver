@@ -40,6 +40,8 @@ internal abstract class WindowBase : Window
 
     private LRESULT NewSubWindowProc(HWND hWnd, uint uMsg, WPARAM wParam, LPARAM lParam, nuint uIdSubclass, nuint dwRefData)
     {
+        const int VK_SPACE = 0x0020;
+
         if (uMsg == PInvoke.WM_GETMINMAXINFO)
         {
             MINMAXINFO minMaxInfo = Marshal.PtrToStructure<MINMAXINFO>(lParam);
@@ -49,7 +51,25 @@ internal abstract class WindowBase : Window
             Marshal.StructureToPtr(minMaxInfo, lParam, true);
         }
 
+        if ((uMsg == PInvoke.WM_SYSCOMMAND) && (lParam == VK_SPACE))
+        {
+            // alt + space opens the right click title bar system menu
+            CloseFlyouts();
+        }
+
         return PInvoke.DefSubclassProc(hWnd, uMsg, wParam, lParam);
+    }
+
+    protected void CloseFlyouts()
+    {
+        if ((Content is not null) && (Content.XamlRoot is not null))
+        {
+            foreach (Popup popup in VisualTreeHelper.GetOpenPopupsForXamlRoot(Content.XamlRoot))
+            {
+                if (popup.Child is not ContentDialog)
+                    popup.IsOpen = false;
+            }
+        }
     }
 
     public WindowState WindowState
