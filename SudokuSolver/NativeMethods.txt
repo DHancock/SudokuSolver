@@ -5,6 +5,7 @@ SetWindowSubclass
 DefSubclassProc
 WM_GETMINMAXINFO
 WM_SYSCOMMAND
+WM_NCRBUTTONDOWN
 SetForegroundWindow
 GetForegroundWindow
 GetCurrentPackageFullName

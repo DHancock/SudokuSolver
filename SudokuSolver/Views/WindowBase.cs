@@ -41,6 +41,7 @@ internal abstract class WindowBase : Window
     private LRESULT NewSubWindowProc(HWND hWnd, uint uMsg, WPARAM wParam, LPARAM lParam, nuint uIdSubclass, nuint dwRefData)
     {
         const int VK_SPACE = 0x0020;
+        const int HTCAPTION = 0x0002;
 
         if (uMsg == PInvoke.WM_GETMINMAXINFO)
         {
@@ -50,16 +51,23 @@ internal abstract class WindowBase : Window
             minMaxInfo.ptMinTrackSize.Y = Math.Max(ConvertToDeviceSize(MinHeight, scaleFactor), minMaxInfo.ptMinTrackSize.Y);
             Marshal.StructureToPtr(minMaxInfo, lParam, true);
         }
-
-        if ((uMsg == PInvoke.WM_SYSCOMMAND) && (lParam == VK_SPACE)) // alt + space opens the right click title bar system menu
+        else if (uMsg == PInvoke.WM_SYSCOMMAND) // alt 
         {
-            if (IsContentDialogOpen())
+            if (lParam == VK_SPACE) 
             {
-                // right click works, but not via the keyboard
-                return new LRESULT(0);
-            }
+                if (IsContentDialogOpen())
+                {
+                    // right click works, but not via the keyboard
+                    return new LRESULT(0);
+                }
 
-            // cannot have two menus active
+                // shouldn't have two active menus
+                CloseFlyouts();
+            }
+        }
+        else if ((uMsg == PInvoke.WM_NCRBUTTONDOWN) && (wParam == HTCAPTION))
+        {
+            // only applicable if the custom title bar isn't used
             CloseFlyouts();
         }
 
