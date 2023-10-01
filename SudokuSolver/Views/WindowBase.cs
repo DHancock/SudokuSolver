@@ -89,13 +89,15 @@ internal abstract class WindowBase : Window
         {
             if (lParam == VK_SPACE)
             {
-                ShowSytemMenu();
+                HideSystemMenu();
+                ShowSytemMenu(viaKeyboard: true);
                 return (LRESULT)0;
             }
         }
         else if ((uMsg == PInvoke.WM_NCRBUTTONUP) && (wParam == HTCAPTION))
         {
-            ShowSytemMenu();
+            HideSystemMenu();
+            ShowSytemMenu(viaKeyboard: false);
             return (LRESULT)0;
         }
         else if ((uMsg == PInvoke.WM_NCLBUTTONDOWN) && (wParam == HTCAPTION))
@@ -112,22 +114,39 @@ internal abstract class WindowBase : Window
         Debug.Assert(success);
     }
 
-    private void ShowSytemMenu()
+    private void ShowSytemMenu(bool viaKeyboard)
     {
         if ((systemMenu is null) && (Content is FrameworkElement root))
             systemMenu = root.Resources["SystemMenuFlyout"] as MenuFlyout;
 
-        if ((systemMenu is not null) &&
-            (Content.XamlRoot is not null) &&
-            PInvoke.GetCursorPos(out System.Drawing.Point p) &&
-            PInvoke.ScreenToClient((HWND)WindowPtr, ref p))
+        if ((systemMenu is not null) && (Content.XamlRoot is not null))
         {
+            System.Drawing.Point p = default;
+
+            if (!viaKeyboard)
+            {
+                if (!PInvoke.GetCursorPos(out p) || !PInvoke.ScreenToClient((HWND)WindowPtr, ref p))
+                {
+                    Debug.Fail("Failed to obtain cursor position.");
+                    return;
+                }
+            }
+            else
+            {
+                p.X = 3;
+                p.Y = AppWindow.TitleBar.Height;
+            }
+
             double scale = Content.XamlRoot.RasterizationScale;
             systemMenu.ShowAt(null, new Windows.Foundation.Point(p.X / scale, p.Y / scale));
         }
     }
 
-    private void HideSystemMenu() => systemMenu?.Hide();
+    private void HideSystemMenu()
+    {
+        if ((systemMenu is not null) && systemMenu.IsOpen)
+            systemMenu.Hide();
+    }
 
     public void PostCloseMessage() => PostSysCommandMessage(SC.CLOSE);
 
