@@ -1,6 +1,4 @@
-﻿using SudokuSolver.Utilities;
-
-namespace SudokuSolver.Views;
+﻿namespace SudokuSolver.Views;
 
 internal sealed partial class CustomTitleBar : UserControl
 {
