@@ -18,6 +18,22 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+        <Grid.Resources>
+            <MenuFlyout x:Key="SystemMenuFlyout">
+                <MenuFlyoutItem Command="{x:Bind RestoreCommand}" Text="Restore" AccessKey="R"/>
+                <MenuFlyoutItem Command="{x:Bind MoveCommand}" Text="Move" AccessKey="M"/>
+                <MenuFlyoutItem Command="{x:Bind SizeCommand}" Text="Size" AccessKey="S"/>
+                <MenuFlyoutItem Command="{x:Bind MinimizeCommand}" Text="Minimize" AccessKey="N"/>
+                <MenuFlyoutItem Command="{x:Bind MaximizeCommand}" Text="Maximize" AccessKey="X"/>
+                <MenuFlyoutSeparator/>
+                <MenuFlyoutItem Command="{x:Bind CloseCommand}" Text="Close" AccessKey="C">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Modifiers="Menu" Key="F4"/>
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+            </MenuFlyout>
+        </Grid.Resources>
+        
         <local:CustomTitleBar x:Name="CustomTitleBar" IconSourceUri="ms-appx:///Resources/app.png"/>
 
         <!-- used to add print preview pages to the visual tree -->
