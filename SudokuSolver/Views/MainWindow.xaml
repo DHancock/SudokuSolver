@@ -54,7 +54,7 @@
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
 
-                <MenuFlyoutItem Text="Open" Click="OpenClickHandler" IsEnabled="{x:Bind local:MainWindow.IsFileDialogAvailable}" AccessKey="0">
+                <MenuFlyoutItem Text="Open" Click="OpenClickHandler" IsEnabled="{x:Bind local:MainWindow.IsFileDialogAvailable}" AccessKey="O">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="O" Modifiers="Control" />
                     </MenuFlyoutItem.KeyboardAccelerators>
