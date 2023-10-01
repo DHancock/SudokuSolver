@@ -80,11 +80,13 @@
                 </MenuFlyoutItem>
 
                 <MenuFlyoutSeparator />
-                <MenuFlyoutItem Text="Close" Click="CloseClickHandler" AccessKey="X">
+                <MenuFlyoutItem Text="Close" Click="CloseClickHandler" AccessKey="C">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="W" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
+                
+                <MenuFlyoutItem Text="Exit" Click="ExitClickHandler" AccessKey="X"/>
             </MenuBarItem>
 
             <MenuBarItem Title="Edit" AccessKey="E" >

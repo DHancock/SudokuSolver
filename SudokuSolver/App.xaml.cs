@@ -200,6 +200,12 @@ public partial class App : Application
         return false;
     }
 
+    public void AttemptCloseAllWindows()
+    {
+        foreach (WindowBase window in windowList)
+            window.PostCloseMessage();
+    }
+
     internal RectInt32 GetNewWindowPosition(MainWindow newWindow)
     {
         if (ViewModels.Settings.Data.RestoreBounds.IsEmpty())  // first run

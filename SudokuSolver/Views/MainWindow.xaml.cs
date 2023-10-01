@@ -265,6 +265,11 @@ internal sealed partial class MainWindow : WindowBase
         await HandleWindowClosing();
     }
 
+    private void ExitClickHandler(object sender, RoutedEventArgs e)
+    {
+        App.Instance.AttemptCloseAllWindows();
+    }
+    
     public static bool IsPrintingAvailable => PrintManager.IsSupported() && !IntegrityLevel.IsElevated;
 
     public static bool IsFileDialogAvailable => !IntegrityLevel.IsElevated;

@@ -129,6 +129,8 @@ internal abstract class WindowBase : Window
 
     private void HideSystemMenu() => systemMenu?.Hide();
 
+    public void PostCloseMessage() => PostSysCommandMessage(SC.CLOSE);
+
     public WindowState WindowState
     {
         get
