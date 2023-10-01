@@ -1,21 +1,40 @@
-﻿namespace SudokuSolver.Views;
+﻿using RelayCommand = SudokuSolver.ViewModels.RelayCommand;
+
+namespace SudokuSolver.Views;
 
 internal abstract class WindowBase : Window
 {
+    private enum SC
+    {
+        RESTORE = 0xF120,
+        SIZE = 0xF000,
+        MOVE = 0xF010,
+        MINIMIZE = 0xF020,
+        MAXIMIZE = 0xF030,
+        CLOSE = 0xF060,
+    }
+
     public double MinWidth { get; set; }
     public double MinHeight { get; set; }
     public double InitialWidth { get; set; }
     public double InitialHeight { get; set; }
     public IntPtr WindowPtr { get; }
+    public RelayCommand RestoreCommand { get; }
+    public RelayCommand MoveCommand { get; }
+    public RelayCommand SizeCommand { get; }
+    public RelayCommand MinimizeCommand { get; }
+    public RelayCommand MaximizeCommand { get; }
+    public RelayCommand CloseCommand { get; }
 
     private readonly SUBCLASSPROC subClassDelegate;
     private PointInt32 restorePosition;
     private SizeInt32 restoreSize;
+    private MenuFlyout? systemMenu;
 
     public WindowBase()
     {
         WindowPtr = WindowNative.GetWindowHandle(this);
-        
+
         // sub class to set a minimum window size
         subClassDelegate = new SUBCLASSPROC(NewSubWindowProc);
 
@@ -24,6 +43,13 @@ internal abstract class WindowBase : Window
 
         AppWindow.Changed += AppWindow_Changed;
         Activated += App.Instance.RecordWindowActivated;
+
+        RestoreCommand = new RelayCommand(o => PostSysCommandMessage(SC.RESTORE), o => WindowState == WindowState.Maximized);
+        MoveCommand = new RelayCommand(o => PostSysCommandMessage(SC.MOVE), o => WindowState != WindowState.Maximized);
+        SizeCommand = new RelayCommand(o => PostSysCommandMessage(SC.SIZE), o => WindowState != WindowState.Maximized);
+        MinimizeCommand = new RelayCommand(o => PostSysCommandMessage(SC.MINIMIZE));
+        MaximizeCommand = new RelayCommand(o => PostSysCommandMessage(SC.MAXIMIZE), o => WindowState != WindowState.Maximized);
+        CloseCommand = new RelayCommand(o => PostSysCommandMessage(SC.CLOSE));
     }
 
     private void AppWindow_Changed(AppWindow sender, AppWindowChangedEventArgs args)
@@ -35,6 +61,14 @@ internal abstract class WindowBase : Window
 
             if (args.DidSizeChange)
                 restoreSize = AppWindow.Size;
+        }
+
+        if (args.DidSizeChange)
+        {
+            RestoreCommand.RaiseCanExecuteChanged();
+            MoveCommand.RaiseCanExecuteChanged();
+            SizeCommand.RaiseCanExecuteChanged();
+            MaximizeCommand.RaiseCanExecuteChanged();
         }
     }
 
@@ -51,54 +85,51 @@ internal abstract class WindowBase : Window
             minMaxInfo.ptMinTrackSize.Y = Math.Max(ConvertToDeviceSize(MinHeight, scaleFactor), minMaxInfo.ptMinTrackSize.Y);
             Marshal.StructureToPtr(minMaxInfo, lParam, true);
         }
-        else if (uMsg == PInvoke.WM_SYSCOMMAND) // alt 
+        else if (uMsg == PInvoke.WM_SYSCOMMAND)
         {
-            if (lParam == VK_SPACE) 
+            if (lParam == VK_SPACE)
             {
-                if (IsContentDialogOpen())
-                {
-                    // right click works, but not via the keyboard
-                    return new LRESULT(0);
-                }
-
-                // shouldn't have two active menus
-                CloseFlyouts();
+                ShowSytemMenu();
+                return (LRESULT)0;
             }
         }
-        else if ((uMsg == PInvoke.WM_NCRBUTTONDOWN) && (wParam == HTCAPTION))
+        else if ((uMsg == PInvoke.WM_NCRBUTTONUP) && (wParam == HTCAPTION))
         {
-            // only applicable if the custom title bar isn't used
-            CloseFlyouts();
+            ShowSytemMenu();
+            return (LRESULT)0;
+        }
+        else if ((uMsg == PInvoke.WM_NCLBUTTONDOWN) && (wParam == HTCAPTION))
+        {
+            HideSystemMenu();
         }
 
         return PInvoke.DefSubclassProc(hWnd, uMsg, wParam, lParam);
     }
 
-    protected void CloseFlyouts()
+    private void PostSysCommandMessage(SC command)
     {
-        if ((Content is not null) && (Content.XamlRoot is not null))
+        bool success = PInvoke.PostMessage((HWND)WindowPtr, PInvoke.WM_SYSCOMMAND, (WPARAM)(nuint)command, 0);
+        Debug.Assert(success);
+    }
+
+    private void ShowSytemMenu()
+    {
+        if ((systemMenu is null) && (Content is FrameworkElement root))
+            systemMenu = root.Resources["SystemMenuFlyout"] as MenuFlyout;
+
+        if ((systemMenu is not null) &&
+            (Content.XamlRoot is not null) &&
+            PInvoke.GetCursorPos(out System.Drawing.Point p) &&
+            PInvoke.ScreenToClient((HWND)WindowPtr, ref p))
         {
-            foreach (Popup popup in VisualTreeHelper.GetOpenPopupsForXamlRoot(Content.XamlRoot))
-            {
-                if (popup.Child is not ContentDialog)
-                    popup.IsOpen = false;
-            }
+            double scale = Content.XamlRoot.RasterizationScale;
+            systemMenu.ShowAt(null, new Windows.Foundation.Point(p.X / scale, p.Y / scale));
         }
     }
 
-    private bool IsContentDialogOpen()
-    {
-        if ((Content is not null) && (Content.XamlRoot is not null))
-        {
-            foreach (Popup popup in VisualTreeHelper.GetOpenPopupsForXamlRoot(Content.XamlRoot))
-            {
-                if (popup.Child is ContentDialog)
-                    return true;
-            }
-        }
+    private void HideSystemMenu() => systemMenu?.Hide();
 
-        return false;
-    }
+    public void PostCloseMessage() => PostSysCommandMessage(SC.CLOSE);
 
     public WindowState WindowState
     {

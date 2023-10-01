@@ -94,7 +94,7 @@ internal sealed partial class MainWindow : WindowBase
             WindowState = Settings.Data.WindowState;
        
         layoutRoot.Loaded += async (s, e) =>
-        {            
+        {
             // set the duration for the next theme transition
             Puzzle.BackgroundBrushTransition.Duration = new TimeSpan(0, 0, 0, 0, 250);
 
@@ -135,7 +135,7 @@ internal sealed partial class MainWindow : WindowBase
         {
             processingClose = true;
 
-            CloseFlyouts();
+            CloseMenuFlyouts();
 
             // cannot have more than one content dialog open at the same time
             aboutBox?.Hide();
@@ -165,6 +165,17 @@ internal sealed partial class MainWindow : WindowBase
 
             if (lastWindow)
                 await Settings.Data.Save();
+        }
+    }
+
+    private void CloseMenuFlyouts()
+    {
+        Debug.Assert((Content is not null) && (Content.XamlRoot is not null));
+
+        foreach (Popup popup in VisualTreeHelper.GetOpenPopupsForXamlRoot(Content.XamlRoot))
+        {
+            if (popup.Child is MenuFlyoutPresenter)
+                popup.IsOpen = false;
         }
     }
 
@@ -254,6 +265,11 @@ internal sealed partial class MainWindow : WindowBase
         await HandleWindowClosing();
     }
 
+    private void ExitClickHandler(object sender, RoutedEventArgs e)
+    {
+        App.Instance.AttemptCloseAllWindows();
+    }
+    
     public static bool IsPrintingAvailable => PrintManager.IsSupported() && !IntegrityLevel.IsElevated;
 
     public static bool IsFileDialogAvailable => !IntegrityLevel.IsElevated;
