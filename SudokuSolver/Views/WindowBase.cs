@@ -54,21 +54,17 @@ internal abstract class WindowBase : Window
 
     private void AppWindow_Changed(AppWindow sender, AppWindowChangedEventArgs args)
     {
-        if (WindowState == WindowState.Normal)
+        if (args.DidPositionChange || args.DidSizeChange)
         {
-            if (args.DidPositionChange)
+            if (WindowState == WindowState.Normal)
+            {
                 restorePosition = AppWindow.Position;
-
-            if (args.DidSizeChange)
                 restoreSize = AppWindow.Size;
+            }
         }
-
-        if (args.DidSizeChange)
+        else if (args.DidPresenterChange)
         {
-            RestoreCommand.RaiseCanExecuteChanged();
-            MoveCommand.RaiseCanExecuteChanged();
-            SizeCommand.RaiseCanExecuteChanged();
-            MaximizeCommand.RaiseCanExecuteChanged();
+            HideSystemMenu();
         }
     }
 
@@ -77,32 +73,53 @@ internal abstract class WindowBase : Window
         const int VK_SPACE = 0x0020;
         const int HTCAPTION = 0x0002;
 
-        if (uMsg == PInvoke.WM_GETMINMAXINFO)
+        switch (uMsg)
         {
-            MINMAXINFO minMaxInfo = Marshal.PtrToStructure<MINMAXINFO>(lParam);
-            double scaleFactor = GetScaleFactor();
-            minMaxInfo.ptMinTrackSize.X = Math.Max(ConvertToDeviceSize(MinWidth, scaleFactor), minMaxInfo.ptMinTrackSize.X);
-            minMaxInfo.ptMinTrackSize.Y = Math.Max(ConvertToDeviceSize(MinHeight, scaleFactor), minMaxInfo.ptMinTrackSize.Y);
-            Marshal.StructureToPtr(minMaxInfo, lParam, true);
-        }
-        else if (uMsg == PInvoke.WM_SYSCOMMAND)
-        {
-            if (lParam == VK_SPACE)
+            case PInvoke.WM_GETMINMAXINFO:
             {
-                HideSystemMenu();
-                ShowSytemMenu(viaKeyboard: true);
-                return (LRESULT)0;
+                MINMAXINFO minMaxInfo = Marshal.PtrToStructure<MINMAXINFO>(lParam);
+                double scaleFactor = GetScaleFactor();
+                minMaxInfo.ptMinTrackSize.X = Math.Max(ConvertToDeviceSize(MinWidth, scaleFactor), minMaxInfo.ptMinTrackSize.X);
+                minMaxInfo.ptMinTrackSize.Y = Math.Max(ConvertToDeviceSize(MinHeight, scaleFactor), minMaxInfo.ptMinTrackSize.Y);
+                Marshal.StructureToPtr(minMaxInfo, lParam, true);
+                break;
             }
-        }
-        else if ((uMsg == PInvoke.WM_NCRBUTTONUP) && (wParam == HTCAPTION))
-        {
-            HideSystemMenu();
-            ShowSytemMenu(viaKeyboard: false);
-            return (LRESULT)0;
-        }
-        else if ((uMsg == PInvoke.WM_NCLBUTTONDOWN) && (wParam == HTCAPTION))
-        {
-            HideSystemMenu();
+
+            case PInvoke.WM_SYSCOMMAND:
+            {
+                if (lParam == VK_SPACE)
+                {
+                    HideSystemMenu();
+                    UpdateSytemMenuItemsEnabledState();
+                    ShowSytemMenu(viaKeyboard: true);
+                    return (LRESULT)0;
+                }
+
+                break;
+            }
+
+            case PInvoke.WM_NCRBUTTONUP:
+            {
+                if (wParam == HTCAPTION)
+                {
+                    HideSystemMenu();
+                    UpdateSytemMenuItemsEnabledState();
+                    ShowSytemMenu(viaKeyboard: false);
+                    return (LRESULT)0;
+                }
+
+                break;
+            }
+
+            case PInvoke.WM_NCLBUTTONDOWN:
+            {
+                if (wParam == HTCAPTION)
+                {
+                    HideSystemMenu();
+                }
+
+                break;
+            }
         }
 
         return PInvoke.DefSubclassProc(hWnd, uMsg, wParam, lParam);
@@ -146,6 +163,14 @@ internal abstract class WindowBase : Window
     {
         if ((systemMenu is not null) && systemMenu.IsOpen)
             systemMenu.Hide();
+    }
+
+    private void UpdateSytemMenuItemsEnabledState()
+    {
+        RestoreCommand.RaiseCanExecuteChanged();
+        MoveCommand.RaiseCanExecuteChanged();
+        SizeCommand.RaiseCanExecuteChanged();
+        MaximizeCommand.RaiseCanExecuteChanged();
     }
 
     public void PostCloseMessage() => PostSysCommandMessage(SC.CLOSE);
