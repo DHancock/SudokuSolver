@@ -127,11 +127,15 @@ internal sealed partial class MainWindow : WindowBase
     {
         // This is called from the File menu's close click handler and
         // also the AppWindow.Closing event handler. 
+
+        if (processingClose)  // a second, or further attempts to close while prompting to save existing
+            return;
+
         Status status = Status.Continue;
 
-        if (IsPuzzleModified && !processingClose)  // the first user attempt to close, a second will always succeed
+        if (IsPuzzleModified) 
         {
-            processingClose = true;
+            processingClose = true; // the first attempt to close
 
             CloseMenuFlyouts();
 
@@ -142,7 +146,7 @@ internal sealed partial class MainWindow : WindowBase
             status = await SaveExistingFirst();
         }
 
-        if (status == Status.Cancelled)  // the save existing prompt was cancelled
+        if (status == Status.Cancelled)  // the save existing prompt was canceled
         {
             processingClose = false;
             FocusLastSelectedCell();
