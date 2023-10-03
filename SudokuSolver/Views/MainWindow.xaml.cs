@@ -3,8 +3,6 @@ using SudokuSolver.ViewModels;
 
 namespace SudokuSolver.Views;
 
-public enum WindowState { Normal, Minimized, Maximized }
-
 /// <summary>
 /// Interaction logic for MainWindow.xaml
 /// </summary>
