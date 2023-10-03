@@ -2,6 +2,8 @@
 
 namespace SudokuSolver.Views;
 
+public enum WindowState { Normal, Minimized, Maximized }
+
 internal abstract class WindowBase : Window
 {
     private enum SC
@@ -44,11 +46,11 @@ internal abstract class WindowBase : Window
         AppWindow.Changed += AppWindow_Changed;
         Activated += App.Instance.RecordWindowActivated;
 
-        RestoreCommand = new RelayCommand(o => PostSysCommandMessage(SC.RESTORE), o => WindowState == WindowState.Maximized);
-        MoveCommand = new RelayCommand(o => PostSysCommandMessage(SC.MOVE), o => WindowState != WindowState.Maximized);
-        SizeCommand = new RelayCommand(o => PostSysCommandMessage(SC.SIZE), o => WindowState != WindowState.Maximized);
-        MinimizeCommand = new RelayCommand(o => PostSysCommandMessage(SC.MINIMIZE));
-        MaximizeCommand = new RelayCommand(o => PostSysCommandMessage(SC.MAXIMIZE), o => WindowState != WindowState.Maximized);
+        RestoreCommand = new RelayCommand(o => PostSysCommandMessage(SC.RESTORE), CanRestore);
+        MoveCommand = new RelayCommand(o => PostSysCommandMessage(SC.MOVE), CanMove);
+        SizeCommand = new RelayCommand(o => PostSysCommandMessage(SC.SIZE), CanSize);
+        MinimizeCommand = new RelayCommand(o => PostSysCommandMessage(SC.MINIMIZE), CanMinimize);
+        MaximizeCommand = new RelayCommand(o => PostSysCommandMessage(SC.MAXIMIZE), CanMaximize);
         CloseCommand = new RelayCommand(o => PostSysCommandMessage(SC.CLOSE));
     }
 
@@ -62,9 +64,12 @@ internal abstract class WindowBase : Window
                 restoreSize = AppWindow.Size;
             }
         }
-        else if (args.DidPresenterChange)
+        else if (args.DidPresenterChange) // including properties of the current presenter
         {
-            HideSystemMenu();
+            if (AppWindow.Presenter.Kind == AppWindowPresenterKind.FullScreen)
+                HideSystemMenu();
+
+            UpdateSytemMenuItemsEnabledState();
         }
     }
 
@@ -87,10 +92,9 @@ internal abstract class WindowBase : Window
 
             case PInvoke.WM_SYSCOMMAND:
             {
-                if (lParam == VK_SPACE)
+                if ((lParam == VK_SPACE) && (AppWindow.Presenter.Kind != AppWindowPresenterKind.FullScreen))
                 {
                     HideSystemMenu();
-                    UpdateSytemMenuItemsEnabledState();
                     ShowSytemMenu(viaKeyboard: true);
                     return (LRESULT)0;
                 }
@@ -103,7 +107,6 @@ internal abstract class WindowBase : Window
                 if (wParam == HTCAPTION)
                 {
                     HideSystemMenu();
-                    UpdateSytemMenuItemsEnabledState();
                     ShowSytemMenu(viaKeyboard: false);
                     return (LRESULT)0;
                 }
@@ -170,10 +173,39 @@ internal abstract class WindowBase : Window
         RestoreCommand.RaiseCanExecuteChanged();
         MoveCommand.RaiseCanExecuteChanged();
         SizeCommand.RaiseCanExecuteChanged();
+        MinimizeCommand.RaiseCanExecuteChanged();
         MaximizeCommand.RaiseCanExecuteChanged();
     }
 
     public void PostCloseMessage() => PostSysCommandMessage(SC.CLOSE);
+
+    private bool CanRestore(object? param)
+    {
+        return (AppWindow.Presenter is OverlappedPresenter op) && (op.State == OverlappedPresenterState.Maximized);
+    }
+
+    private bool CanMove(object? param)
+    {
+        if (AppWindow.Presenter is OverlappedPresenter op)
+            return op.State != OverlappedPresenterState.Maximized;
+
+        return AppWindow.Presenter.Kind == AppWindowPresenterKind.CompactOverlay;
+    }
+
+    private bool CanSize(object? param)
+    {
+        return (AppWindow.Presenter is OverlappedPresenter op) && op.IsResizable && (op.State != OverlappedPresenterState.Maximized);
+    }
+
+    private bool CanMinimize(object? param)
+    {
+        return (AppWindow.Presenter is OverlappedPresenter op) && op.IsMinimizable;
+    }
+
+    private bool CanMaximize(object? param)
+    {
+        return (AppWindow.Presenter is OverlappedPresenter op) && op.IsMaximizable && (op.State != OverlappedPresenterState.Maximized);
+    }
 
     public WindowState WindowState
     {
@@ -203,6 +235,10 @@ internal abstract class WindowBase : Window
                     case WindowState.Normal: op.Restore(); break;
                 }
             }
+            else
+            {
+                Debug.Assert(value != WindowState.Normal);
+            }
         }
     }
 
@@ -215,7 +251,10 @@ internal abstract class WindowBase : Window
 
     public double GetScaleFactor()
     {
-        // if the xaml hasn't loaded yet, Content.XamlRoot.RasterizationScale isn't an option
+        if ((Content is not null) && (Content.XamlRoot is not null))
+            return Content.XamlRoot.RasterizationScale;
+
+        // if xaml hasn't loaded yet...
         double dpi = PInvoke.GetDpiForWindow((HWND)WindowPtr);
         return dpi / 96.0;
     }
