@@ -68,8 +68,8 @@ internal abstract class WindowBase : Window
         {
             if (AppWindow.Presenter.Kind == AppWindowPresenterKind.FullScreen)
                 HideSystemMenu();
-
-            UpdateSytemMenuItemsEnabledState();
+            else
+                UpdateSytemMenuItemsEnabledState();
         }
     }
 
@@ -237,7 +237,7 @@ internal abstract class WindowBase : Window
             }
             else
             {
-                Debug.Assert(value != WindowState.Normal);
+                Debug.Assert(value == WindowState.Normal);
             }
         }
     }
@@ -254,7 +254,6 @@ internal abstract class WindowBase : Window
         if ((Content is not null) && (Content.XamlRoot is not null))
             return Content.XamlRoot.RasterizationScale;
 
-        // if xaml hasn't loaded yet...
         double dpi = PInvoke.GetDpiForWindow((HWND)WindowPtr);
         return dpi / 96.0;
     }
