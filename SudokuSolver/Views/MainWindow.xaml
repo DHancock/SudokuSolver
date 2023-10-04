@@ -26,11 +26,7 @@
                 <MenuFlyoutItem Command="{x:Bind MinimizeCommand}" Text="Minimize" AccessKey="N"/>
                 <MenuFlyoutItem Command="{x:Bind MaximizeCommand}" Text="Maximize" AccessKey="X"/>
                 <MenuFlyoutSeparator/>
-                <MenuFlyoutItem Command="{x:Bind CloseCommand}" Text="Close" AccessKey="C">
-                    <MenuFlyoutItem.KeyboardAccelerators>
-                        <KeyboardAccelerator Modifiers="Menu" Key="F4"/>
-                    </MenuFlyoutItem.KeyboardAccelerators>
-                </MenuFlyoutItem>
+                <MenuFlyoutItem Command="{x:Bind CloseCommand}" Text="Close" AccessKey="C"/>
             </MenuFlyout>
         </Grid.Resources>
         

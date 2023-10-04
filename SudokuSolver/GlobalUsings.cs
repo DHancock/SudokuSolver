@@ -1,4 +1,5 @@
 ﻿global using Microsoft.UI;
+global using Microsoft.UI.Input;
 global using Microsoft.UI.Windowing;
 global using Microsoft.UI.Xaml;
 global using Microsoft.UI.Xaml.Controls;
@@ -29,6 +30,7 @@ global using Windows.ApplicationModel.Activation;
 global using Windows.ApplicationModel.DataTransfer;
 global using Windows.Foundation;
 global using Windows.Foundation.Collections;
+global using Windows.Foundation.Metadata;
 global using Windows.Graphics;
 global using Windows.Graphics.Printing;
 global using Windows.Graphics.Printing.OptionDetails;
