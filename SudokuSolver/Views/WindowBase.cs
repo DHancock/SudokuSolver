@@ -37,7 +37,6 @@ internal abstract class WindowBase : Window
     {
         WindowPtr = WindowNative.GetWindowHandle(this);
 
-        // sub class to set a minimum window size
         subClassDelegate = new SUBCLASSPROC(NewSubWindowProc);
 
         if (!PInvoke.SetWindowSubclass((HWND)WindowPtr, subClassDelegate, 0, 0))
@@ -134,10 +133,27 @@ internal abstract class WindowBase : Window
         Debug.Assert(success);
     }
 
+    private void AddCloseKeyboardAcceleratorTextOverride()
+    {
+        // If the Close menu item actually had a keyboard accelerator then two close messages would be  
+        // generated when the user typed Alt+F4, so just fake the existence of it for the user...
+        if (ApiInformation.IsPropertyPresent("Windows.UI.Xaml.Controls.MenuFlyoutItem", "KeyboardAcceleratorTextOverride"))
+        {
+            Debug.Assert(systemMenu is not null);
+            MenuFlyoutItem mfi = (MenuFlyoutItem)systemMenu.Items[systemMenu.Items.Count - 1];
+            mfi.KeyboardAcceleratorTextOverride = "Alt+F4";
+        }
+    }
+
     private void ShowSytemMenu(bool viaKeyboard)
     {
         if ((systemMenu is null) && (Content is FrameworkElement root))
+        {
             systemMenu = root.Resources["SystemMenuFlyout"] as MenuFlyout;
+
+            if (systemMenu is not null)
+                AddCloseKeyboardAcceleratorTextOverride();
+        }
 
         if ((systemMenu is not null) && (Content.XamlRoot is not null))
         {

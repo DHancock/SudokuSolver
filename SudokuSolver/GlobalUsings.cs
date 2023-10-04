@@ -30,6 +30,7 @@ global using Windows.ApplicationModel.Activation;
 global using Windows.ApplicationModel.DataTransfer;
 global using Windows.Foundation;
 global using Windows.Foundation.Collections;
+global using Windows.Foundation.Metadata;
 global using Windows.Graphics;
 global using Windows.Graphics.Printing;
 global using Windows.Graphics.Printing.OptionDetails;

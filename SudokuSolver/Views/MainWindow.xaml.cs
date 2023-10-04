@@ -127,15 +127,11 @@ internal sealed partial class MainWindow : WindowBase
     {
         // This is called from the File menu's close click handler and
         // also the AppWindow.Closing event handler. 
-
-        if (processingClose)  // a second, or further attempts to close while prompting to save existing
-            return;
-
         Status status = Status.Continue;
 
-        if (IsPuzzleModified) 
+        if (IsPuzzleModified && !processingClose) 
         {
-            processingClose = true; // the first attempt to close
+            processingClose = true; // the first attempt to close, a second will always succeed
 
             CloseMenuFlyouts();
 

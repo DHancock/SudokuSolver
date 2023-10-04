@@ -26,13 +26,7 @@
                 <MenuFlyoutItem Command="{x:Bind MinimizeCommand}" Text="Minimize" AccessKey="N"/>
                 <MenuFlyoutItem Command="{x:Bind MaximizeCommand}" Text="Maximize" AccessKey="X"/>
                 <MenuFlyoutSeparator/>
-                <MenuFlyoutItem Command="{x:Bind CloseCommand}" Text="Close" AccessKey="C">
-                    <MenuFlyoutItem.KeyboardAccelerators>
-                        <!-- Adding this accelerator will result in two close messages and corresponding AppWindow.Closing -->
-                        <!-- events. Without access to TranslateAccelerator() there isn't an easy way round that completely. -->
-                        <KeyboardAccelerator Modifiers="Menu" Key="F4"/>
-                    </MenuFlyoutItem.KeyboardAccelerators>
-                </MenuFlyoutItem>
+                <MenuFlyoutItem Command="{x:Bind CloseCommand}" Text="Close" AccessKey="C"/>
             </MenuFlyout>
         </Grid.Resources>
         
