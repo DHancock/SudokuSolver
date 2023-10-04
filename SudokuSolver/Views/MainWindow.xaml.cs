@@ -494,7 +494,8 @@ internal sealed partial class MainWindow : WindowBase
             region.Subtract(menuRect);
             region.Subtract(puzzleRect);
 
-            AppWindow.TitleBar.SetDragRectangles(region.ToArray());
+            InputNonClientPointerSource? incps = InputNonClientPointerSource.GetForWindowId(Win32Interop.GetWindowIdFromWindow(WindowPtr));
+            incps?.SetRegionRects(NonClientRegionKind.Caption, region.ToArray());
         }
     }
 
