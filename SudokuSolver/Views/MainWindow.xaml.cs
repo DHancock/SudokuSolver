@@ -20,10 +20,13 @@ internal sealed partial class MainWindow : WindowBase
     private ErrorDialog? errorDialog;
     private bool aboutBoxOpen = false;
     private bool errorDialogOpen = false;
+    private readonly InputNonClientPointerSource incps;
 
     public MainWindow(StorageFile? storagefile, MainWindow? creator)
     {
         InitializeComponent();
+
+        incps = InputNonClientPointerSource.GetForWindowId(Win32Interop.GetWindowIdFromWindow(WindowPtr));
 
         // each window needs a local copy of the common view settings
         Settings.PerViewSettings viewSettings = Settings.Data.ViewSettings.Clone();
@@ -468,9 +471,9 @@ internal sealed partial class MainWindow : WindowBase
         Debug.Assert(AppWindowTitleBar.IsCustomizationSupported());
         Debug.Assert(AppWindow.TitleBar.ExtendsContentIntoTitleBar);
 
-        // clear all drag rectangles to allow mouse interaction with menu fly outs,  
+        // allow mouse interaction with menu fly outs,  
         // including clicks anywhere in the window used to dismiss the menu
-        AppWindow.TitleBar.SetDragRectangles(new[] { new RectInt32(0, 0, 0, 0) });
+        incps.ClearAllRegionRects();
     }
 
     private void SetWindowDragRegions()
@@ -490,8 +493,7 @@ internal sealed partial class MainWindow : WindowBase
             region.Subtract(menuRect);
             region.Subtract(puzzleRect);
 
-            InputNonClientPointerSource? incps = InputNonClientPointerSource.GetForWindowId(Win32Interop.GetWindowIdFromWindow(WindowPtr));
-            incps?.SetRegionRects(NonClientRegionKind.Caption, region.ToArray());
+            incps.SetRegionRects(NonClientRegionKind.Caption, region.ToArray());
         }
     }
 
