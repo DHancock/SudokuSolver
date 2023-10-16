@@ -19,7 +19,8 @@
         </Grid.RowDefinitions>
 
         <Grid.Resources>
-            <MenuFlyout x:Key="SystemMenuFlyout">
+            <!--use x:Name rather then x:Key to guarantee the menu is constructed before xaml tries to update the commands-->
+            <MenuFlyout x:Name="SystemMenuFlyout">
                 <MenuFlyoutItem Command="{x:Bind RestoreCommand}" Text="Restore" AccessKey="R"/>
                 <MenuFlyoutItem Command="{x:Bind MoveCommand}" Text="Move" AccessKey="M"/>
                 <MenuFlyoutItem Command="{x:Bind SizeCommand}" Text="Size" AccessKey="S"/>
