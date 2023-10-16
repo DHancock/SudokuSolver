@@ -1,4 +1,6 @@
-﻿using SudokuSolver.Common;
+﻿// Ignore Spelling: Sudoku
+
+using SudokuSolver.Common;
 
 namespace SudokuSolver.Models;
 
