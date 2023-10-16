@@ -94,8 +94,9 @@ internal abstract class WindowBase : Window
                 if ((lParam == VK_SPACE) && (AppWindow.Presenter.Kind != AppWindowPresenterKind.FullScreen))
                 {
                     HideSystemMenu();
-                    ShowSytemMenu(viaKeyboard: true);
-                    return (LRESULT)0;
+
+                    if (ShowSytemMenu(viaKeyboard: true))
+                        return (LRESULT)0;
                 }
 
                 break;
@@ -106,8 +107,9 @@ internal abstract class WindowBase : Window
                 if (wParam == HTCAPTION)
                 {
                     HideSystemMenu();
-                    ShowSytemMenu(viaKeyboard: false);
-                    return (LRESULT)0;
+
+                    if (ShowSytemMenu(viaKeyboard: false))
+                        return (LRESULT)0;
                 }
 
                 break;
@@ -133,32 +135,34 @@ internal abstract class WindowBase : Window
         Debug.Assert(success);
     }
 
-    private void ShowSytemMenu(bool viaKeyboard)
+    private bool ShowSytemMenu(bool viaKeyboard)
     {
-        if ((systemMenu is null) && (Content is FrameworkElement root))
-            systemMenu = root.Resources["SystemMenuFlyout"] as MenuFlyout;
+        if ((systemMenu is null) && (Content is FrameworkElement root) && root.Resources.TryGetValue("SystemMenuFlyout", out object? res) && (res is MenuFlyout flyout))
+            systemMenu = flyout;
 
-        if ((systemMenu is not null) && (Content.XamlRoot is not null))
+        if (systemMenu is not null)
         {
-            System.Drawing.Point p = default;
+            System.Drawing.Point p = new()
+            {
+                X = 3,
+                Y = AppWindow.TitleBar.Height,
+            };
 
             if (!viaKeyboard)
             {
                 if (!PInvoke.GetCursorPos(out p) || !PInvoke.ScreenToClient((HWND)WindowPtr, ref p))
                 {
+                    // can fail if multiple desktops and this isn't the current one
                     Debug.Fail("Failed to obtain cursor position.");
-                    return;
+                    return false;
                 }
             }
-            else
-            {
-                p.X = 3;
-                p.Y = AppWindow.TitleBar.Height;
-            }
 
-            double scale = Content.XamlRoot.RasterizationScale;
+            double scale = GetScaleFactor();
             systemMenu.ShowAt(null, new Windows.Foundation.Point(p.X / scale, p.Y / scale));
         }
+
+        return systemMenu is not null;
     }
 
     private void HideSystemMenu()
