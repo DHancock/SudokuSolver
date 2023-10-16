@@ -26,7 +26,7 @@
         <local:CustomTitleBar x:Name="CustomTitleBar" IconSourceUri="ms-appx:///Resources/settings.png"/>
 
         <local:SimpleColorPicker Grid.Row="1" MiniPalette="False" Color="{x:Bind UserColor, Mode=TwoWay}"/>
-        <local:SimpleColorPicker Grid.Row="2" MiniPalette="True" Color="{x:Bind CalculatedColor}" ColorChanged="{x:Bind CalculatedColorChangedEventHndler}"/>
+        <local:SimpleColorPicker Grid.Row="2" MiniPalette="True" Color="{x:Bind CalculatedColor}" ColorChanged="{x:Bind CalculatedColorChangedEventHandler}"/>
 
         <Button Grid.Row="5" Click="ButtonClick" Content="Dark mode"/>
 

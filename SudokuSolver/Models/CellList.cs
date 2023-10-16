@@ -69,16 +69,16 @@ internal sealed class CellList : IReadOnlyList<Cell>
 
 
 
-    public IEnumerable<Cell> RowMinus(int cubex, int rowIndex)
+    public IEnumerable<Cell> RowMinus(int cubeX, int rowIndex)
     {
         // the row apart from cells in the cube
 
-        if (cubex == 0) // cube is at the start of the row
+        if (cubeX == 0) // cube is at the start of the row
         {
             for (int x = 3; x < 9; x++)
                 yield return this[x, rowIndex];
         }
-        else if (cubex == 2) // cube is at the end of the row
+        else if (cubeX == 2) // cube is at the end of the row
         {
             for (int x = 0; x < 6; x++)
                 yield return this[x, rowIndex];
@@ -95,16 +95,16 @@ internal sealed class CellList : IReadOnlyList<Cell>
 
 
 
-    public IEnumerable<Cell> ColumnMinus(int cubey, int columnIndex)
+    public IEnumerable<Cell> ColumnMinus(int cubeY, int columnIndex)
     {
         // the column apart from cells in the cube
 
-        if (cubey == 0) // cube is at top of the column
+        if (cubeY == 0) // cube is at top of the column
         {
             for (int y = 3; y < 9; y++)
                 yield return this[columnIndex, y];
         }
-        else if (cubey == 2) // cube is at bottom of the column
+        else if (cubeY == 2) // cube is at bottom of the column
         {
             for (int y = 0; y < 6; y++)
                 yield return this[columnIndex, y];
@@ -121,30 +121,30 @@ internal sealed class CellList : IReadOnlyList<Cell>
 
 
 
-    public IEnumerable<Cell> CubeColumn(int cubex, int cubey, int columnIndex)
+    public IEnumerable<Cell> CubeColumn(int cubeX, int cubeY, int columnIndex)
     {
-        int x = (cubex * 3) + columnIndex;
-        int startY = cubey * 3;
+        int x = (cubeX * 3) + columnIndex;
+        int startY = cubeY * 3;
 
         for (int y = 0; y < 3; y++)
             yield return this[x, startY + y];
     }
 
 
-    public IEnumerable<Cell> CubeRow(int cubex, int cubey, int rowIndex)
+    public IEnumerable<Cell> CubeRow(int cubeX, int cubeY, int rowIndex)
     {
-        int y = (cubey * 3) + rowIndex;
-        int startX = cubex * 3;
+        int y = (cubeY * 3) + rowIndex;
+        int startX = cubeX * 3;
 
         for (int x = 0; x < 3; x++)
             yield return this[startX + x, y];
     }
 
 
-    public IEnumerable<Cell> Cube(int cubex, int cubey)
+    public IEnumerable<Cell> Cube(int cubeX, int cubeY)
     {
-        int startX = cubex * 3;
-        int startY = cubey * 3;
+        int startX = cubeX * 3;
+        int startY = cubeY * 3;
 
         for (int y = 0; y < 3; y++)
         {
@@ -161,22 +161,22 @@ internal sealed class CellList : IReadOnlyList<Cell>
     {
         int row = sourceCellIndex / 9;
         int column = sourceCellIndex % 9;
-        int cubey = row / 3;
-        int cubex = column / 3;
+        int cubeY = row / 3;
+        int cubeX = column / 3;
 
         // the cube minus the source cell
-        foreach (Cell cell in Cube(cubex, cubey))
+        foreach (Cell cell in Cube(cubeX, cubeY))
         {
             if (cell.Index != sourceCellIndex)
                 yield return cell;
         }
 
         // the row apart from cells already in the cube
-        foreach (Cell cell in RowMinus(cubex, row))
+        foreach (Cell cell in RowMinus(cubeX, row))
             yield return cell;
 
         // the column apart from cells already in the cube
-        foreach (Cell cell in ColumnMinus(cubey, column))
+        foreach (Cell cell in ColumnMinus(cubeY, column))
             yield return cell;
     }
 
