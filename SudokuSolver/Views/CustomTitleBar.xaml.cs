@@ -1,4 +1,6 @@
-﻿namespace SudokuSolver.Views;
+﻿// Ignore Spelling: App
+
+namespace SudokuSolver.Views;
 
 internal sealed partial class CustomTitleBar : UserControl
 {

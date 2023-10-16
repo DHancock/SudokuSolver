@@ -1,4 +1,6 @@
-﻿using SudokuSolver.Utilities;
+﻿// Ignore Spelling: App
+
+using SudokuSolver.Utilities;
 using SudokuSolver.Views;
 
 // not to be confused with Windows.System.DispatcherQueue
