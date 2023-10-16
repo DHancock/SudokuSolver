@@ -472,8 +472,8 @@ internal sealed partial class MainWindow : WindowBase
         Debug.Assert(AppWindow.TitleBar.ExtendsContentIntoTitleBar);
 
         // allow mouse interaction with menu fly outs,  
-        // including clicks anywhere in the window used to dismiss the menu
-        inputNonClientPointerSource.ClearAllRegionRects();
+        // including clicks anywhere in the client area used to dismiss the menu
+        inputNonClientPointerSource.ClearRegionRects(NonClientRegionKind.Caption); 
     }
 
     private void SetWindowDragRegions()
