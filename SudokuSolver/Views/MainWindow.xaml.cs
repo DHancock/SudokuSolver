@@ -22,7 +22,7 @@ internal sealed partial class MainWindow : WindowBase
     private bool errorDialogOpen = false;
     private readonly InputNonClientPointerSource inputNonClientPointerSource;
 
-    public MainWindow(StorageFile? storagefile, MainWindow? creator)
+    public MainWindow(StorageFile? storageFile, MainWindow? creator)
     {
         InitializeComponent();
 
@@ -99,12 +99,12 @@ internal sealed partial class MainWindow : WindowBase
             // set the duration for the next theme transition
             Puzzle.BackgroundBrushTransition.Duration = new TimeSpan(0, 0, 0, 0, 250);
 
-            if (storagefile is not null)
+            if (storageFile is not null)
             {
-                Error error = await OpenFile(storagefile);
+                Error error = await OpenFile(storageFile);
 
                 if (error == Error.Success)
-                    SourceFile = storagefile;
+                    SourceFile = storageFile;
             }
         };
 

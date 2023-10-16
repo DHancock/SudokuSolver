@@ -51,11 +51,11 @@ internal sealed partial class SettingsWindow : WindowBase
     public Color UserColor = Colors.Red;
     public Color CalculatedColor = Colors.Green;
 
-    public void UserColorChangedEventHndler(SimpleColorPicker sender, Color newColor)
+    public void UserColorChangedEventHandler(SimpleColorPicker sender, Color newColor)
     {
         UserColor = newColor;
     }
-    public void CalculatedColorChangedEventHndler(SimpleColorPicker sender, Color newColor)
+    public void CalculatedColorChangedEventHandler(SimpleColorPicker sender, Color newColor)
     {
         CalculatedColor = newColor;
     }

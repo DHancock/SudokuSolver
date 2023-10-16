@@ -84,9 +84,9 @@ internal struct BitField
     {
         private readonly BitField a;
 
-        public BitFieldDebugProxy(BitField bitfield)
+        public BitFieldDebugProxy(BitField bitField)
         {
-            a = bitfield;
+            a = bitField;
         }
 
         public string DebugView
