@@ -1,6 +1,4 @@
-﻿// Ignore Spelling: Sudoku
-
-using SudokuSolver.Utilities;
+﻿using SudokuSolver.Utilities;
 
 namespace SudokuSolver.Views
 {
