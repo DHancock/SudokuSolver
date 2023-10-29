@@ -1,66 +1,40 @@
-﻿namespace SudokuSolver.Utilities;
+﻿using System.Drawing;
+
+namespace SudokuSolver.Utilities;
 
 internal class SimpleRegion
 {
-    private readonly List<RectInt32> rects = new List<RectInt32>();
+    private readonly Region region;
 
     public SimpleRegion(RectInt32 rect)
     {
-        if (!rect.IsEmpty())
-            rects.Add(rect);
+        region = new Region(new Rectangle(rect.X, rect.Y, rect.Width, rect.Height));
     }
 
-    public RectInt32[] ToArray() => rects.ToArray();
-
-    public void Subtract(RectInt32 subtracted)
+    public RectInt32[] ToArray()
     {
-        if (subtracted.IsEmpty() || (rects.Count == 0))
-            return;
+        RectangleF[] scans = region.GetRegionScans(new System.Drawing.Drawing2D.Matrix());
 
-        List<RectInt32> results = new List<RectInt32>();
+        if (scans.Length == 0)
+            return Array.Empty<RectInt32>();
 
-        foreach (RectInt32 rect in rects)
-            Subtract(rect, subtracted, results);
+        RectInt32[] result = new RectInt32[scans.Length];
 
-        rects.Clear();
-        rects.AddRange(results);
-    }
-
-    public void Add(RectInt32 rect)
-    {
-        if (!rect.IsEmpty())
+        for (int index = 0; index < scans.Length; ++index)
         {
-            Subtract(rect);
-            rects.Add(rect);
-        }
-    }
-
-    private static void Subtract(RectInt32 rect, RectInt32 subtracted, List<RectInt32> results)
-    {
-        if (rect.DoesNotIntersect(subtracted))
-        {
-            results.Add(rect);
-            return;
+            result[index] = ConvertToRectInt32(scans[index]);
         }
 
-        Int32 top = subtracted.Y - rect.Y;
-        Int32 left = subtracted.X - rect.X;
-        Int32 right = rect.Right() - subtracted.Right();
-        Int32 bottom = rect.Bottom() - subtracted.Bottom();
+        return result;
+    }
 
-        if ((top <= 0) && (left <= 0) && (right <= 0) && (bottom <= 0))
-            return;
- 
-        if (top > 0)
-            results.Add(new RectInt32(rect.X, rect.Y, rect.Width, top));
+    private static RectInt32 ConvertToRectInt32(RectangleF rect)
+    {
+        return new RectInt32(Convert.ToInt32(rect.X), Convert.ToInt32(rect.Y), Convert.ToInt32(rect.Width), Convert.ToInt32(rect.Height));
+    }
 
-        if (left > 0)
-            results.Add(new RectInt32(rect.X, subtracted.Y, left, subtracted.Height));
-
-        if (right > 0)
-            results.Add(new RectInt32(subtracted.Right(), subtracted.Y, right, subtracted.Height));
-
-        if (bottom > 0)
-            results.Add(new RectInt32(rect.X, subtracted.Bottom(), rect.Width, bottom));
+    public void Subtract(RectInt32 rect)
+    {
+        region.Exclude(new Rectangle(rect.X, rect.Y, rect.Width, rect.Height));
     }
 }
