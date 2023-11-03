@@ -21,8 +21,8 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
     public RelayCommand CutCommand { get; }
     public RelayCommand CopyCommand { get; }
     public RelayCommand PasteCommand { get; }
-    public RelayCommand DeleteCommand { get; }
-    public RelayCommand MarkAsGivenCommand { get; }
+    public RelayCommand MarkProvidedCommand { get; }
+    public RelayCommand ClearProvidedCommand { get; }
 
     public PuzzleViewModel(Settings.PerViewSettings perViewSettings)
     {
@@ -39,9 +39,9 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         CutCommand = new RelayCommand(ExecuteCut, CanCutCopyDelete);
         CopyCommand = new RelayCommand(ExecuteCopy, CanCutCopyDelete);
         PasteCommand = new RelayCommand(ExecutePaste, CanPaste);
-        DeleteCommand = new RelayCommand(ExecuteDelete, CanCutCopyDelete);
 
-        MarkAsGivenCommand = new RelayCommand(ExecuteMarkAsGiven, CanMarkAsGiven);
+        MarkProvidedCommand = new RelayCommand(ExecuteMarkProvided, CanMarkProvided);
+        ClearProvidedCommand = new RelayCommand(ExecuteClearProvided, CanClearProvided);
     }
 
     // an empty implementation used to indicate no action is required
@@ -60,7 +60,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
 
             if (currentValue != newValue)
             {
-                if ((cell.Origin == Origins.User) || (cell.Origin == Origins.Given))
+                if ((cell.Origin == Origins.User) || (cell.Origin == Origins.Provided))
                     return model.Edit;
 
                 if ((currentOrigin == Origins.Trial) || (currentOrigin == Origins.Calculated))
@@ -71,7 +71,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
                 return model.SetOrigin;
         }
 
-        if ((newValue == 0) && (currentValue > 0) && ((cell.Origin == Origins.User) || (cell.Origin == Origins.Given)))
+        if ((newValue == 0) && (currentValue > 0) && ((cell.Origin == Origins.User) || (cell.Origin == Origins.Provided)))
             return model.Delete;
 
         // typical changes that require no action are deleting an empty cell, 
@@ -254,20 +254,13 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
 
     private void UpdateMenuItemsDisabledState()
     {
-        // an unfortunate work around for https://github.com/microsoft/microsoft-ui-xaml/issues/8894
-        // The menu flyout item will loose it's foreground color if disabled from within the ICommands execute
-        // method when the system theme is light and the app's theme is dark. Fire and forget, so always need to
-        // call the CanExecute method first when executing to check it's still valid to execute. 
-        Task.Run(() =>
-        {
-            UndoCommand.RaiseCanExecuteChanged();
-            RedoCommand.RaiseCanExecuteChanged();
-            CutCommand.RaiseCanExecuteChanged();
-            CopyCommand.RaiseCanExecuteChanged();
-            DeleteCommand.RaiseCanExecuteChanged();
-            PasteCommand.RaiseCanExecuteChanged();
-            MarkAsGivenCommand.RaiseCanExecuteChanged();
-        });
+        UndoCommand.RaiseCanExecuteChanged();
+        RedoCommand.RaiseCanExecuteChanged();
+        CutCommand.RaiseCanExecuteChanged();
+        CopyCommand.RaiseCanExecuteChanged();
+        PasteCommand.RaiseCanExecuteChanged();
+        MarkProvidedCommand.RaiseCanExecuteChanged();
+        ClearProvidedCommand.RaiseCanExecuteChanged();
     }
 
     private bool CanCutCopyDelete(object? param = null) => (selectedIndex >= 0) && Cells[selectedIndex].HasValue;
@@ -328,19 +321,31 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
             UpdateCellForKeyDown(selectedIndex, clipboardValue);
     }
     
-    public void ExecuteDelete(object? param = null)
+    public void ExecuteDelete()
     {
         if (CanCutCopyDelete())
             UpdateCellForKeyDown(selectedIndex, 0);
     }
 
-    public bool CanMarkAsGiven(object? param = null) => Cells.Any(c => c.Origin == Origins.User);
+    public bool CanMarkProvided(object? param = null) => Cells.Any(c => c.Origin == Origins.User);
 
-    public void ExecuteMarkAsGiven(object? param) 
+    public void ExecuteMarkProvided(object? param) 
     {
-        if (CanMarkAsGiven())
+        if (CanMarkProvided())
         {
-            model.SetOriginToGiven();
+            model.SetOriginToProvided();
+            UpdateView();
+            IsModified = true;
+        }
+    }
+
+    public bool CanClearProvided(object? param = null) => Cells.Any(c => c.Origin == Origins.Provided);
+
+    public void ExecuteClearProvided(object? param)
+    {
+        if (CanClearProvided())
+        {
+            model.SetOriginToUser();
             UpdateView();
             IsModified = true;
         }

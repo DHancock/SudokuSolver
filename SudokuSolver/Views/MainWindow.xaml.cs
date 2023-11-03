@@ -31,7 +31,7 @@ internal sealed partial class MainWindow : WindowBase
         // each window needs a local copy of the common view settings
         Settings.PerViewSettings viewSettings = Settings.Data.ViewSettings.Clone();
 
-        layoutRoot.RequestedTheme = viewSettings.Theme;
+        LayoutRoot.RequestedTheme = viewSettings.Theme;
         SystemBackdrop = new MicaBackdrop();
 
         ViewModel = new WindowViewModel(viewSettings);
@@ -54,7 +54,7 @@ internal sealed partial class MainWindow : WindowBase
             AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
 
             // the last event received will have the correct dimensions
-            layoutRoot.SizeChanged += (s, a) => SetWindowDragRegions();
+            LayoutRoot.SizeChanged += (s, a) => SetWindowDragRegions();
             Menu.SizeChanged += (s, a) => SetWindowDragRegions();
             Puzzle.SizeChanged += (s, a) => SetWindowDragRegions();
 
@@ -64,10 +64,10 @@ internal sealed partial class MainWindow : WindowBase
             // the drag regions need to be adjusted for menu fly outs
             FileMenuItem.Loaded += (s, a) => ClearWindowDragRegions();
             ViewMenuItem.Loaded += (s, a) => ClearWindowDragRegions();
-            UndoMenuItem.Loaded += (s, a) => ClearWindowDragRegions();
+            EditMenuItem.Loaded += (s, a) => ClearWindowDragRegions();
             FileMenuItem.Unloaded += (s, a) => SetWindowDragRegions();
             ViewMenuItem.Unloaded += (s, a) => SetWindowDragRegions();
-            UndoMenuItem.Unloaded += (s, a) => SetWindowDragRegions();
+            EditMenuItem.Unloaded += (s, a) => SetWindowDragRegions();
         }
         else
         {
@@ -77,7 +77,7 @@ internal sealed partial class MainWindow : WindowBase
         // transfer focus back to the last selected cell, if there was one
         FileMenuItem.Unloaded += (s, a) => FocusLastSelectedCell();
         ViewMenuItem.Unloaded += (s, a) => FocusLastSelectedCell();
-        UndoMenuItem.Unloaded += (s, a) => FocusLastSelectedCell();
+        EditMenuItem.Unloaded += (s, a) => FocusLastSelectedCell();
 
         // always set the window icon, it's used in the task switcher
         AppWindow.SetIcon("Resources\\app.ico");
@@ -86,7 +86,7 @@ internal sealed partial class MainWindow : WindowBase
         if (creator is not null)
             AppWindow.MoveAndResize(App.Instance.GetNewWindowPosition(creator.RestoreBounds));
         else
-            AppWindow.MoveAndResize(App.Instance.GetNewWindowPosition(this));
+            AppWindow.MoveAndResize(App.Instance.GetNewWindowPosition(this, Settings.Data.RestoreBounds));
 
         // setting the presenter will also activate the window
         if (Settings.Data.WindowState == WindowState.Minimized)
@@ -94,7 +94,7 @@ internal sealed partial class MainWindow : WindowBase
         else
             WindowState = Settings.Data.WindowState;
        
-        layoutRoot.Loaded += async (s, e) =>
+        LayoutRoot.Loaded += async (s, e) =>
         {
             // set the duration for the next theme transition
             Puzzle.BackgroundBrushTransition.Duration = new TimeSpan(0, 0, 0, 0, 250);
@@ -152,9 +152,9 @@ internal sealed partial class MainWindow : WindowBase
         }
         else
         {
-            bool lastWindow = App.Instance.UnRegisterWindow(this);
+            bool isLastWindow = App.Instance.UnRegisterWindow(this);
 
-            // record now, the settings window could be the last window
+            // record now, the colors window could be the last window
             Settings.Data.RestoreBounds = RestoreBounds;
             Settings.Data.WindowState = WindowState;
 
@@ -164,7 +164,7 @@ internal sealed partial class MainWindow : WindowBase
             // calling Close() doesn't raise an AppWindow.Closing event
             Close();
 
-            if (lastWindow)
+            if (isLastWindow)
                 await Settings.Data.Save();
         }
     }
@@ -306,11 +306,11 @@ internal sealed partial class MainWindow : WindowBase
         else
             path = SourceFile.Path;
 
-        ContentDialogResult result = await new ConfirmSaveDialog(path, Content.XamlRoot, layoutRoot.ActualTheme).ShowAsync();
+        ContentDialogResult result = await new ConfirmSaveDialog(path, Content.XamlRoot, LayoutRoot.ActualTheme).ShowAsync();
 
         if (result == ContentDialogResult.Primary)
         {
-            status = await Save();  // if it's a new file, the Save As picker could be cancelled
+            status = await Save();  // if it's a new file, the Save As picker could be canceled
         }
         else if (result == ContentDialogResult.None)
         {
@@ -404,7 +404,7 @@ internal sealed partial class MainWindow : WindowBase
         }
 
         aboutBoxOpen = true;
-        aboutBox.RequestedTheme = layoutRoot.ActualTheme;
+        aboutBox.RequestedTheme = LayoutRoot.ActualTheme;
         await aboutBox.ShowAsync();
     }
 
@@ -421,7 +421,7 @@ internal sealed partial class MainWindow : WindowBase
         }
 
         errorDialogOpen = true;
-        errorDialog.RequestedTheme = layoutRoot.ActualTheme;
+        errorDialog.RequestedTheme = LayoutRoot.ActualTheme;
         errorDialog.Message = message;
         errorDialog.Details = details;
         await errorDialog.ShowAsync();
@@ -452,7 +452,7 @@ internal sealed partial class MainWindow : WindowBase
         string modified = IsPuzzleModified ? "*" : string.Empty;
         string title;
 
-        if (layoutRoot.FlowDirection == FlowDirection.LeftToRight)
+        if (LayoutRoot.FlowDirection == FlowDirection.LeftToRight)
             title = $"{App.cDisplayName} - {filePart}{modified}";
         else
             title = $"{modified}{filePart} - {App.cDisplayName}";
@@ -486,28 +486,17 @@ internal sealed partial class MainWindow : WindowBase
             double scale = Puzzle.XamlRoot.RasterizationScale;
 
             RectInt32 windowRect = new RectInt32(0, 0, AppWindow.ClientSize.Width, AppWindow.ClientSize.Height);
-            RectInt32 menuRect = ScaledRect(Menu.ActualOffset, Menu.ActualSize, scale);
-            RectInt32 puzzleRect = ScaledRect(Puzzle.ActualOffset, Puzzle.ActualSize, scale);
+            RectInt32 menuRect = Utils.ScaledRect(Menu.ActualOffset, Menu.ActualSize, scale);
+            RectInt32 puzzleRect = Utils.ScaledRect(Puzzle.ActualOffset, Puzzle.ActualSize, scale);
 
-            SimpleRegion region = new SimpleRegion(windowRect);
-            region.Subtract(menuRect);
-            region.Subtract(puzzleRect);
+            using (SimpleRegion region = new SimpleRegion(windowRect))
+            {
+                region.Subtract(menuRect);
+                region.Subtract(puzzleRect);
 
-            inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Caption, region.ToArray());
+                inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Caption, region.ToArray());
+            }
         }
-    }
-
-    private static RectInt32 ScaledRect(Vector3 location, Vector2 size, double scale)
-    {
-        return ScaledRect(location.X, location.Y, size.X, size.Y, scale);
-    }
-
-    private static RectInt32 ScaledRect(double x, double y, double width, double height, double scale)
-    {
-        return new RectInt32(Convert.ToInt32(x * scale), 
-                                Convert.ToInt32(y * scale), 
-                                Convert.ToInt32(width * scale), 
-                                Convert.ToInt32(height * scale));
     }
 
     private void SettingsClickHandler(object sender, RoutedEventArgs e)

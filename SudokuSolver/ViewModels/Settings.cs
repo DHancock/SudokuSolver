@@ -2,30 +2,34 @@
 
 namespace SudokuSolver.ViewModels;
 
-// Windows.Storage.ApplicationData isn't supported in unpackaged apps.
-
-// For the unpackaged variant, settings are serialized to a json text file.
-// Adding or deleting properties is safe. The missing, or extra data is ignored.
-// Changing the type of an existing property may cause problems though. Best not
-// delete properties just in case a name is later reused with a different type.
-
 internal class Settings
 {
     public static Settings Data = Inner.Load();
 
+    public PerViewSettings ViewSettings { get; set; } = new PerViewSettings();
+    public PerPrintSettings PrintSettings { get; set; } = new PerPrintSettings();
+    public WindowState WindowState { get; set; } = WindowState.Normal;
+    public RectInt32 RestoreBounds { get; set; } = default;
+    public RectInt32 ColorsRestoreBounds { get; set; } = default;
+    public List<Color> LightThemeColors { get; set; }
+    public List<Color> DarkThemeColors { get; set; }
+
+    [JsonIgnore]
+    public List<Color> DefaultLightThemeColors { get; set; }
+
+    [JsonIgnore]
+    public List<Color> DefaultDarkThemeColors { get; set; }
+
+
     private Settings()
     {
+        // load defaults before the current settings over write them
+        DefaultLightThemeColors = ColorsViewModel.ReadResourceThemeColors("Light");
+        DefaultDarkThemeColors = ColorsViewModel.ReadResourceThemeColors("Dark");
+        // initialize now in case they aren't in the json file
+        LightThemeColors = new List<Color>(DefaultLightThemeColors);
+        DarkThemeColors = new List<Color>(DefaultDarkThemeColors);
     }
-
-    public PerViewSettings ViewSettings { get; set; } = new PerViewSettings();
-
-    public PerPrintSettings PrintSettings { get; set; } = new PerPrintSettings();
-
-    public WindowState WindowState { get; set; } = WindowState.Normal;
-
-    public RectInt32 RestoreBounds { get; set; } = default;
-
-    public RectInt32 SettingsRestoreBounds { get; set; } = default;
 
     public async Task Save()
     {
@@ -41,41 +45,6 @@ internal class Settings
         }
 
         public static async Task Save(Settings settings)
-        {
-            if (App.IsPackaged)
-                SavePackaged(settings);
-            else
-                await SaveUnpackaged(settings);
-        }
-
-        private static void SavePackaged(Settings settings)
-        {
-            try
-            {
-                IPropertySet properties = ApplicationData.Current.LocalSettings.Values;
-
-                properties[nameof(PerViewSettings.IsDarkThemed)] = settings.ViewSettings.IsDarkThemed;
-                properties[nameof(PerViewSettings.ShowSolution)] = settings.ViewSettings.ShowSolution;
-                properties[nameof(PerViewSettings.ShowPossibles)] = settings.ViewSettings.ShowPossibles;
-
-                properties[nameof(PerPrintSettings.PrintAlignment)] = (int)settings.PrintSettings.PrintAlignment;
-                properties[nameof(PerPrintSettings.PrintSize)] = (int)settings.PrintSettings.PrintSize;
-                properties[nameof(PerPrintSettings.PrintMargin)] = (int)settings.PrintSettings.PrintMargin;
-                properties[nameof(PerPrintSettings.ShowHeader)] = settings.PrintSettings.ShowHeader;
-
-                properties[nameof(WindowState)] = (int)settings.WindowState;
-                properties[nameof(RectInt32.X)] = settings.RestoreBounds.X;
-                properties[nameof(RectInt32.Y)] = settings.RestoreBounds.Y;
-                properties[nameof(RectInt32.Width)] = settings.RestoreBounds.Width;
-                properties[nameof(RectInt32.Height)] = settings.RestoreBounds.Height;
-            }
-            catch (Exception ex)
-            {
-                Debug.Fail(ex.ToString());
-            }
-        }
-
-        private static async Task SaveUnpackaged(Settings settings)
         {
             try
             {
@@ -96,46 +65,6 @@ internal class Settings
 
         public static Settings Load()
         {
-            if (App.IsPackaged)
-                return LoadPackaged();
-
-            return LoadUnpackaged();
-        }
-
-        private static Settings LoadPackaged()
-        {
-            Settings settings = new Settings();
-
-            try
-            {
-                IPropertySet properties = ApplicationData.Current.LocalSettings.Values;
-
-                settings.ViewSettings.IsDarkThemed = (bool)properties[nameof(PerViewSettings.IsDarkThemed)];
-                settings.ViewSettings.ShowSolution = (bool)properties[nameof(PerViewSettings.ShowSolution)];
-                settings.ViewSettings.ShowPossibles = (bool)properties[nameof(PerViewSettings.ShowPossibles)];
-
-                settings.PrintSettings.PrintAlignment = (PrintHelper.Alignment)properties[nameof(PerPrintSettings.PrintAlignment)];
-                settings.PrintSettings.PrintSize = (PrintHelper.PrintSize)properties[nameof(PerPrintSettings.PrintSize)];
-                settings.PrintSettings.PrintMargin = (PrintHelper.Margin)properties[nameof(PerPrintSettings.PrintMargin)];
-                settings.PrintSettings.ShowHeader = (bool)properties[nameof(PerPrintSettings.ShowHeader)];
-
-                settings.WindowState = (WindowState)properties[nameof(WindowState)];
-
-                settings.RestoreBounds = new RectInt32((int)properties[nameof(RectInt32.X)],
-                                                    (int)properties[nameof(RectInt32.Y)],
-                                                    (int)properties[nameof(RectInt32.Width)],
-                                                    (int)properties[nameof(RectInt32.Height)]);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.ToString());
-            }
-
-            return settings;
-        }
-
-        private static Settings LoadUnpackaged()
-        {
             string path = GetSettingsFilePath();
 
             if (File.Exists(path))
@@ -149,7 +78,24 @@ internal class Settings
                         Settings? settings = JsonSerializer.Deserialize<Inner>(data, GetSerializerOptions());
 
                         if (settings is not null)
+                        {
+                            ColorsViewModel.UpdateResourceThemeColors("Light", settings.LightThemeColors);
+
+                            // if reading an old settings file with fewer custom colors, make up the numbers with default values
+                            for (int index = settings.LightThemeColors.Count; index < settings.DefaultLightThemeColors.Count; index++)
+                            {
+                                settings.LightThemeColors.Add(settings.DefaultLightThemeColors[index]);
+                            }
+
+                            ColorsViewModel.UpdateResourceThemeColors("Dark", settings.DarkThemeColors);
+
+                            for (int index = settings.DarkThemeColors.Count; index < settings.DefaultDarkThemeColors.Count; index++)
+                            {
+                                settings.DarkThemeColors.Add(settings.DefaultLightThemeColors[index]);
+                            }
+
                             return settings;
+                        }
                     }
                 }
                 catch (Exception ex)

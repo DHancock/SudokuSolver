@@ -29,5 +29,16 @@ internal static class Utils
         return newIndex;
     }
 
+    public static RectInt32 ScaledRect(Vector3 location, Vector2 size, double scale)
+    {
+        return ScaledRect(location.X, location.Y, size.X, size.Y, scale);
+    }
 
+    public static RectInt32 ScaledRect(double x, double y, double width, double height, double scale)
+    {
+        return new RectInt32(Convert.ToInt32(x * scale),
+                                Convert.ToInt32(y * scale),
+                                Convert.ToInt32(width * scale),
+                                Convert.ToInt32(height * scale));
+    }
 }

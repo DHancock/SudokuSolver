@@ -134,7 +134,7 @@ public partial class App : Application
         {
             MainWindow window = new MainWindow(storageFile, creator);
             windowList.Add(window);
-            AttemptBumpWindowToFront(window);
+            AttemptSwitchToWindow(window);
         }
     }
 
@@ -142,32 +142,20 @@ public partial class App : Application
     {
         if (!appClosing)
         {
-            WindowBase? settingsWindow = windowList.FirstOrDefault(w => w is SettingsWindow);
+            WindowBase? colorsWindow = windowList.FirstOrDefault(w => w is ColorsWindow);
 
-            if (settingsWindow is null)
+            if (colorsWindow is null)
             {
-                settingsWindow = new SettingsWindow();
-                windowList.Add(settingsWindow);
-                settingsWindow.Activate();
+                colorsWindow = new ColorsWindow();
+                windowList.Add(colorsWindow);
+                colorsWindow.Activate();
             }
             else
             {
-                bool success = AttemptSwitchToWindow(settingsWindow);
+                bool success = AttemptSwitchToWindow(colorsWindow);
                 Debug.Assert(success);
             }
         }
-    }
-
-    private static bool AttemptBumpWindowToFront(WindowBase window)
-    {
-        // this will also switch the app to the foreground
-        HWND foreground = PInvoke.GetForegroundWindow();
-        HWND target = (HWND)window.WindowPtr;
-
-        if (target != foreground)
-            return PInvoke.SetForegroundWindow(target);
-
-        return true;
     }
 
     internal bool UnRegisterWindow(WindowBase window)
@@ -178,7 +166,7 @@ public partial class App : Application
         Debug.Assert(found);
 
         // If all the other windows are minimized then another window won't be
-        // automatically activated. Until it's known, use the last one opended.
+        // automatically activated. Until it's known, use the last one opened.
         if (ReferenceEquals(currentWindow, window))
             currentWindow = windowList.LastOrDefault();
 
@@ -194,7 +182,11 @@ public partial class App : Application
             if (window.WindowState == WindowState.Minimized)
                 window.WindowState = WindowState.Normal;
 
-            return AttemptBumpWindowToFront(window);
+            HWND foreground = PInvoke.GetForegroundWindow();
+            HWND target = (HWND)window.WindowPtr;
+
+            if (target != foreground)
+                return PInvoke.SetForegroundWindow(target);
         }
 
         return false;
@@ -206,12 +198,12 @@ public partial class App : Application
             window.PostCloseMessage();
     }
 
-    internal RectInt32 GetNewWindowPosition(MainWindow newWindow)
+    internal RectInt32 GetNewWindowPosition(WindowBase newWindow, RectInt32 restoreBounds)
     {
-        if (ViewModels.Settings.Data.RestoreBounds.IsEmpty())  // first run
+        if (restoreBounds.IsEmpty())  // first run
             return CenterInPrimaryDisplay(newWindow);
 
-        return GetNewWindowPosition(ViewModels.Settings.Data.RestoreBounds);
+        return GetNewWindowPosition(restoreBounds);
     }
 
     private static RectInt32 CenterInPrimaryDisplay(WindowBase window)
@@ -339,14 +331,6 @@ public partial class App : Application
         // used to determine which window to activate on launch redirection
         if (args.WindowActivationState != WindowActivationState.Deactivated) 
             currentWindow = (WindowBase)sender;
-    }
-
-    internal static RectInt32 GetSettingsWindowPosition(SettingsWindow window)
-    {
-        if (ViewModels.Settings.Data.SettingsRestoreBounds.IsEmpty())  // first run
-            return CenterInPrimaryDisplay(window);
-
-        return AdjustWindowBoundsForDisplay(ViewModels.Settings.Data.SettingsRestoreBounds);
     }
 
     internal WindowBase? CurrentWindow => currentWindow;

@@ -1,4 +1,6 @@
-﻿using SudokuSolver.Common;
+﻿using Microsoft.UI.Xaml.Data;
+
+using SudokuSolver.Common;
 using SudokuSolver.Utilities;
 
 namespace SudokuSolver.Views;
@@ -122,11 +124,16 @@ internal sealed partial class Cell : UserControl
 
         if (viewModelCell.HasValue)
         {
-            // sets the colour of the cell value text, be it user entered, calculated or trial and error.
+            // sets the cell value text and color
+#if DEBUG
             bool stateFound = VisualStateManager.GoToState(cell, viewModelCell.Origin.ToString(), false);
+#else
+            Origins origin = (viewModelCell.Origin == Origins.Trial) ? Origins.Calculated : viewModelCell.Origin;
+            bool stateFound = VisualStateManager.GoToState(cell, origin.ToString(), false);
+#endif
             Debug.Assert(stateFound); 
 
-            if (((ViewModels.PuzzleViewModel)cell.DataContext).ShowSolution || (viewModelCell.Origin == Origins.User) || (viewModelCell.Origin == Origins.Given))
+            if (((ViewModels.PuzzleViewModel)cell.DataContext).ShowSolution || (viewModelCell.Origin == Origins.User) || (viewModelCell.Origin == Origins.Provided))
             {
                 cell.CellValue.Text = sLookUp[viewModelCell.Value];
             }
