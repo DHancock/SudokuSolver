@@ -42,9 +42,6 @@ internal sealed class PuzzleModel
         {
             if (cell.HasValue)
             {
-                if (cell.Origin == Origins.User)
-                    cell.Origin = Origins.Provided;
-
                 xmlTree.Add(new XElement(Cx.Cell, new XElement(Cx.x, cell.Index % 9),
                                                   new XElement(Cx.y, cell.Index / 9),
                                                   new XElement(Cx.value, cell.Value),
