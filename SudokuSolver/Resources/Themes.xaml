@@ -7,8 +7,10 @@
         
         <ResourceDictionary x:Key="HighContrast">
             <!-- TODO: fix these... -->
-            <SolidColorBrush x:Key="CalculatedCellValueBrush" Color="Gray"/>
-            <SolidColorBrush x:Key="TrialCellValueBrush" Color="Gray"/>
+            <SolidColorBrush x:Key="UserCellBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
+            <SolidColorBrush x:Key="ProvidedCellBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
+            <SolidColorBrush x:Key="CalculatedCellBrush" Color="Gray"/>
+            <SolidColorBrush x:Key="TrialCellBrush" Color="Gray"/>
             <SolidColorBrush x:Key="CellFillBrush" Color="{ThemeResource SystemColorBackgroundColor}"/>
             <SolidColorBrush x:Key="CellPossiblesBrush" Color="Gray"/>
             <SolidColorBrush x:Key="PossiblesHorizontalBrush" Color="Red"/>
@@ -20,8 +22,10 @@
         <ResourceDictionary x:Key="Dark">
             
             <!-- sudoku grids -->
-            <SolidColorBrush x:Key="CalculatedCellValueBrush" Color="Blue"/>
-            <SolidColorBrush x:Key="TrialCellValueBrush" Color="DarkGreen"/>
+            <SolidColorBrush x:Key="UserCellBrush" Color="White"/>
+            <SolidColorBrush x:Key="ProvidedCellBrush" Color="LightBlue"/>
+            <SolidColorBrush x:Key="CalculatedCellBrush" Color="Blue"/>
+            <SolidColorBrush x:Key="TrialCellBrush" Color="DarkGreen"/>
             <SolidColorBrush x:Key="CellFillBrush" Color="Black"/>
             <SolidColorBrush x:Key="CellPossiblesBrush" Color="Gray"/>
             <SolidColorBrush x:Key="PossiblesHorizontalBrush" Color="Red"/>
@@ -37,8 +41,10 @@
         <ResourceDictionary x:Key="Light">
 
             <!-- sudoku grids -->
-            <SolidColorBrush x:Key="CalculatedCellValueBrush" Color="LightBlue"/>
-            <SolidColorBrush x:Key="TrialCellValueBrush" Color="LightGreen"/>
+            <SolidColorBrush x:Key="UserCellBrush" Color="Black"/>
+            <SolidColorBrush x:Key="ProvidedCellBrush" Color="Blue"/>
+            <SolidColorBrush x:Key="CalculatedCellBrush" Color="LightBlue"/>
+            <SolidColorBrush x:Key="TrialCellBrush" Color="LightGreen"/>
             <SolidColorBrush x:Key="CellFillBrush" Color="White"/>
             <SolidColorBrush x:Key="CellPossiblesBrush" Color="LightGray"/>
             <SolidColorBrush x:Key="PossiblesHorizontalBrush" Color="Red"/>

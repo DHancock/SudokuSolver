@@ -1,8 +1,9 @@
-﻿using System.Drawing;
+﻿// requires the "System.Drawing.Common" nuget package
+using System.Drawing;
 
 namespace SudokuSolver.Utilities;
 
-internal class SimpleRegion
+internal class SimpleRegion : IDisposable
 {
     private readonly Region region;
 
@@ -36,5 +37,11 @@ internal class SimpleRegion
     public void Subtract(RectInt32 rect)
     {
         region.Exclude(new Rectangle(rect.X, rect.Y, rect.Width, rect.Height));
+    }
+
+    public void Dispose()
+    {
+        // free the underlying GDI region
+        region.Dispose(); 
     }
 }

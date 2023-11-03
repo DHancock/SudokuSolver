@@ -43,7 +43,7 @@ internal sealed class PuzzleModel
             if (cell.HasValue)
             {
                 if (cell.Origin == Origins.User)
-                    cell.Origin = Origins.Given;
+                    cell.Origin = Origins.Provided;
 
                 xmlTree.Add(new XElement(Cx.Cell, new XElement(Cx.x, cell.Index % 9),
                                                   new XElement(Cx.y, cell.Index / 9),
@@ -117,7 +117,7 @@ internal sealed class PuzzleModel
     {
         foreach (XElement cell in document.Descendants(Cx.Cell))
         {
-            if (Enum.TryParse(cell.Element(Cx.origin)?.Value, out Origins origin) && ((origin == Origins.User) || (origin == Origins.Given))
+            if (Enum.TryParse(cell.Element(Cx.origin)?.Value, out Origins origin) && ((origin == Origins.User) || (origin == Origins.Provided))
                 && int.TryParse(cell.Element(Cx.x)?.Value, out int x) && (x >= 0) && (x < 9)
                 && int.TryParse(cell.Element(Cx.y)?.Value, out int y) && (y >= 0) && (y < 9)
                 && int.TryParse(cell.Element(Cx.value)?.Value, out int value) && (value > 0) && (value < 10))
@@ -246,17 +246,23 @@ internal sealed class PuzzleModel
     {
         foreach (Cell cell in Cells.CubeRowColumnMinus(index))
         {
-            if (cell.HasValue && ((cell.Origin == Origins.User) || (cell.Origin == Origins.Given)) && (cell.Value == newValue))
+            if (cell.HasValue && ((cell.Origin == Origins.User) || (cell.Origin == Origins.Provided)) && (cell.Value == newValue))
                 return false;
         }
 
         return true;
     }
 
-    public void SetOriginToGiven()
+    public void SetOriginToProvided()
     {
         foreach (Cell cell in Cells.Where(c => c.Origin == Origins.User))
-            cell.Origin = Origins.Given;
+            cell.Origin = Origins.Provided;
+    }
+
+    public void SetOriginToUser()
+    {
+        foreach (Cell cell in Cells.Where(c => c.Origin == Origins.Provided))
+            cell.Origin = Origins.User;
     }
 
     private void SimpleEliminationForCell(Cell updatedCell, Stack<Cell> cellsToUpdate)
@@ -722,7 +728,7 @@ internal sealed class PuzzleModel
 
     public bool CompletedCellCountIsValid => Cells.Count(cell =>
                                                 (cell.Origin == Origins.User) ||
-                                                (cell.Origin == Origins.Given) ||
+                                                (cell.Origin == Origins.Provided) ||
                                                 (cell.Origin == Origins.Trial) ||
                                                 (cell.Origin == Origins.Calculated)) == CompletedCellsCount;
 
@@ -857,7 +863,7 @@ internal sealed class PuzzleModel
             // it's much simpler to just start from scratch and rebuild it...
             foreach (Cell cell in Cells)
             {
-                if ((cell.Origin == Origins.User) || (cell.Origin == Origins.Given))
+                if ((cell.Origin == Origins.User) || (cell.Origin == Origins.Provided))
                     cellsToUpdate.Push(cell);
                 else
                     cell.Reset(); 

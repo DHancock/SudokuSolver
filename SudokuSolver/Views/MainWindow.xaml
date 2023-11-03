@@ -11,7 +11,7 @@
     InitialWidth="563"
     InitialHeight="614">
 
-    <Grid x:Name="layoutRoot" RequestedTheme="{x:Bind ViewModel.Theme, Mode=OneWay}">
+    <Grid x:Name="LayoutRoot" RequestedTheme="{x:Bind ViewModel.Theme, Mode=OneWay}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -29,7 +29,7 @@
                 <MenuFlyoutSeparator/>
                 <MenuFlyoutItem Command="{x:Bind CloseCommand}" Text="Close" AccessKey="C">
                     <MenuFlyoutItem.KeyboardAccelerators>
-                        <!-- needs to be disabled to avoid two close messages -->
+                        <!-- disabled to avoid two close messages -->
                         <KeyboardAccelerator Modifiers="Menu" Key="F4" IsEnabled="False"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
@@ -93,7 +93,7 @@
             </MenuBarItem>
 
             <MenuBarItem Title="Edit" AccessKey="E" >
-                <MenuFlyoutItem x:Name="UndoMenuItem" Text="Undo" Command="{x:Bind Puzzle.ViewModel.UndoCommand}" AccessKey="U">
+                <MenuFlyoutItem x:Name="EditMenuItem" Text="Undo" Command="{x:Bind Puzzle.ViewModel.UndoCommand}" AccessKey="U">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="Z" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
@@ -105,7 +105,6 @@
                 </MenuFlyoutItem>
 
                 <MenuFlyoutSeparator />
-
                 <MenuFlyoutItem Text="Cut" Command="{x:Bind Puzzle.ViewModel.CutCommand}" AccessKey="T">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="X" Modifiers="Control"/>
@@ -116,36 +115,22 @@
                         <KeyboardAccelerator Key="C" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
-
                 <MenuFlyoutItem Text="Paste" Command="{x:Bind Puzzle.ViewModel.PasteCommand}" AccessKey="P">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="V" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
-
-                <!-- remove work in progress, bug fix release required -->
-
-                <!--<MenuFlyoutItem Text="Delete" Command="{x:Bind Puzzle.ViewModel.DeleteCommand}" AccessKey="D">
-                    -->
-                <!-- no keyboard accelerator because it's already implemented by a focused cell -->
-                <!--
-                </MenuFlyoutItem>
-
+  
                 <MenuFlyoutSeparator />
-
-                <MenuFlyoutItem Text="Colours..." Click="SettingsClickHandler" AccessKey="L">
+                <MenuFlyoutSubItem Text="Provided" AccessKey="P">
+                    <MenuFlyoutItem Text="Mark" Command="{x:Bind Puzzle.ViewModel.MarkProvidedCommand}" AccessKey="M"/>
+                    <MenuFlyoutItem Text="Clear" Command="{x:Bind Puzzle.ViewModel.ClearProvidedCommand}" AccessKey="C"/>
+                </MenuFlyoutSubItem>
+                <MenuFlyoutItem Text="Colors..." Click="SettingsClickHandler" AccessKey="E">
                     <MenuFlyoutItem.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="L" Modifiers="Control"/>
+                        <KeyboardAccelerator Key="E" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
-
-                <MenuFlyoutSeparator />
-
-                <MenuFlyoutItem Text="Mark as given" Command="{x:Bind Puzzle.ViewModel.MarkAsGivenCommand}" AccessKey="M">
-                    <MenuFlyoutItem.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="M" Modifiers="Control"/>
-                    </MenuFlyoutItem.KeyboardAccelerators>
-                </MenuFlyoutItem>-->
             </MenuBarItem>
 
             <MenuBarItem Title="View" AccessKey="V">

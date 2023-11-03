@@ -1,3 +1,3 @@
 ﻿namespace SudokuSolver.Common;
 
-public enum Origins { NotDefined, Given, User, Calculated, Trial }
+public enum Origins { NotDefined, Provided, User, Calculated, Trial }
