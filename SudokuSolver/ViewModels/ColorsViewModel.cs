@@ -39,7 +39,7 @@ internal class ColorsViewModel : INotifyPropertyChanged
     public Color ProvidedLight { get => GetterLight(1); set => SetterLight(1, value); }
     public Color CalculatedLight { get => GetterLight(2); set => SetterLight(2, value); }
     public Color PossibleLight { get => GetterLight(3); set => SetterLight(3, value); }
-    public Color HPossibleLight { get => GetterLight(3); set => SetterLight(4, value); }
+    public Color HPossibleLight { get => GetterLight(4); set => SetterLight(4, value); }
     public Color VPossibleLight { get => GetterLight(5); set => SetterLight(5, value); }
 
     public Color UserDark { get => GetterDark(0); set => SetterDark(0, value); }
