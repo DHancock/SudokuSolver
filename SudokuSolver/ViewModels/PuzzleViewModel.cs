@@ -254,13 +254,17 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
 
     private void UpdateMenuItemsDisabledState()
     {
-        UndoCommand.RaiseCanExecuteChanged();
-        RedoCommand.RaiseCanExecuteChanged();
-        CutCommand.RaiseCanExecuteChanged();
-        CopyCommand.RaiseCanExecuteChanged();
-        PasteCommand.RaiseCanExecuteChanged();
-        MarkProvidedCommand.RaiseCanExecuteChanged();
-        ClearProvidedCommand.RaiseCanExecuteChanged();
+        // an unfortunate work around for https://github.com/microsoft/microsoft-ui-xaml/issues/8894
+        // While the CanExecute method is automatically called when the menu is shown, the menu item
+        // enabled state needs updating for the accelerator key to work while the menu is closed.
+        Task.Run(() =>
+        {
+            UndoCommand.RaiseCanExecuteChanged();
+            RedoCommand.RaiseCanExecuteChanged();
+            CutCommand.RaiseCanExecuteChanged();
+            CopyCommand.RaiseCanExecuteChanged();
+            PasteCommand.RaiseCanExecuteChanged();
+        });
     }
 
     private bool CanCutCopyDelete(object? param = null) => (selectedIndex >= 0) && Cells[selectedIndex].HasValue;
