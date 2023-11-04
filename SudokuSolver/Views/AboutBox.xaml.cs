@@ -9,7 +9,11 @@ public sealed partial class AboutBox : ContentDialog
         this.InitializeComponent();
 
         XamlRoot = xamlRoot;
-        VersionTextBlock.Text = string.Format(VersionTextBlock.Text, typeof(App).Assembly.GetName().Version);
+        Version? v = typeof(App).Assembly.GetName().Version;
+
+        if (v is not null)
+            VersionTextBlock.Text = string.Format(VersionTextBlock.Text, v.Major, v.Minor, v.Build);
+
         PrimaryButtonText = "OK";
 
 #if DEBUG
