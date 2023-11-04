@@ -14,7 +14,7 @@ internal sealed partial class ColorsWindow : WindowBase
     {
         this.InitializeComponent();
 
-        inputNonClientPointerSource = InputNonClientPointerSource.GetForWindowId(Win32Interop.GetWindowIdFromWindow(WindowPtr));
+        inputNonClientPointerSource = InputNonClientPointerSource.GetForWindowId(AppWindow.Id);
 
         ViewModel = new ColorsViewModel();
 
