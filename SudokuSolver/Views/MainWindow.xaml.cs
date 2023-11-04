@@ -26,7 +26,7 @@ internal sealed partial class MainWindow : WindowBase
     {
         InitializeComponent();
 
-        inputNonClientPointerSource = InputNonClientPointerSource.GetForWindowId(Win32Interop.GetWindowIdFromWindow(WindowPtr));
+        inputNonClientPointerSource = InputNonClientPointerSource.GetForWindowId(AppWindow.Id);
 
         // each window needs a local copy of the common view settings
         Settings.PerViewSettings viewSettings = Settings.Data.ViewSettings.Clone();
