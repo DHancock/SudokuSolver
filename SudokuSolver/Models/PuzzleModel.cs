@@ -8,7 +8,7 @@ internal sealed class PuzzleModel
     {
         public const string Sudoku = "Sudoku";
         public const string version = "version";
-        public const int current_version = 1;
+        public const int current_version = 2;
         public const string Cell = "Cell";
         public const string x = "x";
         public const string y = "y";
@@ -68,7 +68,7 @@ internal sealed class PuzzleModel
 
         // sanity check
         if ((document.Root == null) || (document.Root.Name != Cx.Sudoku))
-            throw new InvalidDataException();
+            throw new InvalidDataException("File contains invalid data.");
 
         // version check
         int version = 0;
@@ -78,15 +78,16 @@ internal sealed class PuzzleModel
             XAttribute? va = document.Root.Attribute(Cx.version);
 
             if ((va == null) || !int.TryParse(va.Value, out version))
-                throw new InvalidDataException();
+                throw new InvalidDataException("Failed to read the files version attribute.");
         }
-
+        
         switch (version)
         {
             case 0: OpenVersion_0(document); break;
             case 1: OpenVersion_1(document); break;
+            case 2: OpenVersion_2(document); break;
 
-            default: throw new InvalidDataException();
+            default: throw new InvalidDataException("The file was created by newer version of this application. Please upgrade to open this file.");
         }
     }
 
@@ -122,6 +123,14 @@ internal sealed class PuzzleModel
                 int index = x + (y * 9);
 
                 Cells[index].Value = value;
+
+                // a bug in release 1.7.0 saved all "User" values as "Provided" although that 
+                // feature hadn't been released. Convert "Provided" origins in old files back
+                // to "User" now that it is.
+
+                if (origin == Origins.Provided)
+                    origin = Origins.User;
+
                 Cells[index].Origin = origin;
             }
         }
@@ -129,6 +138,30 @@ internal sealed class PuzzleModel
         CalculatePossibleValues(Cells[0], forceRecalculation: true);
         AttemptSimpleTrialAndError();
     }
+
+    
+    private void OpenVersion_2(XDocument document)
+    {
+        // puzzles are saved using file format version 2 from release 1.8.0
+
+        foreach (XElement cell in document.Descendants(Cx.Cell))
+        {
+            if (Enum.TryParse(cell.Element(Cx.origin)?.Value, out Origins origin) && ((origin == Origins.User) || (origin == Origins.Provided))
+                && int.TryParse(cell.Element(Cx.x)?.Value, out int x) && (x >= 0) && (x < 9)
+                && int.TryParse(cell.Element(Cx.y)?.Value, out int y) && (y >= 0) && (y < 9)
+                && int.TryParse(cell.Element(Cx.value)?.Value, out int value) && (value > 0) && (value < 10))
+            {
+                int index = x + (y * 9);
+
+                Cells[index].Value = value;
+                Cells[index].Origin = origin;
+            }
+        }
+
+        CalculatePossibleValues(Cells[0], forceRecalculation: true);
+        AttemptSimpleTrialAndError();
+    }
+
 
     public bool Add(int index, int newValue)
     {
