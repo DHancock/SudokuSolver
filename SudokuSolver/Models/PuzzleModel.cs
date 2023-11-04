@@ -113,6 +113,22 @@ internal sealed class PuzzleModel
 
     private void OpenVersion_1(XDocument document)
     {
+        // a bug in release 1.7.0 saved all "User" values as "Provided" in error even though that 
+        // feature hadn't been released. Convert "Provided" origins in old files back to "User" 
+        // now that it is. Bump file format version so new files aren't affected.
+        OpenVersion1and2Helper(document, fixProvidedOrigin: true);
+    }
+
+    
+    private void OpenVersion_2(XDocument document)
+    {
+        // puzzles are saved using file format version 2 from release 1.8.0
+        OpenVersion1and2Helper(document, fixProvidedOrigin: false);
+    }
+
+
+    private void OpenVersion1and2Helper(XDocument document, bool fixProvidedOrigin) 
+    {
         foreach (XElement cell in document.Descendants(Cx.Cell))
         {
             if (Enum.TryParse(cell.Element(Cx.origin)?.Value, out Origins origin) && ((origin == Origins.User) || (origin == Origins.Provided))
@@ -124,11 +140,7 @@ internal sealed class PuzzleModel
 
                 Cells[index].Value = value;
 
-                // a bug in release 1.7.0 saved all "User" values as "Provided" although that 
-                // feature hadn't been released. Convert "Provided" origins in old files back
-                // to "User" now that it is.
-
-                if (origin == Origins.Provided)
+                if (fixProvidedOrigin && (origin == Origins.Provided))
                     origin = Origins.User;
 
                 Cells[index].Origin = origin;
@@ -138,30 +150,6 @@ internal sealed class PuzzleModel
         CalculatePossibleValues(Cells[0], forceRecalculation: true);
         AttemptSimpleTrialAndError();
     }
-
-    
-    private void OpenVersion_2(XDocument document)
-    {
-        // puzzles are saved using file format version 2 from release 1.8.0
-
-        foreach (XElement cell in document.Descendants(Cx.Cell))
-        {
-            if (Enum.TryParse(cell.Element(Cx.origin)?.Value, out Origins origin) && ((origin == Origins.User) || (origin == Origins.Provided))
-                && int.TryParse(cell.Element(Cx.x)?.Value, out int x) && (x >= 0) && (x < 9)
-                && int.TryParse(cell.Element(Cx.y)?.Value, out int y) && (y >= 0) && (y < 9)
-                && int.TryParse(cell.Element(Cx.value)?.Value, out int value) && (value > 0) && (value < 10))
-            {
-                int index = x + (y * 9);
-
-                Cells[index].Value = value;
-                Cells[index].Origin = origin;
-            }
-        }
-
-        CalculatePossibleValues(Cells[0], forceRecalculation: true);
-        AttemptSimpleTrialAndError();
-    }
-
 
     public bool Add(int index, int newValue)
     {
