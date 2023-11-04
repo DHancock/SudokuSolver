@@ -9,7 +9,8 @@
 #define appId "sudukosolver.8628521D92E74106"
 
 #define winAppSdk_MajorMinorVersion "1.4"
-#define winAppSdk_MinPackageVersion "4000.986.611.0"  ; version 1.4.1
+#define winAppSdk_MinPackageVersion "4000.1010.1349.0"  ; version 1.4.2
+
 
 [Setup]
 AppId={#appId}
@@ -139,9 +140,9 @@ end;
 function GetNetDesktopRuntimeUrl: String;
 begin
   case ProcessorArchitecture of
-    paX86: Result := 'https://download.visualstudio.microsoft.com/download/pr/78caa28b-2982-43ed-8b9c-20e3369f0795/c771e9fd12a67068436115cf295740f7/dotnet-runtime-6.0.16-win-x86.exe';
-    paX64: Result := 'https://download.visualstudio.microsoft.com/download/pr/456fdf02-f100-4664-916d-fd46c192efea/619bbd8426537632b7598b4c7c467cf1/dotnet-runtime-6.0.16-win-x64.exe';
-    paARM64: Result := 'https://download.visualstudio.microsoft.com/download/pr/91b97f3d-7783-4be3-ada2-6f1d4b299088/8d98117ad78ad15945f28a4e4bd0f79d/dotnet-runtime-6.0.16-win-arm64.exe';
+    paX86: Result := 'https://download.visualstudio.microsoft.com/download/pr/e55fa3d8-9a76-498a-aaaa-7dca44c7be3a/5ec98543746ddf2df96264ab015caa0b/windowsdesktop-runtime-6.0.24-win-x86.exe';
+    paX64: Result := 'https://download.visualstudio.microsoft.com/download/pr/dde9eb7e-8ea8-494a-9b04-5db26c7740e2/43d5050cfa63b7323749c7e56fedd3ac/windowsdesktop-runtime-6.0.24-win-x64.exe';
+    paARM64: Result := 'https://download.visualstudio.microsoft.com/download/pr/e06f3708-2216-451a-a99a-48ce5eb8e556/daa5aca45f8fd818e9584331ca0cab82/windowsdesktop-runtime-6.0.24-win-arm64.exe';
   else
     RaiseException('unknown ProcessorArchitecture'); 
   end;
@@ -338,8 +339,7 @@ begin
   if not FileExists(ExeFilePath) then
     ExtractTemporaryFile('CheckWinAppSdk.exe');
 
-  // WinAppSdk 1.4.1 is 4000.986.611.0
-  // Check for any 1.4.n version where n >= 1
+  // Check for any 1.4.n version where n >= 2
 
   if not Exec(ExeFilePath, '{#winAppSdk_MinPackageVersion}' + ' ' + GetPlatformParamStr, '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
     Log('Exec CheckWinAppSdk.exe failed: ' + SysErrorMessage(ResultCode));    
@@ -358,7 +358,7 @@ begin
   if not FileExists(ExeFilePath) then
     ExtractTemporaryFile('NetCoreCheck.exe');
 
-  if not Exec(ExeFilePath, '-n Microsoft.WindowsDesktop.App -v 6.0.16 -r LatestMajor', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+  if not Exec(ExeFilePath, '-n Microsoft.WindowsDesktop.App -v 6.0.24 -r LatestMajor', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
     Log('Exec NetCoreCheck.exe failed: ' + SysErrorMessage(ResultCode));    
 
   Result := ResultCode = 0;
