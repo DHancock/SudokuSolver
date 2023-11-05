@@ -31,7 +31,7 @@ internal sealed partial class ColorsWindow : WindowBase
         {
             CustomTitleBar.Title = title;
             CustomTitleBar.ParentAppWindow = AppWindow;
-            CustomTitleBar.UpdateThemeAndTransparency(Settings.Data.ViewSettings.Theme);
+            CustomTitleBar.UpdateThemeAndTransparency(ViewModel.Theme);
             Activated += CustomTitleBar.ParentWindow_Activated;
             AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
 
@@ -42,6 +42,8 @@ internal sealed partial class ColorsWindow : WindowBase
             // the drag regions need to be adjusted for menu fly outs
             FileMenuItem.Loaded += (s, a) => ClearWindowDragRegions();
             ViewMenuItem.Loaded += (s, a) => ClearWindowDragRegions();
+            FileMenuItem.Unloaded += (s, a) => SetWindowDragRegions();
+            ViewMenuItem.Unloaded += (s, a) => SetWindowDragRegions();
         }
         else
         {
