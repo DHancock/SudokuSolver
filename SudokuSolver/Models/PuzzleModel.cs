@@ -951,7 +951,10 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
 
     public static bool operator ==(PuzzleModel? left, PuzzleModel? right)
     {
-        return ReferenceEquals(left, right) || Enumerable.SequenceEqual(left!.Cells, right!.Cells);
+        if (ReferenceEquals(left, right))
+            return true;
+        
+        return (left is not null) && (right is not null) && Enumerable.SequenceEqual(left.Cells, right.Cells);
     }
 
     public static bool operator !=(PuzzleModel? left, PuzzleModel? right) => !(left == right);
