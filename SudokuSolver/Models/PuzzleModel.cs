@@ -2,7 +2,7 @@
 
 namespace SudokuSolver.Models;
 
-internal sealed class PuzzleModel
+internal sealed class PuzzleModel : IEquatable<PuzzleModel>
 {
     private static class Cx
     {
@@ -948,4 +948,17 @@ internal sealed class PuzzleModel
 
         return sb.ToString();
     }
+
+    public static bool operator ==(PuzzleModel? left, PuzzleModel? right)
+    {
+        return ReferenceEquals(left, right) || Enumerable.SequenceEqual(left!.Cells, right!.Cells);
+    }
+
+    public static bool operator !=(PuzzleModel? left, PuzzleModel? right) => !(left == right);
+
+    public override bool Equals(object? obj) => Equals(obj as PuzzleModel);
+
+    public bool Equals(PuzzleModel? other) => this == other;
+
+    public override int GetHashCode() => throw new NotImplementedException();
 }

@@ -12,6 +12,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
     private readonly Settings.PerViewSettings viewSettings;
 
     private PuzzleModel model;
+    private PuzzleModel initialState;
     private bool isModified = false;
     private int clipboardValue = 0;
     private int selectedIndex = -1;
@@ -27,6 +28,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
     public PuzzleViewModel(Settings.PerViewSettings perViewSettings)
     {
         model = new PuzzleModel();
+        initialState = new PuzzleModel();
         Cells = new CellList();
         viewSettings = perViewSettings;
 
@@ -91,7 +93,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
             {
                 UpdateView();
                 undoHelper.Push(model);
-                IsModified = true;
+                IsModified = model != initialState;
                 UpdateMenuItemsDisabledState();
             }
             else
@@ -104,6 +106,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
     public void Save(Stream stream)
     {
         model.Save(stream);
+        initialState = new PuzzleModel(model);
         IsModified = false;
     }
 
@@ -113,6 +116,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         {
             model.Clear();
             model.Open(stream);
+            initialState = new PuzzleModel(model);
             IsModified = false;
         }
         catch
@@ -147,7 +151,9 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         model.Clear();
         UpdateView();
         undoHelper.Push(model);
+        initialState.Clear();
         IsModified = false;
+
         UpdateMenuItemsDisabledState();
     }
 
@@ -223,7 +229,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         {
             model = undoHelper.PopUndo();
             UpdateView();
-            IsModified = true;
+            IsModified = model != initialState;
             UpdateMenuItemsDisabledState();
         }
     }
@@ -237,7 +243,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         {
             model = undoHelper.PopRedo();
             UpdateView();
-            IsModified = true;
+            IsModified = model != initialState;
             UpdateMenuItemsDisabledState();
         }
     }
@@ -339,7 +345,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         {
             model.SetOriginToProvided();
             UpdateView();
-            IsModified = true;
+            IsModified = model != initialState;
         }
     }
 
@@ -351,7 +357,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         {
             model.SetOriginToUser();
             UpdateView();
-            IsModified = true;
+            IsModified = model != initialState;
         }
     }
 
