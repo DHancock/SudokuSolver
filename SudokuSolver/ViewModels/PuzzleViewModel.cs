@@ -112,24 +112,23 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
 
     public void Open(Stream stream)
     {
+        PuzzleModel newModel = new PuzzleModel();
+
         try
         {
-            model.Clear();
-            model.Open(stream);
-            initialState = new PuzzleModel(model);
-            IsModified = false;
+            newModel.Open(stream);
         }
         catch
         {
-            model.Clear();
             throw;
         }
-        finally
-        {
-            UpdateView();
-            undoHelper.Push(model);
-            UpdateMenuItemsDisabledState();
-        }
+
+        model = newModel;
+        initialState = new PuzzleModel(model);
+        IsModified = false;
+        UpdateView();
+        undoHelper.Push(model);
+        UpdateMenuItemsDisabledState();
     }
 
     private void UpdateView()
