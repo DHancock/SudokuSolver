@@ -68,7 +68,7 @@ internal abstract class WindowBase : Window
             if (AppWindow.Presenter.Kind == AppWindowPresenterKind.FullScreen)
                 HideSystemMenu();
             else
-                UpdateSytemMenuItemsEnabledState();
+                UpdateSystemMenuItemsEnabledState();
         }
     }
 
@@ -95,7 +95,7 @@ internal abstract class WindowBase : Window
                 {
                     HideSystemMenu();
 
-                    if (ShowSytemMenu(viaKeyboard: true))
+                    if (ShowSystemMenu(viaKeyboard: true))
                         return (LRESULT)0;
                 }
 
@@ -108,7 +108,7 @@ internal abstract class WindowBase : Window
                 {
                     HideSystemMenu();
 
-                    if (ShowSytemMenu(viaKeyboard: false))
+                    if (ShowSystemMenu(viaKeyboard: false))
                         return (LRESULT)0;
                 }
 
@@ -135,10 +135,10 @@ internal abstract class WindowBase : Window
         Debug.Assert(success);
     }
 
-    private bool ShowSytemMenu(bool viaKeyboard)
+    private bool ShowSystemMenu(bool viaKeyboard)
     {
-        if ((systemMenu is null) && (Content is FrameworkElement root) && root.Resources.TryGetValue("SystemMenuFlyout", out object? res) && (res is MenuFlyout flyout))
-            systemMenu = flyout;
+        if ((systemMenu is null) && (Content is FrameworkElement root) && root.Resources.TryGetValue("SystemMenuFlyout", out object? res)) 
+            systemMenu = res as MenuFlyout;
 
         if (systemMenu is not null)
         {
@@ -171,7 +171,7 @@ internal abstract class WindowBase : Window
             systemMenu.Hide();
     }
 
-    private void UpdateSytemMenuItemsEnabledState()
+    private void UpdateSystemMenuItemsEnabledState()
     {
         RestoreCommand.RaiseCanExecuteChanged();
         MoveCommand.RaiseCanExecuteChanged();
