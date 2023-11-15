@@ -126,7 +126,7 @@
                     <MenuFlyoutItem Text="Mark" Command="{x:Bind Puzzle.ViewModel.MarkProvidedCommand}" AccessKey="M"/>
                     <MenuFlyoutItem Text="Clear" Command="{x:Bind Puzzle.ViewModel.ClearProvidedCommand}" AccessKey="C"/>
                 </MenuFlyoutSubItem>
-                <MenuFlyoutItem Text="Colors..." Click="SettingsClickHandler" AccessKey="E"/>
+                <MenuFlyoutItem Text="Colors..." Click="ColorsClickHandler" AccessKey="E"/>
             </MenuBarItem>
 
             <MenuBarItem Title="View" AccessKey="V">
