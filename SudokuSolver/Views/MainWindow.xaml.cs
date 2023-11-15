@@ -499,8 +499,8 @@ internal sealed partial class MainWindow : WindowBase
         }
     }
 
-    private void SettingsClickHandler(object sender, RoutedEventArgs e)
+    private void ColorsClickHandler(object sender, RoutedEventArgs e)
     {
-        App.Instance.ShowSettingsWindow();
+        App.Instance.ShowColorsWindow();
     }
 }

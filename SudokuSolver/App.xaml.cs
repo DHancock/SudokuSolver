@@ -138,7 +138,7 @@ public partial class App : Application
         }
     }
 
-    internal void ShowSettingsWindow()
+    internal void ShowColorsWindow()
     {
         if (!appClosing)
         {
