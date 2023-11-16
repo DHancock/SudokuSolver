@@ -103,6 +103,7 @@ internal sealed partial class ColorsWindow : WindowBase
             {
                 RectInt32 scrollRect = default;
                 ScrollBar? sb = MainScrollViewer.FindControl<ScrollBar>("VerticalScrollBar");
+                Debug.Assert(sb is not null);
 
                 if (sb is not null)
                 {
