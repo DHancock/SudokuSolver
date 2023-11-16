@@ -78,7 +78,7 @@ internal sealed partial class ColorsWindow : WindowBase
         Debug.Assert(AppWindowTitleBar.IsCustomizationSupported());
         Debug.Assert(AppWindow.TitleBar.ExtendsContentIntoTitleBar);
 
-        // allow mouse interaction with fly outs,  
+        // allow mouse interaction with flyouts,  
         // including clicks anywhere in the client area used to dismiss the flyout
         inputNonClientPointerSource.ClearRegionRects(NonClientRegionKind.Caption);
     }
@@ -97,26 +97,24 @@ internal sealed partial class ColorsWindow : WindowBase
             RectInt32 lightRect = Utils.ScaledRect(CalculateOffset(LightExpander), LightExpander.ActualSize, scale);
             RectInt32 darkRect = Utils.ScaledRect(CalculateOffset(DarkExpander), DarkExpander.ActualSize, scale);
 
-            using (SimpleRegion region = new SimpleRegion(windowRect))
+            inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Caption, new[] { windowRect });
+
+            if (MainScrollViewer.ComputedVerticalScrollBarVisibility == Visibility.Visible)
             {
-                region.Subtract(menuRect);
-                region.Subtract(lightRect);
-                region.Subtract(darkRect);
+                RectInt32 scrollRect = default;
+                ScrollBar? sb = MainScrollViewer.FindControl<ScrollBar>("VerticalScrollBar");
 
-                if (MainScrollViewer.ComputedVerticalScrollBarVisibility == Visibility.Visible)
+                if (sb is not null)
                 {
-                    ScrollBar? sb = MainScrollViewer.FindControl<ScrollBar>("VerticalScrollBar");
-
-                    if (sb is not null)
-                    {
-                        Vector3 offset = CalculateOffset(sb);
-                        offset.Y = CalculateOffset(MainScrollViewer).Y;
-                        region.Subtract(Utils.ScaledRect(offset, sb.ActualSize, scale));
-                    }
+                    Vector3 offset = CalculateOffset(sb);
+                    offset.Y = CalculateOffset(MainScrollViewer).Y;
+                    scrollRect = Utils.ScaledRect(offset, sb.ActualSize, scale);
                 }
 
-                inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Caption, region.ToArray());
+                inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Passthrough, new[] { menuRect, lightRect, darkRect, scrollRect });
             }
+            else
+                inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Passthrough, new[] { menuRect, lightRect, darkRect });
         }
     }
 

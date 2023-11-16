@@ -489,13 +489,8 @@ internal sealed partial class MainWindow : WindowBase
             RectInt32 menuRect = Utils.ScaledRect(Menu.ActualOffset, Menu.ActualSize, scale);
             RectInt32 puzzleRect = Utils.ScaledRect(Puzzle.ActualOffset, Puzzle.ActualSize, scale);
 
-            using (SimpleRegion region = new SimpleRegion(windowRect))
-            {
-                region.Subtract(menuRect);
-                region.Subtract(puzzleRect);
-
-                inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Caption, region.ToArray());
-            }
+            inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Caption, new[] { windowRect });
+            inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Passthrough, new[] { menuRect, puzzleRect });
         }
     }
 
