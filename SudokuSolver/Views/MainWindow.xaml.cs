@@ -53,14 +53,6 @@ internal sealed partial class MainWindow : WindowBase
             Activated += CustomTitleBar.ParentWindow_Activated;
             AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
 
-            // the last event received will have the correct dimensions
-            LayoutRoot.SizeChanged += (s, a) => SetWindowDragRegions();
-            Menu.SizeChanged += (s, a) => SetWindowDragRegions();
-            Puzzle.SizeChanged += (s, a) => SetWindowDragRegions();
-
-            Menu.Loaded += (s, a) => SetWindowDragRegions();
-            Puzzle.Loaded += (s, a) => SetWindowDragRegions();
-
             // the drag regions need to be adjusted for menu fly outs
             FileMenuItem.Loaded += (s, a) => ClearWindowDragRegions();
             ViewMenuItem.Loaded += (s, a) => ClearWindowDragRegions();
@@ -96,7 +88,13 @@ internal sealed partial class MainWindow : WindowBase
        
         LayoutRoot.Loaded += async (s, e) =>
         {
-            // set the duration for the next theme transition
+            if (AppWindowTitleBar.IsCustomizationSupported())
+            {
+                SetWindowDragRegions();
+                SizeChanged += (s, a) => SetWindowDragRegions();
+            }
+
+            // now set the duration for the next theme transition
             Puzzle.BackgroundBrushTransition.Duration = new TimeSpan(0, 0, 0, 0, 250);
 
             if (storageFile is not null)
@@ -478,20 +476,19 @@ internal sealed partial class MainWindow : WindowBase
 
     private void SetWindowDragRegions()
     {
-        if (Menu.IsLoaded && Puzzle.IsLoaded)
-        {
-            Debug.Assert(AppWindowTitleBar.IsCustomizationSupported());
-            Debug.Assert(AppWindow.TitleBar.ExtendsContentIntoTitleBar);
+        Debug.Assert(Menu.IsLoaded);
+        Debug.Assert(Puzzle.IsLoaded);
+        Debug.Assert(AppWindowTitleBar.IsCustomizationSupported());
+        Debug.Assert(AppWindow.TitleBar.ExtendsContentIntoTitleBar);
 
-            double scale = Puzzle.XamlRoot.RasterizationScale;
+        double scale = Puzzle.XamlRoot.RasterizationScale;
 
-            RectInt32 windowRect = new RectInt32(0, 0, AppWindow.ClientSize.Width, AppWindow.ClientSize.Height);
-            RectInt32 menuRect = Utils.ScaledRect(Menu.ActualOffset, Menu.ActualSize, scale);
-            RectInt32 puzzleRect = Utils.ScaledRect(Puzzle.ActualOffset, Puzzle.ActualSize, scale);
+        RectInt32 windowRect = new RectInt32(0, 0, AppWindow.ClientSize.Width, AppWindow.ClientSize.Height);
+        RectInt32 menuRect = Utils.ScaledRect(Menu.ActualOffset, Menu.ActualSize, scale);
+        RectInt32 puzzleRect = Utils.ScaledRect(Puzzle.ActualOffset, Puzzle.ActualSize, scale);
 
-            inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Caption, new[] { windowRect });
-            inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Passthrough, new[] { menuRect, puzzleRect });
-        }
+        inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Caption, new[] { windowRect });
+        inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Passthrough, new[] { menuRect, puzzleRect });
     }
 
     private void ColorsClickHandler(object sender, RoutedEventArgs e)
