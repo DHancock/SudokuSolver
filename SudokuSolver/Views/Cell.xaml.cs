@@ -11,8 +11,8 @@ namespace SudokuSolver.Views;
 internal sealed partial class Cell : UserControl
 {
     private static readonly string[] sLookUp = new[] { string.Empty, "1", "2", "3", "4", "5", "6", "7", "8", "9" };
-    private enum VisualState { None, SelectedFocused, SelectedUnfocused }
-    private VisualState currentVisualState = VisualState.None;
+    private enum VisualState { Normal, SelectedFocused, SelectedUnfocused, PointerOver }
+    private VisualState currentVisualState = VisualState.Normal;
 
     private readonly PossibleTextBlock[] possibleTBs;
 
@@ -27,8 +27,22 @@ internal sealed partial class Cell : UserControl
         IsTabStop = true;
         IsHitTestVisible = true;
         LosingFocus += Cell_LosingFocus;
+        PointerEntered += Cell_PointerEntered;
+        PointerExited += Cell_PointerExited;
 
         possibleTBs = new PossibleTextBlock[9] { PossibleValue0, PossibleValue1, PossibleValue2, PossibleValue3, PossibleValue4, PossibleValue5, PossibleValue6, PossibleValue7, PossibleValue8 };
+    }
+
+    private void Cell_PointerExited(object sender, PointerRoutedEventArgs e)
+    {
+        if (!IsSelected)
+            GoToVisualState(VisualState.Normal);
+    }
+
+    private void Cell_PointerEntered(object sender, PointerRoutedEventArgs e)
+    {
+        if (!IsSelected)
+            GoToVisualState(VisualState.PointerOver);
     }
 
     public bool IsSelected
@@ -43,7 +57,7 @@ internal sealed partial class Cell : UserControl
                 SelectionChanged?.Invoke(this, new SelectionChangedEventArgs(Data.Index, value));
 
                 if (!isSelected) // set by the puzzle to enforce single selection
-                    GoToVisualState(VisualState.None);
+                    GoToVisualState(VisualState.Normal);
             }
         }
     }
@@ -63,7 +77,7 @@ internal sealed partial class Cell : UserControl
                 GoToVisualState(VisualState.SelectedFocused);
         }
         else
-            GoToVisualState(VisualState.None);
+            GoToVisualState(VisualState.PointerOver);
     }
 
     protected override void OnLostFocus(RoutedEventArgs e)
@@ -71,7 +85,7 @@ internal sealed partial class Cell : UserControl
         if (IsSelected)
             GoToVisualState(VisualState.SelectedUnfocused);
         else
-            GoToVisualState(VisualState.None);
+            GoToVisualState(VisualState.Normal);
     }
 
     // Above every thing else in the visual tree is a scroll viewer that's

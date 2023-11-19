@@ -34,7 +34,8 @@
                 </VisualState>
             </VisualStateGroup>
 
-            <VisualStateGroup x:Name="CellSelectedStates">
+            <VisualStateGroup x:Name="CommonStates">
+                <VisualState x:Name="Normal" />
                 <VisualState x:Name="SelectedFocused">
                     <VisualState.Setters>
                         <Setter Target="CellCanvas.Background" Value="{ThemeResource SystemControlHighlightAccentBrush}"/>
@@ -45,7 +46,11 @@
                         <Setter Target="CellCanvas.Background" Value="{ThemeResource SystemControlBackgroundListLowBrush}"/>
                     </VisualState.Setters>
                 </VisualState>
-                <VisualState x:Name="None"/>
+                <VisualState x:Name="PointerOver">
+                    <VisualState.Setters>
+                        <Setter Target="CellCanvas.Background" Value="{ThemeResource CellBackgroundPointerOver}"/>
+                    </VisualState.Setters>
+                </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
         
