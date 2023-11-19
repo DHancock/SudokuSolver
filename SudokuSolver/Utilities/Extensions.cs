@@ -41,6 +41,11 @@ internal static class Extensions
         return a.X >= b.Right() || a.Right() <= b.X || a.Y >= b.Bottom() || a.Bottom() <= b.Y;
     }
 
+    public static string ToDebugString(this RectInt32 rect)
+    {
+        return $"X: {rect.X} Y: {rect.Y} Width: {rect.Width}, Height: {rect.Height}";
+    }
+
     public static PointInt32 Offset(this PointInt32 a, int offset)
     {
         return new PointInt32(a.X + offset, a.Y + offset);
