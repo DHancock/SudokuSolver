@@ -91,11 +91,7 @@ internal sealed partial class MainWindow : WindowBase
             if (AppWindowTitleBar.IsCustomizationSupported())
             {
                 SetWindowDragRegions();
-
-                // puzzle size changes happen after the window's size changed event, but window size 
-                // changes don't always result in the puzzle changing size, so have to handle both
-                SizeChanged += (s, a) => SetWindowDragRegions();
-                Puzzle.SizeChanged += (s, a) => SetWindowDragRegions();
+                LayoutRoot.SizeChanged += (s, a) => SetWindowDragRegions();
             }
 
             // now set the duration for the next theme transition
