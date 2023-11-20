@@ -476,19 +476,21 @@ internal sealed partial class MainWindow : WindowBase
 
     private void SetWindowDragRegions()
     {
-        Debug.Assert(Menu.IsLoaded);
-        Debug.Assert(Puzzle.IsLoaded);
-        Debug.Assert(AppWindowTitleBar.IsCustomizationSupported());
-        Debug.Assert(AppWindow.TitleBar.ExtendsContentIntoTitleBar);
+        // may be called when the close or exit menu options have been selected and after the xaml has unloaded
+        if (LayoutRoot.IsLoaded && Menu.IsLoaded && Puzzle.IsLoaded) 
+        {
+            Debug.Assert(AppWindowTitleBar.IsCustomizationSupported());
+            Debug.Assert(AppWindow.TitleBar.ExtendsContentIntoTitleBar);
 
-        double scale = Puzzle.XamlRoot.RasterizationScale;
+            double scale = Puzzle.XamlRoot.RasterizationScale;
 
-        RectInt32 windowRect = new RectInt32(0, 0, AppWindow.ClientSize.Width, AppWindow.ClientSize.Height);
-        RectInt32 menuRect = Utils.ScaledRect(Menu.ActualOffset, Menu.ActualSize, scale);
-        RectInt32 puzzleRect = Utils.ScaledRect(Puzzle.ActualOffset, Puzzle.ActualSize, scale);
+            RectInt32 windowRect = new RectInt32(0, 0, AppWindow.ClientSize.Width, AppWindow.ClientSize.Height);
+            RectInt32 menuRect = Utils.ScaledRect(Menu.ActualOffset, Menu.ActualSize, scale);
+            RectInt32 puzzleRect = Utils.ScaledRect(Puzzle.ActualOffset, Puzzle.ActualSize, scale);
 
-        inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Caption, new[] { windowRect });
-        inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Passthrough, new[] { menuRect, puzzleRect });
+            inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Caption, new[] { windowRect });
+            inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Passthrough, new[] { menuRect, puzzleRect });
+        }
     }
 
     private void ColorsClickHandler(object sender, RoutedEventArgs e)
