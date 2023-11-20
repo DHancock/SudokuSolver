@@ -34,7 +34,7 @@
             <SolidColorBrush x:Key="PossiblesVerticalBrush" Color="Green"/>
             <SolidColorBrush x:Key="MinorGridStroke" Color="Gray"/>
             <SolidColorBrush x:Key="MajorGridStroke" Color="LightGray"/>
-            <StaticResource x:Key="CellBackgroundPointerOver" ResourceKey="SystemControlBackgroundListLowBrush"/>
+            <SolidColorBrush x:Key="CellBackgroundPointerOver" Color="#668A8A8A"/>
 
             <!-- replace the black chrome default brush colour, the contrast is too low to see -->
             <SolidColorBrush x:Key="WindowCaptionForegroundDisabled" Color="Gray"/>
@@ -54,7 +54,7 @@
             <SolidColorBrush x:Key="PossiblesVerticalBrush" Color="Green"/>
             <SolidColorBrush x:Key="MinorGridStroke" Color="Gray"/>
             <SolidColorBrush x:Key="MajorGridStroke" Color="Black"/>
-            <StaticResource x:Key="CellBackgroundPointerOver" ResourceKey="SubtleFillColorSecondaryBrush"/>
+            <SolidColorBrush x:Key="CellBackgroundPointerOver" Color="#66D0D0D0"/>
 
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
