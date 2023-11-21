@@ -27,20 +27,22 @@ internal sealed partial class Cell : UserControl
         IsTabStop = true;
         IsHitTestVisible = true;
         LosingFocus += Cell_LosingFocus;
-        PointerEntered += Cell_PointerEntered;
-        PointerExited += Cell_PointerExited;
 
         possibleTBs = new PossibleTextBlock[9] { PossibleValue0, PossibleValue1, PossibleValue2, PossibleValue3, PossibleValue4, PossibleValue5, PossibleValue6, PossibleValue7, PossibleValue8 };
     }
 
-    private void Cell_PointerExited(object sender, PointerRoutedEventArgs e)
+    protected override void OnPointerExited(PointerRoutedEventArgs e)
     {
+        base.OnPointerExited(e);
+
         if (!IsSelected)
             GoToVisualState(VisualState.Normal);
     }
 
-    private void Cell_PointerEntered(object sender, PointerRoutedEventArgs e)
+    protected override void OnPointerEntered(PointerRoutedEventArgs e)
     {
+        base.OnPointerEntered(e);
+
         if (!IsSelected)
             GoToVisualState(VisualState.PointerOver);
     }
