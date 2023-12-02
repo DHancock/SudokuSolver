@@ -20,7 +20,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AssyntSoftware.WinUI3Controls" Version="2.1.0" />
+    <PackageReference Include="AssyntSoftware.WinUI3Controls" Version="2.1.1" />
     <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.49-beta">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
