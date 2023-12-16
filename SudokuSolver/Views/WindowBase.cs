@@ -28,6 +28,7 @@ internal abstract class WindowBase : Window
     public RelayCommand MaximizeCommand { get; }
     public RelayCommand CloseCommand { get; }
 
+    private readonly InputNonClientPointerSource inputNonClientPointerSource;
     private readonly SUBCLASSPROC subClassDelegate;
     private PointInt32 restorePosition;
     private SizeInt32 restoreSize;
@@ -41,6 +42,8 @@ internal abstract class WindowBase : Window
 
         if (!PInvoke.SetWindowSubclass((HWND)WindowPtr, subClassDelegate, 0, 0))
             throw new Win32Exception(Marshal.GetLastPInvokeError());
+
+        inputNonClientPointerSource = InputNonClientPointerSource.GetForWindowId(AppWindow.Id);
 
         AppWindow.Changed += AppWindow_Changed;
         Activated += App.Instance.RecordWindowActivated;
@@ -137,32 +140,25 @@ internal abstract class WindowBase : Window
 
     private bool ShowSystemMenu(bool viaKeyboard)
     {
-        if ((systemMenu is null) && (Content is FrameworkElement root) && root.Resources.TryGetValue("SystemMenuFlyout", out object? res)) 
+        if ((systemMenu is null) && (Content is FrameworkElement root) && root.Resources.TryGetValue("SystemMenuFlyout", out object? res))
             systemMenu = res as MenuFlyout;
 
         if (systemMenu is not null)
         {
-            System.Drawing.Point p = new()
-            {
-                X = 3,
-                Y = AppWindow.TitleBar.Height,
-            };
+            System.Drawing.Point p = default;
 
-            if (!viaKeyboard)
+            if (viaKeyboard || !PInvoke.GetCursorPos(out p) || !PInvoke.ScreenToClient((HWND)WindowPtr, ref p))
             {
-                if (!PInvoke.GetCursorPos(out p) || !PInvoke.ScreenToClient((HWND)WindowPtr, ref p))
-                {
-                    // can fail if multiple desktops and this isn't the current one
-                    Debug.Fail("Failed to obtain cursor position.");
-                    return false;
-                }
+                p.X = 3;
+                p.Y = AppWindow.TitleBar.Height;
             }
 
             double scale = GetScaleFactor();
             systemMenu.ShowAt(null, new Windows.Foundation.Point(p.X / scale, p.Y / scale));
+            return true;
         }
 
-        return systemMenu is not null;
+        return false;
     }
 
     private void HideSystemMenu()
@@ -259,5 +255,107 @@ internal abstract class WindowBase : Window
 
         double dpi = PInvoke.GetDpiForWindow((HWND)WindowPtr);
         return dpi / 96.0;
+    }
+
+    protected void ClearWindowDragRegions()
+    {
+        // allow mouse interaction with menu fly outs,  
+        // including clicks anywhere in the client area used to dismiss the menu
+        if (AppWindowTitleBar.IsCustomizationSupported())
+            inputNonClientPointerSource.ClearRegionRects(NonClientRegionKind.Caption);
+    }
+
+    protected void SetWindowDragRegions()
+    {
+        try
+        {
+            if ((Content is FrameworkElement layoutRoot) && layoutRoot.IsLoaded && AppWindowTitleBar.IsCustomizationSupported())
+            {
+                RectInt32 windowRect = new RectInt32(0, 0, AppWindow.ClientSize.Width, AppWindow.ClientSize.Height);
+                inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Caption, new[] { windowRect });
+
+                List<RectInt32> rects = LocatePassThroughContent(layoutRoot);
+                inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Passthrough, rects.ToArray());
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex);
+        }
+    }
+
+    private record class ScrollViewerBounds(in Point Offset, in Vector2 Size)
+    {
+        public double Top => Offset.Y;
+    }
+
+    private static List<RectInt32> LocatePassThroughContent(DependencyObject reference, ScrollViewerBounds? bounds = null)
+    {
+        static Point GetOffsetFromXamlRoot(UIElement e)
+        {
+            GeneralTransform gt = e.TransformToVisual(e.XamlRoot.Content);
+            return gt.TransformPoint(new Point(0, 0));
+        }
+
+        static bool IsValidUIElement(UIElement e)
+        {
+            return (e.Visibility == Visibility.Visible) && (e.ActualSize.X > 0) && (e.ActualSize.Y > 0) && (e.Opacity > 0);
+        }
+
+        List<RectInt32> rects = new List<RectInt32>();
+
+        if ((reference is UIElement element) && IsValidUIElement(element))
+        {
+            switch (element)
+            {
+                case PuzzleView:
+                case MenuBar:
+                case Expander:
+                case ScrollBar:
+                {
+                    Point offset = GetOffsetFromXamlRoot(element);
+                    Vector2 actualSize = element.ActualSize;
+
+                    if ((bounds is not null) && (offset.Y < bounds.Top)) // for this ui, only top clip is required 
+                    {
+                        actualSize.Y -= (float)(bounds.Top - offset.Y);
+                        offset.Y = bounds.Top;
+                    }
+
+                    rects.Add(ScaledRect(offset, actualSize, element.XamlRoot.RasterizationScale));
+                    return rects;
+                }
+
+                case ScrollViewer:
+                {
+                    // chained scroll viewers is not supported
+                    bounds = new ScrollViewerBounds(GetOffsetFromXamlRoot(element), element.ActualSize);
+                    break;
+                }
+
+                default: break;
+            }
+
+            for (int index = 0; index < VisualTreeHelper.GetChildrenCount(reference); index++)
+            {
+                DependencyObject current = VisualTreeHelper.GetChild(reference, index);
+                rects.AddRange(LocatePassThroughContent(current, bounds));
+            }
+        }
+
+        return rects;
+    }
+
+    private static RectInt32 ScaledRect(in Point location, in Vector2 size, double scale)
+    {
+        return ScaledRect(location.X, location.Y, size.X, size.Y, scale);
+    }
+
+    private static RectInt32 ScaledRect(double x, double y, double width, double height, double scale)
+    {
+        return new RectInt32(Convert.ToInt32(x * scale),
+                                Convert.ToInt32(y * scale),
+                                Convert.ToInt32(width * scale),
+                                Convert.ToInt32(height * scale));
     }
 }

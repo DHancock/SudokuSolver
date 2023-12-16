@@ -72,67 +72,7 @@ internal sealed partial class ColorsWindow : WindowBase
             LightExpander.IsExpanded = !DarkExpander.IsExpanded;
         };
     }
-
-    private void ClearWindowDragRegions()
-    {
-        Debug.Assert(AppWindowTitleBar.IsCustomizationSupported());
-        Debug.Assert(AppWindow.TitleBar.ExtendsContentIntoTitleBar);
-
-        // allow mouse interaction with flyouts,  
-        // including clicks anywhere in the client area used to dismiss the flyout
-        inputNonClientPointerSource.ClearRegionRects(NonClientRegionKind.Caption);
-    }
-
-    private void SetWindowDragRegions()
-    {
-        if (LightExpander.IsLoaded && DarkExpander.IsLoaded && Menu.IsLoaded)
-        {
-            Debug.Assert(AppWindowTitleBar.IsCustomizationSupported());
-            Debug.Assert(AppWindow.TitleBar.ExtendsContentIntoTitleBar);
-
-            double scale = LightExpander.XamlRoot.RasterizationScale;
-
-            RectInt32 windowRect = new RectInt32(0, 0, AppWindow.ClientSize.Width, AppWindow.ClientSize.Height);
-            RectInt32 menuRect = Utils.ScaledRect(Menu.ActualOffset, Menu.ActualSize, scale);
-            RectInt32 lightRect = Utils.ScaledRect(CalculateOffset(LightExpander), LightExpander.ActualSize, scale);
-            RectInt32 darkRect = Utils.ScaledRect(CalculateOffset(DarkExpander), DarkExpander.ActualSize, scale);
-
-            inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Caption, new[] { windowRect });
-
-            if (MainScrollViewer.ComputedVerticalScrollBarVisibility == Visibility.Visible)
-            {
-                RectInt32 scrollRect = default;
-                ScrollBar? sb = MainScrollViewer.FindControl<ScrollBar>("VerticalScrollBar");
-                Debug.Assert(sb is not null);
-
-                if (sb is not null)
-                {
-                    Vector3 offset = CalculateOffset(sb);
-                    offset.Y = CalculateOffset(MainScrollViewer).Y;
-                    scrollRect = Utils.ScaledRect(offset, sb.ActualSize, scale);
-                }
-
-                inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Passthrough, new[] { menuRect, lightRect, darkRect, scrollRect });
-            }
-            else
-                inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Passthrough, new[] { menuRect, lightRect, darkRect });
-        }
-    }
-
-    private static Vector3 CalculateOffset(FrameworkElement source)
-    {
-        // ActualOffset is relative to it's parent container
-        Vector3 offset = source.ActualOffset;
-
-        while (source.Parent is FrameworkElement parent) 
-        {
-            source = parent;
-            offset += source.ActualOffset;
-        }
-
-        return offset;
-    }
-
+ 
     private void PickerFlyoutOpened(AssyntSoftware.WinUI3Controls.SimpleColorPicker sender, bool args)
     {
         ClearWindowDragRegions();
