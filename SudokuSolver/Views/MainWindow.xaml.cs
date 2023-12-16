@@ -20,13 +20,10 @@ internal sealed partial class MainWindow : WindowBase
     private ErrorDialog? errorDialog;
     private bool aboutBoxOpen = false;
     private bool errorDialogOpen = false;
-    private readonly InputNonClientPointerSource inputNonClientPointerSource;
 
     public MainWindow(StorageFile? storageFile, MainWindow? creator)
     {
         InitializeComponent();
-
-        inputNonClientPointerSource = InputNonClientPointerSource.GetForWindowId(AppWindow.Id);
 
         // each window needs a local copy of the common view settings
         Settings.PerViewSettings viewSettings = Settings.Data.ViewSettings.Clone();
@@ -462,35 +459,6 @@ internal sealed partial class MainWindow : WindowBase
 
         // the app window's title is used in the task switcher
         AppWindow.Title = title;
-    }
-
-    private void ClearWindowDragRegions()
-    {
-        Debug.Assert(AppWindowTitleBar.IsCustomizationSupported());
-        Debug.Assert(AppWindow.TitleBar.ExtendsContentIntoTitleBar);
-
-        // allow mouse interaction with menu fly outs,  
-        // including clicks anywhere in the client area used to dismiss the menu
-        inputNonClientPointerSource.ClearRegionRects(NonClientRegionKind.Caption); 
-    }
-
-    private void SetWindowDragRegions()
-    {
-        // may be called when the close or exit menu options have been selected and after the xaml has unloaded
-        if (LayoutRoot.IsLoaded && Menu.IsLoaded && Puzzle.IsLoaded) 
-        {
-            Debug.Assert(AppWindowTitleBar.IsCustomizationSupported());
-            Debug.Assert(AppWindow.TitleBar.ExtendsContentIntoTitleBar);
-
-            double scale = Puzzle.XamlRoot.RasterizationScale;
-
-            RectInt32 windowRect = new RectInt32(0, 0, AppWindow.ClientSize.Width, AppWindow.ClientSize.Height);
-            RectInt32 menuRect = Utils.ScaledRect(Menu.ActualOffset, Menu.ActualSize, scale);
-            RectInt32 puzzleRect = Utils.ScaledRect(Puzzle.ActualOffset, Puzzle.ActualSize, scale);
-
-            inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Caption, new[] { windowRect });
-            inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Passthrough, new[] { menuRect, puzzleRect });
-        }
     }
 
     private void ColorsClickHandler(object sender, RoutedEventArgs e)
