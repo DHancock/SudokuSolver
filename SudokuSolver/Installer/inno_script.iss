@@ -9,8 +9,7 @@
 #define appId "sudukosolver.8628521D92E74106"
 
 #define winAppSdk_MajorMinorVersion "1.4"
-#define winAppSdk_MinPackageVersion "4000.1010.1349.0"  ; version 1.4.2
-
+#define winAppSdk_MinPackageVersion "4000.1049.117.0"  ; version 1.4.3
 
 [Setup]
 AppId={#appId}
