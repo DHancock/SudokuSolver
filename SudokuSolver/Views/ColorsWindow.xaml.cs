@@ -7,14 +7,9 @@ internal sealed partial class ColorsWindow : WindowBase
 {
     public ColorsViewModel ViewModel { get; }
 
-    private readonly InputNonClientPointerSource inputNonClientPointerSource;
-
-        
     public ColorsWindow()
     {
         this.InitializeComponent();
-
-        inputNonClientPointerSource = InputNonClientPointerSource.GetForWindowId(AppWindow.Id);
 
         ViewModel = new ColorsViewModel();
 
