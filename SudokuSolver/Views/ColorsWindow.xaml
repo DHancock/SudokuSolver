@@ -61,7 +61,7 @@
             </MenuBarItem>
         </MenuBar>
 
-        <ScrollViewer x:Name="MainScrollViewer" Grid.Row="3" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer Grid.Row="3" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto" ViewChanged="ScrollViewer_ViewChanged">
 
             <Grid RowDefinitions="Auto,Auto,Auto,*" Margin="10,0,20,0">
                 <Grid.Resources>
@@ -104,7 +104,7 @@
                     </Grid>
                 </Expander>
 
-                <Expander x:Name="DarkExpander" Grid.Row="1" AllowDrop="False" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                <Expander x:Name="DarkExpander" Grid.Row="1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                     <Expander.Header>
                         <StackPanel Orientation="Horizontal">
                             <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xF08C;"/>
