@@ -102,4 +102,9 @@ internal sealed partial class ColorsWindow : WindowBase
 
         await aboutBox.ShowAsync();
     }
+
+    private void ScrollViewer_ViewChanged(object sender, ScrollViewerViewChangedEventArgs e)
+    {
+        SetWindowDragRegions();
+    }
 }
