@@ -274,12 +274,15 @@ internal abstract class WindowBase : Window
                 RectInt32 windowRect = new RectInt32(0, 0, AppWindow.ClientSize.Width, AppWindow.ClientSize.Height);
                 inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Caption, new[] { windowRect });
 
-                List<RectInt32> rects = LocatePassThroughContent(layoutRoot);
+                List<RectInt32> rects = new List<RectInt32>();
+                LocatePassThroughContent(rects, layoutRoot);
                 inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Passthrough, rects.ToArray());
             }
         }
         catch (Exception ex)
         {
+            // accessing Window.Content can throw an object closed exception when
+            // a menu unloaded event fires because the window is closing
             Debug.WriteLine(ex);
         }
     }
@@ -289,7 +292,7 @@ internal abstract class WindowBase : Window
         public double Top => Offset.Y;
     }
 
-    private static List<RectInt32> LocatePassThroughContent(DependencyObject reference, ScrollViewerBounds? bounds = null)
+    private static void LocatePassThroughContent(List<RectInt32> rects, DependencyObject reference, ScrollViewerBounds? bounds = null)
     {
         static Point GetOffsetFromXamlRoot(UIElement e)
         {
@@ -301,8 +304,6 @@ internal abstract class WindowBase : Window
         {
             return (e.Visibility == Visibility.Visible) && (e.ActualSize.X > 0) && (e.ActualSize.Y > 0) && (e.Opacity > 0);
         }
-
-        List<RectInt32> rects = new List<RectInt32>();
 
         if ((reference is UIElement element) && IsValidUIElement(element))
         {
@@ -316,14 +317,14 @@ internal abstract class WindowBase : Window
                     Point offset = GetOffsetFromXamlRoot(element);
                     Vector2 actualSize = element.ActualSize;
 
-                    if ((bounds is not null) && (offset.Y < bounds.Top)) // for this ui, only top clip is required 
+                    if ((bounds is not null) && (offset.Y < bounds.Top)) // top clip (for vertical scroll bars) 
                     {
                         actualSize.Y -= (float)(bounds.Top - offset.Y);
                         offset.Y = bounds.Top;
                     }
 
                     rects.Add(ScaledRect(offset, actualSize, element.XamlRoot.RasterizationScale));
-                    return rects;
+                    return;
                 }
 
                 case ScrollViewer:
@@ -339,23 +340,16 @@ internal abstract class WindowBase : Window
             for (int index = 0; index < VisualTreeHelper.GetChildrenCount(reference); index++)
             {
                 DependencyObject current = VisualTreeHelper.GetChild(reference, index);
-                rects.AddRange(LocatePassThroughContent(current, bounds));
+                LocatePassThroughContent(rects, current, bounds);
             }
         }
-
-        return rects;
     }
 
     private static RectInt32 ScaledRect(in Point location, in Vector2 size, double scale)
     {
-        return ScaledRect(location.X, location.Y, size.X, size.Y, scale);
-    }
-
-    private static RectInt32 ScaledRect(double x, double y, double width, double height, double scale)
-    {
-        return new RectInt32(Convert.ToInt32(x * scale),
-                                Convert.ToInt32(y * scale),
-                                Convert.ToInt32(width * scale),
-                                Convert.ToInt32(height * scale));
+        return new RectInt32(Convert.ToInt32(location.X * scale),
+                             Convert.ToInt32(location.Y * scale),
+                             Convert.ToInt32(size.X * scale),
+                             Convert.ToInt32(size.Y * scale));
     }
 }
