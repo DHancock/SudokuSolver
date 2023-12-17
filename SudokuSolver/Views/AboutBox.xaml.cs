@@ -12,16 +12,9 @@ public sealed partial class AboutBox : ContentDialog
         Version? v = typeof(App).Assembly.GetName().Version;
 
         if (v is not null)
-            VersionTextBlock.Text = string.Format(VersionTextBlock.Text, v.Major, v.Minor, v.Build);
+            VersionTextBlock.Text = $"Version: {v.Major}.{v.Minor}.{v.Build}";
 
         PrimaryButtonText = "OK";
-
-#if DEBUG
-        if (App.IsPackaged)
-            VersionTextBlock.Text += " (P)";
-        else
-            VersionTextBlock.Text += " (D)";
-#endif
 
         Loaded += (s, e) =>
         {
