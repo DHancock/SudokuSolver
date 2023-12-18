@@ -337,7 +337,9 @@ internal abstract class WindowBase : Window
                 default: break;
             }
 
-            for (int index = 0; index < VisualTreeHelper.GetChildrenCount(reference); index++)
+            int count = VisualTreeHelper.GetChildrenCount(reference);
+
+            for (int index = 0; index < count; index++)
             {
                 DependencyObject current = VisualTreeHelper.GetChild(reference, index);
                 LocatePassThroughContent(rects, current, bounds);
