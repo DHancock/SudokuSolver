@@ -5,19 +5,13 @@ namespace SudokuSolver.Views;
 
 internal sealed partial class ColorsWindow : WindowBase
 {
-    public ColorsViewModel ViewModel { get; }
+    public ColorsViewModel ViewModel { get; } = new ColorsViewModel();
 
     public ColorsWindow()
     {
         this.InitializeComponent();
 
-        ViewModel = new ColorsViewModel();
-
-        LayoutRoot.RequestedTheme = ViewModel.Theme;
-        SystemBackdrop = new MicaBackdrop();
-
         AppWindow.SetIcon("Resources\\app.ico");
-
         AppWindow.MoveAndResize(App.Instance.GetNewWindowPosition(this, Settings.Data.ColorsRestoreBounds));
 
         string title = App.cDisplayName + " Colors";
@@ -29,16 +23,6 @@ internal sealed partial class ColorsWindow : WindowBase
             CustomTitleBar.UpdateThemeAndTransparency(ViewModel.Theme);
             Activated += CustomTitleBar.ParentWindow_Activated;
             AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
-
-            LayoutRoot.SizeChanged += (s, a) => SetWindowDragRegions();
-            LightExpander.SizeChanged += (s, a) => SetWindowDragRegions();
-            DarkExpander.SizeChanged += (s, a) => SetWindowDragRegions();
-
-            // the drag regions need to be adjusted for menu fly outs
-            FileMenuItem.Loaded += (s, a) => ClearWindowDragRegions();
-            ViewMenuItem.Loaded += (s, a) => ClearWindowDragRegions();
-            FileMenuItem.Unloaded += (s, a) => SetWindowDragRegions();
-            ViewMenuItem.Unloaded += (s, a) => SetWindowDragRegions();
         }
         else
         {
@@ -63,19 +47,10 @@ internal sealed partial class ColorsWindow : WindowBase
 
         LayoutRoot.Loaded += (s, e) =>
         {
+            AddDragRegionEventHandlers(LayoutRoot);
             DarkExpander.IsExpanded = ViewModel.IsDarkThemed;
             LightExpander.IsExpanded = !DarkExpander.IsExpanded;
         };
-    }
- 
-    private void PickerFlyoutOpened(AssyntSoftware.WinUI3Controls.SimpleColorPicker sender, bool args)
-    {
-        ClearWindowDragRegions();
-    }
-
-    private void PickerFlyoutClosed(AssyntSoftware.WinUI3Controls.SimpleColorPicker sender, bool args)
-    {
-        SetWindowDragRegions();
     }
 
     private void CloseClickHandler(object sender, RoutedEventArgs e)
@@ -96,10 +71,5 @@ internal sealed partial class ColorsWindow : WindowBase
         aboutBox.Closed += (s, e) => SetWindowDragRegions();
 
         await aboutBox.ShowAsync();
-    }
-
-    private void ScrollViewer_ViewChanged(object sender, ScrollViewerViewChangedEventArgs e)
-    {
-        SetWindowDragRegions();
     }
 }

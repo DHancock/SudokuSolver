@@ -12,18 +12,12 @@ internal sealed partial class CustomTitleBar : UserControl
         {
             SizeChanged += (s, e) =>
             {
-                if (IsLoaded) 
-                    UpdateTitleBarPadding(e.NewSize.Width);
+                UpdateTitleBarPadding(e.NewSize.Width);
             };
 
             ActualThemeChanged += (s, a) =>
             {
                 UpdateThemeAndTransparency(s.ActualTheme);
-            };
-
-            Loaded += (s, a) =>
-            {
-                UpdateTitleBarPadding(ActualSize.X);
             };
         }
     }

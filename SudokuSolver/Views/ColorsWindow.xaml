@@ -14,6 +14,10 @@
     InitialWidth="600"
     InitialHeight="500">
 
+    <Window.SystemBackdrop>
+        <MicaBackdrop/>
+    </Window.SystemBackdrop>
+    
     <Grid x:Name="LayoutRoot" RequestedTheme="{x:Bind ViewModel.Theme, Mode=OneWay}">
 
         <Grid.RowDefinitions>
@@ -47,7 +51,7 @@
        
         <MenuBar x:Name="Menu" Grid.Row="1" HorizontalAlignment="Left">
             <MenuBarItem Title="File" AccessKey="F">
-                <MenuFlyoutItem x:Name="FileMenuItem" Text="Close" Click="CloseClickHandler" AccessKey="C">
+                <MenuFlyoutItem Text="Close" Click="CloseClickHandler" AccessKey="C">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="W" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
@@ -55,13 +59,13 @@
                 <MenuFlyoutItem Text="Exit" Click="ExitClickHandler" AccessKey="X"/>
             </MenuBarItem>
             <MenuBarItem Title="View" AccessKey="V">
-                <ToggleMenuFlyoutItem x:Name="ViewMenuItem" Text="Dark theme" IsChecked="{x:Bind ViewModel.IsDarkThemed, Mode=TwoWay}" AccessKey="D"/>
+                <ToggleMenuFlyoutItem Text="Dark theme" IsChecked="{x:Bind ViewModel.IsDarkThemed, Mode=TwoWay}" AccessKey="D"/>
                 <MenuFlyoutSeparator/>
                 <MenuFlyoutItem Text="About..." Click="AboutClickHandler" AccessKey="A"/>
             </MenuBarItem>
         </MenuBar>
 
-        <ScrollViewer Grid.Row="3" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto" ViewChanged="ScrollViewer_ViewChanged">
+        <ScrollViewer Grid.Row="3" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
 
             <Grid RowDefinitions="Auto,Auto,Auto,*" Margin="10,0,20,0">
                 <Grid.Resources>
@@ -93,12 +97,12 @@
                         <TextBlock Grid.Row="4" Text="Horizontal Possibles" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="5" Text="Vertical Possibles" HorizontalAlignment="Right" VerticalAlignment="Center"/>
 
-                        <w3c:SimpleColorPicker Grid.Row="0" Grid.Column="1" Color="{x:Bind ViewModel.UserLight, Mode=TwoWay}" FlyoutOpened="PickerFlyoutOpened" FlyoutClosed="PickerFlyoutClosed"/>
-                        <w3c:SimpleColorPicker Grid.Row="1" Grid.Column="1" Color="{x:Bind ViewModel.ProvidedLight, Mode=TwoWay}" FlyoutOpened="PickerFlyoutOpened" FlyoutClosed="PickerFlyoutClosed"/>
-                        <w3c:SimpleColorPicker Grid.Row="2" Grid.Column="1" Color="{x:Bind ViewModel.CalculatedLight, Mode=TwoWay}" FlyoutOpened="PickerFlyoutOpened" FlyoutClosed="PickerFlyoutClosed"/>
-                        <w3c:SimpleColorPicker Grid.Row="3" Grid.Column="1" Color="{x:Bind ViewModel.PossibleLight, Mode=TwoWay}" FlyoutOpened="PickerFlyoutOpened" FlyoutClosed="PickerFlyoutClosed"/>
-                        <w3c:SimpleColorPicker Grid.Row="4" Grid.Column="1" Color="{x:Bind ViewModel.HPossibleLight, Mode=TwoWay}" FlyoutOpened="PickerFlyoutOpened" FlyoutClosed="PickerFlyoutClosed"/>
-                        <w3c:SimpleColorPicker Grid.Row="5" Grid.Column="1" Color="{x:Bind ViewModel.VPossibleLight, Mode=TwoWay}" FlyoutOpened="PickerFlyoutOpened" FlyoutClosed="PickerFlyoutClosed"/>
+                        <w3c:SimpleColorPicker Grid.Row="0" Grid.Column="1" Color="{x:Bind ViewModel.UserLight, Mode=TwoWay}"/>
+                        <w3c:SimpleColorPicker Grid.Row="1" Grid.Column="1" Color="{x:Bind ViewModel.ProvidedLight, Mode=TwoWay}"/>
+                        <w3c:SimpleColorPicker Grid.Row="2" Grid.Column="1" Color="{x:Bind ViewModel.CalculatedLight, Mode=TwoWay}"/>
+                        <w3c:SimpleColorPicker Grid.Row="3" Grid.Column="1" Color="{x:Bind ViewModel.PossibleLight, Mode=TwoWay}"/>
+                        <w3c:SimpleColorPicker Grid.Row="4" Grid.Column="1" Color="{x:Bind ViewModel.HPossibleLight, Mode=TwoWay}"/>
+                        <w3c:SimpleColorPicker Grid.Row="5" Grid.Column="1" Color="{x:Bind ViewModel.VPossibleLight, Mode=TwoWay}"/>
 
                         <Button Grid.Row="5" Grid.Column="2" Content="Reset to defaults" Command="{x:Bind ViewModel.ResetLightColors}" HorizontalAlignment="Right" Margin="10,0,0,0"/>
                     </Grid>
@@ -120,12 +124,12 @@
                         <TextBlock Grid.Row="4" Text="Horizontal Possibles" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="5" Text="Vertical Possibles" HorizontalAlignment="Right" VerticalAlignment="Center"/>
 
-                        <w3c:SimpleColorPicker Grid.Row="0" Grid.Column="1" Color="{x:Bind ViewModel.UserDark, Mode=TwoWay}" FlyoutOpened="PickerFlyoutOpened" FlyoutClosed="PickerFlyoutClosed"/>
-                        <w3c:SimpleColorPicker Grid.Row="1" Grid.Column="1" Color="{x:Bind ViewModel.ProvidedDark, Mode=TwoWay}" FlyoutOpened="PickerFlyoutOpened" FlyoutClosed="PickerFlyoutClosed"/>
-                        <w3c:SimpleColorPicker Grid.Row="2" Grid.Column="1" Color="{x:Bind ViewModel.CalculatedDark, Mode=TwoWay}" FlyoutOpened="PickerFlyoutOpened" FlyoutClosed="PickerFlyoutClosed"/>
-                        <w3c:SimpleColorPicker Grid.Row="3" Grid.Column="1" Color="{x:Bind ViewModel.PossibleDark, Mode=TwoWay}" FlyoutOpened="PickerFlyoutOpened" FlyoutClosed="PickerFlyoutClosed"/>
-                        <w3c:SimpleColorPicker Grid.Row="4" Grid.Column="1" Color="{x:Bind ViewModel.HPossibleDark, Mode=TwoWay}" FlyoutOpened="PickerFlyoutOpened" FlyoutClosed="PickerFlyoutClosed"/>
-                        <w3c:SimpleColorPicker Grid.Row="5" Grid.Column="1" Color="{x:Bind ViewModel.VPossibleDark, Mode=TwoWay}" FlyoutOpened="PickerFlyoutOpened" FlyoutClosed="PickerFlyoutClosed"/>
+                        <w3c:SimpleColorPicker Grid.Row="0" Grid.Column="1" Color="{x:Bind ViewModel.UserDark, Mode=TwoWay}"/>
+                        <w3c:SimpleColorPicker Grid.Row="1" Grid.Column="1" Color="{x:Bind ViewModel.ProvidedDark, Mode=TwoWay}"/>
+                        <w3c:SimpleColorPicker Grid.Row="2" Grid.Column="1" Color="{x:Bind ViewModel.CalculatedDark, Mode=TwoWay}"/>
+                        <w3c:SimpleColorPicker Grid.Row="3" Grid.Column="1" Color="{x:Bind ViewModel.PossibleDark, Mode=TwoWay}"/>
+                        <w3c:SimpleColorPicker Grid.Row="4" Grid.Column="1" Color="{x:Bind ViewModel.HPossibleDark, Mode=TwoWay}"/>
+                        <w3c:SimpleColorPicker Grid.Row="5" Grid.Column="1" Color="{x:Bind ViewModel.VPossibleDark, Mode=TwoWay}"/>
 
                         <Button Grid.Row="5" Grid.Column="2" Content="Reset to defaults" Command="{x:Bind ViewModel.ResetDarkColors}" HorizontalAlignment="Right" Margin="10,0,0,0"/>
                     </Grid>
