@@ -64,7 +64,9 @@ internal abstract class WindowBase : Window
             {
                 restorePosition = AppWindow.Position;
                 restoreSize = AppWindow.Size;
-                SetWindowDragRegions();
+
+                if (args.DidSizeChange)
+                    SetWindowDragRegions();
             }
         }
         else if (args.DidPresenterChange) // including properties of the current presenter
