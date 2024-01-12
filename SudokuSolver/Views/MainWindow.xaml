@@ -11,6 +11,10 @@
     InitialWidth="563"
     InitialHeight="614">
 
+    <Window.SystemBackdrop>
+        <MicaBackdrop/>
+    </Window.SystemBackdrop>
+    
     <Grid x:Name="LayoutRoot" RequestedTheme="{x:Bind ViewModel.Theme, Mode=OneWay}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

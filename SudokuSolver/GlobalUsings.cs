@@ -1,4 +1,6 @@
-﻿global using Microsoft.UI;
+﻿global using AssyntSoftware.WinUI3Controls;
+
+global using Microsoft.UI;
 global using Microsoft.UI.Input;
 global using Microsoft.UI.Windowing;
 global using Microsoft.UI.Xaml;

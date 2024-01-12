@@ -64,6 +64,7 @@ internal abstract class WindowBase : Window
             {
                 restorePosition = AppWindow.Position;
                 restoreSize = AppWindow.Size;
+                SetWindowDragRegions();
             }
         }
         else if (args.DidPresenterChange) // including properties of the current presenter
@@ -271,6 +272,8 @@ internal abstract class WindowBase : Window
         {
             if ((Content is FrameworkElement layoutRoot) && layoutRoot.IsLoaded && AppWindowTitleBar.IsCustomizationSupported())
             {
+                // as there is no clear distinction any more between the title bar region and the client area,
+                // just treat the whole window as a title bar, right click on its background to drag the window.
                 RectInt32 windowRect = new RectInt32(0, 0, AppWindow.ClientSize.Width, AppWindow.ClientSize.Height);
                 inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Caption, new[] { windowRect });
 
@@ -353,5 +356,63 @@ internal abstract class WindowBase : Window
                              Convert.ToInt32(location.Y * scale),
                              Convert.ToInt32(size.X * scale),
                              Convert.ToInt32(size.Y * scale));
+    }
+
+    protected void AddDragRegionEventHandlers(DependencyObject reference)
+    {
+        switch (reference)
+        {
+            case MenuBarItem mb when mb.Items.Count > 0:
+            {
+                mb.Items[0].Loaded += MenuItem_Loaded;
+                mb.Items[0].Unloaded += MenuItem_Unloaded;
+                return;
+            }
+
+            case Expander expander:
+            {
+                expander.SizeChanged += Expander_SizeChanged;
+                break;
+            }
+
+            case SimpleColorPicker picker:
+            {
+                picker.FlyoutOpened += Picker_FlyoutOpened;
+                picker.FlyoutClosed += Picker_FlyoutClosed;
+                return;
+            }
+
+            case ScrollViewer scrollViewer:
+            {
+                scrollViewer.ViewChanged += ScrollViewer_ViewChanged;
+                break;
+            }
+
+            case Button:
+            case TextBlock:
+            case CustomTitleBar:
+            case PuzzleView: return;  // the puzzle is handled by the app window size changed
+
+            default: break;
+        }
+
+        // work around https://github.com/microsoft/microsoft-ui-xaml/issues/9243
+        if ((reference is ContentPresenter cp) && (cp.Content is DependencyObject content))
+            reference = content;
+
+        int count = VisualTreeHelper.GetChildrenCount(reference);
+
+        for (int index = 0; index < count; index++)
+        {
+            DependencyObject child = VisualTreeHelper.GetChild(reference, index);
+            AddDragRegionEventHandlers(child);
+        }
+
+        void MenuItem_Loaded(object sender, RoutedEventArgs e) => ClearWindowDragRegions();
+        void MenuItem_Unloaded(object sender, RoutedEventArgs e) => SetWindowDragRegions();
+        void Expander_SizeChanged(object sender, SizeChangedEventArgs e) => SetWindowDragRegions();
+        void Picker_FlyoutOpened(SimpleColorPicker sender, bool args) => ClearWindowDragRegions();
+        void Picker_FlyoutClosed(SimpleColorPicker sender, bool args) => SetWindowDragRegions();
+        void ScrollViewer_ViewChanged(object? sender, ScrollViewerViewChangedEventArgs e) => SetWindowDragRegions();
     }
 }

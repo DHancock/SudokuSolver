@@ -28,9 +28,6 @@ internal sealed partial class MainWindow : WindowBase
         // each window needs a local copy of the common view settings
         Settings.PerViewSettings viewSettings = Settings.Data.ViewSettings.Clone();
 
-        LayoutRoot.RequestedTheme = viewSettings.Theme;
-        SystemBackdrop = new MicaBackdrop();
-
         ViewModel = new WindowViewModel(viewSettings);
         Puzzle.ViewModel = new PuzzleViewModel(viewSettings);
         Puzzle.ViewModel.PropertyChanged += ViewModel_PropertyChanged;  // used to update the window title
@@ -49,14 +46,6 @@ internal sealed partial class MainWindow : WindowBase
             CustomTitleBar.UpdateThemeAndTransparency(viewSettings.Theme);
             Activated += CustomTitleBar.ParentWindow_Activated;
             AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
-
-            // the drag regions need to be adjusted for menu fly outs
-            FileMenuItem.Loaded += (s, a) => ClearWindowDragRegions();
-            ViewMenuItem.Loaded += (s, a) => ClearWindowDragRegions();
-            EditMenuItem.Loaded += (s, a) => ClearWindowDragRegions();
-            FileMenuItem.Unloaded += (s, a) => SetWindowDragRegions();
-            ViewMenuItem.Unloaded += (s, a) => SetWindowDragRegions();
-            EditMenuItem.Unloaded += (s, a) => SetWindowDragRegions();
         }
         else
         {
@@ -85,11 +74,8 @@ internal sealed partial class MainWindow : WindowBase
        
         LayoutRoot.Loaded += async (s, e) =>
         {
-            if (AppWindowTitleBar.IsCustomizationSupported())
-            {
-                SetWindowDragRegions();
-                LayoutRoot.SizeChanged += (s, a) => SetWindowDragRegions();
-            }
+            AddDragRegionEventHandlers(LayoutRoot);
+            SetWindowDragRegions();
 
             // now set the duration for the next theme transition
             Puzzle.BackgroundBrushTransition.Duration = new TimeSpan(0, 0, 0, 0, 250);
