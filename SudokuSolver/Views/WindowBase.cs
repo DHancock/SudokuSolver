@@ -400,14 +400,18 @@ internal abstract class WindowBase : Window
 
         // work around https://github.com/microsoft/microsoft-ui-xaml/issues/9243
         if ((reference is ContentPresenter cp) && (cp.Content is DependencyObject content))
-            reference = content;
-
-        int count = VisualTreeHelper.GetChildrenCount(reference);
-
-        for (int index = 0; index < count; index++)
         {
-            DependencyObject child = VisualTreeHelper.GetChild(reference, index);
-            AddDragRegionEventHandlers(child);
+            AddDragRegionEventHandlers(content);
+        }
+        else
+        {
+            int count = VisualTreeHelper.GetChildrenCount(reference);
+
+            for (int index = 0; index < count; index++)
+            {
+                DependencyObject child = VisualTreeHelper.GetChild(reference, index);
+                AddDragRegionEventHandlers(child);
+            }
         }
 
         void MenuItem_Loaded(object sender, RoutedEventArgs e) => ClearWindowDragRegions();
