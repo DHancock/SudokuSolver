@@ -398,15 +398,18 @@ internal abstract class WindowBase : Window
             default: break;
         }
 
-        // work around https://github.com/microsoft/microsoft-ui-xaml/issues/9243
-        if ((reference is ContentPresenter cp) && (cp.Content is DependencyObject content))
+        int count = VisualTreeHelper.GetChildrenCount(reference);
+
+        if ((count == 0) && (reference is ContentPresenter cp) && (cp.Content is DependencyObject content))
         {
+            // Unless the expander has finished being expanded it's contents won't be part of the visual tree,
+            // VisualTreeHelper.GetChildrenCount() returning zero. However they do exist in the logical tree.
+            // The visual tree helper routines don't check that a parent of a dependency object is actually in
+            // the visual tree though, continuing to enumerate it's children regardless.
             AddDragRegionEventHandlers(content);
         }
         else
         {
-            int count = VisualTreeHelper.GetChildrenCount(reference);
-
             for (int index = 0; index < count; index++)
             {
                 DependencyObject child = VisualTreeHelper.GetChild(reference, index);
