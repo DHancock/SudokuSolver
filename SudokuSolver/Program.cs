@@ -56,8 +56,8 @@ public static class Program
 
     private static void RegisterFileTypeActivation()
     {
-        string[] fileTypes = new[] { App.cFileExt };
-        string[] verbs = new[] { "open" };
+        string[] fileTypes = [App.cFileExt];
+        string[] verbs = ["open"];
         string logo = $"{Environment.ProcessPath},0";
 
         ActivationRegistrationManager.RegisterForFileTypeActivation(fileTypes, logo, App.cDisplayName, verbs, string.Empty);
@@ -65,7 +65,7 @@ public static class Program
 
     private static void UnregisterFileTypeActivation()
     {
-        string[] fileTypes = new[] { App.cFileExt };
+        string[] fileTypes = [App.cFileExt];
 
         ActivationRegistrationManager.UnregisterForFileTypeActivation(fileTypes, Environment.ProcessPath);
     }
@@ -76,13 +76,7 @@ public static class Program
         PackageVersion minRuntimeVersion = new PackageVersion(RuntimeVersion.Major, RuntimeVersion.Minor, RuntimeVersion.Build);
         Bootstrap.InitializeOptions options = noUI ? Bootstrap.InitializeOptions.None : Bootstrap.InitializeOptions.OnNoMatch_ShowUI;
 
-        if (!Bootstrap.TryInitialize(sdkVersion, null, minRuntimeVersion, options, out int hResult))
-        {
-            Trace.WriteLine($"Bootstrap initialize failed, error: 0x{hResult:X}");
-            return false;
-        }
-
-        return true;
+        return Bootstrap.TryInitialize(sdkVersion, null, minRuntimeVersion, options, out _);
     }
 
     public static void RedirectActivationTo(AppActivationArguments args, AppInstance keyInstance)
