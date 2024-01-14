@@ -299,7 +299,7 @@ public partial class App : Application
 
     // The command line is constructed by the os when a file is dragged 
     // and dropped onto the exe (or it's shortcut), so really should be well formed.
-    private static IReadOnlyList<string> SplitLaunchActivationCommandLine(string commandLine)
+    private static List<string> SplitLaunchActivationCommandLine(string commandLine)
     {
         List<string> arguments = new List<string>();
         StringBuilder sb = new StringBuilder();
