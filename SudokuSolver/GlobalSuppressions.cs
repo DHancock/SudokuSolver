@@ -12,6 +12,9 @@
 [assembly: SuppressMessage("Style", "IDE0074:Use compound assignment")]
 [assembly: SuppressMessage("Style", "IDE0090:Use 'new(...)'")]
 [assembly: SuppressMessage("Style", "IDE0180:Use tuple to swap values")]
+[assembly: SuppressMessage("Style", "IDE0290:Use primary constructor")]
+[assembly: SuppressMessage("Style", "IDE0300:Collection initialization can be simplified")]
+[assembly: SuppressMessage("Style", "IDE0305:Collection initialization can be simplified")]
 
 [assembly: SuppressMessage("Warning", "VSSpell001:Correct spelling of XXX")]
 
