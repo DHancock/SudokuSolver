@@ -325,6 +325,10 @@ internal abstract class WindowBase : Window
                     if ((bounds is not null) && (offset.Y < bounds.Top)) // top clip (for vertical scroll bars) 
                     {
                         actualSize.Y -= (float)(bounds.Top - offset.Y);
+
+                        if (actualSize.Y < 0.0)
+                            return;
+
                         offset.Y = bounds.Top;
                     }
 
@@ -346,8 +350,8 @@ internal abstract class WindowBase : Window
 
             for (int index = 0; index < count; index++)
             {
-                DependencyObject current = VisualTreeHelper.GetChild(reference, index);
-                LocatePassThroughContent(rects, current, bounds);
+                DependencyObject child = VisualTreeHelper.GetChild(reference, index);
+                LocatePassThroughContent(rects, child, bounds);
             }
         }
     }
@@ -404,8 +408,7 @@ internal abstract class WindowBase : Window
         {
             if ((reference is ContentPresenter cp) && (cp.Content is DependencyObject content))
             {
-                // Unless the expander has finished being expanded it's contents won't be part of the visual tree,
-                // VisualTreeHelper.GetChildrenCount() returning zero. However they do exist in the logical tree.
+                // Unless the expander has finished being expanded it's contents won't be part of the visual tree.
                 // The visual tree helper routines don't check that a parent of a dependency object is actually in
                 // the visual tree though, continuing to enumerate it's children regardless.
                 AddDragRegionEventHandlers(content);
