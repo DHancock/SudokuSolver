@@ -314,6 +314,8 @@ internal abstract class WindowBase : Window
         {
             switch (element)
             {
+                case Panel: break;
+
                 case PuzzleView:
                 case MenuBar:
                 case Expander:
@@ -368,6 +370,8 @@ internal abstract class WindowBase : Window
     {
         switch (reference)
         {
+            case Panel: break;
+
             case MenuBarItem mb when mb.Items.Count > 0:
             {
                 mb.Items[0].Loaded += MenuItem_Loaded;
