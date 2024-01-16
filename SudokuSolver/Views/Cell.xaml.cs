@@ -10,7 +10,7 @@ namespace SudokuSolver.Views;
 /// </summary>
 internal sealed partial class Cell : UserControl
 {
-    private static readonly string[] sLookUp = new[] { string.Empty, "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+    private static readonly string[] sLookUp = [string.Empty, "1", "2", "3", "4", "5", "6", "7", "8", "9"];
     private enum VisualState { Normal, SelectedFocused, SelectedUnfocused, PointerOver }
     private VisualState currentVisualState = VisualState.Normal;
 
@@ -28,7 +28,7 @@ internal sealed partial class Cell : UserControl
         IsHitTestVisible = true;
         LosingFocus += Cell_LosingFocus;
 
-        possibleTBs = new PossibleTextBlock[9] { PossibleValue0, PossibleValue1, PossibleValue2, PossibleValue3, PossibleValue4, PossibleValue5, PossibleValue6, PossibleValue7, PossibleValue8 };
+        possibleTBs = [PossibleValue0, PossibleValue1, PossibleValue2, PossibleValue3, PossibleValue4, PossibleValue5, PossibleValue6, PossibleValue7, PossibleValue8];
     }
 
     protected override void OnPointerExited(PointerRoutedEventArgs e)

@@ -2,8 +2,8 @@
 
 internal class ColorsViewModel : INotifyPropertyChanged
 {
-    private static readonly string[] cValueKeys = { "UserCellBrush", "ProvidedCellBrush", "CalculatedCellBrush", "CellPossiblesBrush", "PossiblesHorizontalBrush", "PossiblesVerticalBrush" };
-    private static readonly string[] cPropertyNames = { "User", "Provided", "Calculated", "Possible", "HPossible", "VPossible" };
+    private static readonly string[] cValueKeys = ["UserCellBrush", "ProvidedCellBrush", "CalculatedCellBrush", "CellPossiblesBrush", "PossiblesHorizontalBrush", "PossiblesVerticalBrush"];
+    private static readonly string[] cPropertyNames = ["User", "Provided", "Calculated", "Possible", "HPossible", "VPossible"];
 
     private ElementTheme theme;
 
