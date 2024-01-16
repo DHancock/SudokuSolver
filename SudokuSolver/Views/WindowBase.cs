@@ -277,7 +277,7 @@ internal abstract class WindowBase : Window
                 // as there is no clear distinction any more between the title bar region and the client area,
                 // just treat the whole window as a title bar, click anywhere on the backdrop to drag the window.
                 RectInt32 windowRect = new RectInt32(0, 0, AppWindow.ClientSize.Width, AppWindow.ClientSize.Height);
-                inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Caption, new[] { windowRect });
+                inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Caption, [windowRect]);
 
                 List<RectInt32> rects = new List<RectInt32>();
                 LocatePassThroughContent(rects, layoutRoot);

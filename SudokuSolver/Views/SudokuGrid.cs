@@ -75,17 +75,18 @@ internal sealed class SudokuGrid : Panel
 
     private void ArrangeCells()
     {
-        double[] offsets = new double[cCellsInRow];
-
-        offsets[0] = majorGridLineWidth;
-        offsets[1] = offsets[0] + minorGridLineWidth + cellSize;
-        offsets[2] = offsets[1] + minorGridLineWidth + cellSize;
-        offsets[3] = offsets[2] + majorGridLineWidth + cellSize;
-        offsets[4] = offsets[3] + minorGridLineWidth + cellSize;
-        offsets[5] = offsets[4] + minorGridLineWidth + cellSize;
-        offsets[6] = offsets[5] + majorGridLineWidth + cellSize;
-        offsets[7] = offsets[6] + minorGridLineWidth + cellSize;
-        offsets[8] = offsets[7] + minorGridLineWidth + cellSize;
+        double[] offsets =
+        [
+            (majorGridLineWidth * 1),
+            (majorGridLineWidth * 1) + (minorGridLineWidth * 1) + (cellSize * 1),
+            (majorGridLineWidth * 1) + (minorGridLineWidth * 2) + (cellSize * 2),
+            (majorGridLineWidth * 2) + (minorGridLineWidth * 2) + (cellSize * 3),
+            (majorGridLineWidth * 2) + (minorGridLineWidth * 3) + (cellSize * 4),
+            (majorGridLineWidth * 2) + (minorGridLineWidth * 4) + (cellSize * 5),
+            (majorGridLineWidth * 3) + (minorGridLineWidth * 4) + (cellSize * 6),
+            (majorGridLineWidth * 3) + (minorGridLineWidth * 5) + (cellSize * 7),
+            (majorGridLineWidth * 3) + (minorGridLineWidth * 6) + (cellSize * 8),
+        ];
 
         Rect finalRect = new Rect(0, 0, cellSize, cellSize);
 
