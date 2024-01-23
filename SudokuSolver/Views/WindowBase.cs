@@ -301,7 +301,7 @@ internal abstract class WindowBase : Window
     {
         static Point GetOffsetFromXamlRoot(UIElement e)
         {
-            GeneralTransform gt = e.TransformToVisual(e.XamlRoot.Content);
+            GeneralTransform gt = e.TransformToVisual(null);
             return gt.TransformPoint(new Point(0, 0));
         }
 
