@@ -74,4 +74,24 @@ internal static class Extensions
 
         return null;
     }
+
+    public static T? FindChild<T>(this DependencyObject parent) where T : DependencyObject
+    {
+        int count = VisualTreeHelper.GetChildrenCount(parent);
+
+        for (int index = 0; index < count; index++)
+        {
+            DependencyObject child = VisualTreeHelper.GetChild(parent, index);
+
+            if (child is T target)
+                return target;
+
+            T? result = child.FindChild<T>();
+
+            if (result is not null)
+                return result;
+        }
+
+        return null;
+    }
 }

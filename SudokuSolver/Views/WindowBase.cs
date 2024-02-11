@@ -1,4 +1,5 @@
-﻿using RelayCommand = SudokuSolver.ViewModels.RelayCommand;
+﻿using SudokuSolver.Utilities;
+using SudokuSolver.ViewModels;
 
 namespace SudokuSolver.Views;
 
@@ -297,22 +298,17 @@ internal abstract class WindowBase : Window
         public double Top => Offset.Y;
     }
 
-    private static void LocatePassThroughContent(List<RectInt32> rects, DependencyObject reference, ScrollViewerBounds? bounds = null)
+    private static void LocatePassThroughContent(List<RectInt32> rects, UIElement item, ScrollViewerBounds? bounds = null)
     {
         static Point GetOffsetFromXamlRoot(UIElement e)
         {
-            GeneralTransform gt = e.TransformToVisual(e.XamlRoot.Content);
+            GeneralTransform gt = e.TransformToVisual(null);
             return gt.TransformPoint(new Point(0, 0));
         }
 
-        static bool IsValidUIElement(UIElement e)
+        foreach (UIElement child in LogicalTreeHelper.GetChildren(item))
         {
-            return (e.Visibility == Visibility.Visible) && (e.ActualSize.X > 0) && (e.ActualSize.Y > 0) && (e.Opacity > 0);
-        }
-
-        if ((reference is UIElement element) && IsValidUIElement(element))
-        {
-            switch (element)
+            switch (child)
             {
                 case Panel: break;
 
@@ -321,8 +317,8 @@ internal abstract class WindowBase : Window
                 case Expander:
                 case ScrollBar:
                 {
-                    Point offset = GetOffsetFromXamlRoot(element);
-                    Vector2 actualSize = element.ActualSize;
+                    Point offset = GetOffsetFromXamlRoot(child);
+                    Vector2 actualSize = child.ActualSize;
 
                     if ((bounds is not null) && (offset.Y < bounds.Top)) // top clip (for vertical scroll bars) 
                     {
@@ -334,27 +330,35 @@ internal abstract class WindowBase : Window
                         offset.Y = bounds.Top;
                     }
 
-                    rects.Add(ScaledRect(offset, actualSize, element.XamlRoot.RasterizationScale));
-                    return;
+                    rects.Add(ScaledRect(offset, actualSize, child.XamlRoot.RasterizationScale));
+                    continue;
                 }
 
                 case ScrollViewer:
                 {
-                    // chained scroll viewers is not supported
-                    bounds = new ScrollViewerBounds(GetOffsetFromXamlRoot(element), element.ActualSize);
+                    // nested scroll viewers is not supported
+                    bounds = new ScrollViewerBounds(GetOffsetFromXamlRoot(child), child.ActualSize);
+
+                    if (((ScrollViewer)child).ComputedVerticalScrollBarVisibility == Visibility.Visible)
+                    {
+                        ScrollBar? vScrollBar = child.FindChild<ScrollBar>();
+
+                        if (vScrollBar is not null)
+                        {
+                            Debug.Assert(vScrollBar.Name.Equals("VerticalScrollBar"));
+                            rects.Add(ScaledRect(GetOffsetFromXamlRoot(vScrollBar), vScrollBar.ActualSize, child.XamlRoot.RasterizationScale));
+                        }
+                    }
+
                     break;
                 }
+
+                case CustomTitleBar: continue;
 
                 default: break;
             }
 
-            int count = VisualTreeHelper.GetChildrenCount(reference);
-
-            for (int index = 0; index < count; index++)
-            {
-                DependencyObject child = VisualTreeHelper.GetChild(reference, index);
-                LocatePassThroughContent(rects, child, bounds);
-            }
+            LocatePassThroughContent(rects, child, bounds);
         }
     }
 
@@ -366,70 +370,59 @@ internal abstract class WindowBase : Window
                              Convert.ToInt32(size.Y * scale));
     }
 
-    protected void AddDragRegionEventHandlers(DependencyObject reference)
+    protected void AddDragRegionEventHandlers(UIElement item)
     {
-        switch (reference)
+        foreach (UIElement child in LogicalTreeHelper.GetChildren(item))
         {
-            case Panel: break;
-
-            case MenuBarItem mb when mb.Items.Count > 0:
+            switch (child)
             {
-                mb.Items[0].Loaded += MenuItem_Loaded;
-                mb.Items[0].Unloaded += MenuItem_Unloaded;
-                return;
+                case Panel: break;
+
+                case MenuBarItem mb when mb.Items.Count > 0:
+                {
+                    mb.Items[0].Loaded += MenuItem_Loaded;
+                    mb.Items[0].Unloaded += MenuItem_Unloaded;
+                    continue;
+                }
+
+                case Expander expander:
+                {
+                    expander.SizeChanged += UIElement_SizeChanged;
+                    break;
+                }
+
+                case SimpleColorPicker picker:
+                {
+                    picker.FlyoutOpened += Picker_FlyoutOpened;
+                    picker.FlyoutClosed += Picker_FlyoutClosed;
+                    continue;
+                }
+
+                case ScrollViewer scrollViewer:
+                {
+                    scrollViewer.ViewChanged += ScrollViewer_ViewChanged;
+                    break;
+                }
+
+                case PuzzleView puzzleView:
+                {
+                    puzzleView.SizeChanged += UIElement_SizeChanged;
+                    continue;
+                }
+
+                case Button:
+                case TextBlock:
+                case CustomTitleBar: continue; 
+
+                default: break;
             }
 
-            case Expander expander:
-            {
-                expander.SizeChanged += Expander_SizeChanged;
-                break;
-            }
-
-            case SimpleColorPicker picker:
-            {
-                picker.FlyoutOpened += Picker_FlyoutOpened;
-                picker.FlyoutClosed += Picker_FlyoutClosed;
-                return;
-            }
-
-            case ScrollViewer scrollViewer:
-            {
-                scrollViewer.ViewChanged += ScrollViewer_ViewChanged;
-                break;
-            }
-
-            case Button:
-            case TextBlock:
-            case CustomTitleBar:
-            case PuzzleView: return;  // the puzzle is handled by the app window size changed
-
-            default: break;
-        }
-
-        int count = VisualTreeHelper.GetChildrenCount(reference);
-
-        if (count == 0)
-        {
-            if ((reference is ContentPresenter cp) && (cp.Content is DependencyObject content))
-            {
-                // Unless the expander has finished being expanded it's contents won't be part of the visual tree.
-                // The visual tree helper routines don't check that a parent of a dependency object is actually in
-                // the visual tree though, continuing to enumerate it's children regardless.
-                AddDragRegionEventHandlers(content);
-            }
-        }
-        else
-        {
-            for (int index = 0; index < count; index++)
-            {
-                DependencyObject child = VisualTreeHelper.GetChild(reference, index);
-                AddDragRegionEventHandlers(child);
-            }
+            AddDragRegionEventHandlers(child);
         }
 
         void MenuItem_Loaded(object sender, RoutedEventArgs e) => ClearWindowDragRegions();
         void MenuItem_Unloaded(object sender, RoutedEventArgs e) => SetWindowDragRegions();
-        void Expander_SizeChanged(object sender, SizeChangedEventArgs e) => SetWindowDragRegions();
+        void UIElement_SizeChanged(object sender, SizeChangedEventArgs e) => SetWindowDragRegions();
         void Picker_FlyoutOpened(SimpleColorPicker sender, bool args) => ClearWindowDragRegions();
         void Picker_FlyoutClosed(SimpleColorPicker sender, bool args) => SetWindowDragRegions();
         void ScrollViewer_ViewChanged(object? sender, ScrollViewerViewChangedEventArgs e) => SetWindowDragRegions();
