@@ -300,7 +300,7 @@ internal abstract class WindowBase : Window
 
     private static void LocatePassThroughContent(List<RectInt32> rects, UIElement item, ScrollViewerBounds? bounds = null)
     {
-        ScrollViewerBounds? parentBounds = null;
+        ScrollViewerBounds? parentBounds = bounds;
 
         static Point GetOffsetFromXamlRoot(UIElement e)
         {
