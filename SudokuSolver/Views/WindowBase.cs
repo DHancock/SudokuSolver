@@ -300,6 +300,8 @@ internal abstract class WindowBase : Window
 
     private static void LocatePassThroughContent(List<RectInt32> rects, UIElement item, ScrollViewerBounds? bounds = null)
     {
+        ScrollViewerBounds? parentBounds = null;
+
         static Point GetOffsetFromXamlRoot(UIElement e)
         {
             GeneralTransform gt = e.TransformToVisual(null);
@@ -337,7 +339,7 @@ internal abstract class WindowBase : Window
                 case ScrollViewer:
                 {
                     // nested scroll viewers is not supported
-                    bounds = new ScrollViewerBounds(GetOffsetFromXamlRoot(child), child.ActualSize);
+                    parentBounds = new ScrollViewerBounds(GetOffsetFromXamlRoot(child), child.ActualSize);
 
                     if (((ScrollViewer)child).ComputedVerticalScrollBarVisibility == Visibility.Visible)
                     {
@@ -358,7 +360,7 @@ internal abstract class WindowBase : Window
                 default: break;
             }
 
-            LocatePassThroughContent(rects, child, bounds);
+            LocatePassThroughContent(rects, child, parentBounds);
         }
     }
 
