@@ -350,7 +350,7 @@ internal abstract class WindowBase : Window
                         actualSize.Y -= (float)(parentBounds.Top - offset.Y);
 
                         if (actualSize.Y < 0.0)
-                            return;
+                            continue;
 
                         offset.Y = parentBounds.Top;
                     }
