@@ -17,8 +17,8 @@ internal abstract class WindowBase : Window
         CLOSE = 0xF060,
     }
 
-    private readonly double minWidth = 450;
-    private readonly double minHeight = 480;
+    private const double cMinWidth = 450;
+    private const double cMinHeight = 480;
 
     public double InitialWidth { get; set; }
     public double InitialHeight { get; set; }
@@ -36,7 +36,6 @@ internal abstract class WindowBase : Window
     private PointInt32 restorePosition;
     private SizeInt32 restoreSize;
     private MenuFlyout? systemMenu;
-    private WindowState windowState;
     private int scaledMinWidth;
     private int scaledMinHeight;
     private double scaleFactor;
@@ -52,15 +51,14 @@ internal abstract class WindowBase : Window
 
         inputNonClientPointerSource = InputNonClientPointerSource.GetForWindowId(AppWindow.Id);
 
-        windowState = IntialiseWindowState();
         dispatcherTimer = InitialiseDragRegionTimer();
 
         AppWindow.Changed += AppWindow_Changed;
         Activated += App.Instance.RecordWindowActivated;
 
         scaleFactor = IntialiseScaleFactor();
-        scaledMinWidth = (int)(minWidth * scaleFactor);
-        scaledMinHeight = (int)(minHeight * scaleFactor);
+        scaledMinWidth = (int)(cMinWidth * scaleFactor);
+        scaledMinHeight = (int)(cMinHeight * scaleFactor);
 
         RestoreCommand = new RelayCommand(o => PostSysCommandMessage(SC.RESTORE), CanRestore);
         MoveCommand = new RelayCommand(o => PostSysCommandMessage(SC.MOVE), CanMove);
@@ -87,7 +85,6 @@ internal abstract class WindowBase : Window
         }
         else if (args.DidPresenterChange)
         {
-            WindowState = IntialiseWindowState();
             UpdateSystemMenuItemsEnabledState();
         }
     }
@@ -114,8 +111,8 @@ internal abstract class WindowBase : Window
             case PInvoke.WM_DPICHANGED:
             {
                 scaleFactor = (wParam & 0xFFFF) / 96.0;
-                scaledMinWidth = (int)(minWidth * scaleFactor);
-                scaledMinHeight = (int)(minHeight * scaleFactor);
+                scaledMinWidth = (int)(cMinWidth * scaleFactor);
+                scaledMinHeight = (int)(cMinHeight * scaleFactor);
                 break;
             }
 
@@ -232,29 +229,25 @@ internal abstract class WindowBase : Window
         return (AppWindow.Presenter is OverlappedPresenter op) && op.IsMaximizable && (op.State != OverlappedPresenterState.Maximized);
     }
 
-    private WindowState IntialiseWindowState()
-    {
-        if (AppWindow.Presenter is OverlappedPresenter op)
-        {
-            switch (op.State)
-            {
-                case OverlappedPresenterState.Minimized: return WindowState.Minimized;
-                case OverlappedPresenterState.Maximized: return WindowState.Maximized;
-                case OverlappedPresenterState.Restored: return WindowState.Normal;
-            }
-        }
-
-        return WindowState.Normal;
-    }
-
     public WindowState WindowState
     {
-        get => windowState;
+        get
+        {
+            if (AppWindow.Presenter is OverlappedPresenter op)
+            {
+                switch (op.State)
+                {
+                    case OverlappedPresenterState.Minimized: return WindowState.Minimized;
+                    case OverlappedPresenterState.Maximized: return WindowState.Maximized;
+                    case OverlappedPresenterState.Restored: return WindowState.Normal;
+                }
+            }
+
+            return WindowState.Normal;
+        }
 
         set
         {
-            windowState = value;
-
             if (AppWindow.Presenter is OverlappedPresenter op)
             {
                 switch (value)
@@ -404,7 +397,7 @@ internal abstract class WindowBase : Window
                 default: break;
             }
 
-            LocatePassThroughContent(rects, child, parentBounds);
+            LocatePassThroughContent(rects, child, bounds);
         }
     }
 
