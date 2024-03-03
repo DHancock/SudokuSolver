@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="SudokuSolver.Views.PuzzleTabContent"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:SudokuSolver.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <!-- left, top, right, bottom -->
+
+    <Grid x:Name="LayoutRoot" Background="{ThemeResource LayerFillColorDefaultBrush}" ColumnDefinitions="*,Auto">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- used to add print preview pages to the visual tree -->
+        <Canvas x:Name="PrintCanvas" Opacity="0"/>
+
+        <MenuBar x:Name="Menu" HorizontalAlignment="Left">
+            <MenuBar.Resources>
+                <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
+                    <Setter Property="FontWeight" Value="Normal"/>
+                </Style>
+            </MenuBar.Resources>
+
+            <MenuBarItem Title="File" AccessKey="F">
+
+                <MenuFlyoutItem Text="New tab" Click="NewTabClickHandler" AccessKey="N" x:Name="FileMenuItem">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="N" Modifiers="Control" />
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+
+                <MenuFlyoutItem Text="New window" Click="NewWindowClickHandler" AccessKey="N">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="N" Modifiers="Control,Shift" />
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+
+                <MenuFlyoutItem Text="Open" Click="OpenClickHandler" IsEnabled="{x:Bind local:PuzzleTabContent.IsFileDialogAvailable}" AccessKey="O">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="O" Modifiers="Control" />
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+
+                <MenuFlyoutItem Text="Save" Click="SaveClickHandler" IsEnabled="{x:Bind local:PuzzleTabContent.IsFileDialogAvailable}" AccessKey="S">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="S" Modifiers="Control" />
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+
+                <MenuFlyoutItem Text="Save As..." Click="SaveAsClickHandler" IsEnabled="{x:Bind local:PuzzleTabContent.IsFileDialogAvailable}" AccessKey="A">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="S" Modifiers="Control,Shift"/>
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+
+                <MenuFlyoutSeparator />
+                <MenuFlyoutItem Text="Print..." Click="PrintClickHandler" IsEnabled="{x:Bind local:PuzzleTabContent.IsPrintingAvailable}" AccessKey="P">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="P" Modifiers="Control"/>
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+
+                <MenuFlyoutSeparator />
+                <MenuFlyoutItem Text="Close tab" Click="CloseTabClickHandler" AccessKey="C">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="W" Modifiers="Control"/>
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+                
+                <MenuFlyoutItem Text="Close window" Click="CloseWindowClickHandler" AccessKey="C">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="W" Modifiers="Control,Shift"/>
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem Text="Exit" Click="ExitClickHandler" AccessKey="X"/>
+            </MenuBarItem>
+
+            <MenuBarItem Title="Edit" AccessKey="E" >
+                <MenuFlyoutItem x:Name="EditMenuItem" Text="Undo" Command="{x:Bind ViewModel.UndoCommand}" AccessKey="U">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="Z" Modifiers="Control"/>
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem Text="Redo" Command="{x:Bind ViewModel.RedoCommand}" AccessKey="R">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="Y" Modifiers="Control"/>
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+
+                <MenuFlyoutSeparator />
+                <MenuFlyoutItem Text="Cut" Command="{x:Bind ViewModel.CutCommand}" AccessKey="T">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="X" Modifiers="Control"/>
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem Text="Copy" Command="{x:Bind ViewModel.CopyCommand}" AccessKey="C">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="C" Modifiers="Control"/>
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem Text="Paste" Command="{x:Bind ViewModel.PasteCommand}" AccessKey="P">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="V" Modifiers="Control"/>
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+                <MenuFlyoutSeparator />
+                <MenuFlyoutSubItem Text="Provided" AccessKey="P">
+                    <MenuFlyoutItem Text="Mark" Command="{x:Bind ViewModel.MarkProvidedCommand}" AccessKey="M"/>
+                    <MenuFlyoutItem Text="Clear" Command="{x:Bind ViewModel.ClearProvidedCommand}" AccessKey="C"/>
+                </MenuFlyoutSubItem>
+            </MenuBarItem>
+
+            <MenuBarItem Title="View" AccessKey="V">
+                <ToggleMenuFlyoutItem x:Name="ViewMenuItem" Text="Possibles" IsChecked="{x:Bind ViewModel.ShowPossibles, Mode=TwoWay}" AccessKey="P"/>
+                <ToggleMenuFlyoutItem Text="Solution" IsChecked="{x:Bind ViewModel.ShowSolution, Mode=TwoWay}" AccessKey="S"/>
+            </MenuBarItem>
+        </MenuBar>
+
+        <CommandBar Grid.Column="1" DefaultLabelPosition="Collapsed" OverflowButtonVisibility="Collapsed" Background="Transparent">
+            <AppBarButton MinWidth="40" MaxWidth="40" ToolTipService.ToolTip="Settings" ToolTipService.Placement="Top" Click="SettingsButton_Click">
+                <!--<BitmapIcon UriSource="/Resources/Settings.png" ShowAsMonochrome="False"/>-->
+                <SymbolIcon Symbol="Setting"/>
+            </AppBarButton>
+        </CommandBar>
+
+        <local:PuzzleView x:Name="Puzzle" Grid.Row="1" Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="8,0,8,8" SelectedIndexChanged="{x:Bind ViewModel.Puzzle_SelectedIndexChanged}"/>
+    </Grid>
+</UserControl>

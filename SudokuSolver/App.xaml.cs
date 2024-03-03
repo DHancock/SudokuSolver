@@ -1,7 +1,7 @@
 ﻿using SudokuSolver.Utilities;
 using SudokuSolver.Views;
+using SudokuSolver.ViewModels;
 
-// not to be confused with Windows.System.DispatcherQueue
 using DispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue;
 
 namespace SudokuSolver;
@@ -14,14 +14,12 @@ public partial class App : Application
     public const string cFileExt = ".sdku";
     public const string cDisplayName = "Sudoku Solver";
     public const string cNewPuzzleName = "Untitled";
-
-    public static bool IsPackaged { get; } = GetIsPackaged();
     public static App Instance => (App)Current;
 
     private readonly DispatcherQueue uiThreadDispatcher;
     private readonly AppInstance appInstance;
-    private readonly List<WindowBase> windowList = new List<WindowBase>();
-    private WindowBase? currentWindow;
+    private readonly List<MainWindow> windowList = new();
+    private MainWindow? currentWindow;
 
     private bool appClosing = false;
 
@@ -51,17 +49,12 @@ public partial class App : Application
         }
         else if (args.Kind == ExtendedActivationKind.Launch)
         {
-            if (IsPackaged)
-                CreateNewWindow(storageFile: null);
-            else
-            {
-                IReadOnlyList<string> commandLine = Environment.GetCommandLineArgs();
+            string[] commandLine = Environment.GetCommandLineArgs();
 
-                bool windowCreated = await ProcessCommandLine(commandLine);
+            bool windowCreated = await ProcessCommandLine(commandLine);
 
-                if (!windowCreated)
-                    CreateNewWindow(storageFile: null);
-            }
+            if (!windowCreated)
+                CreateWindow(Settings.Data.RestoreBounds);
         }
     }
 
@@ -83,26 +76,39 @@ public partial class App : Application
         Debug.Assert(success);
     }
 
+
+    // can be called from both normal launch and redirrection
     private void ProcessFileActivation(AppActivationArguments args)
     {
-        if ((args.Data is IFileActivatedEventArgs fileData) && (fileData.Files.Count > 0))
+        if ((args.Data is IFileActivatedEventArgs fileData) && (fileData.Files.Count > 0) && !appClosing)
         {
             foreach (IStorageItem storageItem in fileData.Files)
             {
                 if (storageItem is StorageFile storageFile)
-                    CreateNewWindow(storageFile);
+                {
+                    if (currentWindow is null)
+                    {
+                        currentWindow = CreateWindow(storageFile, Settings.Data.RestoreBounds);
+                    }
+                    else
+                    {
+                        TabViewItem newTab = currentWindow.CreatePuzzleTab(storageFile);
+                        currentWindow.AddTab(newTab);
+                    }
+                }
             }
         }
     }
+
 
     private async Task ProcessRedirectedLaunchActivation(AppActivationArguments args)
     {
         if (args.Data is ILaunchActivatedEventArgs launchData)
         {
-            IReadOnlyList<string> commandLine = SplitLaunchActivationCommandLine(launchData.Arguments);
+            List<string> commandLine = SplitLaunchActivationCommandLine(launchData.Arguments);
 
             bool windowCreated = await ProcessCommandLine(commandLine);
-                
+
             if (!windowCreated)
                 AttemptSwitchToWindow(currentWindow);
         }
@@ -110,55 +116,74 @@ public partial class App : Application
 
     private async Task<bool> ProcessCommandLine(IReadOnlyList<string> args)
     {
-        bool windowCreated = false;
+        bool actioned = false;
 
         // args[0] is typically the path to the executing assembly
         for (int index = 1; index < args.Count; index++)
         {
             string arg = args[index];
 
-            if (App.cFileExt.Equals(Path.GetExtension(arg), StringComparison.OrdinalIgnoreCase) && File.Exists(arg))
+            if (cFileExt.Equals(Path.GetExtension(arg), StringComparison.OrdinalIgnoreCase) && File.Exists(arg))
             {
-                StorageFile storgeFile = await StorageFile.GetFileFromPathAsync(arg);
-                CreateNewWindow(storgeFile);
-                windowCreated = true;
+                StorageFile storageFile = await StorageFile.GetFileFromPathAsync(arg);
+
+                if (currentWindow is null)
+                {
+                    currentWindow = CreateWindow(storageFile, Settings.Data.RestoreBounds);
+                }
+                else
+                {
+                    TabViewItem newTab = currentWindow.CreatePuzzleTab(storageFile);
+                    currentWindow.AddTab(newTab);
+                }
+
+                actioned = true;
             }
         }
 
-        return windowCreated;
+        return actioned;
     }
 
-    internal void CreateNewWindow(StorageFile? storageFile, MainWindow? creator = null)
+    internal MainWindow CreateWindow(RectInt32 bounds)
     {
-        if (!appClosing)
-        {
-            MainWindow window = new MainWindow(storageFile, creator);
-            windowList.Add(window);
-            AttemptSwitchToWindow(window);
-        }
+        Debug.Assert(!appClosing);
+        MainWindow window = new MainWindow(bounds, null);
+        windowList.Add(window);
+        AttemptSwitchToWindow(window);
+        return window;
     }
 
-    internal void ShowColorsWindow()
+    internal MainWindow CreateWindow(StorageFile storageFile, RectInt32 bounds)
     {
-        if (!appClosing)
-        {
-            WindowBase? colorsWindow = windowList.FirstOrDefault(w => w is ColorsWindow);
-
-            if (colorsWindow is null)
-            {
-                colorsWindow = new ColorsWindow();
-                windowList.Add(colorsWindow);
-                colorsWindow.Activate();
-            }
-            else
-            {
-                bool success = AttemptSwitchToWindow(colorsWindow);
-                Debug.Assert(success);
-            }
-        }
+        Debug.Assert(!appClosing);
+        MainWindow window = new MainWindow(bounds, storageFile);
+        windowList.Add(window);
+        AttemptSwitchToWindow(window);
+        return window;
     }
 
-    internal bool UnRegisterWindow(WindowBase window)
+    internal MainWindow CreateWindow(TabViewItem tab, RectInt32 bounds)
+    {
+        Debug.Assert(!appClosing);
+        MainWindow window = new MainWindow(tab, bounds);
+        windowList.Add(window);
+        AttemptSwitchToWindow(window);
+        return window;
+    }
+
+    internal MainWindow GetWindowForElement(UIElement element)
+    {
+        foreach (MainWindow wb in windowList)
+        {
+            if (wb.Content.XamlRoot == element.XamlRoot)
+                return wb;
+        }
+
+        Debug.Assert(false);
+        throw new KeyNotFoundException("window not found in windowList");
+    }
+
+    internal bool UnRegisterWindow(MainWindow window)
     {
         appClosing = windowList.Count == 1;
 
@@ -173,7 +198,7 @@ public partial class App : Application
         return appClosing;
     }
 
-    private static bool AttemptSwitchToWindow(WindowBase? window)
+    private static bool AttemptSwitchToWindow(MainWindow? window)
     {
         Debug.Assert(window is not null);
 
@@ -198,7 +223,7 @@ public partial class App : Application
             window.PostCloseMessage();
     }
 
-    internal RectInt32 GetNewWindowPosition(WindowBase newWindow, RectInt32 restoreBounds)
+    internal RectInt32 GetNewWindowPosition(MainWindow newWindow, RectInt32 restoreBounds)
     {
         if (restoreBounds.IsEmpty())  // first run
             return CenterInPrimaryDisplay(newWindow);
@@ -229,14 +254,14 @@ public partial class App : Application
         {
             RectInt32 aRect = new RectInt32(a.X, a.Y, titleBarHeight, titleBarHeight);
             RectInt32 bRect = new RectInt32(b.X, b.Y, titleBarHeight, titleBarHeight);
-            return aRect.Intersects(bRect); 
+            return aRect.Intersects(bRect);
         }
 
         const int cTitleBarHeight = 32;
         int index = 0;
         int resetCount = 0;
         PointInt32 newPos = bounds.TopLeft();
-        
+
         while ((index < windowList.Count) && (resetCount < windowList.Count))
         {
             WindowBase existingWindow = windowList[index++];
@@ -286,17 +311,6 @@ public partial class App : Application
         return new RectInt32(position.X, position.Y, width, height);
     }
 
-    private static bool GetIsPackaged()
-    {
-#if DEBUG
-        uint length = 0;
-        WIN32_ERROR error = PInvoke.GetCurrentPackageFullName(ref length, null);
-        return error == WIN32_ERROR.ERROR_INSUFFICIENT_BUFFER;
-#else
-        return false;
-#endif
-    }
-
     // The command line is constructed by the os when a file is dragged 
     // and dropped onto the exe (or it's shortcut), so really should be well formed.
     private static List<string> SplitLaunchActivationCommandLine(string commandLine)
@@ -328,10 +342,8 @@ public partial class App : Application
 
     public void RecordWindowActivated(object sender, WindowActivatedEventArgs args)
     {
-        // used to determine which window to activate on launch redirection
-        if (args.WindowActivationState != WindowActivationState.Deactivated) 
-            currentWindow = (WindowBase)sender;
+        // used to determine which window to activate, or add tabs too on launch redirection
+        if (args.WindowActivationState != WindowActivationState.Deactivated)
+            currentWindow = (MainWindow)sender;
     }
-
-    internal WindowBase? CurrentWindow => currentWindow;
 }

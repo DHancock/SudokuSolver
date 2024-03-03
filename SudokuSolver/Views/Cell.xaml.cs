@@ -12,14 +12,13 @@ internal sealed partial class Cell : UserControl
 {
     private static readonly string[] sLookUp = [string.Empty, "1", "2", "3", "4", "5", "6", "7", "8", "9"];
     private enum VisualState { Normal, SelectedFocused, SelectedUnfocused, PointerOver }
-    private VisualState currentVisualState = VisualState.Normal;
 
-    private readonly PossibleTextBlock[] possibleTBs;
+    private readonly TextBlock[] possibleTBs;
 
     public event TypedEventHandler<Cell, SelectionChangedEventArgs>? SelectionChanged;
 
     private bool isSelected = false;
-    
+
     public Cell()
     {
         this.InitializeComponent();
@@ -31,22 +30,6 @@ internal sealed partial class Cell : UserControl
         possibleTBs = [PossibleValue0, PossibleValue1, PossibleValue2, PossibleValue3, PossibleValue4, PossibleValue5, PossibleValue6, PossibleValue7, PossibleValue8];
     }
 
-    protected override void OnPointerExited(PointerRoutedEventArgs e)
-    {
-        base.OnPointerExited(e);
-
-        if (!IsSelected)
-            GoToVisualState(VisualState.Normal);
-    }
-
-    protected override void OnPointerEntered(PointerRoutedEventArgs e)
-    {
-        base.OnPointerEntered(e);
-
-        if (!IsSelected)
-            GoToVisualState(VisualState.PointerOver);
-    }
-
     public bool IsSelected
     {
         get => isSelected;
@@ -56,7 +39,7 @@ internal sealed partial class Cell : UserControl
             {
                 isSelected = value;
 
-                SelectionChanged?.Invoke(this, new SelectionChangedEventArgs(Data.Index, value));
+                SelectionChanged?.Invoke(this, new SelectionChangedEventArgs(Data.Index, value)); 
 
                 if (!isSelected) // set by the puzzle to enforce single selection
                     GoToVisualState(VisualState.Normal);
@@ -79,7 +62,7 @@ internal sealed partial class Cell : UserControl
                 GoToVisualState(VisualState.SelectedFocused);
         }
         else
-            GoToVisualState(VisualState.PointerOver);
+            GoToVisualState(VisualState.Normal);
     }
 
     protected override void OnLostFocus(RoutedEventArgs e)
@@ -90,12 +73,9 @@ internal sealed partial class Cell : UserControl
             GoToVisualState(VisualState.Normal);
     }
 
-    // Above every thing else in the visual tree is a scroll viewer that's
-    // provided by Microsoft. It steals focus immediately after a User
-    // Control receives focus. This cancels that focus change.
     private void Cell_LosingFocus(UIElement sender, LosingFocusEventArgs args)
     {
-        if (args.NewFocusedElement is ScrollViewer)
+        if ((args.NewFocusedElement is TabViewItem) || (args.NewFocusedElement is ScrollViewer))
         {
             bool cancelled = args.TryCancel();
             Debug.Assert(cancelled);
@@ -112,14 +92,9 @@ internal sealed partial class Cell : UserControl
 
     private void GoToVisualState(VisualState state)
     {
-        if (state != currentVisualState)
-        {
-            bool stateFound = VisualStateManager.GoToState(this, state.ToString(), false);
-            Debug.Assert(stateFound, $"unknown visual state: {state.ToString()}");
-            currentVisualState = state;
-        }
+        bool stateFound = VisualStateManager.GoToState(this, state.ToString(), false);
+        Debug.Assert(stateFound);
     }
-
 
     public static readonly DependencyProperty DataProperty =
         DependencyProperty.Register(nameof(Data),
@@ -136,34 +111,43 @@ internal sealed partial class Cell : UserControl
     private static void CellDataChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         Cell cell = (Cell)d;
-        ViewModels.Cell viewModelCell = (ViewModels.Cell)e.NewValue;
+        ViewModels.Cell cellData = (ViewModels.Cell)e.NewValue;
 
-        if (viewModelCell.HasValue)
+        if (cellData.HasValue)
         {
-            // sets the cell value text and color
 #if DEBUG
-            bool stateFound = VisualStateManager.GoToState(cell, viewModelCell.Origin.ToString(), false);
+            Origins origin = cellData.Origin;
 #else
-            Origins origin = (viewModelCell.Origin == Origins.Trial) ? Origins.Calculated : viewModelCell.Origin;
-            bool stateFound = VisualStateManager.GoToState(cell, origin.ToString(), false);
+            Origins origin = (cellData.Origin == Origins.Trial) ? Origins.Calculated : cellData.Origin;
 #endif
-            Debug.Assert(stateFound); 
+            bool stateFound = VisualStateManager.GoToState(cell, origin.ToString(), false);
+            Debug.Assert(stateFound);
 
-            if (((ViewModels.PuzzleViewModel)cell.DataContext).ShowSolution || (viewModelCell.Origin == Origins.User) || (viewModelCell.Origin == Origins.Provided))
+            if (((ViewModels.PuzzleViewModel)cell.DataContext).ShowSolution || (cellData.Origin == Origins.User) || (cellData.Origin == Origins.Provided))
             {
-                cell.CellValue.Text = sLookUp[viewModelCell.Value];
+                cell.CellValue.Opacity = 1;
+                cell.CellValue.Text = sLookUp[cellData.Value];
             }
             else
             {
-                cell.CellValue.Text = string.Empty;
+                cell.CellValue.Opacity = 0;  // allows for hit testing
             }
 
-            foreach (PossibleTextBlock tb in cell.possibleTBs)
-                tb.Text = string.Empty;
+            if (cell.PossibleValue0.Visibility != Visibility.Collapsed)
+            {
+                foreach (TextBlock tb in cell.possibleTBs)
+                {
+                    tb.Visibility = Visibility.Collapsed;
+                }
+            }
         }
         else
         {
-            cell.CellValue.Text = string.Empty;
+            SolidColorBrush? verticalBrush = null;
+            SolidColorBrush? horizontalBrush = null;
+            SolidColorBrush? normalBrush = null;
+
+            cell.CellValue.Opacity = 0;
 
             if (((ViewModels.PuzzleViewModel)cell.DataContext).ShowPossibles)
             {
@@ -171,34 +155,60 @@ internal sealed partial class Cell : UserControl
 
                 for (int i = 1; i < 10; i++)
                 {
-                    if (viewModelCell.Possibles[i])
+                    if (cellData.Possibles[i])
                     {
-                        PossibleTextBlock tb = cell.possibleTBs[writeIndex++];
+                        TextBlock tb = cell.possibleTBs[writeIndex++];
+                        tb.Visibility = Visibility.Visible;
                         tb.Text = sLookUp[i];
 
-                        bool stateFound;
-
-                        if (viewModelCell.VerticalDirections[i])
-                            stateFound = VisualStateManager.GoToState(tb, "Vertical", false);
-                        else if (viewModelCell.HorizontalDirections[i])
-                            stateFound = VisualStateManager.GoToState(tb, "Horizontal", false);
+                        if (cellData.VerticalDirections[i])
+                        {
+                            verticalBrush ??= GetBrush(tb.ActualTheme, "PossiblesVerticalBrush");
+                            tb.Foreground = verticalBrush;
+                        }
+                        else if (cellData.HorizontalDirections[i])
+                        {
+                            horizontalBrush ??= GetBrush(tb.ActualTheme, "PossiblesHorizontalBrush");
+                            tb.Foreground = horizontalBrush;
+                        }
                         else
-                            stateFound = VisualStateManager.GoToState(tb, "None", false);
-
-                        Debug.Assert(stateFound);
+                        {
+                            normalBrush ??= GetBrush(tb.ActualTheme, "CellPossiblesBrush");
+                            tb.Foreground = normalBrush;
+                        }
                     }
                 }
 
                 while (writeIndex < 9)
-                    cell.possibleTBs[writeIndex++].Text = string.Empty;
+                {
+                    cell.possibleTBs[writeIndex++].Visibility = Visibility.Collapsed;
+                }
             }
             else
             {
-                foreach (PossibleTextBlock tb in cell.possibleTBs)
-                    tb.Text = string.Empty;
+                foreach (TextBlock tb in cell.possibleTBs)
+                {
+                    tb.Visibility = Visibility.Collapsed;
+                }
             }
         }
     }
+
+    private static SolidColorBrush GetBrush(ElementTheme theme, string key)
+    {
+        ResourceDictionary? rd = Utils.GetThemeDictionary(theme.ToString());
+
+        if (rd is not null)
+        {
+            Debug.Assert(rd.ContainsKey(key));
+            Debug.Assert(rd[key] is SolidColorBrush);
+
+            return (SolidColorBrush)rd[key];
+        }
+
+        return new SolidColorBrush(Colors.Black);
+    }
+
 
     // The new value for the cell is forwarded by the view model to the model 
     // which recalculates the puzzle. After that each model cell is compared to

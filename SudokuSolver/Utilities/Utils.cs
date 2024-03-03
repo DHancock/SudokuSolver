@@ -28,4 +28,12 @@ internal static class Utils
 
         return newIndex;
     }
+
+    public static ResourceDictionary? GetThemeDictionary(string themeKey)
+    {
+        Debug.Assert(App.Instance.Resources.MergedDictionaries.Count == 2);
+        Debug.Assert(App.Instance.Resources.MergedDictionaries[1].ThemeDictionaries.ContainsKey(themeKey));
+
+        return App.Instance.Resources.MergedDictionaries[1].ThemeDictionaries[themeKey] as ResourceDictionary;
+    }
 }

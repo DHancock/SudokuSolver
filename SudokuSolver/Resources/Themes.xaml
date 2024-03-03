@@ -18,7 +18,8 @@
             <SolidColorBrush x:Key="MinorGridStroke" Color="{ThemeResource SystemAccentColor}"/>
             <SolidColorBrush x:Key="MajorGridStroke" Color="{ThemeResource SystemAccentColor}"/>
             <StaticResource x:Key="CellBackgroundPointerOver" ResourceKey="SubtleFillColorSecondaryBrush"/>
-            
+
+            <StaticResource x:Key="TabViewItemHeaderBackgroundSelected" ResourceKey="LayerFillColorDefaultBrush" />
         </ResourceDictionary>
 
         <ResourceDictionary x:Key="Dark">
@@ -39,6 +40,7 @@
             <!-- replace the black chrome default brush colour, the contrast is too low to see -->
             <SolidColorBrush x:Key="WindowCaptionForegroundDisabled" Color="Gray"/>
 
+            <StaticResource x:Key="TabViewItemHeaderBackgroundSelected" ResourceKey="LayerFillColorDefaultBrush" />
         </ResourceDictionary>
 
         <ResourceDictionary x:Key="Light">
@@ -56,6 +58,7 @@
             <SolidColorBrush x:Key="MajorGridStroke" Color="Black"/>
             <SolidColorBrush x:Key="CellBackgroundPointerOver" Color="White"/>
 
+            <StaticResource x:Key="TabViewItemHeaderBackgroundSelected" ResourceKey="LayerFillColorDefaultBrush" />
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
 

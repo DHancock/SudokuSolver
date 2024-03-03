@@ -6,22 +6,18 @@
                 xmlns:asmv3="urn:schemas-microsoft-com:asm.v3"
                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-    <trustInfo xmlns="urn:schemas-microsoft-com:asm.v2">
-        <security>
-            <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">
-                <requestedExecutionLevel level="asInvoker"
-                                         uiAccess="false" />
-            </requestedPrivileges>
-        </security>
-    </trustInfo>
+	<compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
+		<application>
+			<!-- The ID below informs the system that this application is compatible with OS features first introduced in Windows 10. 
+      It is necessary to support features in unpackaged applications, for example the custom titlebar implementation.
+      For more info see https://docs.microsoft.com/windows/apps/windows-app-sdk/use-windows-app-sdk-run-time#declare-os-compatibility-in-your-application-manifest -->
+			<supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}" />
+		</application>
+	</compatibility>
 
-    <application xmlns="urn:schemas-microsoft-com:asm.v3">
-        <windowsSettings>
-            <!-- Per Monitor V1 [OS >= Windows 8.1] Values: False, True, Per-monitor, True/PM -->
-            <dpiAware xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings">true/PM</dpiAware>
-            <!-- Per Monitor V1 [OS >= Windows 10 Anniversary Update (1607, 10.0.14393, Redstone 1)] Values: Unaware, System, PerMonitor -->
-            <!-- Per Monitor V2 [OS >= Windows 10 Creators Update (1703, 10.0.15063, Redstone 2)] Value: PerMonitorV2 -->
-            <dpiAwareness xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">PerMonitorV2, PerMonitor</dpiAwareness>
-        </windowsSettings>
-    </application>
+	<application xmlns="urn:schemas-microsoft-com:asm.v3">
+		<windowsSettings>
+			<dpiAwareness xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">PerMonitorV2</dpiAwareness>
+		</windowsSettings>
+	</application>
 </assembly>

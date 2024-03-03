@@ -11,18 +11,20 @@ internal partial class PuzzleView : UserControl
     private Cell? lastSelectedCell;
     public event TypedEventHandler<PuzzleView, Cell.SelectionChangedEventArgs>? SelectedIndexChanged;
 
-    public bool IsPrintView { get; set; } = false;
-
     public PuzzleView()
     {
         InitializeComponent();
 
-        SizeChanged += (s, e) =>
+        // if the app theme is different from the systems an initial opacity of zero stops  
+        // excessive background flashing when creating new tabs, looks intensional...
+        Loaded += PuzzleView_Loaded;
+
+        static void PuzzleView_Loaded(object sender, RoutedEventArgs e)
         {
-            // printers generally have much higher resolutions than monitors
-            if (!IsPrintView)
-                Grid.AdaptForScaleFactor(e.NewSize.Width);
-        };
+            PuzzleView puzzleView = (PuzzleView)sender;
+            puzzleView.Grid.Opacity = 1;
+            puzzleView.Loaded -= PuzzleView_Loaded;
+        }
     }
 
     public PuzzleViewModel? ViewModel
@@ -56,12 +58,5 @@ internal partial class PuzzleView : UserControl
         }
     }
 
-    public void FocusLastSelectedCell()
-    {
-        if (lastSelectedCell is not null)
-        {
-            bool success = lastSelectedCell.Focus(FocusState.Programmatic);
-            Debug.Assert(success);
-        }
-    }
+    public void FocusLastSelectedCell() => lastSelectedCell?.Focus(FocusState.Programmatic);
 }
