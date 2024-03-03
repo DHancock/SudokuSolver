@@ -1,4 +1,5 @@
-﻿using SudokuSolver.ViewModels;
+﻿using SudokuSolver.Utilities;
+using SudokuSolver.ViewModels;
 
 using Windows.Foundation.Collections;
 
@@ -214,7 +215,7 @@ internal sealed partial class MainWindow : WindowBase
         }
         else
         {
-            if (sender.TabItems.Count == 1)
+            if ((sender.TabItems.Count == 1) || IntegrityLevel.IsElevated)
             {
                 sender.CanReorderTabs = false;
                 sender.CanDragTabs = false;
