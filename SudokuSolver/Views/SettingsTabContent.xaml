@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<local:WindowBase
-    x:Class="SudokuSolver.Views.ColorsWindow"
+<UserControl
+    x:Class="SudokuSolver.Views.SettingsTabContent"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:SudokuSolver.Views"
@@ -8,72 +8,38 @@
     xmlns:w3c="using:AssyntSoftware.WinUI3Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"    
-    MinWidth="450"
-    MinHeight="430"
-    InitialWidth="600"
-    InitialHeight="500">
+    mc:Ignorable="d">
 
-    <Window.SystemBackdrop>
-        <MicaBackdrop/>
-    </Window.SystemBackdrop>
-    
-    <Grid x:Name="LayoutRoot" RequestedTheme="{x:Bind ViewModel.Theme, Mode=OneWay}">
-
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="10"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-
-        <Grid.Resources>
-            <!--use x:Name to guarantee the menu is constructed before xaml tries to update the commands-->
-            <MenuFlyout x:Name="SystemMenuFlyout">
-                <MenuFlyoutItem Command="{x:Bind RestoreCommand}" Text="Restore" AccessKey="R"/>
-                <MenuFlyoutItem Command="{x:Bind MoveCommand}" Text="Move" AccessKey="M"/>
-                <MenuFlyoutItem Command="{x:Bind SizeCommand}" Text="Size" AccessKey="S"/>
-                <MenuFlyoutItem Command="{x:Bind MinimizeCommand}" Text="Minimize" AccessKey="N"/>
-                <MenuFlyoutItem Command="{x:Bind MaximizeCommand}" Text="Maximize" AccessKey="X"/>
-                <MenuFlyoutSeparator/>
-                <MenuFlyoutItem Command="{x:Bind CloseCommand}" Text="Close" AccessKey="C">
-                    <MenuFlyoutItem.KeyboardAccelerators>
-                        <!-- disabled to avoid two close messages -->
-                        <KeyboardAccelerator Modifiers="Menu" Key="F4" IsEnabled="False"/>
-                    </MenuFlyoutItem.KeyboardAccelerators>
-                </MenuFlyoutItem>
-            </MenuFlyout>
-        </Grid.Resources>
-
+    <Grid x:Name="LayoutRoot" Background="{ThemeResource LayerFillColorDefaultBrush}">
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="900" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="AboutInfo.(Grid.Row)" Value="0" />
+                        <Setter Target="AboutInfo.(Grid.RowSpan)" Value="5" />
+                        <Setter Target="AboutInfo.(Grid.Column)" Value="1" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+        
         <!-- left, top, right, bottom -->
 
-        <local:CustomTitleBar x:Name="CustomTitleBar" IconSourceUri="ms-appx:///Resources/settings.png"/>
-       
-        <MenuBar x:Name="Menu" Grid.Row="1" HorizontalAlignment="Left">
-            <MenuBarItem Title="File" AccessKey="F">
-                <MenuFlyoutItem Text="Close" Click="CloseClickHandler" AccessKey="C">
-                    <MenuFlyoutItem.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="W" Modifiers="Control"/>
-                    </MenuFlyoutItem.KeyboardAccelerators>
-                </MenuFlyoutItem>
-                <MenuFlyoutItem Text="Exit" Click="ExitClickHandler" AccessKey="X"/>
-            </MenuBarItem>
-            <MenuBarItem Title="View" AccessKey="V">
-                <ToggleMenuFlyoutItem Text="Dark theme" IsChecked="{x:Bind ViewModel.IsDarkThemed, Mode=TwoWay}" AccessKey="D"/>
-                <MenuFlyoutSeparator/>
-                <MenuFlyoutItem Text="About..." Click="AboutClickHandler" AccessKey="A"/>
-            </MenuBarItem>
-        </MenuBar>
-
-        <ScrollViewer Grid.Row="3" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
-
-            <Grid RowDefinitions="Auto,Auto,Auto,*" Margin="10,0,20,0">
+        <ScrollViewer Grid.Row="0" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
+            <Grid RowDefinitions="Auto,Auto,Auto,Auto,*"   Margin="20,40,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition MaxWidth="600"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
                 <Grid.Resources>
                     <Style TargetType="TextBlock">
                         <Setter Property="Margin" Value="10,0,0,0"/>
                     </Style>
                     <Style TargetType="Expander">
-                        <Setter Property="Margin" Value="0,0,0,10"/>
+                        <Setter Property="Margin" Value="0,0,0,15"/>
                     </Style>
                     <Style TargetType="w3c:SimpleColorPicker">
                         <Setter Property="IsMiniPalette" Value="False"/>
@@ -81,10 +47,38 @@
                         <Setter Property="HorizontalAlignment" Value="Right"/>
                     </Style>
                 </Grid.Resources>
-                <Expander x:Name="LightExpander" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+
+                <Expander Grid.Row="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                     <Expander.Header>
                         <StackPanel Orientation="Horizontal">
-                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE706;"/>
+                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xF08C;"/>
+                            <TextBlock Text="App theme"/>
+                        </StackPanel>
+                    </Expander.Header>
+                    <StackPanel>
+                        <RadioButton IsChecked="{x:Bind vm:SettingsViewModel.IsLightTheme, Mode=OneWay}" Content="Light" Click="RadioButton_Light"/>
+                        <RadioButton IsChecked="{x:Bind vm:SettingsViewModel.IsDarkTheme, Mode=OneWay}" Content="Dark" Click="RadioButton_Dark"/>
+                        <RadioButton IsChecked="{x:Bind vm:SettingsViewModel.IsSystemTheme, Mode=OneWay}" Content="Use system setting" Click="RadioButton_System"/>
+                    </StackPanel>
+                </Expander>
+
+                <Expander Grid.Row="1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                    <Expander.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE80A;"/>
+                            <TextBlock Text="View options"/>
+                        </StackPanel>
+                    </Expander.Header>
+                    <StackPanel>
+                        <CheckBox Content="Show possible values" IsChecked="{x:Bind ViewModel.ShowPossibles, Mode=TwoWay}"/>
+                        <CheckBox Content="Show solution" IsChecked="{x:Bind ViewModel.ShowSolution, Mode=TwoWay}"/>
+                    </StackPanel>
+                </Expander>
+
+                <Expander Grid.Row="2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                    <Expander.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE790;"/>
                             <TextBlock Text="Light theme colors"/>
                         </StackPanel>
                     </Expander.Header>
@@ -108,10 +102,10 @@
                     </Grid>
                 </Expander>
 
-                <Expander x:Name="DarkExpander" Grid.Row="1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                <Expander Grid.Row="3" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                     <Expander.Header>
                         <StackPanel Orientation="Horizontal">
-                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xF08C;"/>
+                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE790;"/>
                             <TextBlock Text="Dark theme colors"/>
                         </StackPanel>
                     </Expander.Header>
@@ -134,7 +128,8 @@
                         <Button Grid.Row="5" Grid.Column="2" Content="Reset to defaults" Command="{x:Bind ViewModel.ResetDarkColors}" HorizontalAlignment="Right" Margin="10,0,0,0"/>
                     </Grid>
                 </Expander>
+                <local:AboutBox x:Name="AboutInfo" Grid.Column="0" Grid.Row="4" HorizontalAlignment="Center" />
             </Grid>
         </ScrollViewer>
     </Grid>
-</local:WindowBase>
+</UserControl>

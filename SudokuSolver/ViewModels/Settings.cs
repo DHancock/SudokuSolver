@@ -10,7 +10,8 @@ internal class Settings
     public PerPrintSettings PrintSettings { get; set; } = new PerPrintSettings();
     public WindowState WindowState { get; set; } = WindowState.Normal;
     public RectInt32 RestoreBounds { get; set; } = default;
-    public RectInt32 ColorsRestoreBounds { get; set; } = default;
+    public ElementTheme Theme { get; set; } = Application.Current.RequestedTheme == ApplicationTheme.Light ? ElementTheme.Light : ElementTheme.Dark;
+
     public List<Color> LightThemeColors { get; set; }
     public List<Color> DarkThemeColors { get; set; }
 
@@ -24,8 +25,8 @@ internal class Settings
     private Settings()
     {
         // load defaults before the current settings over write them
-        DefaultLightThemeColors = ColorsViewModel.ReadResourceThemeColors("Light");
-        DefaultDarkThemeColors = ColorsViewModel.ReadResourceThemeColors("Dark");
+        DefaultLightThemeColors = SettingsViewModel.ReadResourceThemeColors("Light");
+        DefaultDarkThemeColors = SettingsViewModel.ReadResourceThemeColors("Dark");
         // initialize now in case they aren't in the json file
         LightThemeColors = new List<Color>(DefaultLightThemeColors);
         DarkThemeColors = new List<Color>(DefaultDarkThemeColors);
@@ -79,7 +80,7 @@ internal class Settings
 
                         if (settings is not null)
                         {
-                            ColorsViewModel.UpdateResourceThemeColors("Light", settings.LightThemeColors);
+                            SettingsViewModel.UpdateResourceThemeColors("Light", settings.LightThemeColors);
 
                             // if reading an old settings file with fewer custom colors, make up the numbers with default values
                             for (int index = settings.LightThemeColors.Count; index < settings.DefaultLightThemeColors.Count; index++)
@@ -87,7 +88,7 @@ internal class Settings
                                 settings.LightThemeColors.Add(settings.DefaultLightThemeColors[index]);
                             }
 
-                            ColorsViewModel.UpdateResourceThemeColors("Dark", settings.DarkThemeColors);
+                            SettingsViewModel.UpdateResourceThemeColors("Dark", settings.DarkThemeColors);
 
                             for (int index = settings.DarkThemeColors.Count; index < settings.DefaultDarkThemeColors.Count; index++)
                             {
@@ -130,14 +131,10 @@ internal class Settings
     // The clone function is used to give each view model it's own copy
     internal sealed class PerViewSettings
     {
-        public bool IsDarkThemed { get; set; } = Application.Current.RequestedTheme == ApplicationTheme.Dark;
         public bool ShowPossibles { get; set; } = false;
         public bool ShowSolution { get; set; } = true;
 
-        [JsonIgnore]
-        public ElementTheme Theme  => IsDarkThemed ? ElementTheme.Dark : ElementTheme.Light;
-
-        public PerViewSettings Clone() => (PerViewSettings)this.MemberwiseClone();
+        public PerViewSettings Clone() => (PerViewSettings)MemberwiseClone();
     }
 
     internal sealed class PerPrintSettings
@@ -147,8 +144,7 @@ internal class Settings
         public PrintHelper.Margin PrintMargin { get; set; } = PrintHelper.Margin.None;
         public bool ShowHeader { get; set; } = false;
 
-        public PerPrintSettings Clone() => (PerPrintSettings)this.MemberwiseClone();
+        public PerPrintSettings Clone() => (PerPrintSettings)MemberwiseClone();
     }
 }
 
-  

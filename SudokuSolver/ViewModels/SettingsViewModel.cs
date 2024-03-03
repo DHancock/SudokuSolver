@@ -1,36 +1,62 @@
-﻿namespace SudokuSolver.ViewModels;
+﻿using SudokuSolver.Utilities;
 
-internal class ColorsViewModel : INotifyPropertyChanged
+namespace SudokuSolver.ViewModels;
+
+internal class SettingsViewModel : INotifyPropertyChanged
 {
     private static readonly string[] cValueKeys = ["UserCellBrush", "ProvidedCellBrush", "CalculatedCellBrush", "CellPossiblesBrush", "PossiblesHorizontalBrush", "PossiblesVerticalBrush"];
     private static readonly string[] cPropertyNames = ["User", "Provided", "Calculated", "Possible", "HPossible", "VPossible"];
 
-    private ElementTheme theme;
-
     public RelayCommand ResetLightColors { get; }
     public RelayCommand ResetDarkColors { get; }
-    
 
-    public ColorsViewModel()
+    // This singlton class mirrors the Settings singleton. The Settings singleton is responcible for reading and writing
+    // the data. Whereas this class handles notification changes for ui binding, fowarding any data to the Settings class
+    public static SettingsViewModel Data = new SettingsViewModel();
+
+    private SettingsViewModel()
     {
-        theme = Settings.Data.ViewSettings.Theme;
-
         ResetLightColors = new RelayCommand(ExecuteResetLightColors, CanExecuteResetLightColors);
         ResetDarkColors = new RelayCommand(ExecuteResetDarkColors, CanExecuteResetDarkColors);
     }
 
     public ElementTheme Theme
     {
-        get => theme;
-    }
-
-    public bool IsDarkThemed
-    {
-        get => theme == ElementTheme.Dark;
+        get => Settings.Data.Theme;
         set
         {
-            theme = value ? ElementTheme.Dark : ElementTheme.Light;
-            NotifyPropertyChanged(nameof(Theme));
+            if (value != Settings.Data.Theme)
+            {
+                Settings.Data.Theme = value;
+
+                NotifyPropertyChanged();
+                NotifyPropertyChanged(nameof(IsLightTheme));
+                NotifyPropertyChanged(nameof(IsDarkTheme));
+                NotifyPropertyChanged(nameof(IsSystemTheme));
+            }
+        }
+    }
+
+    public static bool IsLightTheme => Settings.Data.Theme == ElementTheme.Light;
+    public static bool IsDarkTheme => Settings.Data.Theme == ElementTheme.Dark;
+    public static bool IsSystemTheme => Settings.Data.Theme == ElementTheme.Default;
+    
+    public bool ShowPossibles
+    {
+        get => Settings.Data.ViewSettings.ShowPossibles;
+        set
+        {
+            Settings.Data.ViewSettings.ShowPossibles = value;
+            NotifyPropertyChanged();
+        }
+    }
+
+    public bool ShowSolution
+    {
+        get => Settings.Data.ViewSettings.ShowSolution;
+        set
+        {
+            Settings.Data.ViewSettings.ShowSolution = value;
             NotifyPropertyChanged();
         }
     }
@@ -110,7 +136,7 @@ internal class ColorsViewModel : INotifyPropertyChanged
 
     public static List<Color> ReadResourceThemeColors(string themeKey)
     {
-        ResourceDictionary? theme = GetThemeDictionary(themeKey);
+        ResourceDictionary? theme = Utils.GetThemeDictionary(themeKey);
 
         Debug.Assert(theme is not null);
         Debug.Assert(Array.TrueForAll(cValueKeys, x => theme.ContainsKey(x)));
@@ -128,7 +154,7 @@ internal class ColorsViewModel : INotifyPropertyChanged
 
     public static void UpdateResourceThemeColors(string themeKey, List<Color> colors)
     {
-        ResourceDictionary? theme = GetThemeDictionary(themeKey);
+        ResourceDictionary? theme = Utils.GetThemeDictionary(themeKey);
 
         Debug.Assert(theme is not null);
         Debug.Assert(Array.TrueForAll(cValueKeys, x => theme.ContainsKey(x)));
@@ -141,14 +167,6 @@ internal class ColorsViewModel : INotifyPropertyChanged
             if (scb.Color != colors[index])
                 scb.Color = colors[index];
         }
-    }
-
-    private static ResourceDictionary? GetThemeDictionary(string themeKey)
-    {
-        Debug.Assert(App.Instance.Resources.MergedDictionaries.Count == 2);
-        Debug.Assert(App.Instance.Resources.MergedDictionaries[1].ThemeDictionaries.ContainsKey(themeKey));
-
-        return App.Instance.Resources.MergedDictionaries[1].ThemeDictionaries[themeKey] as ResourceDictionary;
     }
 
     private void NotifyPropertyChanged([CallerMemberName] string? propertyName = default)

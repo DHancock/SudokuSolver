@@ -19,13 +19,16 @@
     <FileVersion>1.9.1</FileVersion>
   </PropertyGroup>
 
+	
+
   <ItemGroup>
-    <PackageReference Include="AssyntSoftware.WinUI3Controls" Version="2.2.0" />
+    <PackageReference Include="AssyntSoftware.WinUI3Controls" Version="2.2.1" />
     <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.49-beta">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.4.231219000" />
-	<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.2428" />
+	  <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240227000" />
+	  <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.3233" />
+	  <PackageReference Include="System.Drawing.Common" Version="8.0.2" />
 	<Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
 
@@ -42,12 +45,15 @@
 		<None Update="Resources\app.png">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
-		<None Update="Resources\settings.png">
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
 		<None Update="Resources\warning.bmp">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
+		<Page Update="Views\SettingsTabContent.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Update="Views\PuzzleTabContent.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
 
 		<Compile Include="$(MicrosoftWindowsAppSDKPackageDir)include\WindowsAppSDK-VersionInfo.cs" />
 	</ItemGroup>

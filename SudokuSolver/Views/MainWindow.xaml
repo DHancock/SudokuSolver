@@ -1,26 +1,21 @@
-﻿<local:WindowBase
+﻿<?xml version="1.0" encoding="utf-8"?>
+<local:WindowBase
     x:Class="SudokuSolver.Views.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:SudokuSolver.Views"
+    xmlns:vm="using:SudokuSolver.ViewModels"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    MinWidth="350"
-    MinHeight="405"
     InitialWidth="563"
     InitialHeight="614">
 
     <Window.SystemBackdrop>
-        <MicaBackdrop/>
+        <MicaBackdrop Kind="BaseAlt"/>
     </Window.SystemBackdrop>
-    
-    <Grid x:Name="LayoutRoot" RequestedTheme="{x:Bind ViewModel.Theme, Mode=OneWay}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+
+    <Grid x:Name="LayoutRoot" RequestedTheme="{x:Bind vm:SettingsViewModel.Data.Theme, Mode=OneWay}">
 
         <Grid.Resources>
             <!--use x:Name rather then x:Key to guarantee the menu is constructed before xaml tries to update the commands-->
@@ -37,114 +32,43 @@
                         <KeyboardAccelerator Modifiers="Menu" Key="F4" IsEnabled="False"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
-
             </MenuFlyout>
         </Grid.Resources>
-        
-        <local:CustomTitleBar x:Name="CustomTitleBar" IconSourceUri="ms-appx:///Resources/app.png"/>
 
-        <!-- used to add print preview pages to the visual tree -->
-        <Canvas x:Name="PrintCanvas" Opacity="0"/>
+        <TabView x:Name="Tabs" 
+            VerticalAlignment="Stretch"
+            HorizontalAlignment="Stretch"
+            AddTabButtonClick="Tabs_AddTabButtonClick"
+            TabCloseRequested="Tabs_TabCloseRequested"
+            TabItemsChanged="Tabs_TabItemsChanged"
+            TabDroppedOutside="Tabs_TabDroppedOutside"
+            TabStripDragOver="Tabs_TabStripDragOver"
+            TabStripDrop="Tabs_TabStripDrop"
+            TabDragStarting="Tabs_TabDragStarting"
+            SelectionChanged="Tabs_SelectionChanged"
+            TabWidthMode="SizeToContent">
 
-        <MenuBar x:Name="Menu" Grid.Row="1" HorizontalAlignment="Left">
-            <MenuBarItem Title="File" AccessKey="F">
-
-                <MenuFlyoutItem x:Name="FileMenuItem" Text="New" Click="NewClickHandler" AccessKey="N">
-                    <MenuFlyoutItem.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="N" Modifiers="Control" />
-                    </MenuFlyoutItem.KeyboardAccelerators>
-                </MenuFlyoutItem>
-
-                <MenuFlyoutItem Text="New Window" Click="NewWindowClickHandler" AccessKey="W">
-                    <MenuFlyoutItem.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="N" Modifiers="Control,Shift" />
-                    </MenuFlyoutItem.KeyboardAccelerators>
-                </MenuFlyoutItem>
-
-                <MenuFlyoutItem Text="Open" Click="OpenClickHandler" IsEnabled="{x:Bind local:MainWindow.IsFileDialogAvailable}" AccessKey="O">
-                    <MenuFlyoutItem.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="O" Modifiers="Control" />
-                    </MenuFlyoutItem.KeyboardAccelerators>
-                </MenuFlyoutItem>
-
-                <MenuFlyoutItem Text="Save" Click="SaveClickHandler" IsEnabled="{x:Bind local:MainWindow.IsFileDialogAvailable}" AccessKey="S">
-                    <MenuFlyoutItem.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="S" Modifiers="Control" />
-                    </MenuFlyoutItem.KeyboardAccelerators>
-                </MenuFlyoutItem>
-
-                <MenuFlyoutItem Text="Save As..." Click="SaveAsClickHandler" IsEnabled="{x:Bind local:MainWindow.IsFileDialogAvailable}" AccessKey="A">
-                    <MenuFlyoutItem.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="S" Modifiers="Control,Shift"/>
-                    </MenuFlyoutItem.KeyboardAccelerators>
-                </MenuFlyoutItem>
-
-                <MenuFlyoutSeparator />
-                <MenuFlyoutItem Text="Print..." Click="PrintClickHandler" IsEnabled="{x:Bind local:MainWindow.IsPrintingAvailable}" AccessKey="P">
-                    <MenuFlyoutItem.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="P" Modifiers="Control"/>
-                    </MenuFlyoutItem.KeyboardAccelerators>
-                </MenuFlyoutItem>
-
-                <MenuFlyoutSeparator />
-                <MenuFlyoutItem Text="Close" Click="CloseClickHandler" AccessKey="C">
-                    <MenuFlyoutItem.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="W" Modifiers="Control"/>
-                    </MenuFlyoutItem.KeyboardAccelerators>
-                </MenuFlyoutItem>
-                
-                <MenuFlyoutItem Text="Exit" Click="ExitClickHandler" AccessKey="X"/>
-            </MenuBarItem>
-
-            <MenuBarItem Title="Edit" AccessKey="E" >
-                <MenuFlyoutItem x:Name="EditMenuItem" Text="Undo" Command="{x:Bind Puzzle.ViewModel.UndoCommand}" AccessKey="U">
-                    <MenuFlyoutItem.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="Z" Modifiers="Control"/>
-                    </MenuFlyoutItem.KeyboardAccelerators>
-                </MenuFlyoutItem>
-                <MenuFlyoutItem Text="Redo" Command="{x:Bind Puzzle.ViewModel.RedoCommand}" AccessKey="R">
-                    <MenuFlyoutItem.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="Y" Modifiers="Control"/>
-                    </MenuFlyoutItem.KeyboardAccelerators>
-                </MenuFlyoutItem>
-
-                <MenuFlyoutSeparator />
-                <MenuFlyoutItem Text="Cut" Command="{x:Bind Puzzle.ViewModel.CutCommand}" AccessKey="T">
-                    <MenuFlyoutItem.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="X" Modifiers="Control"/>
-                    </MenuFlyoutItem.KeyboardAccelerators>
-                </MenuFlyoutItem>
-                <MenuFlyoutItem Text="Copy" Command="{x:Bind Puzzle.ViewModel.CopyCommand}" AccessKey="C">
-                    <MenuFlyoutItem.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="C" Modifiers="Control"/>
-                    </MenuFlyoutItem.KeyboardAccelerators>
-                </MenuFlyoutItem>
-                <MenuFlyoutItem Text="Paste" Command="{x:Bind Puzzle.ViewModel.PasteCommand}" AccessKey="P">
-                    <MenuFlyoutItem.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="V" Modifiers="Control"/>
-                    </MenuFlyoutItem.KeyboardAccelerators>
-                </MenuFlyoutItem>
-  
-                <MenuFlyoutSeparator />
-                <MenuFlyoutSubItem Text="Provided" AccessKey="P">
-                    <MenuFlyoutItem Text="Mark" Command="{x:Bind Puzzle.ViewModel.MarkProvidedCommand}" AccessKey="M"/>
-                    <MenuFlyoutItem Text="Clear" Command="{x:Bind Puzzle.ViewModel.ClearProvidedCommand}" AccessKey="C"/>
-                </MenuFlyoutSubItem>
-                <MenuFlyoutItem Text="Colors..." Click="ColorsClickHandler" AccessKey="E"/>
-            </MenuBarItem>
-
-            <MenuBarItem Title="View" AccessKey="V">
-                <ToggleMenuFlyoutItem Text="Possibles" IsChecked="{x:Bind Puzzle.ViewModel.ShowPossibles, Mode=TwoWay}" AccessKey="P"/>
-                <ToggleMenuFlyoutItem Text="Solution" IsChecked="{x:Bind Puzzle.ViewModel.ShowSolution, Mode=TwoWay}" AccessKey="S"/>
-
-                <MenuFlyoutSeparator />
-                <ToggleMenuFlyoutItem Text="Dark theme" IsChecked="{x:Bind ViewModel.IsDarkThemed, Mode=TwoWay}" AccessKey="D"/>
-
-                <MenuFlyoutSeparator />
-                <MenuFlyoutItem x:Name="ViewMenuItem" Text="About..." Click="AboutClickHandler" AccessKey="A"/>
-            </MenuBarItem>
-        </MenuBar>
-
-        <local:PuzzleView x:Name="Puzzle" Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="8,0,8,8" SelectedIndexChanged="{x:Bind Puzzle.ViewModel.Puzzle_SelectedIndexChanged}"/>
+            <TabView.KeyboardAccelerators>
+                <KeyboardAccelerator Key="T" Modifiers="Control" Invoked="NewTab_Invoked" />
+                <KeyboardAccelerator Key="W" Modifiers="Control" Invoked="CloseSelectedTab_Invoked" />
+                <KeyboardAccelerator Key="Number1" Modifiers="Control" Invoked="NavigateToNumberedTab_Invoked" />
+                <KeyboardAccelerator Key="Number2" Modifiers="Control" Invoked="NavigateToNumberedTab_Invoked" />
+                <KeyboardAccelerator Key="Number3" Modifiers="Control" Invoked="NavigateToNumberedTab_Invoked" />
+                <KeyboardAccelerator Key="Number4" Modifiers="Control" Invoked="NavigateToNumberedTab_Invoked" />
+                <KeyboardAccelerator Key="Number5" Modifiers="Control" Invoked="NavigateToNumberedTab_Invoked" />
+                <KeyboardAccelerator Key="Number6" Modifiers="Control" Invoked="NavigateToNumberedTab_Invoked" />
+                <KeyboardAccelerator Key="Number7" Modifiers="Control" Invoked="NavigateToNumberedTab_Invoked" />
+                <KeyboardAccelerator Key="Number8" Modifiers="Control" Invoked="NavigateToNumberedTab_Invoked" />
+                <KeyboardAccelerator Key="Number9" Modifiers="Control" Invoked="NavigateToNumberedTab_Invoked" />
+            </TabView.KeyboardAccelerators>
+            
+            <TabView.TabStripHeader>
+                <Image x:Name="WindowIcon" Source="ms-appx:///Resources/app.png" Height="16" Margin="10,8,4,0"/>
+            </TabView.TabStripHeader>
+            <TabView.TabStripFooter>
+                <!-- used to stop the caption buttons overlapping the new tab button -->
+                <Grid x:Name="RightPaddingColumn" SizeChanged="RightPaddingColumn_SizeChanged"/>
+            </TabView.TabStripFooter>
+        </TabView>
     </Grid>
 </local:WindowBase>

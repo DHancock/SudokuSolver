@@ -13,3 +13,4 @@ WM_NCLBUTTONDOWN
 GetCursorPos
 ScreenToClient
 PostMessage
+WM_DPICHANGED

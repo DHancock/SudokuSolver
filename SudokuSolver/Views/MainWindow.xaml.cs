@@ -1,5 +1,7 @@
-﻿using SudokuSolver.Utilities;
-using SudokuSolver.ViewModels;
+﻿using SudokuSolver.ViewModels;
+
+using Windows.Foundation.Collections;
+
 
 namespace SudokuSolver.Views;
 
@@ -8,447 +10,569 @@ namespace SudokuSolver.Views;
 /// </summary>
 internal sealed partial class MainWindow : WindowBase
 {
-    private enum Error { Success, Failure }
-    private enum Status { Cancelled, Continue }
+    private const string cDataIdentifier = App.cDisplayName;
 
-    public WindowViewModel ViewModel { get; }
+    private readonly RelayCommand newTabCommand;
+    private readonly RelayCommand closeTabCommand;
+    private readonly RelayCommand closeOtherCommand;
+    private readonly RelayCommand closeLeftCommand;
+    private readonly RelayCommand closeRightCommand;
 
-    private PrintHelper? printHelper;
-    private StorageFile? sourceFile;
     private bool processingClose = false;
-    private AboutBox? aboutBox;
-    private ErrorDialog? errorDialog;
-    private bool aboutBoxOpen = false;
-    private bool errorDialogOpen = false;
+   
 
-    public MainWindow(StorageFile? storageFile, MainWindow? creator)
+    private MainWindow(RectInt32 bounds)
     {
         InitializeComponent();
 
-        // each window needs a local copy of the common view settings
-        Settings.PerViewSettings viewSettings = Settings.Data.ViewSettings.Clone();
+        if (AppWindowTitleBar.IsCustomizationSupported())
+        {
+            ExtendsContentIntoTitleBar = true;
+            RightPaddingColumn.MinWidth = AppWindow.TitleBar.RightInset / GetScaleFactor();
 
-        ViewModel = new WindowViewModel(viewSettings);
-        Puzzle.ViewModel = new PuzzleViewModel(viewSettings);
-        Puzzle.ViewModel.PropertyChanged += ViewModel_PropertyChanged;  // used to update the window title
+            UpdateCaptionButtonsTheme(LayoutRoot.ActualTheme);
+            
+            LayoutRoot.ActualThemeChanged += (s, a) =>
+            {
+                UpdateCaptionButtonsTheme(s.ActualTheme);
+            };
+        }
 
         AppWindow.Closing += async (s, args) =>
         {
-            // the await call creates a continuation routine, so must cancel the close here
-            // and handle the actual closing explicitly when the continuation routine runs...
             args.Cancel = true;
-            await HandleWindowClosing();
+            await HandleWindowCloseRequested();
         };
 
-        if (AppWindowTitleBar.IsCustomizationSupported())
-        {
-            CustomTitleBar.ParentAppWindow = AppWindow;
-            CustomTitleBar.UpdateThemeAndTransparency(viewSettings.Theme);
-            Activated += CustomTitleBar.ParentWindow_Activated;
-            AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
-        }
-        else
-        {
-            CustomTitleBar.Visibility = Visibility.Collapsed;
-        }
-
-        // transfer focus back to the last selected cell, if there was one
-        FileMenuItem.Unloaded += (s, a) => FocusLastSelectedCell();
-        ViewMenuItem.Unloaded += (s, a) => FocusLastSelectedCell();
-        EditMenuItem.Unloaded += (s, a) => FocusLastSelectedCell();
-
-        // always set the window icon, it's used in the task switcher
-        AppWindow.SetIcon("Resources\\app.ico");
-        UpdateWindowTitle();
-
-        if (creator is not null)
-            AppWindow.MoveAndResize(App.Instance.GetNewWindowPosition(creator.RestoreBounds));
-        else
-            AppWindow.MoveAndResize(App.Instance.GetNewWindowPosition(this, Settings.Data.RestoreBounds));
+        AppWindow.MoveAndResize(App.Instance.GetNewWindowPosition(this, bounds));
 
         // setting the presenter will also activate the window
         if (Settings.Data.WindowState == WindowState.Minimized)
-            WindowState = WindowState.Normal;
-        else
-            WindowState = Settings.Data.WindowState;
-       
-        LayoutRoot.Loaded += async (s, e) =>
         {
-            AddDragRegionEventHandlers(LayoutRoot);
-            SetWindowDragRegions();
+            WindowState = WindowState.Normal;
+        }
+        else
+        {
+            WindowState = Settings.Data.WindowState;
+        }
 
-            // now set the duration for the next theme transition
-            Puzzle.BackgroundBrushTransition.Duration = new TimeSpan(0, 0, 0, 0, 250);
-
-            if (storageFile is not null)
+        Activated += (s, e) =>
+        {
+            if (e.WindowActivationState != WindowActivationState.Deactivated)
             {
-                Error error = await OpenFile(storageFile);
-
-                if (error == Error.Success)
-                    SourceFile = storageFile;
+                WindowIcon.Opacity = 1;
+                FocusLastSelectedCell();
+            }
+            else
+            {
+                WindowIcon.Opacity = 0.25;
             }
         };
 
-        Clipboard.ContentChanged += async (s, o) =>
-        {
-            await Puzzle.ViewModel.ClipboardContentChanged();
-        };
+        // the tab context menu command handlers
+        newTabCommand = new RelayCommand(ExecuteNewTab);
+        closeTabCommand = new RelayCommand(ExecuteCloseTab);
+        closeOtherCommand = new RelayCommand(ExecuteCloseOtherTabs, CanCloseOtherTabs);
+        closeLeftCommand = new RelayCommand(ExecuteCloseLeftTab, CanCloseLeftTabs);
+        closeRightCommand = new RelayCommand(ExecuteCloseRightTab, CanCloseRightTabs);
+    }
 
-        Activated += (s, e) => 
-        {
-            if (e.WindowActivationState != WindowActivationState.Deactivated)
-                FocusLastSelectedCell();
-        };
+
+
+    // used for launch activation and new window commands
+    public MainWindow(RectInt32 bounds, StorageFile? storageFile) : this(bounds)
+    {
+        if (storageFile is null)
+            AddTab(CreatePuzzleTab());
+        else
+            AddTab(CreatePuzzleTab(storageFile));
+    }
+
+
+    // used when a tab is dragged and dropped outside of its parent window
+    public MainWindow(TabViewItem newTab, RectInt32 bounds) : this(bounds)
+    {
+        if (newTab.Content is PuzzleTabContent)
+            AddTab(CreatePuzzleTab(newTab));
+        else
+            AddTab(CreateSettingsTab());
     }
 
     private void FocusLastSelectedCell()
     {
-        if ((App.Instance.CurrentWindow == this) && !(aboutBoxOpen || errorDialogOpen || processingClose))
-            Puzzle.FocusLastSelectedCell();
+        if (Tabs.SelectedItem is TabViewItem tvi && tvi.Content is PuzzleTabContent puzzleTab)
+            puzzleTab.FocusLastSelectedCell();
     }
 
-    private async Task HandleWindowClosing()
+    private async Task HandleWindowCloseRequested()
     {
-        // This is called from the File menu's close click handler and
-        // also the AppWindow.Closing event handler. 
-        Status status = Status.Continue;
-
-        if (IsPuzzleModified && !processingClose) 
+        if (processingClose)  // a second close attempt will always succeed
         {
-            processingClose = true; // the first attempt to close, a second will always succeed
-
-            CloseMenuFlyouts();
-
-            // cannot have more than one content dialog open at the same time
-            aboutBox?.Hide();
-            errorDialog?.Hide();
-
-            status = await SaveExistingFirst();
+            Tabs.TabItems.Clear();
+            return;
         }
 
-        if (status == Status.Cancelled)  // the save existing prompt was canceled
-        {
-            processingClose = false;
-            FocusLastSelectedCell();
-        }
-        else
-        {
-            bool isLastWindow = App.Instance.UnRegisterWindow(this);
+        await AttemptToCloseTabs(Tabs.TabItems);
+    }
 
-            // record now, the colors window could be the last window
+
+
+
+    private async Task<bool> AttemptToCloseTabs(IList<object> tabs)
+    {
+        processingClose = true;
+
+        List<(TabViewItem tab, int index)> modifiedTabs = new();
+        List<object> unModifiedTabs = new();
+
+        for (int index = 0; index < tabs.Count; index++)
+        {
+            if ((tabs[index] is TabViewItem tab) && (tab.Content is PuzzleTabContent puzzle) && puzzle.ViewModel.IsModified)
+            {
+                modifiedTabs.Add((tab, index));
+            }
+            else
+            {
+                unModifiedTabs.Add(tabs[index]);
+            }
+        }
+
+        modifiedTabs.Sort((a, b) =>
+        {
+            if (a.tab.IsSelected) return -1;
+            if (b.tab.IsSelected) return 1;
+
+            return a.index - b.index;
+        });
+
+        foreach ((TabViewItem tab, _) in modifiedTabs)
+        {
+            Tabs.SelectedItem = tab;
+            PuzzleTabContent puzzleTabContent = (PuzzleTabContent)tab.Content;
+
+            bool closed = await puzzleTabContent.HandleTabCloseRequested();
+
+            if (closed)
+            {
+                CloseTab(tab);
+            }
+            else
+            {
+                processingClose = false;
+                puzzleTabContent.FocusLastSelectedCell();
+                return true;
+            }
+        }
+
+        foreach (object tab in unModifiedTabs)
+        {
+            CloseTab(tab);
+        }
+
+        processingClose = false;
+        return false;
+    }
+
+    public void AddOrSelectSettingsTab(int index = -1)
+    {
+        if (Tabs.TabItems.FirstOrDefault(x => (x is TabViewItem tvi && tvi.Content is SettingsTabContent)) is not TabViewItem settingsTab)
+        {
+            settingsTab = CreateSettingsTab();
+
+            if ((index < 0) || (index >= Tabs.TabItems.Count))
+            {
+                Tabs.TabItems.Add(settingsTab);
+            }
+            else
+            {
+                Tabs.TabItems.Insert(index, settingsTab);
+            }
+
+            AddDragRegionEventHandlers(settingsTab);
+        }
+
+        Tabs.SelectedItem = settingsTab;
+    }
+
+    private async void Tabs_TabItemsChanged(TabView sender, IVectorChangedEventArgs args)
+    {
+        if (sender.TabItems.Count == 0)
+        {
             Settings.Data.RestoreBounds = RestoreBounds;
             Settings.Data.WindowState = WindowState;
 
-            // stop any further window drawing on close
             AppWindow.Hide();
 
-            // calling Close() doesn't raise an AppWindow.Closing event
-            Close();
+            bool isLastWindow = App.Instance.UnRegisterWindow(this);
 
             if (isLastWindow)
-                await Settings.Data.Save();
-        }
-    }
-
-    private void CloseMenuFlyouts()
-    {
-        Debug.Assert((Content is not null) && (Content.XamlRoot is not null));
-
-        foreach (Popup popup in VisualTreeHelper.GetOpenPopupsForXamlRoot(Content.XamlRoot))
-        {
-            if (popup.Child is MenuFlyoutPresenter)
-                popup.IsOpen = false;
-        }
-    }
-
-    private bool IsPuzzleModified => Puzzle.ViewModel!.IsModified;
-
-    private async void NewClickHandler(object sender, RoutedEventArgs e)
-    {
-        Status status = Status.Continue;
-
-        if (IsPuzzleModified)
-            status = await SaveExistingFirst();
-
-        if (status != Status.Cancelled)
-        {
-            Puzzle.ViewModel!.New();
-            SourceFile = null;
-        }
-
-        FocusLastSelectedCell();
-    }
-
-    private async void OpenClickHandler(object sender, RoutedEventArgs e)
-    {
-        Status status = Status.Continue;
-
-        if (IsPuzzleModified)
-            status = await SaveExistingFirst();
-
-        if (status != Status.Cancelled)
-        {
-            FileOpenPicker openPicker = new FileOpenPicker();
-            InitializeWithWindow.Initialize(openPicker, WindowPtr);
-            openPicker.FileTypeFilter.Add(App.cFileExt);
-
-            StorageFile file = await openPicker.PickSingleFileAsync();
-
-            if (file is not null)
             {
-                Error error = await OpenFile(file);
-
-                if (error == Error.Success)
-                    SourceFile = file;
+                await Settings.Data.Save();
             }
+
+            Close();
+        }
+        else
+        {
+            if (sender.TabItems.Count == 1)
+            {
+                sender.CanReorderTabs = false;
+                sender.CanDragTabs = false;
+            }
+            else
+            {
+                sender.CanReorderTabs = true;
+                sender.CanDragTabs = true;
+            }
+
+            UpdateTabContextMenuItemsEnabledState();
+        }
+    }
+
+    
+    private void UpdateTabContextMenuItemsEnabledState()
+    {
+        closeOtherCommand.RaiseCanExecuteChanged();
+        closeLeftCommand.RaiseCanExecuteChanged();
+        closeRightCommand.RaiseCanExecuteChanged();
+    }
+
+
+    public TabViewItem CreatePuzzleTab()
+    {
+        return new TabViewItem()
+        {
+            Header = App.cNewPuzzleName,
+            Content = new PuzzleTabContent(),
+            ContextFlyout = CreateTabHeaderContextFlyout(),
+        };
+    }
+
+    public TabViewItem CreatePuzzleTab(StorageFile storagefile)
+    {
+        return new TabViewItem()
+        {
+            Header = storagefile.Name,
+            Content = new PuzzleTabContent(storagefile),
+            ContextFlyout = CreateTabHeaderContextFlyout(),
+        };
+    }
+
+    // cannot resue the tab directly because it may already have a different XamlRoot
+    public TabViewItem CreatePuzzleTab(TabViewItem source)
+    {
+        Debug.Assert(source.Header is string);
+        Debug.Assert(source.Content is PuzzleTabContent);
+        
+        PuzzleTabContent sourcecontent = (PuzzleTabContent)source.Content;
+
+        return new TabViewItem()
+        {
+            Header = source.Header,
+            IconSource = sourcecontent.IsModified ? new SymbolIconSource() { Symbol = Symbol.Edit, } : null,
+            Content = new PuzzleTabContent(sourcecontent),
+            ContextFlyout = CreateTabHeaderContextFlyout(),
+        };
+    }
+
+    private TabViewItem CreateSettingsTab()
+    {
+        return new TabViewItem()
+        {
+            Header = "Settings",
+            IconSource = new SymbolIconSource() { Symbol = Symbol.Setting, },
+            Content = new SettingsTabContent(),
+            ContextFlyout = CreateTabHeaderContextFlyout(isForPuzzleTab: false),
+        };
+    }
+
+    private MenuFlyout CreateTabHeaderContextFlyout(bool isForPuzzleTab = true)
+    {
+        MenuFlyout menuFlyout = new MenuFlyout();
+        MenuFlyoutItem item;
+
+        if (isForPuzzleTab)
+        {
+            item = new MenuFlyoutItem() { Text = "New tab", Command = newTabCommand, AccessKey = "N", };
+            item.KeyboardAccelerators.Add(new KeyboardAccelerator() { Modifiers = VirtualKeyModifiers.Control, Key = VirtualKey.N, });
+            
+            menuFlyout.Items.Add(item);
+            menuFlyout.Items.Add(new MenuFlyoutSeparator());
+        }
+
+        item = new MenuFlyoutItem() { Text="Close tab", Command = closeTabCommand, AccessKey="C", };
+        item.KeyboardAccelerators.Add(new KeyboardAccelerator() { Modifiers = VirtualKeyModifiers.Control, Key = VirtualKey.C, });
+       
+        menuFlyout.Items.Add(item);
+        menuFlyout.Items.Add(new MenuFlyoutItem() { Text = "Close other tabs", Command = closeOtherCommand, AccessKey = "O", });
+        menuFlyout.Items.Add(new MenuFlyoutItem() { Text = "Close tabs to the left", Command = closeLeftCommand, AccessKey = "L", });
+        menuFlyout.Items.Add(new MenuFlyoutItem() { Text = "Close tabs to the right", Command = closeRightCommand, AccessKey = "R", });
+
+        menuFlyout.Opened += (s, e) => ClearWindowDragRegions();
+        menuFlyout.Closed += (s, e) => SetWindowDragRegionsInternal();
+
+        return menuFlyout;
+    }
+
+    public void AddTab(TabViewItem tab, bool select = true)
+    {
+        Tabs.TabItems.Add(tab);
+
+        if (select)
+            Tabs.SelectedItem = tab;
+
+        AddDragRegionEventHandlers(tab);
+    }
+
+    public bool CloseTab(object tab)
+    {
+        return Tabs.TabItems.Remove(tab);
+    }
+
+    private void Tabs_TabDroppedOutside(TabView sender, TabViewTabDroppedOutsideEventArgs args)
+    {
+        PInvoke.GetCursorPos(out System.Drawing.Point p);
+        RectInt32 bounds = new RectInt32(p.X, p.Y, RestoreBounds.Width, RestoreBounds.Height);
+
+        CloseTab(args.Tab);
+        App.Instance.CreateWindow(args.Tab, bounds);  
+    }
+
+    private void Tabs_TabDragStarting(TabView sender, TabViewTabDragStartingEventArgs args)
+    {
+        args.Data.Properties.Add(cDataIdentifier, args.Tab);
+        args.Data.RequestedOperation = DataPackageOperation.Move;
+    }
+
+    private void Tabs_TabStripDrop(object sender, DragEventArgs e)
+    {
+        // This event is called when we're dragging between different TabViews
+
+        if (e.DataView.Properties.TryGetValue(cDataIdentifier, out object? obj))
+        {
+            if ((obj is TabViewItem sourceTabViewItem) &&
+                (sender is TabView destinationTabView) &&
+                (sourceTabViewItem.Parent is TabViewListView sourceTabViewListView))
+            {
+                // First we need to get the position in the List to drop to
+                int index = -1;
+
+                // Determine which items in the list our pointer is between.
+                for (int i = 0; i < destinationTabView.TabItems.Count; i++)
+                {
+                    if (destinationTabView.ContainerFromIndex(i) is TabViewItem item)
+                    {
+                        if (e.GetPosition(item).X - item.ActualWidth < 0)
+                        {
+                            index = i;
+                            break;
+                        }
+                    }
+                }
+
+                // single instanced so shouldn't need to dispatch
+                sourceTabViewListView.Items.Remove(sourceTabViewItem);
+
+                if (sourceTabViewItem.Content is PuzzleTabContent)
+                {
+                    TabViewItem newTab = CreatePuzzleTab(sourceTabViewItem);
+
+                    if ((index < 0) || (index >= destinationTabView.TabItems.Count))
+                    {
+                        destinationTabView.TabItems.Add(newTab);
+                    }
+                    else
+                    {
+                        destinationTabView.TabItems.Insert(index, newTab);
+                    }
+
+                    AddDragRegionEventHandlers(newTab);
+                    destinationTabView.SelectedItem = newTab;
+                }
+                else
+                {
+                    AddOrSelectSettingsTab(index);
+                }
+            }
+        }
+    }
+
+    private void Tabs_TabStripDragOver(object sender, DragEventArgs e)
+    {
+        if (e.DataView.Properties.ContainsKey(cDataIdentifier))
+        {
+            e.AcceptedOperation = DataPackageOperation.Move;
+        }
+    }
+
+    private void Tabs_AddTabButtonClick(TabView sender, object args)
+    {
+        TabViewItem tab = CreatePuzzleTab();
+        AddTab(tab);
+    }
+
+    private async void Tabs_TabCloseRequested(TabView sender, TabViewTabCloseRequestedEventArgs args)
+    {
+        await TabCloseRequested(args.Tab);
+    }
+
+    private async Task TabCloseRequested(TabViewItem tab)
+    {
+        if (tab.Content is PuzzleTabContent puzzleTabContent)
+        {
+            if (await puzzleTabContent.HandleTabCloseRequested())
+            {
+                CloseTab(tab);
+            }
+        }
+        else
+        {
+            Debug.Assert(tab.Content is SettingsTabContent);
+            CloseTab(tab);
+        }
+    }
+
+    private void Tabs_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if ((e.AddedItems.Count == 1) && (e.RemovedItems.Count == 1))
+        {
+            Debug.Assert(e.RemovedItems[0] is TabViewItem);
+            Debug.Assert(e.AddedItems[0] is TabViewItem);
+
+            bool lastIsSettings = ((TabViewItem)e.RemovedItems[0]).Content is SettingsTabContent;
+            bool newIsSettings = ((TabViewItem)e.AddedItems[0]).Content is SettingsTabContent;
+
+            if (lastIsSettings || newIsSettings)
+            {
+                SetWindowDragRegionsInternal();
+            }
+        }
+
+        UpdateTabContextMenuItemsEnabledState();
+    }
+
+    private void UpdateCaptionButtonsTheme(ElementTheme theme)
+    {
+        Debug.Assert(theme is not ElementTheme.Default);
+
+        if (AppWindow is not null)  // may occure if the window is closed immediately after requesting a theme change
+        {
+            AppWindow.TitleBar.BackgroundColor = Colors.Transparent;
+            AppWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+            AppWindow.TitleBar.ButtonPressedBackgroundColor = Colors.Transparent;
+            AppWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+
+            if (theme == ElementTheme.Light)
+            {
+                AppWindow.TitleBar.ButtonForegroundColor = Colors.Black;
+                AppWindow.TitleBar.ButtonPressedForegroundColor = Colors.Black;
+                AppWindow.TitleBar.ButtonHoverForegroundColor = Colors.Black;
+                AppWindow.TitleBar.ButtonHoverBackgroundColor = Colors.Gainsboro;
+                AppWindow.TitleBar.ButtonInactiveForegroundColor = Colors.DarkGray;
+            }
+            else
+            {
+                AppWindow.TitleBar.ButtonForegroundColor = Colors.White;
+                AppWindow.TitleBar.ButtonPressedForegroundColor = Colors.White;
+                AppWindow.TitleBar.ButtonHoverForegroundColor = Colors.White;
+                AppWindow.TitleBar.ButtonHoverBackgroundColor = Colors.DimGray;
+                AppWindow.TitleBar.ButtonInactiveForegroundColor = Colors.DimGray;
+            }
+        }
+    }
+
+    private void RightPaddingColumn_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        // this accomodates both window width changes and adding/removing tabs
+        SetWindowDragRegions();
+    }
+
+    private void NewTab_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        Tabs_AddTabButtonClick(Tabs, args);
+    }
+
+    private async void CloseSelectedTab_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        if ((Tabs.SelectedItem is TabViewItem tab) && tab.IsClosable)
+        {
+            await TabCloseRequested(tab);
+        }
+    }
+
+    private void NavigateToNumberedTab_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        int index = sender.Key - VirtualKey.Number1;
+
+        if (index == 8) // control 9 - always selects the last tab
+        {
+            index = Tabs.TabItems.Count - 1;
         }
         
-        FocusLastSelectedCell();
-    }
-
-
-    private void NewWindowClickHandler(object sender, RoutedEventArgs e)
-    {
-        App.Instance.CreateNewWindow(storageFile: null, creator: this);
-    }
-
-    private async void SaveClickHandler(object sender, RoutedEventArgs e)
-    {
-        await Save();
-    }
-
-    private async void SaveAsClickHandler(object sender, RoutedEventArgs e)
-    {
-        await SaveAs();
-    }
-
-    private async void PrintClickHandler(object sender, RoutedEventArgs e)
-    {
-        try
+        if ((index >= 0) && (index < Tabs.TabItems.Count))
         {
-            printHelper ??= new PrintHelper(this);
-
-            PuzzleView printView = new PuzzleView
-            {
-                IsPrintView = true,
-                ViewModel = Puzzle.ViewModel,
-            };
-
-            await printHelper.PrintViewAsync(PrintCanvas, printView, SourceFile, Settings.Data.PrintSettings.Clone());
-        }
-        catch (Exception ex)
-        {
-            await ShowErrorDialog("A printing error occurred.", ex.Message);
+            Tabs.SelectedItem = Tabs.TabItems[index];
         }
     }
 
-    private async void CloseClickHandler(object sender, RoutedEventArgs e)
+    private void ExecuteNewTab(object? param)
     {
-        await HandleWindowClosing();
+        Tabs_AddTabButtonClick(Tabs, new object());
     }
 
-    private void ExitClickHandler(object sender, RoutedEventArgs e)
+    private async void ExecuteCloseTab(object? param)
     {
-        App.Instance.AttemptCloseAllWindows();
-    }
-    
-    public static bool IsPrintingAvailable => PrintManager.IsSupported() && !IntegrityLevel.IsElevated;
-
-    public static bool IsFileDialogAvailable => !IntegrityLevel.IsElevated;
-
-    private async Task<Error> OpenFile(StorageFile file)
-    {
-        Error error = Error.Failure;
-
-        try
+        if ((Tabs.SelectedItem is TabViewItem tab) && tab.IsClosable)
         {
-            using (Stream stream = await file.OpenStreamForReadAsync())
-            {
-                Puzzle.ViewModel!.Open(stream);
-                error = Error.Success;
-            }
-        }
-        catch (Exception ex)
-        {
-            string heading = $"An error occurred when opening {file.DisplayName}.";
-            await ShowErrorDialog(heading, ex.Message);
-        }
-
-        return error;
-    }
-
-    private async Task<Status> SaveExistingFirst()
-    {
-        Status status = Status.Continue;
-        string path;
-
-        if (SourceFile is null)
-            path = App.cNewPuzzleName;
-        else
-            path = SourceFile.Path;
-
-        ContentDialogResult result = await new ConfirmSaveDialog(path, Content.XamlRoot, LayoutRoot.ActualTheme).ShowAsync();
-
-        if (result == ContentDialogResult.Primary)
-        {
-            status = await Save();  // if it's a new file, the Save As picker could be canceled
-        }
-        else if (result == ContentDialogResult.None)
-        {
-            status = Status.Cancelled;
-        }
-
-        return status;
-    }
-
-    private async Task SaveFile(StorageFile file)
-    {
-        using (StorageStreamTransaction transaction = await file.OpenTransactedWriteAsync())
-        {
-            using (Stream stream = transaction.Stream.AsStreamForWrite())
-            {
-                Puzzle.ViewModel?.Save(stream);
-
-                // delete any existing file data beyond the end of the stream
-                transaction.Stream.Size = transaction.Stream.Position;
-
-                await transaction.CommitAsync();
-            }
+            await TabCloseRequested(tab);
         }
     }
 
-    private async Task<Status> Save()
+    private bool CanCloseOtherTabs(object? param)
     {
-        Status status = Status.Continue;
-
-        if (SourceFile is not null)
-        {
-            try
-            {
-                await SaveFile(SourceFile);
-            }
-            catch (Exception ex)
-            {
-                string heading = $"An error occurred when saving {SourceFile.DisplayName}.";
-                await ShowErrorDialog(heading, ex.Message);
-            }
-        }
-        else
-            status = await SaveAs();
-
-        return status;
+        return Tabs.TabItems.Count > 1;
     }
 
-    private async Task<Status> SaveAs()
+    private async void ExecuteCloseOtherTabs(object? param)
     {
-        Status status = Status.Cancelled;
-        FileSavePicker savePicker = new FileSavePicker();
-        InitializeWithWindow.Initialize(savePicker, WindowPtr);
+        List<object> otherTabs = new List<object>(Tabs.TabItems.Where(x => !x.Equals(Tabs.SelectedItem)));
 
-        savePicker.FileTypeChoices.Add("Sudoku files", new List<string>() { App.cFileExt });
+        await AttemptToCloseTabs(otherTabs);
+    }
 
-        if (SourceFile is null)
-            savePicker.SuggestedFileName = App.cNewPuzzleName;
-        else
-            savePicker.SuggestedFileName = SourceFile.DisplayName;
+    private bool CanCloseLeftTabs(object? param)
+    {
+        return (Tabs.TabItems.Count > 1) && (Tabs.TabItems[0] != Tabs.SelectedItem);
+    }
 
-        StorageFile file = await savePicker.PickSaveFileAsync();
+    private async void ExecuteCloseLeftTab(object? param)
+    {
+        List<object> leftTabs = new List<object>();
 
-        if (file is not null)
+        int selectedIndex = Tabs.TabItems.IndexOf(Tabs.SelectedItem);
+
+        for (int index = 0; index < selectedIndex; index++)
         {
-            try
-            {
-                await SaveFile(file);
-                SourceFile = file;
-                status = Status.Continue;
-            }
-            catch (Exception ex)
-            {
-                string heading = $"An error occurred when saving {file.DisplayName}.";
-                await ShowErrorDialog(heading, ex.Message);
-            }
+            leftTabs.Add(Tabs.TabItems[index]);
         }
 
-        return status; 
+        await AttemptToCloseTabs(leftTabs);
     }
 
-    private async void AboutClickHandler(object sender, RoutedEventArgs e)
+    private bool CanCloseRightTabs(object? param)
     {
-        if (aboutBox is null)
+        return (Tabs.TabItems.Count > 1) && (Tabs.TabItems[Tabs.TabItems.Count - 1] != Tabs.SelectedItem);
+    }
+
+    private async void ExecuteCloseRightTab(object? param)
+    {
+        List<object> rightTabs = new List<object>();
+
+        for (int index = Tabs.TabItems.IndexOf(Tabs.SelectedItem); index >= 0 && index < Tabs.TabItems.Count; index++)
         {
-            aboutBox = new AboutBox(Content.XamlRoot);
-            aboutBox.Closed += (s, e) =>
-            {
-                aboutBoxOpen = false;
-                FocusLastSelectedCell();
-            };
+            rightTabs.Add(Tabs.TabItems[index]);
         }
 
-        aboutBoxOpen = true;
-        aboutBox.RequestedTheme = LayoutRoot.ActualTheme;
-        await aboutBox.ShowAsync();
-    }
-
-    private async Task ShowErrorDialog(string message, string details)
-    {
-        if (errorDialog is null)
-        {
-            errorDialog = new ErrorDialog(Content.XamlRoot);
-            errorDialog.Closed += (s, e) =>
-            {
-                errorDialogOpen = false;
-                FocusLastSelectedCell();
-            };
-        }
-
-        errorDialogOpen = true;
-        errorDialog.RequestedTheme = LayoutRoot.ActualTheme;
-        errorDialog.Message = message;
-        errorDialog.Details = details;
-        await errorDialog.ShowAsync();
-    }
-
-    private StorageFile? SourceFile
-    {
-        get => sourceFile;
-        set
-        {
-            if (sourceFile != value)
-            {
-                sourceFile = value;
-                UpdateWindowTitle();
-            }
-        }
-    }
-
-    private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName == nameof(Puzzle.ViewModel.IsModified))
-            UpdateWindowTitle();
-    }
-
-    private void UpdateWindowTitle()
-    {
-        string filePart = SourceFile is null ? App.cNewPuzzleName : SourceFile.DisplayName;
-        string modified = IsPuzzleModified ? "*" : string.Empty;
-        string title;
-
-        if (LayoutRoot.FlowDirection == FlowDirection.LeftToRight)
-            title = $"{App.cDisplayName} - {filePart}{modified}";
-        else
-            title = $"{modified}{filePart} - {App.cDisplayName}";
-
-        if (AppWindowTitleBar.IsCustomizationSupported())
-            CustomTitleBar.Title = title;
-        else
-            Title = title;
-
-        // the app window's title is used in the task switcher
-        AppWindow.Title = title;
-    }
-
-    private void ColorsClickHandler(object sender, RoutedEventArgs e)
-    {
-        App.Instance.ShowColorsWindow();
+        await AttemptToCloseTabs(rightTabs);
     }
 }

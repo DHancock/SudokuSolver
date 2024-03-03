@@ -1,6 +1,6 @@
-﻿using SudokuSolver.Utilities;
-using SudokuSolver.Common;
+﻿using SudokuSolver.Common;
 using SudokuSolver.Models;
+using SudokuSolver.Utilities;
 
 namespace SudokuSolver.ViewModels;
 
@@ -9,7 +9,6 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
     public CellList Cells { get; }
 
     private readonly UndoHelper undoHelper;
-    private readonly Settings.PerViewSettings viewSettings;
 
     private PuzzleModel model;
     private PuzzleModel initialState;
@@ -25,12 +24,16 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
     public RelayCommand MarkProvidedCommand { get; }
     public RelayCommand ClearProvidedCommand { get; }
 
-    public PuzzleViewModel(Settings.PerViewSettings perViewSettings)
+    private readonly Settings.PerViewSettings viewSettings;
+
+
+    public PuzzleViewModel()
     {
+        this.viewSettings = Settings.Data.ViewSettings.Clone();
+
         model = new PuzzleModel();
         initialState = new PuzzleModel();
         Cells = new CellList();
-        viewSettings = perViewSettings;
 
         undoHelper = new UndoHelper();
         undoHelper.Push(model);
@@ -164,7 +167,6 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
             if (viewSettings.ShowPossibles != value)
             {
                 viewSettings.ShowPossibles = value;
-                Settings.Data.ViewSettings.ShowPossibles = value;
                 UpdateViewForShowPossiblesStateChange();
                 NotifyPropertyChanged();
             }
@@ -179,7 +181,6 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
             if (viewSettings.ShowSolution != value)
             {
                 viewSettings.ShowSolution = value;
-                Settings.Data.ViewSettings.ShowSolution = value;
                 UpdateViewForShowSolutionStateChange();
                 NotifyPropertyChanged();
             }
@@ -232,7 +233,6 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
             UpdateMenuItemsDisabledState();
         }
     }
-
 
     public bool CanRedo(object? param = null) => undoHelper.CanRedo;
 

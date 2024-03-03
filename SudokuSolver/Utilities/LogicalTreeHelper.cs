@@ -11,9 +11,19 @@ internal static class LogicalTreeHelper
                 yield return child;
             }
         }
-        else if ((parent is Border border) && (border.Child is not null))
+        else if (parent is UserControl uc) // i.e. the tab contents
         {
-            yield return border.Child;
+            if (uc.Content is Panel ucPanel)
+            {
+                foreach (UIElement child in ucPanel.Children)
+                {
+                    yield return child;
+                }
+            }
+            else if (uc.Content is not null)
+            {
+                yield return uc.Content;
+            }
         }
         else if (parent is ContentControl contentControl)  // i.e. an Expander
         {
@@ -25,6 +35,20 @@ internal static class LogicalTreeHelper
                 }
             }
             else if (contentControl.Content is UIElement uie)
+            {
+                yield return uie;
+            }
+        }
+        else if ((parent is TabView tv) && (tv.SelectedItem is TabViewItem tabViewItem))
+        {
+            if (tabViewItem.Content is Panel tviPanel)
+            {
+                foreach (UIElement child in tviPanel.Children)
+                {
+                    yield return child;
+                }
+            }
+            else if (tabViewItem.Content is UIElement uie)
             {
                 yield return uie;
             }

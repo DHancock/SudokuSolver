@@ -56,14 +56,14 @@
         
         <TextBlock x:Name="CellValue" FontSize="34"  Canvas.Top="0" Canvas.Left="0" TextAlignment="Center" Width="{StaticResource cell_size}" Height="{StaticResource cell_size}"/>
 
-        <local:PossibleTextBlock x:Name="PossibleValue0" Canvas.Top="-2" Canvas.Left="4"/>
-        <local:PossibleTextBlock x:Name="PossibleValue1" Canvas.Top="-2" Canvas.Left="22"/>
-        <local:PossibleTextBlock x:Name="PossibleValue2" Canvas.Top="-2" Canvas.Left="39"/>
-        <local:PossibleTextBlock x:Name="PossibleValue3" Canvas.Top="15" Canvas.Left="4"/>
-        <local:PossibleTextBlock x:Name="PossibleValue4" Canvas.Top="15" Canvas.Left="22"/>
-        <local:PossibleTextBlock x:Name="PossibleValue5" Canvas.Top="15" Canvas.Left="39"/>
-        <local:PossibleTextBlock x:Name="PossibleValue6" Canvas.Top="31" Canvas.Left="4"/>
-        <local:PossibleTextBlock x:Name="PossibleValue7" Canvas.Top="31" Canvas.Left="22"/>
-        <local:PossibleTextBlock x:Name="PossibleValue8" Canvas.Top="31" Canvas.Left="39"/>
+        <TextBlock x:Name="PossibleValue0" Canvas.Top="-2" Canvas.Left="4"/>
+        <TextBlock x:Name="PossibleValue1" Canvas.Top="-2" Canvas.Left="22"/>
+        <TextBlock x:Name="PossibleValue2" Canvas.Top="-2" Canvas.Left="39"/>
+        <TextBlock x:Name="PossibleValue3" Canvas.Top="15" Canvas.Left="4"/>
+        <TextBlock x:Name="PossibleValue4" Canvas.Top="15" Canvas.Left="22"/>
+        <TextBlock x:Name="PossibleValue5" Canvas.Top="15" Canvas.Left="39"/>
+        <TextBlock x:Name="PossibleValue6" Canvas.Top="31" Canvas.Left="4"/>
+        <TextBlock x:Name="PossibleValue7" Canvas.Top="31" Canvas.Left="22"/>
+        <TextBlock x:Name="PossibleValue8" Canvas.Top="31" Canvas.Left="39"/>
     </Canvas>
 </UserControl>

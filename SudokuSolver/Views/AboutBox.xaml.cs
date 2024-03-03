@@ -1,25 +1,20 @@
-﻿using SudokuSolver.Utilities;
+﻿namespace SudokuSolver.Views;
 
-namespace SudokuSolver.Views;
-
-public sealed partial class AboutBox : ContentDialog
+public sealed partial class AboutBox : UserControl
 {
-    public AboutBox(XamlRoot xamlRoot)
+    public AboutBox()
     {
         this.InitializeComponent();
 
-        XamlRoot = xamlRoot;
-        Version? v = typeof(App).Assembly.GetName().Version;
+        AboutImage.Loaded += (s, e) => LoadImage();
+        AboutImage.ActualThemeChanged += (s, e) => LoadImage();
 
-        if (v is not null)
-            VersionTextBlock.Text = $"Version: {v.Major}.{v.Minor}.{v.Build}";
+        VersionTextBlock.Text = $"Version: {Path.GetFileNameWithoutExtension(typeof(App).Assembly.GetName().Version?.ToString())}";
+    }
 
-        PrimaryButtonText = "OK";
-
-        Loaded += (s, e) =>
-        {
-            string fileName = ActualTheme == ElementTheme.Light ? "about_light.png" : "about_dark.png";
-            AboutImage.Source = new BitmapImage(new Uri("ms-appx:///Resources/" + fileName));
-        };
+    private void LoadImage()
+    {
+        string fileName = AboutImage.ActualTheme == ElementTheme.Light ? "about_light.png" : "about_dark.png";
+        AboutImage.Source = new BitmapImage(new Uri("ms-appx:///Resources/" + fileName));
     }
 }
