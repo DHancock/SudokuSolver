@@ -16,7 +16,7 @@ internal partial class PuzzleView : UserControl
         InitializeComponent();
 
         // if the app theme is different from the systems an initial opacity of zero stops  
-        // excessive background flashing when creating new tabs, looks intensional...
+        // excessive background flashing when creating new tabs, looks intentional...
         Loaded += PuzzleView_Loaded;
 
         static void PuzzleView_Loaded(object sender, RoutedEventArgs e)
@@ -26,6 +26,20 @@ internal partial class PuzzleView : UserControl
             puzzleView.Loaded -= PuzzleView_Loaded;
         }
     }
+
+    public PuzzleView(bool isPrintView) : this()
+    {
+        if (!isPrintView)
+        {
+            SizeChanged += (s, e) =>
+            {
+                // stop the grid lines being interpolated out when the view box scaling goes below 1.0
+                // WPF did this automatically. Printers will typically have much higher DPI resolutions.
+                Grid.AdaptForScaleFactor(e.NewSize.Width);
+            };
+        }
+    }
+
 
     public PuzzleViewModel? ViewModel
     {

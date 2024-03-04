@@ -181,7 +181,7 @@ internal sealed partial class PuzzleTabContent : UserControl
         {
             printHelper ??= new PrintHelper(App.Instance.GetWindowForElement(this));
 
-            PuzzleView printView = new PuzzleView
+            PuzzleView printView = new PuzzleView(isPrintView: true)
             {
                 ViewModel = ViewModel,
             };

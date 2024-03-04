@@ -7,7 +7,7 @@
     xmlns:local="using:SudokuSolver.Views" 
     xmlns:vm="using:SudokuSolver.ViewModels"         
     mc:Ignorable="d">
-    
+
     <Viewbox>
         <local:SudokuGrid x:Name="Grid" x:DefaultBindMode="OneWay" Background="{ThemeResource CellFillBrush}" Opacity="0">
             <local:SudokuGrid.BackgroundTransition>
@@ -18,16 +18,13 @@
             </local:SudokuGrid.OpacityTransition>
 
             <local:SudokuGrid.Resources>
-                <x:Double x:Key="MinorGridStrokeThickness">1</x:Double>
-                <x:Double x:Key="MajorGridStrokeThickness">2</x:Double>
-
                 <Style x:Key="MinorGridStyle" TargetType="Line">
                     <Setter Property="Stroke" Value="{ThemeResource MinorGridStroke}"/>
-                    <Setter Property="StrokeThickness" Value="{StaticResource MinorGridStrokeThickness}"/>
+                    <Setter Property="StrokeThickness" Value="1"/>
                 </Style>
                 <Style x:Key="MajorGridStyle" TargetType="Line">
                     <Setter Property="Stroke" Value="{ThemeResource MajorGridStroke}"/>
-                    <Setter Property="StrokeThickness" Value="{StaticResource MajorGridStrokeThickness}"/>
+                    <Setter Property="StrokeThickness" Value="2"/>
                 </Style>
             </local:SudokuGrid.Resources>
             <local:Cell Data="{x:Bind ViewModel.Cells[0]}" SelectionChanged="Cell_SelectionChanged"/>
