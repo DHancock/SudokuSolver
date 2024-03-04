@@ -1,7 +1,5 @@
 ﻿namespace SudokuSolver.Views;
 
-// if Microsoft.UI.Xaml.Shapes is added to the global usings there will be a
-// name conflict between Shapes.Path and System.IO.Path
 using Line = Microsoft.UI.Xaml.Shapes.Line;
 
 internal sealed class SudokuGrid : Panel
@@ -10,12 +8,12 @@ internal sealed class SudokuGrid : Panel
     private double majorGridLineWidth = 0.0;
     private double totalWidthOfBorders = 0.0;
     private double cellSize = 0.0;
+    private double defaultMinorGridLineWidth = 0.0;
 
     public const int cCellsInRow = 9;
     public const int cCellCount = cCellsInRow * cCellsInRow;
     private const int cMinorGridLineCount = 12;
     private const int cMajorGridLineCount = 8;
-
     private const int cValidChildrenCount = cCellCount + cMinorGridLineCount + cMajorGridLineCount;
 
     public SudokuGrid() : base()
@@ -29,7 +27,7 @@ internal sealed class SudokuGrid : Panel
     {
         // this assumes the xaml is correctly laid out and that all the major 
         // grid lines and minor grid lines each have the same stroke width
-        minorGridLineWidth = ((Line)Children[cCellCount]).StrokeThickness;
+        defaultMinorGridLineWidth = minorGridLineWidth = ((Line)Children[cCellCount]).StrokeThickness;
         majorGridLineWidth = ((Line)Children[cCellCount + cMinorGridLineCount]).StrokeThickness;
 
         totalWidthOfBorders = (minorGridLineWidth * (cMinorGridLineCount / 2)) + (majorGridLineWidth * (cMajorGridLineCount / 2));
@@ -164,33 +162,24 @@ internal sealed class SudokuGrid : Panel
     // Adjust the thickness of the minor grid lines depending on the ViewBox
     // scale factor. When the shrinking the grid, the lines could be interpolated
     // out. Increasing their thickness ensures that they're always visible.
-    public void AdaptForScaleFactor(double containerSize)
+    public void AdaptForScaleFactor(double viewBoxWidth)
     {
-        const string cResourceKey = "MinorGridStrokeThickness";
-        Debug.Assert(Resources.TryGetValue(cResourceKey, out object value) && value is double);
-
-        double defaultWidth = (double)Resources[cResourceKey];
-        double newWidth = defaultWidth;
+        double newWidth = defaultMinorGridLineWidth;
         double epsilon = 0.001;
-        double scaleFactor = containerSize / ActualSize.X;
+        double scaleFactor = viewBoxWidth / ActualSize.X;
 
         if (scaleFactor < 1.0)  
         {
-            newWidth = defaultWidth / scaleFactor;
+            newWidth = defaultMinorGridLineWidth / scaleFactor;
             epsilon = 0.1; // limit changes, they cause a new measure pass
         }
 
-        if (IsDifferent(((Line)Children[cCellCount]).StrokeThickness, newWidth, epsilon))
+        if (Math.Abs(((Line)Children[cCellCount]).StrokeThickness - newWidth) > epsilon)
         {
             for (int index = 0; index < cMinorGridLineCount; index++)
             {
                 ((Line)Children[cCellCount + index]).StrokeThickness = newWidth;
             }
         }
-    }
-
-    private static bool IsDifferent(double x, double y, double epsilon)
-    {
-        return Math.Abs(x - y) > epsilon;
     }
 }
