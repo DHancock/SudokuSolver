@@ -339,11 +339,13 @@ internal sealed partial class MainWindow : WindowBase
         App.Instance.CreateWindow(args.Tab, bounds);  
     }
 
-    private void Tabs_TabDragStarting(TabView sender, TabViewTabDragStartingEventArgs args)
+#pragma warning disable CA1822 // Mark members as static
+    public void Tabs_TabDragStarting(TabView sender, TabViewTabDragStartingEventArgs args)
     {
         args.Data.Properties.Add(cDataIdentifier, args.Tab);
         args.Data.RequestedOperation = DataPackageOperation.Move;
     }
+#pragma warning restore CA1822 // Mark members as static
 
     private void Tabs_TabStripDrop(object sender, DragEventArgs e)
     {

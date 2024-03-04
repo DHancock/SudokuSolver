@@ -33,7 +33,7 @@
                         </Style>
                     </Grid.Resources>
 
-                    <Expander Grid.Row="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                    <Expander Grid.Row="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Expanding="Expander_Expanding">
                         <Expander.Header>
                             <StackPanel Orientation="Horizontal">
                                 <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xF08C;"/>
@@ -41,9 +41,9 @@
                             </StackPanel>
                         </Expander.Header>
                         <StackPanel>
-                            <RadioButton IsChecked="{x:Bind vm:SettingsViewModel.IsLightTheme, Mode=OneWay}" Content="Light" Click="RadioButton_Light"/>
-                            <RadioButton IsChecked="{x:Bind vm:SettingsViewModel.IsDarkTheme, Mode=OneWay}" Content="Dark" Click="RadioButton_Dark"/>
-                            <RadioButton IsChecked="{x:Bind vm:SettingsViewModel.IsSystemTheme, Mode=OneWay}" Content="Use system setting" Click="RadioButton_System"/>
+                            <RadioButton x:Name="LightRadioButton" IsChecked="{x:Bind ViewModel.IsLightTheme, Mode=TwoWay}" Content="Light"/>
+                            <RadioButton x:Name="DarkRadioButton" IsChecked="{x:Bind ViewModel.IsDarkTheme, Mode=TwoWay}" Content="Dark"/>
+                            <RadioButton x:Name="SystemRadioButton" IsChecked="{x:Bind ViewModel.IsSystemTheme, Mode=TwoWay}" Content="Use system setting"/>
                         </StackPanel>
                     </Expander>
 

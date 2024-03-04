@@ -73,18 +73,11 @@ internal sealed partial class SettingsTabContent : UserControl
         }
     }
 
-    private void RadioButton_Light(object sender, RoutedEventArgs e)
+    private void Expander_Expanding(Expander sender, ExpanderExpandingEventArgs args)
     {
-        ViewModel.Theme = ElementTheme.Light;
-    }
-
-    private void RadioButton_Dark(object sender, RoutedEventArgs e)
-    {
-        ViewModel.Theme = ElementTheme.Dark;
-    }
-
-    private void RadioButton_System(object sender, RoutedEventArgs e)
-    {
-        ViewModel.Theme = ElementTheme.Default;
+        // always initialise the radio buttons state
+        LightRadioButton.IsChecked = Settings.Data.Theme == ElementTheme.Light;
+        DarkRadioButton.IsChecked = Settings.Data.Theme == ElementTheme.Dark;
+        SystemRadioButton.IsChecked = Settings.Data.Theme == ElementTheme.Default;
     }
 }

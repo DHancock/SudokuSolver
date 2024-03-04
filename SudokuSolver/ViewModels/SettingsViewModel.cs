@@ -37,10 +37,37 @@ internal class SettingsViewModel : INotifyPropertyChanged
         }
     }
 
-    public static bool IsLightTheme => Settings.Data.Theme == ElementTheme.Light;
-    public static bool IsDarkTheme => Settings.Data.Theme == ElementTheme.Dark;
-    public static bool IsSystemTheme => Settings.Data.Theme == ElementTheme.Default;
-    
+    public bool IsLightTheme
+    {
+        get => Settings.Data.Theme == ElementTheme.Light;
+        set
+        {
+            if (value)
+                Theme = ElementTheme.Light;
+        }
+    }
+
+    public bool IsDarkTheme
+    {
+        get => Settings.Data.Theme == ElementTheme.Dark;
+        set
+        {
+            if (value)
+                Theme = ElementTheme.Dark;
+        }
+    }
+
+    public bool IsSystemTheme
+    {
+        get => Settings.Data.Theme == ElementTheme.Default;
+        set
+        {
+            if (value)
+                Theme = ElementTheme.Default;
+        }
+
+    }
+
     public bool ShowPossibles
     {
         get => Settings.Data.ViewSettings.ShowPossibles;
