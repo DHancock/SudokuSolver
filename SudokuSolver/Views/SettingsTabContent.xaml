@@ -10,97 +10,82 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid x:Name="LayoutRoot" Background="{ThemeResource LayerFillColorDefaultBrush}">
-        <VisualStateManager.VisualStateGroups>
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="900" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="AboutInfo.(Grid.Row)" Value="0" />
-                        <Setter Target="AboutInfo.(Grid.RowSpan)" Value="5" />
-                        <Setter Target="AboutInfo.(Grid.Column)" Value="1" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-        </VisualStateManager.VisualStateGroups>
-        
+    <Grid Background="{ThemeResource LayerFillColorDefaultBrush}">
+
         <!-- left, top, right, bottom -->
 
         <ScrollViewer Grid.Row="0" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
-            <Grid RowDefinitions="Auto,Auto,Auto,Auto,*"   Margin="20,40,0,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition MaxWidth="600"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Grid.Resources>
+            <Grid x:Name="LayoutRoot" RowDefinitions="Auto,Auto,Auto,Auto,Auto" Margin="20,40,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" MaxWidth="700"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.Resources>
                     <Style TargetType="TextBlock">
                         <Setter Property="Margin" Value="10,0,0,0"/>
-                    </Style>
-                    <Style TargetType="Expander">
-                        <Setter Property="Margin" Value="0,0,0,15"/>
-                    </Style>
-                    <Style TargetType="w3c:SimpleColorPicker">
-                        <Setter Property="IsMiniPalette" Value="False"/>
-                        <Setter Property="Margin" Value="10,5,0,5"/>
-                        <Setter Property="HorizontalAlignment" Value="Right"/>
-                    </Style>
-                </Grid.Resources>
+                        </Style>
+                        <Style TargetType="Expander">
+                            <Setter Property="Margin" Value="0,0,0,15"/>
+                        </Style>
+                        <Style TargetType="w3c:SimpleColorPicker">
+                            <Setter Property="IsMiniPalette" Value="False"/>
+                            <Setter Property="Margin" Value="10,5,0,5"/>
+                            <Setter Property="HorizontalAlignment" Value="Right"/>
+                        </Style>
+                    </Grid.Resources>
 
-                <Expander Grid.Row="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-                    <Expander.Header>
-                        <StackPanel Orientation="Horizontal">
-                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xF08C;"/>
-                            <TextBlock Text="App theme"/>
+                    <Expander Grid.Row="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                        <Expander.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xF08C;"/>
+                                <TextBlock Text="App theme"/>
+                            </StackPanel>
+                        </Expander.Header>
+                        <StackPanel>
+                            <RadioButton IsChecked="{x:Bind vm:SettingsViewModel.IsLightTheme, Mode=OneWay}" Content="Light" Click="RadioButton_Light"/>
+                            <RadioButton IsChecked="{x:Bind vm:SettingsViewModel.IsDarkTheme, Mode=OneWay}" Content="Dark" Click="RadioButton_Dark"/>
+                            <RadioButton IsChecked="{x:Bind vm:SettingsViewModel.IsSystemTheme, Mode=OneWay}" Content="Use system setting" Click="RadioButton_System"/>
                         </StackPanel>
-                    </Expander.Header>
-                    <StackPanel>
-                        <RadioButton IsChecked="{x:Bind vm:SettingsViewModel.IsLightTheme, Mode=OneWay}" Content="Light" Click="RadioButton_Light"/>
-                        <RadioButton IsChecked="{x:Bind vm:SettingsViewModel.IsDarkTheme, Mode=OneWay}" Content="Dark" Click="RadioButton_Dark"/>
-                        <RadioButton IsChecked="{x:Bind vm:SettingsViewModel.IsSystemTheme, Mode=OneWay}" Content="Use system setting" Click="RadioButton_System"/>
-                    </StackPanel>
-                </Expander>
+                    </Expander>
 
-                <Expander Grid.Row="1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-                    <Expander.Header>
-                        <StackPanel Orientation="Horizontal">
-                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE80A;"/>
-                            <TextBlock Text="View options"/>
+                    <Expander Grid.Row="1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                        <Expander.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE80A;"/>
+                                <TextBlock Text="View options"/>
+                            </StackPanel>
+                        </Expander.Header>
+                        <StackPanel>
+                            <CheckBox Content="Show possible values" IsChecked="{x:Bind ViewModel.ShowPossibles, Mode=TwoWay}"/>
+                            <CheckBox Content="Show solution" IsChecked="{x:Bind ViewModel.ShowSolution, Mode=TwoWay}"/>
                         </StackPanel>
-                    </Expander.Header>
-                    <StackPanel>
-                        <CheckBox Content="Show possible values" IsChecked="{x:Bind ViewModel.ShowPossibles, Mode=TwoWay}"/>
-                        <CheckBox Content="Show solution" IsChecked="{x:Bind ViewModel.ShowSolution, Mode=TwoWay}"/>
-                    </StackPanel>
-                </Expander>
+                    </Expander>
 
-                <Expander Grid.Row="2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-                    <Expander.Header>
-                        <StackPanel Orientation="Horizontal">
-                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE790;"/>
-                            <TextBlock Text="Light theme colors"/>
-                        </StackPanel>
-                    </Expander.Header>
+                    <Expander Grid.Row="2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                        <Expander.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE790;"/>
+                                <TextBlock Text="Light theme colors"/>
+                            </StackPanel>
+                        </Expander.Header>
 
-                    <Grid ColumnDefinitions ="Auto,Auto,*" RowDefinitions="*,*,*,*,*,*">
-                        <TextBlock Grid.Row="0" Text="User entered values" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="1" Text="Provided values" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="2" Text="Calculated values" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="3" Text="Possible Values" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="4" Text="Horizontal Possibles" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="5" Text="Vertical Possibles" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        <Grid ColumnDefinitions ="Auto,Auto,*" RowDefinitions="*,*,*,*,*,*">
+                            <TextBlock Grid.Row="0" Text="User entered values" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Row="1" Text="Provided values" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Row="2" Text="Calculated values" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Row="3" Text="Possible Values" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Row="4" Text="Horizontal Possibles" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Row="5" Text="Vertical Possibles" HorizontalAlignment="Right" VerticalAlignment="Center"/>
 
-                        <w3c:SimpleColorPicker Grid.Row="0" Grid.Column="1" Color="{x:Bind ViewModel.UserLight, Mode=TwoWay}"/>
-                        <w3c:SimpleColorPicker Grid.Row="1" Grid.Column="1" Color="{x:Bind ViewModel.ProvidedLight, Mode=TwoWay}"/>
-                        <w3c:SimpleColorPicker Grid.Row="2" Grid.Column="1" Color="{x:Bind ViewModel.CalculatedLight, Mode=TwoWay}"/>
-                        <w3c:SimpleColorPicker Grid.Row="3" Grid.Column="1" Color="{x:Bind ViewModel.PossibleLight, Mode=TwoWay}"/>
-                        <w3c:SimpleColorPicker Grid.Row="4" Grid.Column="1" Color="{x:Bind ViewModel.HPossibleLight, Mode=TwoWay}"/>
-                        <w3c:SimpleColorPicker Grid.Row="5" Grid.Column="1" Color="{x:Bind ViewModel.VPossibleLight, Mode=TwoWay}"/>
+                            <w3c:SimpleColorPicker Grid.Row="0" Grid.Column="1" Color="{x:Bind ViewModel.UserLight, Mode=TwoWay}"/>
+                            <w3c:SimpleColorPicker Grid.Row="1" Grid.Column="1" Color="{x:Bind ViewModel.ProvidedLight, Mode=TwoWay}"/>
+                            <w3c:SimpleColorPicker Grid.Row="2" Grid.Column="1" Color="{x:Bind ViewModel.CalculatedLight, Mode=TwoWay}"/>
+                            <w3c:SimpleColorPicker Grid.Row="3" Grid.Column="1" Color="{x:Bind ViewModel.PossibleLight, Mode=TwoWay}"/>
+                            <w3c:SimpleColorPicker Grid.Row="4" Grid.Column="1" Color="{x:Bind ViewModel.HPossibleLight, Mode=TwoWay}"/>
+                            <w3c:SimpleColorPicker Grid.Row="5" Grid.Column="1" Color="{x:Bind ViewModel.VPossibleLight, Mode=TwoWay}"/>
 
-                        <Button Grid.Row="5" Grid.Column="2" Content="Reset to defaults" Command="{x:Bind ViewModel.ResetLightColors}" HorizontalAlignment="Right" Margin="10,0,0,0"/>
-                    </Grid>
-                </Expander>
+                            <Button Grid.Row="5" Grid.Column="2" Content="Reset to defaults" Command="{x:Bind ViewModel.ResetLightColors}" HorizontalAlignment="Right" Margin="10,0,0,0"/>
+                        </Grid>
+                    </Expander>
 
                 <Expander Grid.Row="3" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                     <Expander.Header>
@@ -128,7 +113,8 @@
                         <Button Grid.Row="5" Grid.Column="2" Content="Reset to defaults" Command="{x:Bind ViewModel.ResetDarkColors}" HorizontalAlignment="Right" Margin="10,0,0,0"/>
                     </Grid>
                 </Expander>
-                <local:AboutBox x:Name="AboutInfo" Grid.Column="0" Grid.Row="4" HorizontalAlignment="Center" />
+
+                <local:AboutBox x:Name="AboutInfo"/>
             </Grid>
         </ScrollViewer>
     </Grid>

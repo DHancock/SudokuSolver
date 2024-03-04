@@ -10,7 +10,7 @@
 
     <!-- left, top, right, bottom -->
 
-    <Grid RowDefinitions="Auto,Auto,Auto,Auto" Margin="10,40,10,40">
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,30,0,20">
         <Image x:Name="AboutImage" Width="62" Height="62" Margin="0,0,0,20" HorizontalAlignment="Center"/>
         <TextBlock Grid.Row="1" Text="Sudoku Solver" FontSize="17" HorizontalAlignment="Center"/>
         <TextBlock Grid.Row="2" x:Name="VersionTextBlock" HorizontalAlignment="Center"/>
