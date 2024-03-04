@@ -17,7 +17,8 @@ internal abstract class WindowBase : Window
         CLOSE = 0xF060,
     }
 
-    private const double cMinWidth = 450;
+
+    private const double cMinWidth = 410;
     private const double cMinHeight = 480;
 
     public double InitialWidth { get; set; }
@@ -57,6 +58,7 @@ internal abstract class WindowBase : Window
         Activated += App.Instance.RecordWindowActivated;
 
         scaleFactor = IntialiseScaleFactor();
+
         scaledMinWidth = (int)(cMinWidth * scaleFactor);
         scaledMinHeight = (int)(cMinHeight * scaleFactor);
 
@@ -473,7 +475,7 @@ internal abstract class WindowBase : Window
 
     protected void SetWindowDragRegions()
     {
-        // deffer setting the drag regions while still resizing the window or scrolling
+        // defer setting the drag regions while still resizing the window or scrolling
         // it's content. If the timer is already running, this resets the interval.
         dispatcherTimer.Start();
     }

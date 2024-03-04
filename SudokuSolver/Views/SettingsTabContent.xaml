@@ -83,8 +83,19 @@
                             <w3c:SimpleColorPicker Grid.Row="4" Grid.Column="1" Color="{x:Bind ViewModel.HPossibleLight, Mode=TwoWay}"/>
                             <w3c:SimpleColorPicker Grid.Row="5" Grid.Column="1" Color="{x:Bind ViewModel.VPossibleLight, Mode=TwoWay}"/>
 
-                            <Button Grid.Row="5" Grid.Column="2" Content="Reset to defaults" Command="{x:Bind ViewModel.ResetLightColors}" HorizontalAlignment="Right" Margin="10,0,0,0"/>
-                        </Grid>
+                        <SplitButton Grid.Row="5" Grid.Column="2" Content="Reset" Command="{x:Bind ViewModel.ResetLightColors}" HorizontalAlignment="Right" Margin="10,0,0,0">
+                            <SplitButton.Flyout>
+                                <MenuFlyout Placement="Bottom">
+                                    <MenuFlyoutItem Text="User values" Command="{x:Bind ViewModel.ResetLightUser}"/>
+                                    <MenuFlyoutItem Text="Provided values" Command="{x:Bind ViewModel.ResetLightProvided}"/>
+                                    <MenuFlyoutItem Text="Calculated values" Command="{x:Bind ViewModel.ResetLightCalculated}"/>
+                                    <MenuFlyoutItem Text="Possible values" Command="{x:Bind ViewModel.ResetLightPossible}"/>
+                                    <MenuFlyoutItem Text="Horizontal Possibles" Command="{x:Bind ViewModel.ResetLightHPossible}"/>
+                                    <MenuFlyoutItem Text="Vertical Possibles" Command="{x:Bind ViewModel.ResetLightVPossible}"/>
+                                </MenuFlyout>
+                            </SplitButton.Flyout>
+                        </SplitButton>
+                    </Grid>
                     </Expander>
 
                 <Expander Grid.Row="3" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
@@ -110,7 +121,19 @@
                         <w3c:SimpleColorPicker Grid.Row="4" Grid.Column="1" Color="{x:Bind ViewModel.HPossibleDark, Mode=TwoWay}"/>
                         <w3c:SimpleColorPicker Grid.Row="5" Grid.Column="1" Color="{x:Bind ViewModel.VPossibleDark, Mode=TwoWay}"/>
 
-                        <Button Grid.Row="5" Grid.Column="2" Content="Reset to defaults" Command="{x:Bind ViewModel.ResetDarkColors}" HorizontalAlignment="Right" Margin="10,0,0,0"/>
+                        <SplitButton Grid.Row="5" Grid.Column="2" Content="Reset" Command="{x:Bind ViewModel.ResetDarkColors}" HorizontalAlignment="Right" Margin="10,0,0,0">
+                            <SplitButton.Flyout>
+                                <MenuFlyout Placement="Bottom">
+                                    <MenuFlyoutItem Text="User values" Command="{x:Bind ViewModel.ResetDarkUser}"/>
+                                    <MenuFlyoutItem Text="Provided values" Command="{x:Bind ViewModel.ResetDarkProvided}"/>
+                                    <MenuFlyoutItem Text="Calculated values" Command="{x:Bind ViewModel.ResetDarkCalculated}"/>
+                                    <MenuFlyoutItem Text="Possible values" Command="{x:Bind ViewModel.ResetDarkPossible}"/>
+                                    <MenuFlyoutItem Text="Horizontal Possibles" Command="{x:Bind ViewModel.ResetDarkHPossible}"/>
+                                    <MenuFlyoutItem Text="Vertical Possibles" Command="{x:Bind ViewModel.ResetDarkVPossible}"/>
+                                </MenuFlyout>
+                            </SplitButton.Flyout>
+                        </SplitButton>
+
                     </Grid>
                 </Expander>
 

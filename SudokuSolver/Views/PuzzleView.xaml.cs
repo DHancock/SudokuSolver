@@ -7,6 +7,8 @@ namespace SudokuSolver.Views;
 /// </summary>
 internal partial class PuzzleView : UserControl
 {
+    public bool IsPrintView { set; get; } = false;
+
     private PuzzleViewModel? viewModel;
     private Cell? lastSelectedCell;
     public event TypedEventHandler<PuzzleView, Cell.SelectionChangedEventArgs>? SelectedIndexChanged;
@@ -25,21 +27,15 @@ internal partial class PuzzleView : UserControl
             puzzleView.Grid.Opacity = 1;
             puzzleView.Loaded -= PuzzleView_Loaded;
         }
-    }
 
-    public PuzzleView(bool isPrintView) : this()
-    {
-        if (!isPrintView)
+        SizeChanged += (s, e) =>
         {
-            SizeChanged += (s, e) =>
-            {
-                // stop the grid lines being interpolated out when the view box scaling goes below 1.0
-                // WPF did this automatically. Printers will typically have much higher DPI resolutions.
+            // stop the grid lines being interpolated out when the view box scaling goes below 1.0
+            // WPF did this automatically. Printers will typically have much higher DPI resolutions.
+            if (!IsPrintView)
                 Grid.AdaptForScaleFactor(e.NewSize.Width);
-            };
-        }
+        };
     }
-
 
     public PuzzleViewModel? ViewModel
     {
