@@ -10,14 +10,43 @@ internal class SettingsViewModel : INotifyPropertyChanged
     public RelayCommand ResetLightColors { get; }
     public RelayCommand ResetDarkColors { get; }
 
-    // This singlton class mirrors the Settings singleton. The Settings singleton is responcible for reading and writing
-    // the data. Whereas this class handles notification changes for ui binding, fowarding any data to the Settings class
+    public RelayCommand ResetLightUser { get; }
+    public RelayCommand ResetLightProvided { get; }
+    public RelayCommand ResetLightCalculated { get; }
+    public RelayCommand ResetLightPossible { get; }
+    public RelayCommand ResetLightHPossible { get; }
+    public RelayCommand ResetLightVPossible { get; }
+
+    public RelayCommand ResetDarkUser { get; }
+    public RelayCommand ResetDarkProvided { get; }
+    public RelayCommand ResetDarkCalculated { get; }
+    public RelayCommand ResetDarkPossible { get; }
+    public RelayCommand ResetDarkHPossible { get; }
+    public RelayCommand ResetDarkVPossible { get; }
+
+
+    // This singleton class mirrors the Settings singleton. The Settings singleton is responsible for reading and writing
+    // the data. This class handles notification changes for ui binding, forwarding any data to the Settings class
     public static SettingsViewModel Data = new SettingsViewModel();
 
     private SettingsViewModel()
     {
         ResetLightColors = new RelayCommand(ExecuteResetLightColors, CanExecuteResetLightColors);
         ResetDarkColors = new RelayCommand(ExecuteResetDarkColors, CanExecuteResetDarkColors);
+
+        ResetLightUser = new RelayCommand(p => ResetLightColor(0), p => IsLightColorDifferent(0));
+        ResetLightProvided = new RelayCommand(p => ResetLightColor(1), p => IsLightColorDifferent(1));
+        ResetLightCalculated = new RelayCommand(p => ResetLightColor(2), p => IsLightColorDifferent(2));
+        ResetLightPossible = new RelayCommand(p => ResetLightColor(3), p => IsLightColorDifferent(3));
+        ResetLightHPossible = new RelayCommand(p => ResetLightColor(4), p => IsLightColorDifferent(4));
+        ResetLightVPossible = new RelayCommand(p => ResetLightColor(5), p => IsLightColorDifferent(5));
+
+        ResetDarkUser = new RelayCommand(p => ResetDarkColor(0), p => IsDarkColorDifferent(0));
+        ResetDarkProvided = new RelayCommand(p => ResetDarkColor(1), p => IsDarkColorDifferent(1));
+        ResetDarkCalculated = new RelayCommand(p => ResetDarkColor(2), p => IsDarkColorDifferent(2));
+        ResetDarkPossible = new RelayCommand(p => ResetDarkColor(3), p => IsDarkColorDifferent(3));
+        ResetDarkHPossible = new RelayCommand(p => ResetDarkColor(4), p => IsDarkColorDifferent(4));
+        ResetDarkVPossible = new RelayCommand(p => ResetDarkColor(5), p => IsDarkColorDifferent(5));
     }
 
     public ElementTheme Theme
@@ -149,6 +178,26 @@ internal class SettingsViewModel : INotifyPropertyChanged
         {
             SetterDark(index, Settings.Data.DefaultDarkThemeColors[index], $"{cPropertyNames[index]}Dark");
         }
+    }
+
+    private void ResetLightColor(int index)
+    {
+        SetterLight(index, Settings.Data.DefaultLightThemeColors[index], $"{cPropertyNames[index]}Light");
+    }
+
+    private static bool IsLightColorDifferent(int index)
+    {
+        return !Settings.Data.LightThemeColors[index].Equals(Settings.Data.DefaultLightThemeColors[index]);
+    }
+
+    private void ResetDarkColor(int index)
+    {
+        SetterDark(index, Settings.Data.DefaultDarkThemeColors[index], $"{cPropertyNames[index]}Dark");
+    }
+
+    private static bool IsDarkColorDifferent(int index)
+    {
+        return !Settings.Data.DarkThemeColors[index].Equals(Settings.Data.DefaultDarkThemeColors[index]);
     }
 
     private bool CanExecuteResetLightColors(object? param)
