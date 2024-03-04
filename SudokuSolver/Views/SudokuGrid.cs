@@ -8,7 +8,7 @@ internal sealed class SudokuGrid : Panel
     private double majorGridLineWidth = 0.0;
     private double totalWidthOfBorders = 0.0;
     private double cellSize = 0.0;
-    private double defaultMinorGridLineWidth = 0.0;
+    private double defaultMinorGridLineWidth = -1.0;
 
     public const int cCellsInRow = 9;
     public const int cCellCount = cCellsInRow * cCellsInRow;
@@ -27,10 +27,13 @@ internal sealed class SudokuGrid : Panel
     {
         // this assumes the xaml is correctly laid out and that all the major 
         // grid lines and minor grid lines each have the same stroke width
-        defaultMinorGridLineWidth = minorGridLineWidth = ((Line)Children[cCellCount]).StrokeThickness;
+        minorGridLineWidth = ((Line)Children[cCellCount]).StrokeThickness;
         majorGridLineWidth = ((Line)Children[cCellCount + cMinorGridLineCount]).StrokeThickness;
 
         totalWidthOfBorders = (minorGridLineWidth * (cMinorGridLineCount / 2)) + (majorGridLineWidth * (cMajorGridLineCount / 2));
+
+        if (defaultMinorGridLineWidth < 0.0)
+            defaultMinorGridLineWidth = minorGridLineWidth;
     }
 
 
