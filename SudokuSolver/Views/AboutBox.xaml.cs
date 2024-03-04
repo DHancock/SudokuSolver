@@ -6,10 +6,23 @@ public sealed partial class AboutBox : UserControl
     {
         this.InitializeComponent();
 
-        AboutImage.Loaded += (s, e) => LoadImage();
-        AboutImage.ActualThemeChanged += (s, e) => LoadImage();
+        Loaded += AboutBox_Loaded;
+        ActualThemeChanged += AboutBox_ActualThemeChanged;
 
         VersionTextBlock.Text = $"Version: {Path.GetFileNameWithoutExtension(typeof(App).Assembly.GetName().Version?.ToString())}";
+    }
+
+    private void AboutBox_ActualThemeChanged(FrameworkElement sender, object args)
+    {
+        AboutBox aboutBox = (AboutBox)sender;
+        aboutBox.LoadImage();
+    }
+
+    private void AboutBox_Loaded(object sender, RoutedEventArgs e)
+    {
+        AboutBox aboutBox = (AboutBox)sender;
+        aboutBox.LoadImage();
+        aboutBox.Loaded -= AboutImage_Loaded;
     }
 
     private void LoadImage()
