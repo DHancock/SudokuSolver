@@ -22,7 +22,7 @@ public sealed partial class AboutBox : UserControl
     {
         AboutBox aboutBox = (AboutBox)sender;
         aboutBox.LoadImage();
-        aboutBox.Loaded -= AboutImage_Loaded;
+        aboutBox.Loaded -= AboutBox_Loaded;
     }
 
     private void LoadImage()
