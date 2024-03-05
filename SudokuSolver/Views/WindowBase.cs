@@ -302,6 +302,9 @@ internal abstract class WindowBase : Window
 
                 List<RectInt32> rects = new List<RectInt32>();
                 LocatePassThroughContent(rects, layoutRoot);
+
+                Debug.WriteLine("count = " + rects.Count);
+
                 inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Passthrough, rects.ToArray());
             }
         }
@@ -313,15 +316,8 @@ internal abstract class WindowBase : Window
         }
     }
 
-    private record class ScrollViewerBounds(in Point Offset, in Vector2 Size)
+    private void LocatePassThroughContent(List<RectInt32> rects, UIElement item)
     {
-        public double Top => Offset.Y;
-    }
-
-    private void LocatePassThroughContent(List<RectInt32> rects, UIElement item, ScrollViewerBounds? bounds = null)
-    {
-        ScrollViewerBounds? parentBounds = bounds;
-
         static Point GetOffsetFromXamlRoot(UIElement e)
         {
             GeneralTransform gt = e.TransformToVisual(null);
@@ -344,20 +340,7 @@ internal abstract class WindowBase : Window
                 case ScrollBar:
                 case TextBlock tb when tb.Inlines.Any(x => x is Hyperlink):
                 {
-                    Point offset = GetOffsetFromXamlRoot(child);
-                    Vector2 actualSize = child.ActualSize;
-
-                    if ((parentBounds is not null) && (offset.Y < parentBounds.Top)) // top clip (for vertical scroll bars) 
-                    {
-                        actualSize.Y -= (float)(parentBounds.Top - offset.Y);
-
-                        if (actualSize.Y < 0.0)
-                            continue;
-
-                        offset.Y = parentBounds.Top;
-                    }
-
-                    rects.Add(ScaledRect(offset, actualSize, scaleFactor));
+                    rects.Add(ScaledRect(GetOffsetFromXamlRoot(child), child.ActualSize, scaleFactor));
                     continue;
                 }
 
@@ -377,29 +360,17 @@ internal abstract class WindowBase : Window
                     break;
                 }
 
-                case ScrollViewer:
+                case ScrollViewer sv when (sv.ComputedVerticalScrollBarVisibility == Visibility.Visible):
                 {
-                    // nested scroll viewers is not supported
-                    bounds = new ScrollViewerBounds(GetOffsetFromXamlRoot(child), child.ActualSize);
-
-                    if (((ScrollViewer)child).ComputedVerticalScrollBarVisibility == Visibility.Visible)
-                    {
-                        ScrollBar? vScrollBar = child.FindChild<ScrollBar>();
-
-                        if (vScrollBar is not null)
-                        {
-                            Debug.Assert(vScrollBar.Name.Equals("VerticalScrollBar"));
-                            rects.Add(ScaledRect(GetOffsetFromXamlRoot(vScrollBar), vScrollBar.ActualSize, scaleFactor));
-                        }
-                    }
-
-                    break;
+                    // scrolling via gestures trumps dragging the window
+                    rects.Add(ScaledRect(GetOffsetFromXamlRoot(child), child.ActualSize, scaleFactor));
+                    continue;
                 }
 
                 default: break;
             }
 
-            LocatePassThroughContent(rects, child, bounds);
+            LocatePassThroughContent(rects, child);
         }
     }
 
@@ -439,12 +410,6 @@ internal abstract class WindowBase : Window
                     continue;
                 }
 
-                case ScrollViewer scrollViewer:
-                {
-                    scrollViewer.ViewChanged += ScrollViewer_ViewChanged;
-                    break;
-                }
-
                 case PuzzleView puzzleView:
                 {
                     puzzleView.SizeChanged += UIElement_SizeChanged;
@@ -462,7 +427,6 @@ internal abstract class WindowBase : Window
         void UIElement_SizeChanged(object sender, SizeChangedEventArgs e) => SetWindowDragRegionsInternal();
         void Picker_FlyoutOpened(SimpleColorPicker sender, bool args) => ClearWindowDragRegions();
         void Picker_FlyoutClosed(SimpleColorPicker sender, bool args) => SetWindowDragRegionsInternal();
-        void ScrollViewer_ViewChanged(object? sender, ScrollViewerViewChangedEventArgs e) => SetWindowDragRegions();
     }
 
     private DispatcherTimer InitialiseDragRegionTimer()
