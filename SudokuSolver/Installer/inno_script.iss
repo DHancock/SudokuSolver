@@ -8,8 +8,8 @@
 #define appVer RemoveFileExt(GetFileVersion("..\bin\x64\Release\publish\" + appExeName))
 #define appId "sudukosolver.8628521D92E74106"
 
-#define winAppSdk_MajorMinorVersion "1.4"
-#define winAppSdk_MinPackageVersion "4000.1049.117.0"  ; version 1.4.3
+#define winAppSdk_MajorMinorVersion "1.5"
+#define winAppSdk_MinPackageVersion "5001.58.448.0"  ; version 1.5.0
 
 [Setup]
 AppId={#appId}
@@ -139,9 +139,9 @@ end;
 function GetNetDesktopRuntimeUrl: String;
 begin
   case ProcessorArchitecture of
-    paX86: Result := 'https://download.visualstudio.microsoft.com/download/pr/e55fa3d8-9a76-498a-aaaa-7dca44c7be3a/5ec98543746ddf2df96264ab015caa0b/windowsdesktop-runtime-6.0.24-win-x86.exe';
-    paX64: Result := 'https://download.visualstudio.microsoft.com/download/pr/dde9eb7e-8ea8-494a-9b04-5db26c7740e2/43d5050cfa63b7323749c7e56fedd3ac/windowsdesktop-runtime-6.0.24-win-x64.exe';
-    paARM64: Result := 'https://download.visualstudio.microsoft.com/download/pr/e06f3708-2216-451a-a99a-48ce5eb8e556/daa5aca45f8fd818e9584331ca0cab82/windowsdesktop-runtime-6.0.24-win-arm64.exe';
+    paX86: Result := 'https://download.visualstudio.microsoft.com/download/pr/9b77b480-7e32-4321-b417-a41e0f8ea952/3922bbf5538277b1d41e9b49ee443673/windowsdesktop-runtime-8.0.2-win-x86.exe';
+    paX64: Result := 'https://download.visualstudio.microsoft.com/download/pr/84ba33d4-4407-4572-9bfa-414d26e7c67c/bb81f8c9e6c9ee1ca547396f6e71b65f/windowsdesktop-runtime-8.0.2-win-x64.exe';
+    paARM64: Result := 'https://download.visualstudio.microsoft.com/download/pr/851642d5-5a3f-48f5-b608-a8bc8251591f/1e5beaba1586f70cf882323d91fa7be1/windowsdesktop-runtime-8.0.2-win-arm64.exe';
   else
     RaiseException('unknown ProcessorArchitecture'); 
   end;
