@@ -291,6 +291,8 @@ internal abstract class WindowBase : Window
 
     protected void SetWindowDragRegionsInternal()
     {
+        const int cInitialCapacity = 6;
+
         try
         {
             if ((Content is FrameworkElement layoutRoot) && layoutRoot.IsLoaded && AppWindowTitleBar.IsCustomizationSupported())
@@ -300,10 +302,9 @@ internal abstract class WindowBase : Window
                 RectInt32 windowRect = new RectInt32(0, 0, AppWindow.ClientSize.Width, AppWindow.ClientSize.Height);
                 inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Caption, [windowRect]);
 
-                List<RectInt32> rects = new List<RectInt32>();
+                List<RectInt32> rects = new List<RectInt32>(cInitialCapacity);
                 LocatePassThroughContent(rects, layoutRoot);
-
-                Debug.WriteLine("count = " + rects.Count);
+                Debug.Assert(rects.Count <= cInitialCapacity);
 
                 inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Passthrough, rects.ToArray());
             }
