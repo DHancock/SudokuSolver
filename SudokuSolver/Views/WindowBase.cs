@@ -340,6 +340,7 @@ internal abstract class WindowBase : Window
                 case CommandBar:
                 case ScrollBar:
                 case TextBlock tb when tb.Inlines.Any(x => x is Hyperlink):
+                case ScrollViewer sv when (sv.ComputedVerticalScrollBarVisibility == Visibility.Visible):
                 {
                     rects.Add(ScaledRect(GetOffsetFromXamlRoot(child), child.ActualSize, scaleFactor));
                     continue;
@@ -359,13 +360,6 @@ internal abstract class WindowBase : Window
                         rects.Add(ScaledRect(topLeft, size, scaleFactor));
                     }
                     break;
-                }
-
-                case ScrollViewer sv when (sv.ComputedVerticalScrollBarVisibility == Visibility.Visible):
-                {
-                    // scrolling via gestures trumps dragging the window
-                    rects.Add(ScaledRect(GetOffsetFromXamlRoot(child), child.ActualSize, scaleFactor));
-                    continue;
                 }
 
                 default: break;

@@ -10,6 +10,7 @@
 
 #define winAppSdk_MajorMinorVersion "1.5"
 #define winAppSdk_MinPackageVersion "5001.58.448.0"  ; version 1.5.0
+#define netDesktopSdk_MinVersion "8.0.1"
 
 [Setup]
 AppId={#appId}
@@ -338,8 +339,6 @@ begin
   if not FileExists(ExeFilePath) then
     ExtractTemporaryFile('CheckWinAppSdk.exe');
 
-  // Check for any 1.4.n version where n >= 2
-
   if not Exec(ExeFilePath, '{#winAppSdk_MinPackageVersion}' + ' ' + GetPlatformParamStr, '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
     Log('Exec CheckWinAppSdk.exe failed: ' + SysErrorMessage(ResultCode));    
 
@@ -357,7 +356,7 @@ begin
   if not FileExists(ExeFilePath) then
     ExtractTemporaryFile('NetCoreCheck.exe');
 
-  if not Exec(ExeFilePath, '-n Microsoft.WindowsDesktop.App -v 6.0.24 -r LatestMajor', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+  if not Exec(ExeFilePath, '-n Microsoft.WindowsDesktop.App -v {#netDesktopSdk_MinVersion} -r LatestMajor', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
     Log('Exec NetCoreCheck.exe failed: ' + SysErrorMessage(ResultCode));    
 
   Result := ResultCode = 0;
