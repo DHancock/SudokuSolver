@@ -15,8 +15,8 @@
     <ApplicationIcon>Resources\app.ico</ApplicationIcon>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
     <PackageIcon>app.ico</PackageIcon>
-    <AssemblyVersion>1.9.1</AssemblyVersion>
-    <FileVersion>1.9.1</FileVersion>
+    <AssemblyVersion>1.10.0</AssemblyVersion>
+    <FileVersion>1.10.0</FileVersion>
   </PropertyGroup>
 
 	
@@ -48,12 +48,6 @@
 		<None Update="Resources\warning.bmp">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
-		<Page Update="Views\SettingsTabContent.xaml">
-		  <Generator>MSBuild:Compile</Generator>
-		</Page>
-		<Page Update="Views\PuzzleTabContent.xaml">
-		  <Generator>MSBuild:Compile</Generator>
-		</Page>
 
 		<Compile Include="$(MicrosoftWindowsAppSDKPackageDir)include\WindowsAppSDK-VersionInfo.cs" />
 	</ItemGroup>
