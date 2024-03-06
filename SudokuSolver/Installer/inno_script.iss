@@ -5,7 +5,7 @@
 #define appDisplayName "Sudoku Solver"
 #define appName "SudokuSolver"
 #define appExeName appName + ".exe"
-#define appVer RemoveFileExt(GetFileVersion("..\bin\x64\Release\publish\" + appExeName))
+#define appVer RemoveFileExt(GetVersionNumbersString("..\bin\x64\Release\publish\" + appExeName))
 #define appId "sudukosolver.8628521D92E74106"
 
 #define winAppSdk_MajorMinorVersion "1.5"
