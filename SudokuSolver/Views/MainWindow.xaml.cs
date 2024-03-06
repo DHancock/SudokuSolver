@@ -578,4 +578,15 @@ internal sealed partial class MainWindow : WindowBase
 
         await AttemptToCloseTabs(rightTabs);
     }
+
+    private void Tabs_Loaded(object sender, RoutedEventArgs e)
+    {
+        TabView tv = (TabView)sender;
+
+        TabViewListView? tvlv = tv.FindChild<TabViewListView>();
+        Debug.Assert(tvlv is not null);
+
+        // remove the delay displaying new tab headers
+        tvlv?.ItemContainerTransitions.Clear();
+    }
 }
