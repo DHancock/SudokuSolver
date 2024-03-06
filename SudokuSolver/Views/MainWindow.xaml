@@ -46,7 +46,8 @@
             TabStripDrop="Tabs_TabStripDrop"
             TabDragStarting="Tabs_TabDragStarting"
             SelectionChanged="Tabs_SelectionChanged"
-            TabWidthMode="SizeToContent">
+            TabWidthMode="SizeToContent"
+            Loaded="Tabs_Loaded">
 
             <TabView.KeyboardAccelerators>
                 <KeyboardAccelerator Key="T" Modifiers="Control" Invoked="NewTab_Invoked" />
