@@ -7,20 +7,29 @@ internal sealed partial class SettingsTabContent : UserControl
     public SettingsViewModel ViewModel { get; } = SettingsViewModel.Data;
 
     private bool isHorizontal;
-
-    public SettingsTabContent()
+     
+    public SettingsTabContent(SettingsTabContent? source)
     {
         this.InitializeComponent();
 
         SizeChanged += SettingsTabContent_SizeChanged;
         Loaded += SettingsTabContent_Loaded;
-    }
 
-    private void SettingsTabContent_Loaded(object sender, RoutedEventArgs e)
-    {
-        AdjustLayout(ActualSize.X, initialise: true);
-        Loaded -= SettingsTabContent_Loaded;
-    } 
+        void SettingsTabContent_Loaded(object sender, RoutedEventArgs e)
+        {
+            Loaded -= SettingsTabContent_Loaded;
+
+            AdjustLayout(ActualSize.X, initialise: true);
+
+            if (source is not null)
+            {
+                ThemeExpander.IsExpanded = source.ThemeExpander.IsExpanded;
+                ViewExpander.IsExpanded = source.ViewExpander.IsExpanded;
+                LightColorsExpander.IsExpanded = source.LightColorsExpander.IsExpanded;
+                DarkColorsExpander.IsExpanded = source.DarkColorsExpander.IsExpanded;
+            }
+        }
+    }
 
     private void SettingsTabContent_SizeChanged(object sender, SizeChangedEventArgs e)
     {

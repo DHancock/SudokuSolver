@@ -95,8 +95,8 @@ internal sealed partial class MainWindow : WindowBase
     {
         if (newTab.Content is PuzzleTabContent)
             AddTab(CreatePuzzleTab(newTab));
-        else
-            AddTab(CreateSettingsTab());
+        else if (newTab.Content is SettingsTabContent)
+            AddTab(CreateSettingsTab(newTab));
     }
 
     private void FocusLastSelectedCell()
@@ -174,25 +174,17 @@ internal sealed partial class MainWindow : WindowBase
         return false;
     }
 
-    public void AddOrSelectSettingsTab(int index = -1)
+    public void AddOrSelectSettingsTab()
     {
         if (Tabs.TabItems.FirstOrDefault(x => (x is TabViewItem tvi && tvi.Content is SettingsTabContent)) is not TabViewItem settingsTab)
         {
             settingsTab = CreateSettingsTab();
-
-            if ((index < 0) || (index >= Tabs.TabItems.Count))
-            {
-                Tabs.TabItems.Add(settingsTab);
-            }
-            else
-            {
-                Tabs.TabItems.Insert(index, settingsTab);
-            }
-
-            AddDragRegionEventHandlers(settingsTab);
+            AddTab(settingsTab);
         }
-
-        Tabs.SelectedItem = settingsTab;
+        else
+        {
+            Tabs.SelectedItem = settingsTab;
+        }
     }
 
     private async void Tabs_TabItemsChanged(TabView sender, IVectorChangedEventArgs args)
@@ -265,24 +257,32 @@ internal sealed partial class MainWindow : WindowBase
         Debug.Assert(source.Header is string);
         Debug.Assert(source.Content is PuzzleTabContent);
         
-        PuzzleTabContent sourcecontent = (PuzzleTabContent)source.Content;
+        PuzzleTabContent sourceContent = (PuzzleTabContent)source.Content;
 
         return new TabViewItem()
         {
             Header = source.Header,
-            IconSource = sourcecontent.IsModified ? new SymbolIconSource() { Symbol = Symbol.Edit, } : null,
-            Content = new PuzzleTabContent(sourcecontent),
+            IconSource = sourceContent.IsModified ? new SymbolIconSource() { Symbol = Symbol.Edit, } : null,
+            Content = new PuzzleTabContent(sourceContent),
             ContextFlyout = CreateTabHeaderContextFlyout(),
         };
     }
 
-    private TabViewItem CreateSettingsTab()
+    private TabViewItem CreateSettingsTab(TabViewItem? source = null)
     {
+        SettingsTabContent? sourceContent = null;
+
+        if (source is not null) // preserve the expanders expanded state
+        { 
+            Debug.Assert(source.Content is SettingsTabContent);
+            sourceContent = (SettingsTabContent)source.Content;
+        }
+         
         return new TabViewItem()
         {
             Header = "Settings",
             IconSource = new SymbolIconSource() { Symbol = Symbol.Setting, },
-            Content = new SettingsTabContent(),
+            Content = new SettingsTabContent(sourceContent),
             ContextFlyout = CreateTabHeaderContextFlyout(isForPuzzleTab: false),
         };
     }
@@ -353,17 +353,15 @@ internal sealed partial class MainWindow : WindowBase
 
         if (e.DataView.Properties.TryGetValue(cDataIdentifier, out object? obj))
         {
-            if ((obj is TabViewItem sourceTabViewItem) &&
-                (sender is TabView destinationTabView) &&
-                (sourceTabViewItem.Parent is TabViewListView sourceTabViewListView))
+            if ((obj is TabViewItem sourceTabViewItem) && (sourceTabViewItem.Parent is TabViewListView sourceTabViewListView))
             {
                 // First we need to get the position in the List to drop to
                 int index = -1;
 
                 // Determine which items in the list our pointer is between.
-                for (int i = 0; i < destinationTabView.TabItems.Count; i++)
+                for (int i = 0; i < Tabs.TabItems.Count; i++)
                 {
-                    if (destinationTabView.ContainerFromIndex(i) is TabViewItem item)
+                    if (Tabs.ContainerFromIndex(i) is TabViewItem item)
                     {
                         if (e.GetPosition(item).X - item.ActualWidth < 0)
                         {
@@ -376,25 +374,38 @@ internal sealed partial class MainWindow : WindowBase
                 // single instanced so shouldn't need to dispatch
                 sourceTabViewListView.Items.Remove(sourceTabViewItem);
 
+                TabViewItem? newTab = null;
+
                 if (sourceTabViewItem.Content is PuzzleTabContent)
                 {
-                    TabViewItem newTab = CreatePuzzleTab(sourceTabViewItem);
+                    newTab = CreatePuzzleTab(sourceTabViewItem);
+                }
+                else if (sourceTabViewItem.Content is SettingsTabContent)
+                {
+                    // replace the existing, it preserves the expanders expanded state and reduces code paths
+                    TabViewItem? existingSettings = Tabs.TabItems.FirstOrDefault(x => (x is TabViewItem tvi && tvi.Content is SettingsTabContent)) as TabViewItem;
 
-                    if ((index < 0) || (index >= destinationTabView.TabItems.Count))
+                    if (existingSettings != null)
                     {
-                        destinationTabView.TabItems.Add(newTab);
+                        Tabs.TabItems.Remove(existingSettings);
+                    }
+
+                    newTab = CreateSettingsTab(sourceTabViewItem);  
+                }
+
+                if (newTab is not null)
+                {
+                    if ((index < 0) || (index >= Tabs.TabItems.Count))
+                    {
+                        Tabs.TabItems.Add(newTab);
                     }
                     else
                     {
-                        destinationTabView.TabItems.Insert(index, newTab);
+                        Tabs.TabItems.Insert(index, newTab);
                     }
 
                     AddDragRegionEventHandlers(newTab);
-                    destinationTabView.SelectedItem = newTab;
-                }
-                else
-                {
-                    AddOrSelectSettingsTab(index);
+                    Tabs.SelectedItem = newTab;
                 }
             }
         }

@@ -33,7 +33,7 @@
                         </Style>
                     </Grid.Resources>
 
-                    <Expander Grid.Row="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Expanding="Expander_Expanding">
+                    <Expander x:Name="ThemeExpander" Grid.Row="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Expanding="Expander_Expanding">
                         <Expander.Header>
                             <StackPanel Orientation="Horizontal">
                                 <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xF08C;"/>
@@ -47,7 +47,7 @@
                         </StackPanel>
                     </Expander>
 
-                    <Expander Grid.Row="1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                <Expander x:Name="ViewExpander" Grid.Row="1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                         <Expander.Header>
                             <StackPanel Orientation="Horizontal">
                                 <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE80A;"/>
@@ -60,7 +60,7 @@
                         </StackPanel>
                     </Expander>
 
-                    <Expander Grid.Row="2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                    <Expander x:Name="LightColorsExpander" Grid.Row="2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                         <Expander.Header>
                             <StackPanel Orientation="Horizontal">
                                 <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE790;"/>
@@ -98,7 +98,7 @@
                     </Grid>
                     </Expander>
 
-                <Expander Grid.Row="3" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                <Expander x:Name="DarkColorsExpander" Grid.Row="3" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                     <Expander.Header>
                         <StackPanel Orientation="Horizontal">
                             <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE790;"/>
