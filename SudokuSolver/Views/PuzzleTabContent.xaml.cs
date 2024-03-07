@@ -1,4 +1,4 @@
-using SudokuSolver.Utilities;
+﻿using SudokuSolver.Utilities;
 using SudokuSolver.ViewModels;
 
 namespace SudokuSolver.Views;
@@ -83,7 +83,9 @@ internal sealed partial class PuzzleTabContent : UserControl
     public void FocusLastSelectedCell()
     {
         if (!errorDialogOpen)
+        {
             Puzzle.FocusLastSelectedCell();
+        }
     }
 
     public async Task<bool> HandleTabCloseRequested()
@@ -112,7 +114,9 @@ internal sealed partial class PuzzleTabContent : UserControl
         foreach (Popup popup in VisualTreeHelper.GetOpenPopupsForXamlRoot(this.XamlRoot))
         {
             if (popup.Child is MenuFlyoutPresenter)
+            {
                 popup.IsOpen = false;
+            }
         }
     }
 
@@ -134,7 +138,9 @@ internal sealed partial class PuzzleTabContent : UserControl
         Status status = Status.Continue;
 
         if (IsModified)
+        {
             status = await SaveExistingFirst();
+        }
 
         if (status != Status.Cancelled)
         {
@@ -248,9 +254,13 @@ internal sealed partial class PuzzleTabContent : UserControl
         string path;
 
         if (sourceFile is null)
+        {
             path = App.cNewPuzzleName;
+        }
         else
+        {
             path = sourceFile.Path;
+        }
 
         ContentDialogResult result = await new ConfirmSaveDialog(path, Content.XamlRoot, LayoutRoot.ActualTheme).ShowAsync();
 
@@ -299,7 +309,9 @@ internal sealed partial class PuzzleTabContent : UserControl
             }
         }
         else
+        {
             status = await SaveAs();
+        }
 
         return status;
     }
@@ -313,9 +325,13 @@ internal sealed partial class PuzzleTabContent : UserControl
         savePicker.FileTypeChoices.Add("Sudoku files", new List<string>() { App.cFileExt });
 
         if (sourceFile is null)
+        {
             savePicker.SuggestedFileName = App.cNewPuzzleName;
+        }
         else
+        {
             savePicker.SuggestedFileName = sourceFile.Name;
+        }
 
         StorageFile file = await savePicker.PickSaveFileAsync();
 
@@ -360,7 +376,9 @@ internal sealed partial class PuzzleTabContent : UserControl
     private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(ViewModel.IsModified))
+        {
             UpdateTabHeader();
+        }
     }
 
     public void UpdateTabHeader()
@@ -381,9 +399,13 @@ internal sealed partial class PuzzleTabContent : UserControl
             }
 
             if (IsModified && tabViewItem.IconSource is null)
+            {
                 tabViewItem.IconSource = new SymbolIconSource() { Symbol = Symbol.Edit, };
+            }
             else if (!IsModified && tabViewItem.IconSource is not null)
+            {
                 tabViewItem.IconSource = null;
+            }
         }
     }
 }

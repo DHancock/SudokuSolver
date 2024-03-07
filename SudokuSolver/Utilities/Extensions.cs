@@ -54,10 +54,14 @@ internal static class Extensions
     public static T? FindControl<T>(this FrameworkElement element, string name) where T : FrameworkElement
     {
         if (element is null)
+        {
             return null;
+        }
 
         if ((element is T target) && (element.Name == name))
+        {
             return target;
+        }
 
         int count = VisualTreeHelper.GetChildrenCount(element);
 
@@ -68,7 +72,9 @@ internal static class Extensions
                 T? result = FindControl<T>(child, name);
 
                 if (result is not null)
+                {
                     return result;
+                }
             }
         }
 
@@ -84,12 +90,16 @@ internal static class Extensions
             DependencyObject child = VisualTreeHelper.GetChild(parent, index);
 
             if (child is T target)
+            {
                 return target;
+            }
 
             T? result = child.FindChild<T>();
 
             if (result is not null)
+            {
                 return result;
+            }
         }
 
         return null;

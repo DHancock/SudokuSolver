@@ -32,9 +32,13 @@ internal struct BitField
             Debug.Assert((cSpan | ((nuint)1 << bit)) == cSpan);
 
             if (value)
+            {
                 data |= (nuint)1 << bit;
+            }
             else
+            {
                 data &= ~((nuint)1 << bit);
+            }
         }
     }
 
@@ -72,7 +76,9 @@ internal struct BitField
     public override readonly bool Equals(object? obj)
     {
         if (obj is BitField a)
+        {
             return this == a;
+        }
 
         return false;
     }
@@ -99,9 +105,13 @@ internal struct BitField
                 while (bits > 0)
                 {
                     if ((bits & 1) > 0)
+                    {
                         chars.Add(a[chars.Count] ? (char)((chars.Count % 10) + '0') : '-');
+                    }
                     else
+                    {
                         chars.Add('.');   // it's not in cSpan
+                    }
 
                     bits >>= 1;
                 }

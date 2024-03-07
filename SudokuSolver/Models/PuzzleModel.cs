@@ -56,7 +56,9 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
     public void Clear()
     {
         foreach (Cell cell in Cells)
+        {
             cell.Reset();
+        }
 
         CompletedCellsCount = 0;
     }
@@ -68,7 +70,9 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
 
         // sanity check
         if ((document.Root == null) || (document.Root.Name != Cx.Sudoku))
+        {
             throw new InvalidDataException("File contains invalid data.");
+        }
 
         // version check
         int version = 0;
@@ -78,7 +82,9 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
             XAttribute? va = document.Root.Attribute(Cx.version);
 
             if ((va == null) || !int.TryParse(va.Value, out version))
+            {
                 throw new InvalidDataException("Failed to read the files version attribute.");
+            }
         }
         
         switch (version)
@@ -141,7 +147,9 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
                 Cells[index].Value = value;
 
                 if (fixProvidedOrigin && (origin == Origins.Provided))
+                {
                     origin = Origins.User;
+                }
 
                 Cells[index].Origin = origin;
             }
@@ -186,7 +194,9 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
         SetCellValue(index, 0, Origins.NotDefined);
 
         if (Add(index, newValue))
+        {
             return true;
+        }
 
         // revert model
         SetCellValue(index, previousValue, previousOrigin);
@@ -230,7 +240,9 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
         Cell cell = Cells[index];
 
         if (cell.HasValue) // replacing a cell value directly isn't supported
+        {
             return false;
+        }
 
         return cell.Possibles[newValue];   // so far at least...
     }
@@ -265,7 +277,9 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
         foreach (Cell cell in Cells.CubeRowColumnMinus(index))
         {
             if (cell.HasValue && ((cell.Origin == Origins.User) || (cell.Origin == Origins.Provided)) && (cell.Value == newValue))
+            {
                 return false;
+            }
         }
 
         return true;
@@ -274,13 +288,17 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
     public void SetOriginToProvided()
     {
         foreach (Cell cell in Cells.Where(c => c.Origin == Origins.User))
+        {
             cell.Origin = Origins.Provided;
+        }
     }
 
     public void SetOriginToUser()
     {
         foreach (Cell cell in Cells.Where(c => c.Origin == Origins.Provided))
+        {
             cell.Origin = Origins.User;
+        }
     }
 
     private void SimpleEliminationForCell(Cell updatedCell, Stack<Cell> cellsToUpdate)
@@ -298,7 +316,9 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
                     cell.Possibles[newValue] = false;
 
                     if (count == 2)
+                    {
                         cellsToUpdate.Push(cell);  // only one possible left
+                    }
                 }
             }
         }
@@ -340,7 +360,9 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
         foreach (Cell cell in Cells.CubeColumn(cubex, cubey, column))
         {
             if (!cell.HasValue)
+            {
                 aggregate |= cell.Possibles;
+            }
         }
 
         return aggregate;
@@ -354,7 +376,9 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
         foreach (Cell cell in Cells.CubeRow(cubex, cubey, row))
         {
             if (!cell.HasValue)
+            {
                 aggregate |= cell.Possibles;
+            }
         }
 
         return aggregate;
@@ -367,7 +391,9 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
         {
             // possible values that are exclusive to this column
             if (!cell.HasValue)
+            {
                 cell.VerticalDirections = cell.Possibles & ~(columnA | columnB);
+            }
         }
     }
 
@@ -378,7 +404,9 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
         {
             // possible values that are exclusive to this row
             if (!cell.HasValue)
+            {
                 cell.HorizontalDirections = cell.Possibles & ~(rowA | rowB);
+            }
         }
     }
 
@@ -400,9 +428,13 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
                     if (!cell.HasValue) // aggregate the directions
                     {
                         if (!Cells.Rotated)
+                        {
                             directions |= cell.HorizontalDirections;
+                        }
                         else
+                        {
                             directions |= cell.VerticalDirections;
+                        }
                     }
                 }
 
@@ -422,7 +454,9 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
                                 cell.Possibles = temp;
 
                                 if (cell.Possibles.Count == 1)
+                                {
                                     cellsToUpdate.Push(cell);
+                                }
                             }
                         }
                     }
@@ -502,7 +536,9 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
                                 temp[index].cell = cell;
                             }
                             else
+                            {
                                 temp[index].count += 1;
+                            }
                         }
                     }
                 }
@@ -552,13 +588,19 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
     private static Pattern FindVerticalPattern(bool a, bool b, bool c)
     {
         if (a && b && !c)
+        {
             return Pattern.Upper2;
+        }
 
         if (!a && b && c)
+        {
             return Pattern.Lower2;
+        }
 
         if (a && !b && c)
+        {
             return Pattern.TopAndBottom;
+        }
 
         return Pattern.None;
     }
@@ -580,11 +622,17 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
                     foreach (Cell cell in Cells.CubeRow(cubex, cubey, row))
                     {
                         if (cell.HasValue)
+                        {
                             temp[cell.Value] = false;
+                        }
                         else if (cell.Possibles.Count == 1)
+                        {
                             temp[cell.Possibles.First] = false;
+                        }
                         else
+                        {
                             possibles[cubex, row] |= cell.Possibles;
+                        }
                     }
                 }
             }
@@ -648,7 +696,9 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
                                                 modelChanged = true;
 
                                                 if (count == 2)
+                                                {
                                                     cellsToUpdate.Push(cell);
+                                                }
                                             }
                                         }
                                     }
@@ -692,7 +742,9 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
             Cells.Rotated = false;
 
             if (errorFree)
+            {
                 return CheckCubesAreErrorFree();
+            }
         }
 
         return false;
@@ -704,7 +756,9 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
         for (int row = 0; row < 9; row++)
         {
             if (!CellValuesAreUnique(Cells.Row(row)))
+            {
                 return false;
+            }
         }
 
         return true;
@@ -715,7 +769,9 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
         for (int cube = 0; cube < 9; cube++)
         {
             if (!CellValuesAreUnique(Cells.Cube(cube % 3, cube / 3)))
+            {
                 return false;
+            }
         }
         
         return true;
@@ -730,7 +786,9 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
             if (cell.HasValue)
             {
                 if (temp[cell.Value])
+                {
                     return false;  // found a duplicate
+                }
 
                 temp[cell.Value] = true;
             }
@@ -802,7 +860,9 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
                 () =>   // task local initializer
                 {
                     if (!modelCache.TryPop(out PuzzleModel? localModel))
+                    {
                         localModel = new PuzzleModel();
+                    }
 
                     return localModel;
                 },
@@ -849,7 +909,9 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
             if (!cell.HasValue && (cell.Possibles.Count == 2))
             {
                 if (originalModel is null)
+                {
                     originalModel = new PuzzleModel(this);
+                }
 
                 BitField temp = cell.Possibles;
                 int value;
@@ -859,7 +921,9 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
                     SetCellValue(cell.Index, value, Origins.Trial);
 
                     if (PuzzleIsComplete && PuzzleIsErrorFree())
+                    {
                         return;
+                    }
 
                     // revert puzzle and clear the possible value
                     CopyFrom(originalModel);
@@ -875,16 +939,22 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
         Stack<Cell> cellsToUpdate = new Stack<Cell>(Cells.Count);
 
         if (updatedCell.HasValue && !forceRecalculation)
+        {
             cellsToUpdate.Push(updatedCell);
+        }
         else
         {
             // it's much simpler to just start from scratch and rebuild it...
             foreach (Cell cell in Cells)
             {
                 if ((cell.Origin == Origins.User) || (cell.Origin == Origins.Provided))
+                {
                     cellsToUpdate.Push(cell);
+                }
                 else
+                {
                     cell.Reset(); 
+                }
             }
 
             CompletedCellsCount = 0;
@@ -925,7 +995,9 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
     public override string? ToString()
     {
         if (CompletedCellsCount == 0)
+        {
             return "empty";
+        }
 
         StringBuilder sb = new StringBuilder();
         int count = CompletedCellsCount;
@@ -937,13 +1009,19 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
                 sb.Append(Cells[index].Value);
 
                 if (--count == 0)
+                {
                     break;
+                }
             }
             else
+            {
                 sb.Append('-');
+            }
 
             if (((index + 1) % 9) == 0)
+            {
                 sb.Append(Environment.NewLine);
+            }
         }
 
         return sb.ToString();
@@ -952,7 +1030,9 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
     public static bool operator ==(PuzzleModel? left, PuzzleModel? right)
     {
         if (ReferenceEquals(left, right))
+        {
             return true;
+        }
         
         return (left is not null) && 
                 (right is not null) && 

@@ -33,7 +33,9 @@ internal partial class PuzzleView : UserControl
             // stop the grid lines being interpolated out when the view box scaling goes below 1.0
             // WPF did this automatically. Printers will typically have much higher DPI resolutions.
             if (!IsPrintView)
+            {
                 Grid.AdaptForScaleFactor(e.NewSize.Width);
+            }
         };
     }
 
@@ -58,7 +60,9 @@ internal partial class PuzzleView : UserControl
         {
             // enforce single selection
             if (lastSelectedCell is not null)
+            {
                 lastSelectedCell.IsSelected = false;
+            }
 
             lastSelectedCell = sender;
         }

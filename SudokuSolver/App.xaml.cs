@@ -54,7 +54,9 @@ public partial class App : Application
             bool windowCreated = await ProcessCommandLine(commandLine);
 
             if (!windowCreated)
+            {
                 CreateWindow(Settings.Data.RestoreBounds);
+            }
         }
     }
 
@@ -67,9 +69,13 @@ public partial class App : Application
             if (!appClosing)
             {
                 if (e.Kind == ExtendedActivationKind.File)
+                {
                     ProcessFileActivation(e);
+                }
                 else if (e.Kind == ExtendedActivationKind.Launch)
+                {
                     await ProcessRedirectedLaunchActivation(e);
+                }
             }
         });
 
@@ -110,7 +116,9 @@ public partial class App : Application
             bool windowCreated = await ProcessCommandLine(commandLine);
 
             if (!windowCreated)
+            {
                 AttemptSwitchToWindow(currentWindow);
+            }
         }
     }
 
@@ -176,7 +184,9 @@ public partial class App : Application
         foreach (MainWindow wb in windowList)
         {
             if (wb.Content.XamlRoot == element.XamlRoot)
+            {
                 return wb;
+            }
         }
 
         Debug.Assert(false);
@@ -193,7 +203,9 @@ public partial class App : Application
         // If all the other windows are minimized then another window won't be
         // automatically activated. Until it's known, use the last one opened.
         if (ReferenceEquals(currentWindow, window))
+        {
             currentWindow = windowList.LastOrDefault();
+        }
 
         return appClosing;
     }
@@ -205,13 +217,17 @@ public partial class App : Application
         if (window is not null)
         {
             if (window.WindowState == WindowState.Minimized)
+            {
                 window.WindowState = WindowState.Normal;
+            }
 
             HWND foreground = PInvoke.GetForegroundWindow();
             HWND target = (HWND)window.WindowPtr;
 
             if (target != foreground)
+            {
                 return PInvoke.SetForegroundWindow(target);
+            }
         }
 
         return false;
@@ -220,13 +236,17 @@ public partial class App : Application
     public void AttemptCloseAllWindows()
     {
         foreach (WindowBase window in windowList)
+        {
             window.PostCloseMessage();
+        }
     }
 
     internal RectInt32 GetNewWindowPosition(MainWindow newWindow, RectInt32 restoreBounds)
     {
         if (restoreBounds.IsEmpty())  // first run
+        {
             return CenterInPrimaryDisplay(newWindow);
+        }
 
         return GetNewWindowPosition(restoreBounds);
     }
@@ -294,16 +314,24 @@ public partial class App : Application
         PointInt32 position = bounds.TopLeft();
 
         if ((position.Y + bounds.Height) > workArea.Bottom())
+        {
             position.Y = workArea.Bottom() - bounds.Height;
+        }
 
         if (position.Y < workArea.Y)
+        {
             position.Y = workArea.Y;
+        }
 
         if ((position.X + bounds.Width) > workArea.Right())
+        {
             position.X = workArea.Right() - bounds.Width;
+        }
 
         if (position.X < workArea.X)
+        {
             position.X = workArea.X;
+        }
 
         int width = Math.Min(bounds.Width, workArea.Width);
         int height = Math.Min(bounds.Height, workArea.Height);
@@ -322,10 +350,14 @@ public partial class App : Application
         foreach (char letter in commandLine)
         {
             if (letter == '"')
+            {
                 insideQuotes = !insideQuotes;
+            }
 
             else if (insideQuotes || (letter != ' '))
+            {
                 sb.Append(letter);
+            }
 
             else if (sb.Length > 0)
             {
@@ -335,7 +367,9 @@ public partial class App : Application
         }
 
         if (sb.Length > 0)
+        {
             arguments.Add(sb.ToString());
+        }
 
         return arguments;
     }
@@ -344,6 +378,8 @@ public partial class App : Application
     {
         // used to determine which window to activate, or add tabs too on launch redirection
         if (args.WindowActivationState != WindowActivationState.Deactivated)
+        {
             currentWindow = (MainWindow)sender;
+        }
     }
 }

@@ -7,6 +7,8 @@ internal sealed class CellList : ObservableCollection<Cell>
     public CellList() : base()
     {
         for (int index = 0; index < cLength; index++)
+        {
             this.Add(new Cell(index));
+        }
     }
 }

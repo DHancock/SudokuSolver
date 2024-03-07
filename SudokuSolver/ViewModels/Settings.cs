@@ -54,7 +54,9 @@ internal class Settings
                 Debug.Assert(!string.IsNullOrWhiteSpace(directory));
 
                 if (!Directory.Exists(directory))
+                {
                     Directory.CreateDirectory(directory);
+                }
 
                 await File.WriteAllTextAsync(path, JsonSerializer.Serialize(settings, GetSerializerOptions()));
             }

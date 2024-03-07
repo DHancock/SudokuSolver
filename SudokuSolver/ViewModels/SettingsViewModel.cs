@@ -72,7 +72,9 @@ internal class SettingsViewModel : INotifyPropertyChanged
         set
         {
             if (value)
+            {
                 Theme = ElementTheme.Light;
+            }
         }
     }
 
@@ -82,7 +84,9 @@ internal class SettingsViewModel : INotifyPropertyChanged
         set
         {
             if (value)
+            {
                 Theme = ElementTheme.Dark;
+            }
         }
     }
 
@@ -92,7 +96,9 @@ internal class SettingsViewModel : INotifyPropertyChanged
         set
         {
             if (value)
+            {
                 Theme = ElementTheme.Default;
+            }
         }
 
     }
@@ -241,7 +247,9 @@ internal class SettingsViewModel : INotifyPropertyChanged
             SolidColorBrush scb = (SolidColorBrush)theme[cValueKeys[index]];
 
             if (scb.Color != colors[index])
+            {
                 scb.Color = colors[index];
+            }
         }
     }
 

@@ -61,23 +61,33 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         if (newValue > 0)
         {
             if (currentValue == 0)
+            {
                 return model.Add;
+            }
 
             if (currentValue != newValue)
             {
                 if ((cell.Origin == Origins.User) || (cell.Origin == Origins.Provided))
+                {
                     return model.Edit;
+                }
 
                 if ((currentOrigin == Origins.Trial) || (currentOrigin == Origins.Calculated))
+                {
                     return model.EditForced;
+                }
             }
 
             if ((currentValue == newValue) && ((currentOrigin == Origins.Trial) || (currentOrigin == Origins.Calculated)))
+            {
                 return model.SetOrigin;
+            }
         }
 
         if ((newValue == 0) && (currentValue > 0) && ((cell.Origin == Origins.User) || (cell.Origin == Origins.Provided)))
+        {
             return model.Delete;
+        }
 
         // typical changes that require no action are deleting an empty cell, 
         // deleting a cell containing a calculated value which would then just 
@@ -142,7 +152,9 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
             int index = modelCell.Index;
 
             if (!modelCell.Equals(Cells[index]))
+            {
                 Cells[index] = new Cell(modelCell);
+            }
         }
 
         Debug.Assert(model.CompletedCellCountIsValid);
@@ -204,7 +216,9 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
             Cell cell = Cells[index];
 
             if (predicate(cell))
+            {
                 Cells[index] = new Cell(cell);
+            }
         }
     }
 
@@ -250,9 +264,13 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
     public void Puzzle_SelectedIndexChanged(object sender, Views.Cell.SelectionChangedEventArgs e)
     {
         if (e.IsSelected)
+        {
             selectedIndex = e.Index;
+        }
         else if (selectedIndex == e.Index)
+        {
             selectedIndex = -1;
+        }
 
         UpdateMenuItemsDisabledState();
     }
@@ -293,7 +311,9 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
                 string data = await dpv.GetTextAsync();
 
                 if (int.TryParse(data, out int number) && number > 0 && number < 10)
+                {
                     return number;
+                }
             }
         }
         catch (Exception ex)
@@ -327,13 +347,17 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
     public void ExecutePaste(object? param)
     {
         if (CanPaste())
+        {
             UpdateCellForKeyDown(selectedIndex, clipboardValue);
+        }
     }
     
     public void ExecuteDelete()
     {
         if (CanCutCopyDelete())
+        {
             UpdateCellForKeyDown(selectedIndex, 0);
+        }
     }
 
     public bool CanMarkProvided(object? param = null) => Cells.Any(c => c.Origin == Origins.User);

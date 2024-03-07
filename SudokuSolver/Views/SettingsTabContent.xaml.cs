@@ -1,4 +1,4 @@
-using SudokuSolver.ViewModels;
+﻿using SudokuSolver.ViewModels;
 
 namespace SudokuSolver.Views;
 
@@ -57,7 +57,9 @@ internal sealed partial class SettingsTabContent : UserControl
                 LayoutRoot.Margin = margin;
 
                 if (LayoutRoot.ColumnDefinitions.Count > 1)
+                {
                     LayoutRoot.ColumnDefinitions.RemoveAt(LayoutRoot.ColumnDefinitions.Count - 1);
+                }
             }
         }
         else
@@ -77,7 +79,9 @@ internal sealed partial class SettingsTabContent : UserControl
                 LayoutRoot.Margin = margin;
 
                 if (LayoutRoot.ColumnDefinitions.Count == 1)
+                {
                     LayoutRoot.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
+                }
             }
         }
     }

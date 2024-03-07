@@ -12,13 +12,17 @@ internal sealed class CellList : IReadOnlyList<Cell>
     public CellList()
     {
         for (int index = 0; index < cLength; index++)
+        {
             cells[index] = new Cell(index);
+        }
     }
 
     public CellList(CellList source)
     {
         for (int index = 0; index < cLength; index++)
+        {
             cells[index] = new Cell(source.cells[index]);
+        }
     }
 
 
@@ -37,7 +41,9 @@ internal sealed class CellList : IReadOnlyList<Cell>
         get
         {
             if (Rotated)
+            {
                 return cells[Convert(y, x)];
+            }
 
             return cells[Convert(x, y)];
         }
@@ -50,21 +56,27 @@ internal sealed class CellList : IReadOnlyList<Cell>
     public void CopyFrom(CellList other)
     {
         for (int index = 0; index < cLength; index++)
+        {
             cells[index].CopyFrom(other.cells[index]);
+        }
     }
 
 
     public IEnumerable<Cell> Row(int rowIndex)
     {
         for (int x = 0; x < 9; x++)
+        {
             yield return this[x, rowIndex];
+        }
     }
 
 
     public IEnumerable<Cell> Column(int columnIndex)
     {
         for (int y = 0; y < 9; y++)
+        {
             yield return this[columnIndex, y];
+        }
     }
 
 
@@ -76,20 +88,28 @@ internal sealed class CellList : IReadOnlyList<Cell>
         if (cubeX == 0) // cube is at the start of the row
         {
             for (int x = 3; x < 9; x++)
+            {
                 yield return this[x, rowIndex];
+            }
         }
         else if (cubeX == 2) // cube is at the end of the row
         {
             for (int x = 0; x < 6; x++)
+            {
                 yield return this[x, rowIndex];
+            }
         }
         else
         {
             for (int x = 0; x < 3; x++)
+            {
                 yield return this[x, rowIndex];
+            }
 
             for (int x = 6; x < 9; x++)
+            {
                 yield return this[x, rowIndex];
+            }
         }
     }
 
@@ -102,20 +122,28 @@ internal sealed class CellList : IReadOnlyList<Cell>
         if (cubeY == 0) // cube is at top of the column
         {
             for (int y = 3; y < 9; y++)
+            {
                 yield return this[columnIndex, y];
+            }
         }
         else if (cubeY == 2) // cube is at bottom of the column
         {
             for (int y = 0; y < 6; y++)
+            {
                 yield return this[columnIndex, y];
+            }
         }
         else
         {
             for (int y = 0; y < 3; y++)
+            {
                 yield return this[columnIndex, y];
+            }
 
             for (int y = 6; y < 9; y++)
+            {
                 yield return this[columnIndex, y];
+            }
         }
     }
 
@@ -127,7 +155,9 @@ internal sealed class CellList : IReadOnlyList<Cell>
         int startY = cubeY * 3;
 
         for (int y = 0; y < 3; y++)
+        {
             yield return this[x, startY + y];
+        }
     }
 
 
@@ -137,7 +167,9 @@ internal sealed class CellList : IReadOnlyList<Cell>
         int startX = cubeX * 3;
 
         for (int x = 0; x < 3; x++)
+        {
             yield return this[startX + x, y];
+        }
     }
 
 
@@ -149,7 +181,9 @@ internal sealed class CellList : IReadOnlyList<Cell>
         for (int y = 0; y < 3; y++)
         {
             for (int x = 0; x < 3; x++)
+            {
                 yield return this[startX + x, startY + y];
+            }
         }
     }
 
@@ -168,23 +202,31 @@ internal sealed class CellList : IReadOnlyList<Cell>
         foreach (Cell cell in Cube(cubeX, cubeY))
         {
             if (cell.Index != sourceCellIndex)
+            {
                 yield return cell;
+            }
         }
 
         // the row apart from cells already in the cube
         foreach (Cell cell in RowMinus(cubeX, row))
+        {
             yield return cell;
+        }
 
         // the column apart from cells already in the cube
         foreach (Cell cell in ColumnMinus(cubeY, column))
+        {
             yield return cell;
+        }
     }
 
 
     public IEnumerator<Cell> GetEnumerator()
     {
         for (int index = 0; index < cLength; index++)
+        {
             yield return cells[index];
+        }
     }
 
     IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
