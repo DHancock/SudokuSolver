@@ -48,7 +48,9 @@ internal abstract class WindowBase : Window
         subClassDelegate = new SUBCLASSPROC(NewSubWindowProc);
 
         if (!PInvoke.SetWindowSubclass((HWND)WindowPtr, subClassDelegate, 0, 0))
+        {
             throw new Win32Exception(Marshal.GetLastPInvokeError());
+        }
 
         inputNonClientPointerSource = InputNonClientPointerSource.GetForWindowId(AppWindow.Id);
 
@@ -125,7 +127,9 @@ internal abstract class WindowBase : Window
                     HideSystemMenu();
 
                     if (ShowSystemMenu(viaKeyboard: true))
+                    {
                         return (LRESULT)0;
+                    }
                 }
 
                 break;
@@ -138,7 +142,9 @@ internal abstract class WindowBase : Window
                     HideSystemMenu();
 
                     if (ShowSystemMenu(viaKeyboard: false))
+                    {
                         return (LRESULT)0;
+                    }
                 }
 
                 break;
@@ -167,7 +173,9 @@ internal abstract class WindowBase : Window
     private bool ShowSystemMenu(bool viaKeyboard)
     {
         if ((systemMenu is null) && (Content is FrameworkElement root) && root.Resources.TryGetValue("SystemMenuFlyout", out object? res))
+        {
             systemMenu = res as MenuFlyout;
+        }
 
         if (systemMenu is not null)
         {
@@ -189,7 +197,9 @@ internal abstract class WindowBase : Window
     private void HideSystemMenu()
     {
         if ((systemMenu is not null) && systemMenu.IsOpen)
+        {
             systemMenu.Hide();
+        }
     }
 
     private void UpdateSystemMenuItemsEnabledState()
@@ -211,7 +221,9 @@ internal abstract class WindowBase : Window
     private bool CanMove(object? param)
     {
         if (AppWindow.Presenter is OverlappedPresenter op)
+        {
             return op.State != OverlappedPresenterState.Maximized;
+        }
 
         return AppWindow.Presenter.Kind == AppWindowPresenterKind.CompactOverlay;
     }
@@ -286,7 +298,9 @@ internal abstract class WindowBase : Window
         // allow mouse interaction with menu fly outs,  
         // including clicks anywhere in the client area used to dismiss the menu
         if (AppWindowTitleBar.IsCustomizationSupported())
+        {
             inputNonClientPointerSource.ClearRegionRects(NonClientRegionKind.Caption);
+        }
     }
 
     protected void SetWindowDragRegionsInternal()
@@ -328,7 +342,9 @@ internal abstract class WindowBase : Window
         foreach (UIElement child in LogicalTreeHelper.GetChildren(item))
         {
             if (child.XamlRoot is null)
+            {
                 return;
+            }
 
             switch (child)
             {

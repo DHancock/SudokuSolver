@@ -48,7 +48,9 @@ internal sealed class PrintHelper
         Debug.Assert(PrintManager.IsSupported());
 
         if (currentlyPrinting)
+        {
             throw new InvalidOperationException("Printing cannot be started at this time.");
+        }
 
         // printing isn't reentrant
         currentlyPrinting = true;

@@ -84,9 +84,13 @@ internal sealed partial class MainWindow : WindowBase
     public MainWindow(RectInt32 bounds, StorageFile? storageFile) : this(bounds)
     {
         if (storageFile is null)
+        {
             AddTab(CreatePuzzleTab());
+        }
         else
+        {
             AddTab(CreatePuzzleTab(storageFile));
+        }
     }
 
 
@@ -94,15 +98,21 @@ internal sealed partial class MainWindow : WindowBase
     public MainWindow(TabViewItem newTab, RectInt32 bounds) : this(bounds)
     {
         if (newTab.Content is PuzzleTabContent)
+        {
             AddTab(CreatePuzzleTab(newTab));
+        }
         else if (newTab.Content is SettingsTabContent)
+        {
             AddTab(CreateSettingsTab(newTab));
+        }
     }
 
     private void FocusLastSelectedCell()
     {
         if (Tabs.SelectedItem is TabViewItem tvi && tvi.Content is PuzzleTabContent puzzleTab)
+        {
             puzzleTab.FocusLastSelectedCell();
+        }
     }
 
     private async Task HandleWindowCloseRequested()
@@ -320,7 +330,9 @@ internal sealed partial class MainWindow : WindowBase
         Tabs.TabItems.Add(tab);
 
         if (select)
+        {
             Tabs.SelectedItem = tab;
+        }
 
         AddDragRegionEventHandlers(tab);
     }

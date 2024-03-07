@@ -22,7 +22,9 @@ internal sealed class UndoHelper
         redoStack.Clear();
 
         if (currentModel is not null)
+        {
             undoStack.Push(currentModel);
+        }
 
         currentModel = new PuzzleModel(model);
     }
@@ -30,7 +32,9 @@ internal sealed class UndoHelper
     public PuzzleModel PopUndo()
     {
         if (currentModel is not null)
+        {
             redoStack.Push(currentModel);
+        }
 
         currentModel = undoStack.Pop();
 
@@ -40,7 +44,9 @@ internal sealed class UndoHelper
     public PuzzleModel PopRedo()
     {
         if (currentModel is not null)
+        {
             undoStack.Push(currentModel);
+        }
 
         currentModel = redoStack.Pop();
 
@@ -67,7 +73,9 @@ internal sealed class UndoHelper
             list.AddFirst(item);
 
             if (list.Count > maxCount)
+            {
                 list.RemoveLast();
+            }
         }
 
         public T Pop()

@@ -26,10 +26,14 @@ namespace SudokuSolver.Views
                     content = Message;
 
                     if (!string.IsNullOrEmpty(Details))
+                    {
                         content += $"{Environment.NewLine}{Environment.NewLine}{Details}";
+                    }
                 }
                 else if (!string.IsNullOrEmpty(Details))
+                {
                     content = Details;
+                }
 
                 Content = content;
             };

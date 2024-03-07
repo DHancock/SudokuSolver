@@ -30,7 +30,9 @@ internal class SudokuTraceListener : TraceListener
         try
         {
             if ((store.Length + message.Length) > cMaxStoreLength)
+            {
                 FlushInternal();
+            }
 
             store.Append(message);
         }
@@ -70,7 +72,9 @@ internal class SudokuTraceListener : TraceListener
                 WriteInternal(message);
 
                 if (autoFlush)
+                {
                     FlushInternal();
+                }
             }
         }
     }
@@ -82,7 +86,9 @@ internal class SudokuTraceListener : TraceListener
         lock (lockObject)
         {
             if (store.Length > 0)
+            {
                 FlushInternal();
+            }
         }      
     }
 }

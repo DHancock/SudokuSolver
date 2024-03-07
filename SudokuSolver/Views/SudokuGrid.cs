@@ -33,7 +33,9 @@ internal sealed class SudokuGrid : Panel
         totalWidthOfBorders = (minorGridLineWidth * (cMinorGridLineCount / 2)) + (majorGridLineWidth * (cMajorGridLineCount / 2));
 
         if (defaultMinorGridLineWidth < 0.0)
+        {
             defaultMinorGridLineWidth = minorGridLineWidth;
+        }
     }
 
 
@@ -48,7 +50,9 @@ internal sealed class SudokuGrid : Panel
             InitializeGridSizes();
 
             foreach (UIElement child in Children)
+            {
                 child?.Measure(constraint);   // the child will update it's desired size
+            }
 
             // copy for future reference
             cellSize = Children[0].DesiredSize.Width;

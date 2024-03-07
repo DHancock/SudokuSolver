@@ -41,7 +41,9 @@ internal abstract class CellBase : IEquatable<CellBase>
         Origin = source.Origin;
 
         if (source.HasValue)
+        {
             cellValue = source.Value;
+        }
         else
         {
             cellValue = 0;
@@ -54,12 +56,16 @@ internal abstract class CellBase : IEquatable<CellBase>
     public bool Equals(CellBase? other)
     {
         if (other is null)
+        {
             return false;
+        }
 
         if (HasValue == other.HasValue)
         {
             if (HasValue)
+            {
                 return (Value == other.Value) && (Origin == other.Origin);
+            }
 
             return (Possibles == other.Possibles) &&
                     (VerticalDirections == other.VerticalDirections) &&

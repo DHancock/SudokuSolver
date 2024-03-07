@@ -42,7 +42,9 @@ internal sealed partial class Cell : UserControl
                 SelectionChanged?.Invoke(this, new SelectionChangedEventArgs(Data.Index, value)); 
 
                 if (!isSelected) // set by the puzzle to enforce single selection
+                {
                     GoToVisualState(VisualState.Normal);
+                }
             }
         }
     }
@@ -59,18 +61,26 @@ internal sealed partial class Cell : UserControl
             Debug.Assert(success);
 
             if (success)
+            {
                 GoToVisualState(VisualState.SelectedFocused);
+            }
         }
         else
+        {
             GoToVisualState(VisualState.Normal);
+        }
     }
 
     protected override void OnLostFocus(RoutedEventArgs e)
     {
         if (IsSelected)
+        {
             GoToVisualState(VisualState.SelectedUnfocused);
+        }
         else
+        {
             GoToVisualState(VisualState.Normal);
+        }
     }
 
     private void Cell_LosingFocus(UIElement sender, LosingFocusEventArgs args)
@@ -85,7 +95,9 @@ internal sealed partial class Cell : UserControl
     protected override void OnGotFocus(RoutedEventArgs e)
     {
         if (!IsSelected) 
+        {
             IsSelected = true; // user tabbed to cell, or window switched to foreground
+        }
 
         GoToVisualState(VisualState.SelectedFocused);
     }
@@ -259,7 +271,9 @@ internal sealed partial class Cell : UserControl
             }
 
             if (newValue >= 0)
+            {
                 ((ViewModels.PuzzleViewModel)this.DataContext).UpdateCellForKeyDown(Data.Index, newValue);
+            }
         }
     }
 }
