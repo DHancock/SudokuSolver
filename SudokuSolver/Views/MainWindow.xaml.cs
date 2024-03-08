@@ -39,6 +39,8 @@ internal sealed partial class MainWindow : WindowBase
             };
         }
 
+        App.Instance.RegisterWindow(this);
+
         AppWindow.Closing += async (s, args) =>
         {
             args.Cancel = true;
@@ -81,7 +83,7 @@ internal sealed partial class MainWindow : WindowBase
 
 
     // used for launch activation and new window commands
-    public MainWindow(RectInt32 bounds, StorageFile? storageFile) : this(bounds)
+    public MainWindow(RectInt32 bounds, StorageFile? storageFile = null) : this(bounds)
     {
         if (storageFile is null)
         {
@@ -348,7 +350,8 @@ internal sealed partial class MainWindow : WindowBase
         RectInt32 bounds = new RectInt32(p.X, p.Y, RestoreBounds.Width, RestoreBounds.Height);
 
         CloseTab(args.Tab);
-        App.Instance.CreateWindow(args.Tab, bounds);  
+        MainWindow window = new MainWindow(args.Tab, bounds);
+        window.AttemptSwitchToForeground();
     }
 
 #pragma warning disable CA1822 // Mark members as static
@@ -611,5 +614,23 @@ internal sealed partial class MainWindow : WindowBase
 
         // remove the delay displaying new tab headers
         tvlv?.ItemContainerTransitions.Clear();
+    }
+
+    internal bool AttemptSwitchToForeground()
+    {
+        if (WindowState == WindowState.Minimized)
+        {
+            WindowState = WindowState.Normal;
+        }
+
+        HWND foreground = PInvoke.GetForegroundWindow();
+        HWND target = (HWND)WindowPtr;
+
+        if (target != foreground)
+        {
+            return PInvoke.SetForegroundWindow(target);
+        }
+
+        return true;
     }
 }

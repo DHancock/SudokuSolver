@@ -55,7 +55,8 @@ public partial class App : Application
 
             if (!windowCreated)
             {
-                CreateWindow(Settings.Data.RestoreBounds);
+                MainWindow window = new MainWindow(Settings.Data.RestoreBounds);
+                window.AttemptSwitchToForeground();
             }
         }
     }
@@ -94,7 +95,7 @@ public partial class App : Application
                 {
                     if (currentWindow is null)
                     {
-                        currentWindow = CreateWindow(storageFile, Settings.Data.RestoreBounds);
+                        currentWindow = new MainWindow(Settings.Data.RestoreBounds, storageFile);
                     }
                     else
                     {
@@ -103,6 +104,8 @@ public partial class App : Application
                     }
                 }
             }
+
+            currentWindow?.AttemptSwitchToForeground();
         }
     }
 
@@ -117,7 +120,7 @@ public partial class App : Application
 
             if (!windowCreated)
             {
-                AttemptSwitchToWindow(currentWindow);
+                currentWindow?.AttemptSwitchToForeground();
             }
         }
     }
@@ -137,7 +140,7 @@ public partial class App : Application
 
                 if (currentWindow is null)
                 {
-                    currentWindow = CreateWindow(storageFile, Settings.Data.RestoreBounds);
+                    currentWindow = new MainWindow(Settings.Data.RestoreBounds, storageFile);
                 }
                 else
                 {
@@ -146,37 +149,11 @@ public partial class App : Application
                 }
 
                 actioned = true;
+                currentWindow?.AttemptSwitchToForeground();
             }
         }
 
         return actioned;
-    }
-
-    internal MainWindow CreateWindow(RectInt32 bounds)
-    {
-        Debug.Assert(!appClosing);
-        MainWindow window = new MainWindow(bounds, null);
-        windowList.Add(window);
-        AttemptSwitchToWindow(window);
-        return window;
-    }
-
-    internal MainWindow CreateWindow(StorageFile storageFile, RectInt32 bounds)
-    {
-        Debug.Assert(!appClosing);
-        MainWindow window = new MainWindow(bounds, storageFile);
-        windowList.Add(window);
-        AttemptSwitchToWindow(window);
-        return window;
-    }
-
-    internal MainWindow CreateWindow(TabViewItem tab, RectInt32 bounds)
-    {
-        Debug.Assert(!appClosing);
-        MainWindow window = new MainWindow(tab, bounds);
-        windowList.Add(window);
-        AttemptSwitchToWindow(window);
-        return window;
     }
 
     internal MainWindow GetWindowForElement(UIElement element)
@@ -191,6 +168,13 @@ public partial class App : Application
 
         Debug.Assert(false);
         throw new KeyNotFoundException("window not found in windowList");
+    }
+
+    internal void RegisterWindow(MainWindow window)
+    {
+        Debug.Assert(!appClosing);
+        windowList.Add(window);
+        currentWindow = window;
     }
 
     internal bool UnRegisterWindow(MainWindow window)
@@ -208,29 +192,6 @@ public partial class App : Application
         }
 
         return appClosing;
-    }
-
-    private static bool AttemptSwitchToWindow(MainWindow? window)
-    {
-        Debug.Assert(window is not null);
-
-        if (window is not null)
-        {
-            if (window.WindowState == WindowState.Minimized)
-            {
-                window.WindowState = WindowState.Normal;
-            }
-
-            HWND foreground = PInvoke.GetForegroundWindow();
-            HWND target = (HWND)window.WindowPtr;
-
-            if (target != foreground)
-            {
-                return PInvoke.SetForegroundWindow(target);
-            }
-        }
-
-        return false;
     }
 
     public void AttemptCloseAllWindows()

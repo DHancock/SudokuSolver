@@ -168,7 +168,7 @@ internal sealed partial class PuzzleTabContent : UserControl
 
     private void NewWindowClickHandler(object sender, RoutedEventArgs e)
     {
-        App.Instance.CreateWindow(App.Instance.GetWindowForElement(this).RestoreBounds); 
+        _ = new MainWindow(App.Instance.GetWindowForElement(this).RestoreBounds); 
     }
 
     private async void SaveClickHandler(object sender, RoutedEventArgs e)
