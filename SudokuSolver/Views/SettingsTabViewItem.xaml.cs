@@ -1,37 +1,44 @@
-﻿using SudokuSolver.ViewModels;
+using SudokuSolver.ViewModels;
 
 namespace SudokuSolver.Views;
 
-internal sealed partial class SettingsTabContent : UserControl
+internal sealed partial class SettingsTabViewItem : TabViewItem
 {
     public SettingsViewModel ViewModel { get; } = SettingsViewModel.Data;
 
     private bool isHorizontal;
-     
-    public SettingsTabContent(SettingsTabContent? source)
+
+
+    public SettingsTabViewItem()
     {
         this.InitializeComponent();
 
-        SizeChanged += SettingsTabContent_SizeChanged;
-        Loaded += SettingsTabContent_Loaded;
+        LayoutRoot.SizeChanged += LayoutRoot_SizeChanged;
+        Loaded += SettingsTabViewItem_Loaded;
 
-        void SettingsTabContent_Loaded(object sender, RoutedEventArgs e)
+        void SettingsTabViewItem_Loaded(object sender, RoutedEventArgs e)
         {
-            Loaded -= SettingsTabContent_Loaded;
-
+            Loaded -= SettingsTabViewItem_Loaded;
             AdjustLayout(ActualSize.X, initialise: true);
-
-            if (source is not null)
-            {
-                ThemeExpander.IsExpanded = source.ThemeExpander.IsExpanded;
-                ViewExpander.IsExpanded = source.ViewExpander.IsExpanded;
-                LightColorsExpander.IsExpanded = source.LightColorsExpander.IsExpanded;
-                DarkColorsExpander.IsExpanded = source.DarkColorsExpander.IsExpanded;
-            }
         }
     }
 
-    private void SettingsTabContent_SizeChanged(object sender, SizeChangedEventArgs e)
+    public SettingsTabViewItem(SettingsTabViewItem source) : this()
+    {
+        Loaded += SettingsTabViewItem_Loaded;
+
+        void SettingsTabViewItem_Loaded(object sender, RoutedEventArgs e)
+        {
+            Loaded -= SettingsTabViewItem_Loaded;
+
+            ThemeExpander.IsExpanded = source.ThemeExpander.IsExpanded;
+            ViewExpander.IsExpanded = source.ViewExpander.IsExpanded;
+            LightColorsExpander.IsExpanded = source.LightColorsExpander.IsExpanded;
+            DarkColorsExpander.IsExpanded = source.DarkColorsExpander.IsExpanded;
+        }
+    }
+
+    private void LayoutRoot_SizeChanged(object sender, SizeChangedEventArgs e)
     {
         AdjustLayout(e.NewSize.Width);
     }

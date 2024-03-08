@@ -14,7 +14,7 @@
                 <BrushTransition x:Name="PuzzleBrushTransition" Duration="00:00:00"/>
             </local:SudokuGrid.BackgroundTransition>
             <local:SudokuGrid.OpacityTransition>
-                <ScalarTransition />
+                <ScalarTransition Duration="00:00:00.500"/>
             </local:SudokuGrid.OpacityTransition>
 
             <local:SudokuGrid.Resources>

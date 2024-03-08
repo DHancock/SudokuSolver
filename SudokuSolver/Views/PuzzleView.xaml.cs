@@ -1,4 +1,5 @@
-﻿using SudokuSolver.ViewModels;
+﻿using SudokuSolver.Utilities;
+using SudokuSolver.ViewModels;
 
 namespace SudokuSolver.Views;
 
@@ -9,6 +10,7 @@ internal partial class PuzzleView : UserControl
 {
     public bool IsPrintView { set; get; } = false;
 
+    private ElementTheme themeWhenSelected;
     private PuzzleViewModel? viewModel;
     private Cell? lastSelectedCell;
     public event TypedEventHandler<PuzzleView, Cell.SelectionChangedEventArgs>? SelectedIndexChanged;
@@ -20,12 +22,12 @@ internal partial class PuzzleView : UserControl
         // if the app theme is different from the systems an initial opacity of zero stops  
         // excessive background flashing when creating new tabs, looks intentional...
         Loaded += PuzzleView_Loaded;
+        Unloaded += PuzzleView_Unloaded;
 
         static void PuzzleView_Loaded(object sender, RoutedEventArgs e)
         {
             PuzzleView puzzleView = (PuzzleView)sender;
             puzzleView.Grid.Opacity = 1;
-            puzzleView.Loaded -= PuzzleView_Loaded;
         }
 
         SizeChanged += (s, e) =>
@@ -37,6 +39,11 @@ internal partial class PuzzleView : UserControl
                 Grid.AdaptForScaleFactor(e.NewSize.Width);
             }
         };
+    }
+
+    private void PuzzleView_Unloaded(object sender, RoutedEventArgs e)
+    {
+        themeWhenSelected = Settings.Data.Theme;
     }
 
     public PuzzleViewModel? ViewModel
@@ -73,4 +80,12 @@ internal partial class PuzzleView : UserControl
     }
 
     public void FocusLastSelectedCell() => lastSelectedCell?.Focus(FocusState.Programmatic);
+
+
+    public void ResetOpacityTransitionForThemeChange()
+    {
+        // for existing tabs last selected when there was different theme, re-enable the opacity
+        // transition to avoid more ui flashing
+        Grid.Opacity = (Utils.NormaliseTheme(themeWhenSelected) != Utils.NormaliseTheme(Settings.Data.Theme)) ? 0 : 1;
+    }
 }

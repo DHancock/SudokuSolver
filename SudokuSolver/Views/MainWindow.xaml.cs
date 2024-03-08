@@ -36,6 +36,7 @@ internal sealed partial class MainWindow : WindowBase
             LayoutRoot.ActualThemeChanged += (s, a) =>
             {
                 UpdateCaptionButtonsTheme(s.ActualTheme);
+                ResetPuzzleTabsOpacity();
             };
         }
 
@@ -76,8 +77,8 @@ internal sealed partial class MainWindow : WindowBase
         newTabCommand = new RelayCommand(ExecuteNewTab);
         closeTabCommand = new RelayCommand(ExecuteCloseTab);
         closeOtherCommand = new RelayCommand(ExecuteCloseOtherTabs, CanCloseOtherTabs);
-        closeLeftCommand = new RelayCommand(ExecuteCloseLeftTab, CanCloseLeftTabs);
-        closeRightCommand = new RelayCommand(ExecuteCloseRightTab, CanCloseRightTabs);
+        closeLeftCommand = new RelayCommand(ExecuteCloseLeftTabs, CanCloseLeftTabs);
+        closeRightCommand = new RelayCommand(ExecuteCloseRightTabs, CanCloseRightTabs);
     }
 
 
@@ -99,19 +100,19 @@ internal sealed partial class MainWindow : WindowBase
     // used when a tab is dragged and dropped outside of its parent window
     public MainWindow(TabViewItem existingTab, RectInt32 bounds) : this(bounds)
     {
-        if (existingTab.Content is PuzzleTabContent)
+        if (existingTab is PuzzleTabViewItem existingPuzzleTab)
         {
-            AddTab(CreatePuzzleTab(existingTab));
+            AddTab(CreatePuzzleTab(existingPuzzleTab));
         }
-        else if (existingTab.Content is SettingsTabContent)
+        else if (existingTab is SettingsTabViewItem existingSettingsTab)
         {
-            AddTab(CreateSettingsTab(existingTab));
+            AddTab(CreateSettingsTab(existingSettingsTab));
         }
     }
 
     private void FocusLastSelectedCell()
     {
-        if (Tabs.SelectedItem is TabViewItem tvi && tvi.Content is PuzzleTabContent puzzleTab)
+        if (Tabs.SelectedItem is PuzzleTabViewItem puzzleTab)
         {
             puzzleTab.FocusLastSelectedCell();
         }
@@ -128,8 +129,16 @@ internal sealed partial class MainWindow : WindowBase
         await AttemptToCloseTabs(Tabs.TabItems);
     }
 
-
-
+    private void ResetPuzzleTabsOpacity()
+    {
+        foreach (object obj in Tabs.TabItems)
+        {
+            if (!ReferenceEquals(obj, Tabs.SelectedItem) && (obj is PuzzleTabViewItem puzzleTab)) 
+            {
+                puzzleTab.ResetOpacityTransitionForThemeChange();
+            }
+        }
+    }
 
     private async Task<bool> AttemptToCloseTabs(IList<object> tabs)
     {
@@ -140,9 +149,9 @@ internal sealed partial class MainWindow : WindowBase
 
         for (int index = 0; index < tabs.Count; index++)
         {
-            if ((tabs[index] is TabViewItem tab) && (tab.Content is PuzzleTabContent puzzle) && puzzle.ViewModel.IsModified)
+            if ((tabs[index] is PuzzleTabViewItem puzzleTab) && puzzleTab.ViewModel.IsModified)
             {
-                modifiedTabs.Add((tab, index));
+                modifiedTabs.Add((puzzleTab, index));
             }
             else
             {
@@ -161,9 +170,9 @@ internal sealed partial class MainWindow : WindowBase
         foreach ((TabViewItem tab, _) in modifiedTabs)
         {
             Tabs.SelectedItem = tab;
-            PuzzleTabContent puzzleTabContent = (PuzzleTabContent)tab.Content;
+            PuzzleTabViewItem puzzleTab = (PuzzleTabViewItem)tab;
 
-            bool closed = await puzzleTabContent.HandleTabCloseRequested();
+            bool closed = await puzzleTab.HandleTabCloseRequested();
 
             if (closed)
             {
@@ -172,7 +181,7 @@ internal sealed partial class MainWindow : WindowBase
             else
             {
                 processingClose = false;
-                puzzleTabContent.FocusLastSelectedCell();
+                puzzleTab.FocusLastSelectedCell();
                 return true;
             }
         }
@@ -188,14 +197,15 @@ internal sealed partial class MainWindow : WindowBase
 
     public void AddOrSelectSettingsTab()
     {
-        if (Tabs.TabItems.FirstOrDefault(x => (x is TabViewItem tvi && tvi.Content is SettingsTabContent)) is not TabViewItem settingsTab)
+        object? tab = Tabs.TabItems.FirstOrDefault(x => x is SettingsTabViewItem);
+
+        if (tab is null)
         {
-            settingsTab = CreateSettingsTab();
-            AddTab(settingsTab);
+            AddTab(CreateSettingsTab());
         }
         else
         {
-            Tabs.SelectedItem = settingsTab;
+            Tabs.SelectedItem = tab;
         }
     }
 
@@ -243,61 +253,57 @@ internal sealed partial class MainWindow : WindowBase
     }
 
 
-    public TabViewItem CreatePuzzleTab()
+    public PuzzleTabViewItem CreatePuzzleTab()
     {
-        return new TabViewItem()
+        return new PuzzleTabViewItem()
         {
             Header = App.cNewPuzzleName,
-            Content = new PuzzleTabContent(),
             ContextFlyout = CreateTabHeaderContextFlyout(),
         };
     }
 
-    public TabViewItem CreatePuzzleTab(StorageFile storagefile)
+    public PuzzleTabViewItem CreatePuzzleTab(StorageFile storagefile)
     {
-        return new TabViewItem()
+        return new PuzzleTabViewItem(storagefile)
         {
             Header = storagefile.Name,
-            Content = new PuzzleTabContent(storagefile),
             ContextFlyout = CreateTabHeaderContextFlyout(),
         };
     }
 
     // cannot resue the tab directly because it may already have a different XamlRoot
-    public TabViewItem CreatePuzzleTab(TabViewItem source)
+    public PuzzleTabViewItem CreatePuzzleTab(PuzzleTabViewItem source)
     {
         Debug.Assert(source.Header is string);
-        Debug.Assert(source.Content is PuzzleTabContent);
-        
-        PuzzleTabContent sourceContent = (PuzzleTabContent)source.Content;
 
-        return new TabViewItem()
+        return new PuzzleTabViewItem(source)
         {
             Header = source.Header,
-            IconSource = sourceContent.IsModified ? new SymbolIconSource() { Symbol = Symbol.Edit, } : null,
-            Content = new PuzzleTabContent(sourceContent),
+            IconSource = source.IsModified ? new SymbolIconSource() { Symbol = Symbol.Edit, } : null,
             ContextFlyout = CreateTabHeaderContextFlyout(),
         };
     }
 
-    private TabViewItem CreateSettingsTab(TabViewItem? source = null)
+    private SettingsTabViewItem CreateSettingsTab()
     {
-        SettingsTabContent? sourceContent = null;
-
-        if (source is not null) // preserve the expanders expanded state
-        { 
-            Debug.Assert(source.Content is SettingsTabContent);
-            sourceContent = (SettingsTabContent)source.Content;
-        }
-         
-        return new TabViewItem()
+        return new SettingsTabViewItem()
         {
             Header = "Settings",
             IconSource = new SymbolIconSource() { Symbol = Symbol.Setting, },
-            Content = new SettingsTabContent(sourceContent),
             ContextFlyout = CreateTabHeaderContextFlyout(isForPuzzleTab: false),
         };
     }
+
+    private SettingsTabViewItem CreateSettingsTab(SettingsTabViewItem source)
+    {
+        return new SettingsTabViewItem(source)
+        {
+            Header = "Settings",
+            IconSource = new SymbolIconSource() { Symbol = Symbol.Setting, },
+            ContextFlyout = CreateTabHeaderContextFlyout(isForPuzzleTab: false),
+        };
+    }
+
 
     private MenuFlyout CreateTabHeaderContextFlyout(bool isForPuzzleTab = true)
     {
@@ -391,21 +397,21 @@ internal sealed partial class MainWindow : WindowBase
 
                 TabViewItem? newTab = null;
 
-                if (sourceTabViewItem.Content is PuzzleTabContent)
+                if (sourceTabViewItem is PuzzleTabViewItem existingPuzzleTab)
                 {
-                    newTab = CreatePuzzleTab(sourceTabViewItem);
+                    newTab = CreatePuzzleTab(existingPuzzleTab);
                 }
-                else if (sourceTabViewItem.Content is SettingsTabContent)
+                else if (sourceTabViewItem is SettingsTabViewItem existingSettingsTab)
                 {
                     // replace the existing, it preserves the expanders expanded state and reduces code paths
-                    TabViewItem? existingSettings = Tabs.TabItems.FirstOrDefault(x => (x is TabViewItem tvi && tvi.Content is SettingsTabContent)) as TabViewItem;
+                    object? existing = Tabs.TabItems.FirstOrDefault(x => x is SettingsTabViewItem);
 
-                    if (existingSettings != null)
+                    if (existing != null)
                     {
-                        Tabs.TabItems.Remove(existingSettings);
+                        Tabs.TabItems.Remove(existing);
                     }
 
-                    newTab = CreateSettingsTab(sourceTabViewItem);  
+                    newTab = CreateSettingsTab(existingSettingsTab);  
                 }
 
                 if (newTab is not null)
@@ -447,16 +453,16 @@ internal sealed partial class MainWindow : WindowBase
 
     private async Task TabCloseRequested(TabViewItem tab)
     {
-        if (tab.Content is PuzzleTabContent puzzleTabContent)
+        if (tab is PuzzleTabViewItem puzzleTab)
         {
-            if (await puzzleTabContent.HandleTabCloseRequested())
+            if (await puzzleTab.HandleTabCloseRequested())
             {
                 CloseTab(tab);
             }
         }
         else
         {
-            Debug.Assert(tab.Content is SettingsTabContent);
+            Debug.Assert(tab is SettingsTabViewItem);
             CloseTab(tab);
         }
     }
@@ -465,11 +471,8 @@ internal sealed partial class MainWindow : WindowBase
     {
         if ((e.AddedItems.Count == 1) && (e.RemovedItems.Count == 1))
         {
-            Debug.Assert(e.RemovedItems[0] is TabViewItem);
-            Debug.Assert(e.AddedItems[0] is TabViewItem);
-
-            bool lastIsSettings = ((TabViewItem)e.RemovedItems[0]).Content is SettingsTabContent;
-            bool newIsSettings = ((TabViewItem)e.AddedItems[0]).Content is SettingsTabContent;
+            bool lastIsSettings = e.RemovedItems[0] is SettingsTabViewItem;
+            bool newIsSettings = e.AddedItems[0] is SettingsTabViewItem;
 
             if (lastIsSettings || newIsSettings)
             {
@@ -576,7 +579,7 @@ internal sealed partial class MainWindow : WindowBase
         return (Tabs.TabItems.Count > 1) && (Tabs.TabItems[0] != Tabs.SelectedItem);
     }
 
-    private async void ExecuteCloseLeftTab(object? param)
+    private async void ExecuteCloseLeftTabs(object? param)
     {
         if (CanCloseLeftTabs())
         {
@@ -597,18 +600,24 @@ internal sealed partial class MainWindow : WindowBase
         return (Tabs.TabItems.Count > 1) && (Tabs.TabItems[Tabs.TabItems.Count - 1] != Tabs.SelectedItem);
     }
 
-    private async void ExecuteCloseRightTab(object? param)
+    private async void ExecuteCloseRightTabs(object? param)
     {
         if (CanCloseRightTabs())
         {
-            List<object> rightTabs = new List<object>();
+            int selectedIndex = Tabs.TabItems.IndexOf(Tabs.SelectedItem);
 
-            for (int index = Tabs.TabItems.IndexOf(Tabs.SelectedItem); index >= 0 && index < Tabs.TabItems.Count; index++)
+            if (selectedIndex >= 0)
             {
-                rightTabs.Add(Tabs.TabItems[index]);
-            }
+                int startIndex = selectedIndex + 1;
+                List<object> rightTabs = new List<object>(Tabs.TabItems.Count - startIndex);
 
-            await AttemptToCloseTabs(rightTabs);
+                for (int index = startIndex; index < Tabs.TabItems.Count; index++)
+                {
+                    rightTabs.Add(Tabs.TabItems[index]);
+                }
+
+                await AttemptToCloseTabs(rightTabs);
+            }
         }
     }
 
