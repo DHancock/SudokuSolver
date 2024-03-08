@@ -97,15 +97,15 @@ internal sealed partial class MainWindow : WindowBase
 
 
     // used when a tab is dragged and dropped outside of its parent window
-    public MainWindow(TabViewItem newTab, RectInt32 bounds) : this(bounds)
+    public MainWindow(TabViewItem existingTab, RectInt32 bounds) : this(bounds)
     {
-        if (newTab.Content is PuzzleTabContent)
+        if (existingTab.Content is PuzzleTabContent)
         {
-            AddTab(CreatePuzzleTab(newTab));
+            AddTab(CreatePuzzleTab(existingTab));
         }
-        else if (newTab.Content is SettingsTabContent)
+        else if (existingTab.Content is SettingsTabContent)
         {
-            AddTab(CreateSettingsTab(newTab));
+            AddTab(CreateSettingsTab(existingTab));
         }
     }
 
@@ -557,52 +557,59 @@ internal sealed partial class MainWindow : WindowBase
         }
     }
 
-    private bool CanCloseOtherTabs(object? param)
+    private bool CanCloseOtherTabs(object? param = null)
     {
         return Tabs.TabItems.Count > 1;
     }
 
     private async void ExecuteCloseOtherTabs(object? param)
     {
-        List<object> otherTabs = new List<object>(Tabs.TabItems.Where(x => !x.Equals(Tabs.SelectedItem)));
-
-        await AttemptToCloseTabs(otherTabs);
+        if (CanCloseOtherTabs())
+        {
+            List<object> otherTabs = new List<object>(Tabs.TabItems.Where(x => !ReferenceEquals(x, Tabs.SelectedItem)));
+            await AttemptToCloseTabs(otherTabs);
+        }
     }
 
-    private bool CanCloseLeftTabs(object? param)
+    private bool CanCloseLeftTabs(object? param = null)
     {
         return (Tabs.TabItems.Count > 1) && (Tabs.TabItems[0] != Tabs.SelectedItem);
     }
 
     private async void ExecuteCloseLeftTab(object? param)
     {
-        List<object> leftTabs = new List<object>();
-
-        int selectedIndex = Tabs.TabItems.IndexOf(Tabs.SelectedItem);
-
-        for (int index = 0; index < selectedIndex; index++)
+        if (CanCloseLeftTabs())
         {
-            leftTabs.Add(Tabs.TabItems[index]);
-        }
+            List<object> leftTabs = new List<object>();
+            int selectedIndex = Tabs.TabItems.IndexOf(Tabs.SelectedItem);
 
-        await AttemptToCloseTabs(leftTabs);
+            for (int index = 0; index < selectedIndex; index++)
+            {
+                leftTabs.Add(Tabs.TabItems[index]);
+            }
+
+            await AttemptToCloseTabs(leftTabs);
+        }
     }
 
-    private bool CanCloseRightTabs(object? param)
+    private bool CanCloseRightTabs(object? param = null)
     {
         return (Tabs.TabItems.Count > 1) && (Tabs.TabItems[Tabs.TabItems.Count - 1] != Tabs.SelectedItem);
     }
 
     private async void ExecuteCloseRightTab(object? param)
     {
-        List<object> rightTabs = new List<object>();
-
-        for (int index = Tabs.TabItems.IndexOf(Tabs.SelectedItem); index >= 0 && index < Tabs.TabItems.Count; index++)
+        if (CanCloseRightTabs())
         {
-            rightTabs.Add(Tabs.TabItems[index]);
-        }
+            List<object> rightTabs = new List<object>();
 
-        await AttemptToCloseTabs(rightTabs);
+            for (int index = Tabs.TabItems.IndexOf(Tabs.SelectedItem); index >= 0 && index < Tabs.TabItems.Count; index++)
+            {
+                rightTabs.Add(Tabs.TabItems[index]);
+            }
+
+            await AttemptToCloseTabs(rightTabs);
+        }
     }
 
     private void Tabs_Loaded(object sender, RoutedEventArgs e)
