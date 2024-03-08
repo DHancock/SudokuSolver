@@ -42,4 +42,14 @@ internal static class Utils
 
         return App.Instance.Resources.MergedDictionaries[1].ThemeDictionaries[themeKey] as ResourceDictionary;
     }
+
+    public static ElementTheme NormaliseTheme(ElementTheme theme)
+    {
+        if (theme == ElementTheme.Default)
+        {
+            return App.Current.RequestedTheme == ApplicationTheme.Light ? ElementTheme.Light : ElementTheme.Dark;
+        }
+
+        return theme;
+    }
 }

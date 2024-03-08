@@ -1,9 +1,10 @@
-﻿using SudokuSolver.Utilities;
+using SudokuSolver.Utilities;
 using SudokuSolver.ViewModels;
 
 namespace SudokuSolver.Views;
 
-internal sealed partial class PuzzleTabContent : UserControl
+
+internal sealed partial class PuzzleTabViewItem : TabViewItem
 {
     private enum Error { Success, Failure }
     private enum Status { Cancelled, Continue }
@@ -14,9 +15,10 @@ internal sealed partial class PuzzleTabContent : UserControl
     private ErrorDialog? errorDialog;
     private bool errorDialogOpen = false;
 
-    public PuzzleTabContent()
+
+    public PuzzleTabViewItem()
     {
-        InitializeComponent();
+        this.InitializeComponent();
 
         ViewModel = new PuzzleViewModel();
 
@@ -27,7 +29,7 @@ internal sealed partial class PuzzleTabContent : UserControl
         Loaded += (s, e) =>
         {
             // set for the next theme transition
-            Puzzle.BackgroundBrushTransition.Duration = new TimeSpan(0, 0, 0, 0, 250);
+            Puzzle.BackgroundBrushTransition.Duration = TimeSpan.FromMilliseconds(250);
             FocusLastSelectedCell();
         };
 
@@ -43,26 +45,26 @@ internal sealed partial class PuzzleTabContent : UserControl
         };
     }
 
-    public PuzzleTabContent(StorageFile storageFile) : this()
+    public PuzzleTabViewItem(StorageFile storageFile) : this()
     {
         sourceFile = storageFile;
         Loaded += LoadedHandler;
 
         static async void LoadedHandler(object sender, RoutedEventArgs e)
         {
-            PuzzleTabContent ptc = (PuzzleTabContent)sender;
+            PuzzleTabViewItem tab = (PuzzleTabViewItem)sender;
+            tab.Loaded -= LoadedHandler;
 
-            if (await ptc.LoadFile(ptc.sourceFile!) != Error.Success)
+            if (await tab.LoadFile(tab.sourceFile!) != Error.Success)
             {
-                ptc.sourceFile = null;
+                tab.sourceFile = null;
             }
 
-            ptc.UpdateTabHeader();
-            ptc.Loaded -= LoadedHandler;
+            tab.UpdateTabHeader();
         }
     }
 
-    public PuzzleTabContent(PuzzleTabContent source) : this()
+    public PuzzleTabViewItem(PuzzleTabViewItem source) : this()
     {
         ViewModel = source.ViewModel;
         sourceFile = source.sourceFile;
@@ -89,7 +91,7 @@ internal sealed partial class PuzzleTabContent : UserControl
     }
 
     public async Task<bool> HandleTabCloseRequested()
-    { 
+    {
         Status status = Status.Continue;
 
         if (IsModified)
@@ -168,7 +170,7 @@ internal sealed partial class PuzzleTabContent : UserControl
 
     private void NewWindowClickHandler(object sender, RoutedEventArgs e)
     {
-        _ = new MainWindow(App.Instance.GetWindowForElement(this).RestoreBounds); 
+        _ = new MainWindow(App.Instance.GetWindowForElement(this).RestoreBounds);
     }
 
     private async void SaveClickHandler(object sender, RoutedEventArgs e)
@@ -262,7 +264,7 @@ internal sealed partial class PuzzleTabContent : UserControl
             path = sourceFile.Path;
         }
 
-        ContentDialogResult result = await new ConfirmSaveDialog(path, Content.XamlRoot, LayoutRoot.ActualTheme).ShowAsync();
+        ContentDialogResult result = await new ConfirmSaveDialog(path, XamlRoot, LayoutRoot.ActualTheme).ShowAsync();
 
         if (result == ContentDialogResult.Primary)
         {
@@ -358,7 +360,7 @@ internal sealed partial class PuzzleTabContent : UserControl
     {
         if (errorDialog is null)
         {
-            errorDialog = new ErrorDialog(Content.XamlRoot);
+            errorDialog = new ErrorDialog(XamlRoot);
             errorDialog.Closed += (s, e) =>
             {
                 errorDialogOpen = false;
@@ -383,29 +385,29 @@ internal sealed partial class PuzzleTabContent : UserControl
 
     public void UpdateTabHeader()
     {
-        // updating the parent tab view item header here isn't ideal, but the tab view item doesn't
-        // know when a user has opened a file, requiring a change
-        if (this.Parent is TabViewItem tabViewItem)
+        if (sourceFile is null)
         {
-            if (sourceFile is null)
-            {
-                tabViewItem.Header = App.cNewPuzzleName;
-                ToolTipService.SetToolTip(tabViewItem, App.cNewPuzzleName);
-            }
-            else
-            {
-                tabViewItem.Header = sourceFile.Name;
-                ToolTipService.SetToolTip(tabViewItem, sourceFile.Path);
-            }
-
-            if (IsModified && tabViewItem.IconSource is null)
-            {
-                tabViewItem.IconSource = new SymbolIconSource() { Symbol = Symbol.Edit, };
-            }
-            else if (!IsModified && tabViewItem.IconSource is not null)
-            {
-                tabViewItem.IconSource = null;
-            }
+            Header = App.cNewPuzzleName;
+            ToolTipService.SetToolTip(this, App.cNewPuzzleName);
         }
+        else
+        {
+            Header = sourceFile.Name;
+            ToolTipService.SetToolTip(this, sourceFile.Path);
+        }
+
+        if (IsModified && IconSource is null)
+        {
+            IconSource = new SymbolIconSource() { Symbol = Symbol.Edit, };
+        }
+        else if (!IsModified && IconSource is not null)
+        {
+            IconSource = null;
+        }
+    }
+
+    public void ResetOpacityTransitionForThemeChange()
+    {
+        Puzzle.ResetOpacityTransitionForThemeChange();
     }
 }
