@@ -76,8 +76,8 @@ internal sealed partial class MainWindow : WindowBase
         newTabCommand = new RelayCommand(ExecuteNewTab);
         closeTabCommand = new RelayCommand(ExecuteCloseTab);
         closeOtherCommand = new RelayCommand(ExecuteCloseOtherTabs, CanCloseOtherTabs);
-        closeLeftCommand = new RelayCommand(ExecuteCloseLeftTab, CanCloseLeftTabs);
-        closeRightCommand = new RelayCommand(ExecuteCloseRightTab, CanCloseRightTabs);
+        closeLeftCommand = new RelayCommand(ExecuteCloseLeftTabs, CanCloseLeftTabs);
+        closeRightCommand = new RelayCommand(ExecuteCloseRightTabs, CanCloseRightTabs);
     }
 
 
@@ -576,7 +576,7 @@ internal sealed partial class MainWindow : WindowBase
         return (Tabs.TabItems.Count > 1) && (Tabs.TabItems[0] != Tabs.SelectedItem);
     }
 
-    private async void ExecuteCloseLeftTab(object? param)
+    private async void ExecuteCloseLeftTabs(object? param)
     {
         if (CanCloseLeftTabs())
         {
@@ -597,18 +597,24 @@ internal sealed partial class MainWindow : WindowBase
         return (Tabs.TabItems.Count > 1) && (Tabs.TabItems[Tabs.TabItems.Count - 1] != Tabs.SelectedItem);
     }
 
-    private async void ExecuteCloseRightTab(object? param)
+    private async void ExecuteCloseRightTabs(object? param)
     {
         if (CanCloseRightTabs())
         {
-            List<object> rightTabs = new List<object>();
+            int selectedIndex = Tabs.TabItems.IndexOf(Tabs.SelectedItem);
 
-            for (int index = Tabs.TabItems.IndexOf(Tabs.SelectedItem); index >= 0 && index < Tabs.TabItems.Count; index++)
+            if (selectedIndex >= 0)
             {
-                rightTabs.Add(Tabs.TabItems[index]);
-            }
+                int startIndex = selectedIndex + 1;
+                List<object> rightTabs = new List<object>(Tabs.TabItems.Count - startIndex);
 
-            await AttemptToCloseTabs(rightTabs);
+                for (int index = startIndex; index < Tabs.TabItems.Count; index++)
+                {
+                    rightTabs.Add(Tabs.TabItems[index]);
+                }
+
+                await AttemptToCloseTabs(rightTabs);
+            }
         }
     }
 
