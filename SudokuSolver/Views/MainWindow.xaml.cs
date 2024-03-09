@@ -155,7 +155,7 @@ internal sealed partial class MainWindow : WindowBase
             }
             else
             {
-                unModifiedTabs.Add(tabs[index]);
+                unModifiedTabs.Add(tabs[index]);  // including a settings tab
             }
         }
 
@@ -244,14 +244,12 @@ internal sealed partial class MainWindow : WindowBase
         }
     }
 
-    
     private void UpdateTabContextMenuItemsEnabledState()
     {
         closeOtherCommand.RaiseCanExecuteChanged();
         closeLeftCommand.RaiseCanExecuteChanged();
         closeRightCommand.RaiseCanExecuteChanged();
     }
-
 
     public PuzzleTabViewItem CreatePuzzleTab()
     {
@@ -320,7 +318,7 @@ internal sealed partial class MainWindow : WindowBase
         }
 
         item = new MenuFlyoutItem() { Text="Close tab", Command = closeTabCommand, AccessKey="C", };
-        item.KeyboardAccelerators.Add(new KeyboardAccelerator() { Modifiers = VirtualKeyModifiers.Control, Key = VirtualKey.C, });
+        item.KeyboardAccelerators.Add(new KeyboardAccelerator() { Modifiers = VirtualKeyModifiers.Control, Key = VirtualKey.W, });
        
         menuFlyout.Items.Add(item);
         menuFlyout.Items.Add(new MenuFlyoutItem() { Text = "Close other tabs", Command = closeOtherCommand, AccessKey = "O", });
@@ -521,15 +519,8 @@ internal sealed partial class MainWindow : WindowBase
 
     private void NewTab_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
     {
-        Tabs_AddTabButtonClick(Tabs, args);
-    }
-
-    private async void CloseSelectedTab_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
-    {
-        if ((Tabs.SelectedItem is TabViewItem tab) && tab.IsClosable)
-        {
-            await TabCloseRequested(tab);
-        }
+        Tabs_AddTabButtonClick(Tabs, new object());
+        args.Handled = true;
     }
 
     private void NavigateToNumberedTab_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
@@ -569,7 +560,9 @@ internal sealed partial class MainWindow : WindowBase
     {
         if (CanCloseOtherTabs())
         {
-            List<object> otherTabs = new List<object>(Tabs.TabItems.Where(x => !ReferenceEquals(x, Tabs.SelectedItem)));
+            List<object> otherTabs = new List<object>(Tabs.TabItems.Count - 1);
+            otherTabs.AddRange(Tabs.TabItems.Where(x => !ReferenceEquals(x, Tabs.SelectedItem)));
+
             await AttemptToCloseTabs(otherTabs);
         }
     }

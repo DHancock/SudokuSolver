@@ -34,6 +34,7 @@ internal abstract class WindowBase : Window
     private readonly InputNonClientPointerSource inputNonClientPointerSource;
     private readonly SUBCLASSPROC subClassDelegate;
     private readonly DispatcherTimer dispatcherTimer;
+    private bool cancelDragRegionTimerEvent = false;
     private PointInt32 restorePosition;
     private SizeInt32 restoreSize;
     private MenuFlyout? systemMenu;
@@ -295,6 +296,12 @@ internal abstract class WindowBase : Window
 
     protected void ClearWindowDragRegions()
     {
+        // Guard against race hazards. If a tab is selected using right click a size changed event is generated
+        // and the timer started. The drag regions will be cleared when the context menu is opened, followed
+        // by the timer event which could then reset the drag regions while the menu was still open. Stopping
+        // the timer isn't enough because the tick event may have already been queued (on the same thread).
+        cancelDragRegionTimerEvent = true;
+
         // allow mouse interaction with menu fly outs,  
         // including clicks anywhere in the client area used to dismiss the menu
         if (AppWindowTitleBar.IsCustomizationSupported())
@@ -305,6 +312,8 @@ internal abstract class WindowBase : Window
 
     protected void SetWindowDragRegionsInternal()
     {
+        cancelDragRegionTimerEvent = false;
+
         const int cInitialCapacity = 6;
 
         try
@@ -458,6 +467,10 @@ internal abstract class WindowBase : Window
     private void DispatcherTimer_Tick(object? sender, object e)
     {
         dispatcherTimer.Stop();
-        SetWindowDragRegionsInternal();
+
+        if (!cancelDragRegionTimerEvent)
+        {
+            SetWindowDragRegionsInternal();
+        }
     }
 }

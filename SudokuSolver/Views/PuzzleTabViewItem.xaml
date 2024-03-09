@@ -26,9 +26,10 @@
 
             <MenuBarItem Title="File" AccessKey="F">
 
+                <!-- new and close tabs key accelerators are disabled, they are handled by the tab context menu-->
                 <MenuFlyoutItem Text="New tab" Click="NewTabClickHandler" AccessKey="N" x:Name="FileMenuItem">
                     <MenuFlyoutItem.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="N" Modifiers="Control" />
+                        <KeyboardAccelerator Key="N" Modifiers="Control" IsEnabled="False"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
 
@@ -66,7 +67,7 @@
                 <MenuFlyoutSeparator />
                 <MenuFlyoutItem Text="Close tab" Click="CloseTabClickHandler" AccessKey="C">
                     <MenuFlyoutItem.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="W" Modifiers="Control"/>
+                        <KeyboardAccelerator Key="W" Modifiers="Control" IsEnabled="False"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
 
