@@ -155,7 +155,7 @@ internal sealed partial class MainWindow : WindowBase
             }
             else
             {
-                unModifiedTabs.Add(tabs[index]);
+                unModifiedTabs.Add(tabs[index]);  // including a settings tab
             }
         }
 
@@ -319,7 +319,7 @@ internal sealed partial class MainWindow : WindowBase
             menuFlyout.Items.Add(new MenuFlyoutSeparator());
         }
 
-        item = new MenuFlyoutItem() { Text="Close tab", Command = closeTabCommand, AccessKey="C", };
+        item = new MenuFlyoutItem() { Text="Close tab", Command = closeTabCommand, AccessKey="W", };
         item.KeyboardAccelerators.Add(new KeyboardAccelerator() { Modifiers = VirtualKeyModifiers.Control, Key = VirtualKey.C, });
        
         menuFlyout.Items.Add(item);
@@ -569,7 +569,9 @@ internal sealed partial class MainWindow : WindowBase
     {
         if (CanCloseOtherTabs())
         {
-            List<object> otherTabs = new List<object>(Tabs.TabItems.Where(x => !ReferenceEquals(x, Tabs.SelectedItem)));
+            List<object> otherTabs = new List<object>(Tabs.TabItems.Count - 1);
+            otherTabs.AddRange(Tabs.TabItems.Where(x => !ReferenceEquals(x, Tabs.SelectedItem)));
+
             await AttemptToCloseTabs(otherTabs);
         }
     }
