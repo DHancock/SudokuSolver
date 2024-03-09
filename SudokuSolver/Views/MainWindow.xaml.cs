@@ -244,14 +244,12 @@ internal sealed partial class MainWindow : WindowBase
         }
     }
 
-    
     private void UpdateTabContextMenuItemsEnabledState()
     {
         closeOtherCommand.RaiseCanExecuteChanged();
         closeLeftCommand.RaiseCanExecuteChanged();
         closeRightCommand.RaiseCanExecuteChanged();
     }
-
 
     public PuzzleTabViewItem CreatePuzzleTab()
     {
@@ -319,8 +317,8 @@ internal sealed partial class MainWindow : WindowBase
             menuFlyout.Items.Add(new MenuFlyoutSeparator());
         }
 
-        item = new MenuFlyoutItem() { Text="Close tab", Command = closeTabCommand, AccessKey="W", };
-        item.KeyboardAccelerators.Add(new KeyboardAccelerator() { Modifiers = VirtualKeyModifiers.Control, Key = VirtualKey.C, });
+        item = new MenuFlyoutItem() { Text="Close tab", Command = closeTabCommand, AccessKey="C", };
+        item.KeyboardAccelerators.Add(new KeyboardAccelerator() { Modifiers = VirtualKeyModifiers.Control, Key = VirtualKey.W, });
        
         menuFlyout.Items.Add(item);
         menuFlyout.Items.Add(new MenuFlyoutItem() { Text = "Close other tabs", Command = closeOtherCommand, AccessKey = "O", });
@@ -521,15 +519,8 @@ internal sealed partial class MainWindow : WindowBase
 
     private void NewTab_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
     {
-        Tabs_AddTabButtonClick(Tabs, args);
-    }
-
-    private async void CloseSelectedTab_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
-    {
-        if ((Tabs.SelectedItem is TabViewItem tab) && tab.IsClosable)
-        {
-            await TabCloseRequested(tab);
-        }
+        Tabs_AddTabButtonClick(Tabs, new object());
+        args.Handled = true;
     }
 
     private void NavigateToNumberedTab_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)

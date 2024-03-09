@@ -51,7 +51,7 @@
 
             <TabView.KeyboardAccelerators>
                 <KeyboardAccelerator Key="T" Modifiers="Control" Invoked="NewTab_Invoked" />
-                <KeyboardAccelerator Key="W" Modifiers="Control" Invoked="CloseSelectedTab_Invoked" />
+                <!-- close tab "control + W" is implemented via the tab item context menu -->
                 <KeyboardAccelerator Key="Number1" Modifiers="Control" Invoked="NavigateToNumberedTab_Invoked" />
                 <KeyboardAccelerator Key="Number2" Modifiers="Control" Invoked="NavigateToNumberedTab_Invoked" />
                 <KeyboardAccelerator Key="Number3" Modifiers="Control" Invoked="NavigateToNumberedTab_Invoked" />
