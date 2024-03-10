@@ -123,6 +123,32 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem
         }
     }
 
+    public void AjustKeyboardAccelerators()
+    {
+        // accelerators on sub menus are only active when the menu is shown
+        // which can only happen if this is the current selected tab
+        foreach (MenuBarItem mbi in Menu.Items)
+        {
+            AdjustMenuItems(mbi.Items);
+        }
+
+        if (ContextFlyout is MenuFlyout contextMenu)
+        {
+            AdjustMenuItems(contextMenu.Items);
+        }
+
+        void AdjustMenuItems(IList<MenuFlyoutItemBase> items)
+        {
+            foreach (MenuFlyoutItemBase mfib in items)
+            {
+                foreach (KeyboardAccelerator ka in mfib.KeyboardAccelerators)
+                {
+                    ka.IsEnabled = IsSelected;
+                }
+            }
+        }
+    }
+
     public static bool IsPrintingAvailable => !IntegrityLevel.IsElevated && PrintManager.IsSupported();
 
     public static bool IsFileDialogAvailable => !IntegrityLevel.IsElevated;
