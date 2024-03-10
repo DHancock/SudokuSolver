@@ -20,7 +20,7 @@ internal sealed partial class MainWindow : WindowBase
     private readonly RelayCommand closeRightCommand;
 
     private bool processingClose = false;
-   
+    private PrintHelper? printHelper;
 
     private MainWindow(RectInt32 bounds)
     {
@@ -138,6 +138,12 @@ internal sealed partial class MainWindow : WindowBase
                 puzzleTab.ResetOpacityTransitionForThemeChange();
             }
         }
+    }
+
+    public async Task PrintPuzzle(PuzzleTabViewItem tab)
+    {
+        printHelper ??= new PrintHelper(this);
+        await printHelper.PrintViewAsync(PrintCanvas, tab);
     }
 
     private async Task<bool> AttemptToCloseTabs(IList<object> tabs)

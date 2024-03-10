@@ -14,9 +14,6 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- used to add print preview pages to the visual tree -->
-        <Canvas x:Name="PrintCanvas" Opacity="0"/>
-
         <MenuBar x:Name="Menu" HorizontalAlignment="Left">
             <MenuBar.Resources>
                 <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
