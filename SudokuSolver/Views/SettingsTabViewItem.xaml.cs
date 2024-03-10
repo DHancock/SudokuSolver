@@ -100,4 +100,20 @@ internal sealed partial class SettingsTabViewItem : TabViewItem
         DarkRadioButton.IsChecked = Settings.Data.Theme == ElementTheme.Dark;
         SystemRadioButton.IsChecked = Settings.Data.Theme == ElementTheme.Default;
     }
+
+    public void AjustKeyboardAccelerators()
+    {
+        // accelerators on sub menus are only active when the menu is shown
+        // which can only happen if this is the current selected tab
+        if (ContextFlyout is MenuFlyout contextMenu)
+        {
+            foreach (MenuFlyoutItemBase mfib in contextMenu.Items)
+            {
+                foreach (KeyboardAccelerator ka in mfib.KeyboardAccelerators)
+                {
+                    ka.IsEnabled = IsSelected;
+                }
+            }
+        }
+    }
 }

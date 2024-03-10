@@ -42,12 +42,6 @@ internal sealed partial class PrintPage : UserControl
         return false;
     }
 
-    internal void AddChild(PuzzleView child)
-    {
-        Debug.Assert(PageCanvas.Children.Count == 1);
-        PageCanvas.Children.Add(child);
-    }
-
     private static bool SetSize(FrameworkElement element, Size size)
     {
         if ((element.Width != size.Width) || (element.Height != size.Height))

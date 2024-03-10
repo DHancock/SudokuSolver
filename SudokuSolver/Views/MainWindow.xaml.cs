@@ -473,14 +473,38 @@ internal sealed partial class MainWindow : WindowBase
 
     private void Tabs_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if ((e.AddedItems.Count == 1) && (e.RemovedItems.Count == 1))
+        if ((e.AddedItems.Count == 1) && (e.RemovedItems.Count == 1))  // there's at least two tabs
         {
-            bool lastIsSettings = e.RemovedItems[0] is SettingsTabViewItem;
-            bool newIsSettings = e.AddedItems[0] is SettingsTabViewItem;
-
-            if (lastIsSettings || newIsSettings)
+            switch (e.RemovedItems[0])
             {
-                SetWindowDragRegionsInternal();
+                case SettingsTabViewItem settingsTab:
+                {
+                    SetWindowDragRegionsInternal();
+                    settingsTab.AjustKeyboardAccelerators();
+                    break;
+                }
+
+                case PuzzleTabViewItem puzzleTab:
+                {
+                    puzzleTab.AjustKeyboardAccelerators();
+                    break;
+                }
+            }
+
+            switch (e.AddedItems[0])
+            {
+                case SettingsTabViewItem settingsTab:
+                {
+                    SetWindowDragRegionsInternal();
+                    settingsTab.AjustKeyboardAccelerators();
+                    break;
+                }
+
+                case PuzzleTabViewItem puzzleTab:
+                {
+                    puzzleTab.AjustKeyboardAccelerators();
+                    break;
+                }
             }
         }
 
