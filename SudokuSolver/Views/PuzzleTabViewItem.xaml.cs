@@ -11,7 +11,6 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem
 
     private PuzzleViewModel? viewModel;
     private StorageFile? sourceFile;
-    private PrintHelper? printHelper;
     private ErrorDialog? errorDialog;
     private bool errorDialogOpen = false;
 
@@ -81,6 +80,8 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem
             Puzzle.ViewModel = value;
         }
     }
+
+    public StorageFile? SourceFile => sourceFile;
 
     public void FocusLastSelectedCell()
     {
@@ -187,9 +188,8 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem
     {
         try
         {
-            printHelper ??= new PrintHelper(App.Instance.GetWindowForElement(this));
-
-            await printHelper.PrintViewAsync(PrintCanvas, ViewModel, sourceFile, Settings.Data.PrintSettings.Clone());
+            MainWindow window = App.Instance.GetWindowForElement(this);
+            await window.PrintPuzzle(this);
         }
         catch (Exception ex)
         {
