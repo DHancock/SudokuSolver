@@ -189,13 +189,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem
         {
             printHelper ??= new PrintHelper(App.Instance.GetWindowForElement(this));
 
-            PuzzleView printView = new PuzzleView()
-            {
-                IsPrintView = true,
-                ViewModel = ViewModel,
-            };
-
-            await printHelper.PrintViewAsync(PrintCanvas, printView, sourceFile, Settings.Data.PrintSettings.Clone());
+            await printHelper.PrintViewAsync(PrintCanvas, ViewModel, sourceFile, Settings.Data.PrintSettings.Clone());
         }
         catch (Exception ex)
         {

@@ -43,7 +43,7 @@ internal sealed class PrintHelper
         printDocumentSource = printDocument.DocumentSource;
     }
 
-    public async Task PrintViewAsync(Canvas printCanvas, PuzzleView puzzleView, StorageFile? file, Settings.PerPrintSettings printSettings)
+    public async Task PrintViewAsync(Canvas printCanvas, PuzzleViewModel viewModel, StorageFile? file, Settings.PerPrintSettings printSettings)
     {
         Debug.Assert(PrintManager.IsSupported());
 
@@ -58,9 +58,8 @@ internal sealed class PrintHelper
         headerText = file is null ? App.cNewPuzzleName : file.Path;
         settings = printSettings;
 
-        // a container for the puzzle
-        printPage = new PrintPage();
-        printPage.AddChild(puzzleView);
+        // a user control containing a puzzle view
+        printPage = new PrintPage(viewModel);
 
         // the printed object must be part of the visual tree
         rootVisual = printCanvas;

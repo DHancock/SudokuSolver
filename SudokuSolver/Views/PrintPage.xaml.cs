@@ -1,16 +1,19 @@
+using SudokuSolver.ViewModels;
+
 namespace SudokuSolver.Views;
 
-/// <summary>
-/// An empty page that can be used on its own or navigated to within a Frame.
-/// </summary>
-public sealed partial class PrintPage : Page
+internal sealed partial class PrintPage : UserControl
 {
-    public PrintPage()
+    private PrintPage()
     {
         this.InitializeComponent();
-        RequestedTheme = ElementTheme.Light;
     }
 
+    public PrintPage(PuzzleViewModel viewModel) : this()
+    {
+        RequestedTheme = ElementTheme.Light;
+        Puzzle.ViewModel = viewModel;
+    }
 
     private static bool SetLocation(UIElement element, Point location)
     {
@@ -60,16 +63,6 @@ public sealed partial class PrintPage : Page
     public bool SetPageSize(Size size) => SetSize(this, size);
 
     public bool SetPuzzleSize(double size) => SetSize(Puzzle, new Size(size, size));
-
-    private PuzzleView Puzzle
-    {
-        get
-        {
-            Debug.Assert(PageCanvas.Children.Count == 2);
-            Debug.Assert(PageCanvas.Children[1] is PuzzleView);
-            return (PuzzleView)PageCanvas.Children[1];
-        }
-    }
 
     public bool ShowHeader(bool showHeader)
     {
