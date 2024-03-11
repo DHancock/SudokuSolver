@@ -26,25 +26,25 @@
                 <!-- new and close tabs key accelerators are disabled, they are handled by the tab context menu-->
                 <MenuFlyoutItem Text="New tab" Click="NewTabClickHandler" AccessKey="N" x:Name="FileMenuItem">
                     <MenuFlyoutItem.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="N" Modifiers="Control" IsEnabled="False"/>
+                        <KeyboardAccelerator Key="N" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
 
-                <MenuFlyoutItem Text="New window" Click="NewWindowClickHandler" AccessKey="N">
+                <MenuFlyoutItem Text="New window" Click="NewWindowClickHandler" AccessKey="W">
                     <MenuFlyoutItem.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="N" Modifiers="Control,Shift" />
+                        <KeyboardAccelerator Key="N" Modifiers="Control,Shift"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
 
                 <MenuFlyoutItem Text="Open" Click="OpenClickHandler" IsEnabled="{x:Bind local:PuzzleTabViewItem.IsFileDialogAvailable}" AccessKey="O">
                     <MenuFlyoutItem.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="O" Modifiers="Control" />
+                        <KeyboardAccelerator Key="O" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
 
                 <MenuFlyoutItem Text="Save" Click="SaveClickHandler" IsEnabled="{x:Bind local:PuzzleTabViewItem.IsFileDialogAvailable}" AccessKey="S">
                     <MenuFlyoutItem.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="S" Modifiers="Control" />
+                        <KeyboardAccelerator Key="S" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
 
@@ -64,11 +64,11 @@
                 <MenuFlyoutSeparator />
                 <MenuFlyoutItem Text="Close tab" Click="CloseTabClickHandler" AccessKey="C">
                     <MenuFlyoutItem.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="W" Modifiers="Control" IsEnabled="False"/>
+                        <KeyboardAccelerator Key="W" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
 
-                <MenuFlyoutItem Text="Close window" Click="CloseWindowClickHandler" AccessKey="C">
+                <MenuFlyoutItem Text="Close window" Click="CloseWindowClickHandler" AccessKey="E">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="W" Modifiers="Control,Shift"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
@@ -125,4 +125,30 @@
 
         <local:PuzzleView x:Name="Puzzle" Grid.Row="1" Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="8,0,8,8" SelectedIndexChanged="{x:Bind ViewModel.Puzzle_SelectedIndexChanged}"/>
     </Grid>
+
+    <TabViewItem.Header>
+        <x:String>Untitled</x:String>
+    </TabViewItem.Header>
+
+    <TabViewItem.ContextFlyout>
+        <MenuFlyout>
+            <MenuFlyoutItem Text="New tab" Click="NewTabClickHandler">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Modifiers="Control" Key="N" IsEnabled="False"/>
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+
+            <MenuFlyoutSeparator/>
+
+            <MenuFlyoutItem Text="Close tab" Click="CloseTabClickHandler">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Modifiers="Control" Key="W" IsEnabled="False"/>
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+
+            <MenuFlyoutItem Text="Close other tabs" Command="{x:Bind CloseOtherTabsCommand}"/>
+            <MenuFlyoutItem Text="Close tabs to the left" Command="{x:Bind CloseLeftTabsCommand}"/>
+            <MenuFlyoutItem Text="Close tabs to the right" Command="{x:Bind CloseRightTabsCommand}"/>
+        </MenuFlyout>
+    </TabViewItem.ContextFlyout>
 </TabViewItem>

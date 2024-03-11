@@ -13,12 +13,6 @@ internal sealed partial class MainWindow : WindowBase
 {
     private const string cDataIdentifier = App.cDisplayName;
 
-    private readonly RelayCommand newTabCommand;
-    private readonly RelayCommand closeTabCommand;
-    private readonly RelayCommand closeOtherCommand;
-    private readonly RelayCommand closeLeftCommand;
-    private readonly RelayCommand closeRightCommand;
-
     private bool processingClose = false;
     private PrintHelper? printHelper;
 
@@ -65,20 +59,17 @@ internal sealed partial class MainWindow : WindowBase
             if (e.WindowActivationState != WindowActivationState.Deactivated)
             {
                 WindowIcon.Opacity = 1;
-                FocusLastSelectedCell();
+
+                if (Tabs.SelectedItem is PuzzleTabViewItem puzzleTab)
+                {
+                    puzzleTab.FocusLastSelectedCell();
+                }
             }
             else
             {
                 WindowIcon.Opacity = 0.25;
             }
         };
-
-        // the tab context menu command handlers
-        newTabCommand = new RelayCommand(ExecuteNewTab);
-        closeTabCommand = new RelayCommand(ExecuteCloseTab);
-        closeOtherCommand = new RelayCommand(ExecuteCloseOtherTabs, CanCloseOtherTabs);
-        closeLeftCommand = new RelayCommand(ExecuteCloseLeftTabs, CanCloseLeftTabs);
-        closeRightCommand = new RelayCommand(ExecuteCloseRightTabs, CanCloseRightTabs);
     }
 
 
@@ -88,11 +79,11 @@ internal sealed partial class MainWindow : WindowBase
     {
         if (storageFile is null)
         {
-            AddTab(CreatePuzzleTab());
+            AddTab(new PuzzleTabViewItem());
         }
         else
         {
-            AddTab(CreatePuzzleTab(storageFile));
+            AddTab(new PuzzleTabViewItem(storageFile));
         }
     }
 
@@ -102,19 +93,11 @@ internal sealed partial class MainWindow : WindowBase
     {
         if (existingTab is PuzzleTabViewItem existingPuzzleTab)
         {
-            AddTab(CreatePuzzleTab(existingPuzzleTab));
+            AddTab(new PuzzleTabViewItem(existingPuzzleTab));
         }
         else if (existingTab is SettingsTabViewItem existingSettingsTab)
         {
-            AddTab(CreateSettingsTab(existingSettingsTab));
-        }
-    }
-
-    private void FocusLastSelectedCell()
-    {
-        if (Tabs.SelectedItem is PuzzleTabViewItem puzzleTab)
-        {
-            puzzleTab.FocusLastSelectedCell();
+            AddTab(new SettingsTabViewItem(existingSettingsTab));
         }
     }
 
@@ -207,7 +190,7 @@ internal sealed partial class MainWindow : WindowBase
 
         if (tab is null)
         {
-            AddTab(CreateSettingsTab());
+            AddTab(new SettingsTabViewItem());
         }
         else
         {
@@ -245,96 +228,7 @@ internal sealed partial class MainWindow : WindowBase
                 sender.CanReorderTabs = true;
                 sender.CanDragTabs = true;
             }
-
-            UpdateTabContextMenuItemsEnabledState();
         }
-    }
-
-    private void UpdateTabContextMenuItemsEnabledState()
-    {
-        closeOtherCommand.RaiseCanExecuteChanged();
-        closeLeftCommand.RaiseCanExecuteChanged();
-        closeRightCommand.RaiseCanExecuteChanged();
-    }
-
-    public PuzzleTabViewItem CreatePuzzleTab()
-    {
-        return new PuzzleTabViewItem()
-        {
-            Header = App.cNewPuzzleName,
-            ContextFlyout = CreateTabHeaderContextFlyout(),
-        };
-    }
-
-    public PuzzleTabViewItem CreatePuzzleTab(StorageFile storagefile)
-    {
-        return new PuzzleTabViewItem(storagefile)
-        {
-            Header = storagefile.Name,
-            ContextFlyout = CreateTabHeaderContextFlyout(),
-        };
-    }
-
-    // cannot resue the tab directly because it may already have a different XamlRoot
-    public PuzzleTabViewItem CreatePuzzleTab(PuzzleTabViewItem source)
-    {
-        Debug.Assert(source.Header is string);
-
-        return new PuzzleTabViewItem(source)
-        {
-            Header = source.Header,
-            IconSource = source.IsModified ? new SymbolIconSource() { Symbol = Symbol.Edit, } : null,
-            ContextFlyout = CreateTabHeaderContextFlyout(),
-        };
-    }
-
-    private SettingsTabViewItem CreateSettingsTab()
-    {
-        return new SettingsTabViewItem()
-        {
-            Header = "Settings",
-            IconSource = new SymbolIconSource() { Symbol = Symbol.Setting, },
-            ContextFlyout = CreateTabHeaderContextFlyout(isForPuzzleTab: false),
-        };
-    }
-
-    private SettingsTabViewItem CreateSettingsTab(SettingsTabViewItem source)
-    {
-        return new SettingsTabViewItem(source)
-        {
-            Header = "Settings",
-            IconSource = new SymbolIconSource() { Symbol = Symbol.Setting, },
-            ContextFlyout = CreateTabHeaderContextFlyout(isForPuzzleTab: false),
-        };
-    }
-
-
-    private MenuFlyout CreateTabHeaderContextFlyout(bool isForPuzzleTab = true)
-    {
-        MenuFlyout menuFlyout = new MenuFlyout();
-        MenuFlyoutItem item;
-
-        if (isForPuzzleTab)
-        {
-            item = new MenuFlyoutItem() { Text = "New tab", Command = newTabCommand, AccessKey = "N", };
-            item.KeyboardAccelerators.Add(new KeyboardAccelerator() { Modifiers = VirtualKeyModifiers.Control, Key = VirtualKey.N, });
-            
-            menuFlyout.Items.Add(item);
-            menuFlyout.Items.Add(new MenuFlyoutSeparator());
-        }
-
-        item = new MenuFlyoutItem() { Text="Close tab", Command = closeTabCommand, AccessKey="C", };
-        item.KeyboardAccelerators.Add(new KeyboardAccelerator() { Modifiers = VirtualKeyModifiers.Control, Key = VirtualKey.W, });
-       
-        menuFlyout.Items.Add(item);
-        menuFlyout.Items.Add(new MenuFlyoutItem() { Text = "Close other tabs", Command = closeOtherCommand, AccessKey = "O", });
-        menuFlyout.Items.Add(new MenuFlyoutItem() { Text = "Close tabs to the left", Command = closeLeftCommand, AccessKey = "L", });
-        menuFlyout.Items.Add(new MenuFlyoutItem() { Text = "Close tabs to the right", Command = closeRightCommand, AccessKey = "R", });
-
-        menuFlyout.Opened += (s, e) => ClearWindowDragRegions();
-        menuFlyout.Closed += (s, e) => SetWindowDragRegionsInternal();
-
-        return menuFlyout;
     }
 
     public void AddTab(TabViewItem tab, bool select = true)
@@ -349,9 +243,27 @@ internal sealed partial class MainWindow : WindowBase
         AddDragRegionEventHandlers(tab);
     }
 
-    public bool CloseTab(object tab)
+    public void CloseTab(object tab)
     {
-        return Tabs.TabItems.Remove(tab);
+        bool found = Tabs.TabItems.Remove(tab);
+        Debug.Assert(found);
+
+        // while the tab is now nolonger in the TabView, it's keyboard accelerators will still
+        // be active (until presumably its garbage collected)
+        switch (tab)
+        {
+            case PuzzleTabViewItem puzzleTab:
+            {
+                puzzleTab.AdjustKeyboardAccelerators(enable: false);
+                break;
+            }
+
+            case SettingsTabViewItem settingsTab:
+            {
+                settingsTab.AdjustKeyboardAccelerators(enable: false);
+                break;
+            }
+        }
     }
 
     private void Tabs_TabDroppedOutside(TabView sender, TabViewTabDroppedOutsideEventArgs args)
@@ -374,7 +286,7 @@ internal sealed partial class MainWindow : WindowBase
 
     private void Tabs_TabStripDrop(object sender, DragEventArgs e)
     {
-        // This event is called when we're dragging between different TabViews
+        // This event is called when we're dragging from one window to another 
 
         if (e.DataView.Properties.TryGetValue(cDataIdentifier, out object? obj))
         {
@@ -396,14 +308,15 @@ internal sealed partial class MainWindow : WindowBase
                     }
                 }
 
-                // single instanced so shouldn't need to dispatch
+                // single instanced so no need to dispatch
                 sourceTabViewListView.Items.Remove(sourceTabViewItem);
 
                 TabViewItem? newTab = null;
 
                 if (sourceTabViewItem is PuzzleTabViewItem existingPuzzleTab)
                 {
-                    newTab = CreatePuzzleTab(existingPuzzleTab);
+                    newTab = new PuzzleTabViewItem(existingPuzzleTab);
+                    existingPuzzleTab.AdjustKeyboardAccelerators(enable: false);
                 }
                 else if (sourceTabViewItem is SettingsTabViewItem existingSettingsTab)
                 {
@@ -415,7 +328,8 @@ internal sealed partial class MainWindow : WindowBase
                         Tabs.TabItems.Remove(existing);
                     }
 
-                    newTab = CreateSettingsTab(existingSettingsTab);  
+                    newTab = new SettingsTabViewItem(existingSettingsTab);
+                    existingSettingsTab.AdjustKeyboardAccelerators(enable: false);
                 }
 
                 if (newTab is not null)
@@ -446,7 +360,7 @@ internal sealed partial class MainWindow : WindowBase
 
     private void Tabs_AddTabButtonClick(TabView sender, object args)
     {
-        TabViewItem tab = CreatePuzzleTab();
+        TabViewItem tab = new PuzzleTabViewItem();
         AddTab(tab);
     }
 
@@ -473,42 +387,46 @@ internal sealed partial class MainWindow : WindowBase
 
     private void Tabs_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if ((e.AddedItems.Count == 1) && (e.RemovedItems.Count == 1))  // there's at least two tabs
+        if (e.RemovedItems.Count == 1)
         {
             switch (e.RemovedItems[0])
             {
                 case SettingsTabViewItem settingsTab:
                 {
                     SetWindowDragRegionsInternal();
-                    settingsTab.AjustKeyboardAccelerators();
+                    settingsTab.AdjustKeyboardAccelerators(enable: false);
                     break;
                 }
 
                 case PuzzleTabViewItem puzzleTab:
                 {
-                    puzzleTab.AjustKeyboardAccelerators();
-                    break;
-                }
-            }
-
-            switch (e.AddedItems[0])
-            {
-                case SettingsTabViewItem settingsTab:
-                {
-                    SetWindowDragRegionsInternal();
-                    settingsTab.AjustKeyboardAccelerators();
-                    break;
-                }
-
-                case PuzzleTabViewItem puzzleTab:
-                {
-                    puzzleTab.AjustKeyboardAccelerators();
+                    puzzleTab.AdjustKeyboardAccelerators(enable: false);
                     break;
                 }
             }
         }
 
-        UpdateTabContextMenuItemsEnabledState();
+        if (e.AddedItems.Count == 1)
+        {
+            switch (e.AddedItems[0])
+            {
+                case SettingsTabViewItem settingsTab:
+                {
+                    SetWindowDragRegionsInternal();
+                    settingsTab.AdjustKeyboardAccelerators(enable: true);
+                    settingsTab.UpdateContextMenuItemsEnabledState();
+                    break;
+                }
+
+                case PuzzleTabViewItem puzzleTab:
+                {
+                    puzzleTab.AdjustKeyboardAccelerators(enable: true);
+                    puzzleTab.UpdateContextMenuItemsEnabledState();
+                    puzzleTab.FocusLastSelectedCell();
+                    break;
+                }
+            }
+        }
     }
 
     private void UpdateCaptionButtonsTheme(ElementTheme theme)
@@ -568,25 +486,12 @@ internal sealed partial class MainWindow : WindowBase
         }
     }
 
-    private void ExecuteNewTab(object? param)
-    {
-        Tabs_AddTabButtonClick(Tabs, new object());
-    }
-
-    private async void ExecuteCloseTab(object? param)
-    {
-        if ((Tabs.SelectedItem is TabViewItem tab) && tab.IsClosable)
-        {
-            await TabCloseRequested(tab);
-        }
-    }
-
-    private bool CanCloseOtherTabs(object? param = null)
+    public bool CanCloseOtherTabs()
     {
         return Tabs.TabItems.Count > 1;
     }
 
-    private async void ExecuteCloseOtherTabs(object? param)
+    public async Task ExecuteCloseOtherTabs()
     {
         if (CanCloseOtherTabs())
         {
@@ -597,12 +502,12 @@ internal sealed partial class MainWindow : WindowBase
         }
     }
 
-    private bool CanCloseLeftTabs(object? param = null)
+    public bool CanCloseLeftTabs()
     {
         return (Tabs.TabItems.Count > 1) && (Tabs.TabItems[0] != Tabs.SelectedItem);
     }
 
-    private async void ExecuteCloseLeftTabs(object? param)
+    public async Task ExecuteCloseLeftTabs()
     {
         if (CanCloseLeftTabs())
         {
@@ -618,12 +523,12 @@ internal sealed partial class MainWindow : WindowBase
         }
     }
 
-    private bool CanCloseRightTabs(object? param = null)
+    public bool CanCloseRightTabs()
     {
         return (Tabs.TabItems.Count > 1) && (Tabs.TabItems[Tabs.TabItems.Count - 1] != Tabs.SelectedItem);
     }
 
-    private async void ExecuteCloseRightTabs(object? param)
+    public async Task ExecuteCloseRightTabs()
     {
         if (CanCloseRightTabs())
         {

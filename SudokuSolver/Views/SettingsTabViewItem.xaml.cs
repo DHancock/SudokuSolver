@@ -5,6 +5,9 @@ namespace SudokuSolver.Views;
 internal sealed partial class SettingsTabViewItem : TabViewItem
 {
     public SettingsViewModel ViewModel { get; } = SettingsViewModel.Data;
+    private RelayCommand CloseOtherTabsCommand { get; }
+    private RelayCommand CloseLeftTabsCommand { get; }
+    private RelayCommand CloseRightTabsCommand { get; }
 
     private bool isHorizontal;
 
@@ -21,6 +24,10 @@ internal sealed partial class SettingsTabViewItem : TabViewItem
             Loaded -= SettingsTabViewItem_Loaded;
             AdjustLayout(ActualSize.X, initialise: true);
         }
+
+        CloseOtherTabsCommand = new RelayCommand(ExecuteCloseOtherTabs, CanCloseOtherTabs);
+        CloseLeftTabsCommand = new RelayCommand(ExecuteCloseLeftTabs, CanCloseLeftTabs);
+        CloseRightTabsCommand = new RelayCommand(ExecuteCloseRightTabs, CanCloseRightTabs);
     }
 
     public SettingsTabViewItem(SettingsTabViewItem source) : this()
@@ -101,7 +108,7 @@ internal sealed partial class SettingsTabViewItem : TabViewItem
         SystemRadioButton.IsChecked = Settings.Data.Theme == ElementTheme.Default;
     }
 
-    public void AjustKeyboardAccelerators()
+    public void AdjustKeyboardAccelerators(bool enable)
     {
         // accelerators on sub menus are only active when the menu is shown
         // which can only happen if this is the current selected tab
@@ -111,9 +118,58 @@ internal sealed partial class SettingsTabViewItem : TabViewItem
             {
                 foreach (KeyboardAccelerator ka in mfib.KeyboardAccelerators)
                 {
-                    ka.IsEnabled = IsSelected;
+                    ka.IsEnabled = enable;
                 }
             }
         }
+    }
+
+    private void CloseTabClickHandler(object sender, RoutedEventArgs e)
+    {
+        MainWindow window = App.Instance.GetWindowForElement(this);
+        window.CloseTab(this);
+    }
+
+    private bool CanCloseOtherTabs(object? param = null)
+    {
+        MainWindow window = App.Instance.GetWindowForElement(this);
+        return window.CanCloseOtherTabs();
+    }
+
+    private async void ExecuteCloseOtherTabs(object? param)
+    {
+        MainWindow window = App.Instance.GetWindowForElement(this);
+        await window.ExecuteCloseOtherTabs();
+    }
+
+    private bool CanCloseLeftTabs(object? param = null)
+    {
+        MainWindow window = App.Instance.GetWindowForElement(this);
+        return window.CanCloseLeftTabs();
+    }
+
+    private async void ExecuteCloseLeftTabs(object? param)
+    {
+        MainWindow window = App.Instance.GetWindowForElement(this);
+        await window.ExecuteCloseLeftTabs();
+    }
+
+    private bool CanCloseRightTabs(object? param = null)
+    {
+        MainWindow window = App.Instance.GetWindowForElement(this);
+        return window.CanCloseRightTabs();
+    }
+
+    private async void ExecuteCloseRightTabs(object? param)
+    {
+        MainWindow window = App.Instance.GetWindowForElement(this);
+        await window.ExecuteCloseRightTabs();
+    }
+
+    public void UpdateContextMenuItemsEnabledState()
+    {
+        CloseOtherTabsCommand.RaiseCanExecuteChanged();
+        CloseLeftTabsCommand.RaiseCanExecuteChanged();
+        CloseRightTabsCommand.RaiseCanExecuteChanged();
     }
 }

@@ -8,6 +8,9 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem
 {
     private enum Error { Success, Failure }
     private enum Status { Cancelled, Continue }
+    private RelayCommand CloseOtherTabsCommand { get; }
+    private RelayCommand CloseLeftTabsCommand { get; }
+    private RelayCommand CloseRightTabsCommand { get; }
 
     private PuzzleViewModel? viewModel;
     private StorageFile? sourceFile;
@@ -42,6 +45,10 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem
         {
             await ViewModel.ClipboardContentChanged();
         };
+
+        CloseOtherTabsCommand = new RelayCommand(ExecuteCloseOtherTabs, CanCloseOtherTabs);
+        CloseLeftTabsCommand = new RelayCommand(ExecuteCloseLeftTabs, CanCloseLeftTabs);
+        CloseRightTabsCommand = new RelayCommand(ExecuteCloseRightTabs, CanCloseRightTabs);
     }
 
     public PuzzleTabViewItem(StorageFile storageFile) : this()
@@ -53,6 +60,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem
         {
             PuzzleTabViewItem tab = (PuzzleTabViewItem)sender;
             tab.Loaded -= LoadedHandler;
+            tab.Header = tab.sourceFile?.Name;
 
             if (await tab.LoadFile(tab.sourceFile!) != Error.Success)
             {
@@ -67,6 +75,10 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem
     {
         ViewModel = source.ViewModel;
         sourceFile = source.sourceFile;
+        Header = source.Header;
+
+        if (source.IsModified)
+            IconSource = new SymbolIconSource() { Symbol = Symbol.Edit, };
     }
 
     public PuzzleViewModel ViewModel
@@ -123,27 +135,17 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem
         }
     }
 
-    public void AjustKeyboardAccelerators()
+    public void AdjustKeyboardAccelerators(bool enable)
     {
         // accelerators on sub menus are only active when the menu is shown
         // which can only happen if this is the current selected tab
         foreach (MenuBarItem mbi in Menu.Items)
         {
-            AdjustMenuItems(mbi.Items);
-        }
-
-        if (ContextFlyout is MenuFlyout contextMenu)
-        {
-            AdjustMenuItems(contextMenu.Items);
-        }
-
-        void AdjustMenuItems(IList<MenuFlyoutItemBase> items)
-        {
-            foreach (MenuFlyoutItemBase mfib in items)
+            foreach (MenuFlyoutItemBase mfib in mbi.Items)
             {
                 foreach (KeyboardAccelerator ka in mfib.KeyboardAccelerators)
                 {
-                    ka.IsEnabled = IsSelected;
+                    ka.IsEnabled = enable;
                 }
             }
         }
@@ -158,7 +160,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem
     private void NewTabClickHandler(object sender, RoutedEventArgs e)
     {
         MainWindow window = App.Instance.GetWindowForElement(this);
-        TabViewItem tab = window.CreatePuzzleTab();
+        TabViewItem tab = new PuzzleTabViewItem();
         window.AddTab(tab);
     }
 
@@ -228,7 +230,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem
         if (await HandleTabCloseRequested())
         {
             MainWindow window = App.Instance.GetWindowForElement(this);
-            window.CloseTab(Parent);
+            window.CloseTab(this);
         }
     }
 
@@ -429,5 +431,49 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem
     public void ResetOpacityTransitionForThemeChange()
     {
         Puzzle.ResetOpacityTransitionForThemeChange();
+    }
+
+
+    private bool CanCloseOtherTabs(object? param = null)
+    {
+        MainWindow window = App.Instance.GetWindowForElement(this);
+        return window.CanCloseOtherTabs();
+    }
+
+    private async void ExecuteCloseOtherTabs(object? param)
+    {
+        MainWindow window = App.Instance.GetWindowForElement(this);
+        await window.ExecuteCloseOtherTabs();
+    }
+
+    private bool CanCloseLeftTabs(object? param = null)
+    {
+        MainWindow window = App.Instance.GetWindowForElement(this);
+        return window.CanCloseLeftTabs();
+    }
+
+    private async void ExecuteCloseLeftTabs(object? param)
+    {
+        MainWindow window = App.Instance.GetWindowForElement(this);
+        await window.ExecuteCloseLeftTabs();
+    }
+
+    private bool CanCloseRightTabs(object? param = null)
+    {
+        MainWindow window = App.Instance.GetWindowForElement(this);
+        return window.CanCloseRightTabs();
+    }
+
+    private async void ExecuteCloseRightTabs(object? param)
+    {
+        MainWindow window = App.Instance.GetWindowForElement(this);
+        await window.ExecuteCloseRightTabs();
+    }
+
+    public void UpdateContextMenuItemsEnabledState()
+    {
+        CloseOtherTabsCommand.RaiseCanExecuteChanged();
+        CloseLeftTabsCommand.RaiseCanExecuteChanged();
+        CloseRightTabsCommand.RaiseCanExecuteChanged();
     }
 }
