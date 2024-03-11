@@ -2,7 +2,7 @@ using SudokuSolver.ViewModels;
 
 namespace SudokuSolver.Views;
 
-internal sealed partial class SettingsTabViewItem : TabViewItem
+internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem
 {
     public SettingsViewModel ViewModel { get; } = SettingsViewModel.Data;
     private RelayCommand CloseOtherTabsCommand { get; }

@@ -55,7 +55,7 @@ public partial class App : Application
 
             if (!windowCreated)
             {
-                MainWindow window = new MainWindow(Settings.Data.RestoreBounds);
+                MainWindow window = new MainWindow(Settings.Data.WindowState, Settings.Data.RestoreBounds);
                 window.AttemptSwitchToForeground();
             }
         }
@@ -95,7 +95,7 @@ public partial class App : Application
                 {
                     if (currentWindow is null)
                     {
-                        currentWindow = new MainWindow(Settings.Data.RestoreBounds, storageFile);
+                        currentWindow = new MainWindow(Settings.Data.WindowState, Settings.Data.RestoreBounds, storageFile);
                     }
                     else
                     {
@@ -140,7 +140,7 @@ public partial class App : Application
 
                 if (currentWindow is null)
                 {
-                    currentWindow = new MainWindow(Settings.Data.RestoreBounds, storageFile);
+                    currentWindow = new MainWindow(Settings.Data.WindowState, Settings.Data.RestoreBounds, storageFile);
                 }
                 else
                 {
