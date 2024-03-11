@@ -35,12 +35,6 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem
             FocusLastSelectedCell();
         };
 
-        Unloaded += (s, e) =>
-        {
-            // only animate theme changes when this is the current tab
-            Puzzle.BackgroundBrushTransition.Duration = TimeSpan.Zero;
-        };
-
         Clipboard.ContentChanged += async (s, o) =>
         {
             await ViewModel.ClipboardContentChanged();
