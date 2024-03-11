@@ -386,9 +386,11 @@ internal abstract class WindowBase : Window
                     }
 
                     if (tabView.SelectedItem is TabViewItem tabViewItem)
+                    {
                         LocatePassThroughContent(rects, tabViewItem);
+                    }
 
-                    break;
+                    continue;
                 }
 
                 default: break;

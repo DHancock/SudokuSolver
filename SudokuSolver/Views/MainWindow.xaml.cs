@@ -12,11 +12,12 @@ namespace SudokuSolver.Views;
 internal sealed partial class MainWindow : WindowBase
 {
     private const string cDataIdentifier = App.cDisplayName;
+    private const string cProcessId = "pId";
 
     private bool processingClose = false;
     private PrintHelper? printHelper;
 
-    private MainWindow(RectInt32 bounds)
+    private MainWindow(WindowState windowState, RectInt32 bounds)
     {
         InitializeComponent();
 
@@ -45,13 +46,13 @@ internal sealed partial class MainWindow : WindowBase
         AppWindow.MoveAndResize(App.Instance.GetNewWindowPosition(this, bounds));
 
         // setting the presenter will also activate the window
-        if (Settings.Data.WindowState == WindowState.Minimized)
+        if (windowState == WindowState.Minimized)
         {
             WindowState = WindowState.Normal;
         }
         else
         {
-            WindowState = Settings.Data.WindowState;
+            WindowState = windowState;
         }
 
         Activated += (s, e) =>
@@ -75,7 +76,7 @@ internal sealed partial class MainWindow : WindowBase
 
 
     // used for launch activation and new window commands
-    public MainWindow(RectInt32 bounds, StorageFile? storageFile = null) : this(bounds)
+    public MainWindow(WindowState windowState, RectInt32 bounds, StorageFile? storageFile = null) : this(windowState, bounds)
     {
         if (storageFile is null)
         {
@@ -89,7 +90,7 @@ internal sealed partial class MainWindow : WindowBase
 
 
     // used when a tab is dragged and dropped outside of its parent window
-    public MainWindow(TabViewItem existingTab, RectInt32 bounds) : this(bounds)
+    public MainWindow(TabViewItem existingTab, WindowState windowState, RectInt32 bounds) : this(windowState, bounds)
     {
         if (existingTab is PuzzleTabViewItem existingPuzzleTab)
         {
@@ -134,7 +135,7 @@ internal sealed partial class MainWindow : WindowBase
         processingClose = true;
 
         List<(TabViewItem tab, int index)> modifiedTabs = new();
-        List<object> unModifiedTabs = new();
+        List<TabViewItem> unModifiedTabs = new();
 
         for (int index = 0; index < tabs.Count; index++)
         {
@@ -142,9 +143,9 @@ internal sealed partial class MainWindow : WindowBase
             {
                 modifiedTabs.Add((puzzleTab, index));
             }
-            else
+            else if (tabs[index] is TabViewItem tab)
             {
-                unModifiedTabs.Add(tabs[index]);  // including a settings tab
+                unModifiedTabs.Add(tab);  // including a settings tab
             }
         }
 
@@ -175,7 +176,7 @@ internal sealed partial class MainWindow : WindowBase
             }
         }
 
-        foreach (object tab in unModifiedTabs)
+        foreach (TabViewItem tab in unModifiedTabs)
         {
             CloseTab(tab);
         }
@@ -231,39 +232,31 @@ internal sealed partial class MainWindow : WindowBase
         }
     }
 
-    public void AddTab(TabViewItem tab, bool select = true)
+    public void AddTab(TabViewItem tab, int index = -1)
     {
-        Tabs.TabItems.Add(tab);
+        Debug.Assert(tab is ITabItem);
 
-        if (select)
+        if ((index >= 0) && (index < Tabs.TabItems.Count))
         {
-            Tabs.SelectedItem = tab;
+            Tabs.TabItems.Insert(index, tab);
         }
-
+        else
+        {
+            Tabs.TabItems.Add(tab);
+        }
+        
+        Tabs.SelectedItem = tab;
         AddDragRegionEventHandlers(tab);
     }
 
-    public void CloseTab(object tab)
+    public void CloseTab(TabViewItem tab)
     {
         bool found = Tabs.TabItems.Remove(tab);
         Debug.Assert(found);
 
-        // while the tab is now nolonger in the TabView, it's keyboard accelerators will still
-        // be active (until presumably its garbage collected)
-        switch (tab)
-        {
-            case PuzzleTabViewItem puzzleTab:
-            {
-                puzzleTab.AdjustKeyboardAccelerators(enable: false);
-                break;
-            }
-
-            case SettingsTabViewItem settingsTab:
-            {
-                settingsTab.AdjustKeyboardAccelerators(enable: false);
-                break;
-            }
-        }
+        // the tab's keyboard accelerators would still
+        // be active (until presumably it's garbage collected)
+        ((ITabItem)tab).AdjustKeyboardAccelerators(enable: false);
     }
 
     private void Tabs_TabDroppedOutside(TabView sender, TabViewTabDroppedOutsideEventArgs args)
@@ -272,7 +265,7 @@ internal sealed partial class MainWindow : WindowBase
         RectInt32 bounds = new RectInt32(p.X, p.Y, RestoreBounds.Width, RestoreBounds.Height);
 
         CloseTab(args.Tab);
-        MainWindow window = new MainWindow(args.Tab, bounds);
+        MainWindow window = new MainWindow(args.Tab, WindowState.Normal, bounds);
         window.AttemptSwitchToForeground();
     }
 
@@ -280,6 +273,7 @@ internal sealed partial class MainWindow : WindowBase
     public void Tabs_TabDragStarting(TabView sender, TabViewTabDragStartingEventArgs args)
     {
         args.Data.Properties.Add(cDataIdentifier, args.Tab);
+        args.Data.Properties.Add(cProcessId, Environment.ProcessId);
         args.Data.RequestedOperation = DataPackageOperation.Move;
     }
 #pragma warning restore CA1822 // Mark members as static
@@ -290,7 +284,7 @@ internal sealed partial class MainWindow : WindowBase
 
         if (e.DataView.Properties.TryGetValue(cDataIdentifier, out object? obj))
         {
-            if ((obj is TabViewItem sourceTabViewItem) && (sourceTabViewItem.Parent is TabViewListView sourceTabViewListView))
+            if ((obj is TabViewItem sourceTab) && (sourceTab.Parent is TabViewListView sourceTabViewListView))
             {
                 // First we need to get the position in the List to drop to
                 int index = -1;
@@ -309,42 +303,29 @@ internal sealed partial class MainWindow : WindowBase
                 }
 
                 // single instanced so no need to dispatch
-                sourceTabViewListView.Items.Remove(sourceTabViewItem);
+                sourceTabViewListView.Items.Remove(sourceTab);
+                ((ITabItem)sourceTab).AdjustKeyboardAccelerators(enable: false);
 
                 TabViewItem? newTab = null;
 
-                if (sourceTabViewItem is PuzzleTabViewItem existingPuzzleTab)
+                if (sourceTab is PuzzleTabViewItem existingPuzzleTab)
                 {
                     newTab = new PuzzleTabViewItem(existingPuzzleTab);
-                    existingPuzzleTab.AdjustKeyboardAccelerators(enable: false);
                 }
-                else if (sourceTabViewItem is SettingsTabViewItem existingSettingsTab)
+                else if (sourceTab is SettingsTabViewItem existingSettingsTab)
                 {
                     // replace the existing, it preserves the expanders expanded state and reduces code paths
-                    object? existing = Tabs.TabItems.FirstOrDefault(x => x is SettingsTabViewItem);
-
-                    if (existing != null)
+                    if (Tabs.TabItems.FirstOrDefault(x => x is SettingsTabViewItem) is TabViewItem existing)
                     {
-                        Tabs.TabItems.Remove(existing);
+                        CloseTab(existing);
                     }
 
                     newTab = new SettingsTabViewItem(existingSettingsTab);
-                    existingSettingsTab.AdjustKeyboardAccelerators(enable: false);
                 }
 
                 if (newTab is not null)
                 {
-                    if ((index < 0) || (index >= Tabs.TabItems.Count))
-                    {
-                        Tabs.TabItems.Add(newTab);
-                    }
-                    else
-                    {
-                        Tabs.TabItems.Insert(index, newTab);
-                    }
-
-                    AddDragRegionEventHandlers(newTab);
-                    Tabs.SelectedItem = newTab;
+                    AddTab(newTab, index);
                 }
             }
         }
@@ -352,9 +333,18 @@ internal sealed partial class MainWindow : WindowBase
 
     private void Tabs_TabStripDragOver(object sender, DragEventArgs e)
     {
-        if (e.DataView.Properties.ContainsKey(cDataIdentifier))
+        try
         {
-            e.AcceptedOperation = DataPackageOperation.Move;
+            if (e.DataView.Properties.ContainsKey(cDataIdentifier) &&
+                (e.DataView.Properties.TryGetValue(cProcessId, out object value)) &&
+                (Convert.ToInt32(value) == Environment.ProcessId))
+            {
+                e.AcceptedOperation = DataPackageOperation.Move;
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex.ToString());
         }
     }
 
@@ -380,7 +370,6 @@ internal sealed partial class MainWindow : WindowBase
         }
         else
         {
-            Debug.Assert(tab is SettingsTabViewItem);
             CloseTab(tab);
         }
     }
@@ -389,42 +378,26 @@ internal sealed partial class MainWindow : WindowBase
     {
         if (e.RemovedItems.Count == 1)
         {
-            switch (e.RemovedItems[0])
-            {
-                case SettingsTabViewItem settingsTab:
-                {
-                    SetWindowDragRegionsInternal();
-                    settingsTab.AdjustKeyboardAccelerators(enable: false);
-                    break;
-                }
+            ((ITabItem)e.RemovedItems[0]).AdjustKeyboardAccelerators(enable: false);
 
-                case PuzzleTabViewItem puzzleTab:
-                {
-                    puzzleTab.AdjustKeyboardAccelerators(enable: false);
-                    break;
-                }
+            if (e.RemovedItems[0] is SettingsTabViewItem)
+            {
+                SetWindowDragRegionsInternal();
             }
         }
 
         if (e.AddedItems.Count == 1)
         {
-            switch (e.AddedItems[0])
-            {
-                case SettingsTabViewItem settingsTab:
-                {
-                    SetWindowDragRegionsInternal();
-                    settingsTab.AdjustKeyboardAccelerators(enable: true);
-                    settingsTab.UpdateContextMenuItemsEnabledState();
-                    break;
-                }
+            ((ITabItem)e.AddedItems[0]).AdjustKeyboardAccelerators(enable: true);
+            ((ITabItem)e.AddedItems[0]).UpdateContextMenuItemsEnabledState();
 
-                case PuzzleTabViewItem puzzleTab:
-                {
-                    puzzleTab.AdjustKeyboardAccelerators(enable: true);
-                    puzzleTab.UpdateContextMenuItemsEnabledState();
-                    puzzleTab.FocusLastSelectedCell();
-                    break;
-                }
+            if (e.AddedItems[0] is SettingsTabViewItem)
+            {
+                SetWindowDragRegionsInternal();
+            }
+            else if (e.AddedItems[0] is PuzzleTabViewItem puzzleTab)
+            {
+                puzzleTab.FocusLastSelectedCell();
             }
         }
     }

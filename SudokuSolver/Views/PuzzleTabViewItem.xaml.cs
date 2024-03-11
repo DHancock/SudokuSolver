@@ -4,7 +4,7 @@ using SudokuSolver.ViewModels;
 namespace SudokuSolver.Views;
 
 
-internal sealed partial class PuzzleTabViewItem : TabViewItem
+internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
 {
     private enum Error { Success, Failure }
     private enum Status { Cancelled, Continue }
@@ -33,12 +33,6 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem
             // set for the next theme transition
             Puzzle.BackgroundBrushTransition.Duration = TimeSpan.FromMilliseconds(250);
             FocusLastSelectedCell();
-        };
-
-        Unloaded += (s, e) =>
-        {
-            // only animate theme changes when this is the current tab
-            Puzzle.BackgroundBrushTransition.Duration = TimeSpan.Zero;
         };
 
         Clipboard.ContentChanged += async (s, o) =>
@@ -196,10 +190,10 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem
         FocusLastSelectedCell();
     }
 
-
     private void NewWindowClickHandler(object sender, RoutedEventArgs e)
     {
-        _ = new MainWindow(App.Instance.GetWindowForElement(this).RestoreBounds);
+        MainWindow window = App.Instance.GetWindowForElement(this);
+        _ = new MainWindow(WindowState.Normal, window.RestoreBounds);
     }
 
     private async void SaveClickHandler(object sender, RoutedEventArgs e)
