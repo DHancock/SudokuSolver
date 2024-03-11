@@ -140,4 +140,26 @@
             </Grid>
         </ScrollViewer>
     </Grid>
+
+    <TabViewItem.Header>
+        <x:String>Settings</x:String>
+    </TabViewItem.Header>
+
+    <TabViewItem.IconSource>
+        <SymbolIconSource Symbol="Setting"/>
+    </TabViewItem.IconSource>
+
+    <TabViewItem.ContextFlyout>
+        <MenuFlyout>
+            <MenuFlyoutItem Text="Close tab" Click="CloseTabClickHandler">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Modifiers="Control" Key="W"/>
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+
+            <MenuFlyoutItem Text="Close other tabs" Command="{x:Bind CloseOtherTabsCommand}"/>
+            <MenuFlyoutItem Text="Close tabs to the left" Command="{x:Bind CloseLeftTabsCommand}"/>
+            <MenuFlyoutItem Text="Close tabs to the right" Command="{x:Bind CloseRightTabsCommand}"/>
+        </MenuFlyout>
+    </TabViewItem.ContextFlyout>
 </TabViewItem>

@@ -384,6 +384,10 @@ internal abstract class WindowBase : Window
 
                         rects.Add(ScaledRect(topLeft, size, scaleFactor));
                     }
+
+                    if (tabView.SelectedItem is TabViewItem tabViewItem)
+                        LocatePassThroughContent(rects, tabViewItem);
+
                     break;
                 }
 
@@ -404,6 +408,12 @@ internal abstract class WindowBase : Window
 
     protected void AddDragRegionEventHandlers(UIElement item)
     {
+        if (item.ContextFlyout is MenuFlyout menuFlyout)  // menu flyouts are not UIElements
+        {
+            menuFlyout.Opened += MenuFlyout_Opened;
+            menuFlyout.Closed += MenuFlyout_Closed;
+        }
+
         foreach (UIElement child in LogicalTreeHelper.GetChildren(item))
         {
             switch (child)
@@ -447,6 +457,8 @@ internal abstract class WindowBase : Window
         void UIElement_SizeChanged(object sender, SizeChangedEventArgs e) => SetWindowDragRegionsInternal();
         void Picker_FlyoutOpened(SimpleColorPicker sender, bool args) => ClearWindowDragRegions();
         void Picker_FlyoutClosed(SimpleColorPicker sender, bool args) => SetWindowDragRegionsInternal();
+        void MenuFlyout_Opened(object? sender, object e) => ClearWindowDragRegions();
+        void MenuFlyout_Closed(object? sender, object e) => SetWindowDragRegionsInternal();
     }
 
     private DispatcherTimer InitialiseDragRegionTimer()

@@ -25,7 +25,7 @@ internal static class LogicalTreeHelper
                 yield return uc.Content;
             }
         }
-        else if (parent is ContentControl contentControl)  // i.e. an Expander
+        else if (parent is ContentControl contentControl)  // an Expander, TabViewItem
         {
             if (contentControl.Content is Panel ccPanel)
             {
@@ -35,20 +35,6 @@ internal static class LogicalTreeHelper
                 }
             }
             else if (contentControl.Content is UIElement uie)
-            {
-                yield return uie;
-            }
-        }
-        else if ((parent is TabView tv) && (tv.SelectedItem is TabViewItem tabViewItem))
-        {
-            if (tabViewItem.Content is Panel tviPanel)
-            {
-                foreach (UIElement child in tviPanel.Children)
-                {
-                    yield return child;
-                }
-            }
-            else if (tabViewItem.Content is UIElement uie)
             {
                 yield return uie;
             }

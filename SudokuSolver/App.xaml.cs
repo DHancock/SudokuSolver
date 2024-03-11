@@ -99,7 +99,7 @@ public partial class App : Application
                     }
                     else
                     {
-                        TabViewItem newTab = currentWindow.CreatePuzzleTab(storageFile);
+                        TabViewItem newTab = new PuzzleTabViewItem(storageFile);
                         currentWindow.AddTab(newTab);
                     }
                 }
@@ -144,7 +144,7 @@ public partial class App : Application
                 }
                 else
                 {
-                    TabViewItem newTab = currentWindow.CreatePuzzleTab(storageFile);
+                    TabViewItem newTab = new PuzzleTabViewItem(storageFile);
                     currentWindow.AddTab(newTab);
                 }
 
