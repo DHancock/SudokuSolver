@@ -305,7 +305,7 @@ internal sealed partial class MainWindow : WindowBase
 
             if (sourceTab is PuzzleTabViewItem existingPuzzleTab)
             {
-                AddTab(new PuzzleTabViewItem(existingPuzzleTab));
+                AddTab(new PuzzleTabViewItem(existingPuzzleTab), index);
             }
             else if (sourceTab is SettingsTabViewItem existingSettingsTab)
             {
@@ -315,7 +315,7 @@ internal sealed partial class MainWindow : WindowBase
                     CloseTab(existing);
                 }
 
-                AddTab(new SettingsTabViewItem(existingSettingsTab));
+                AddTab(new SettingsTabViewItem(existingSettingsTab), index);
             }
         }
     }
