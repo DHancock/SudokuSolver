@@ -9,12 +9,14 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem
     private RelayCommand CloseLeftTabsCommand { get; }
     private RelayCommand CloseRightTabsCommand { get; }
 
-    private bool isHorizontal;
+    private bool isOrientationHorizontal;
+    private readonly MainWindow parentWindow;
 
-
-    public SettingsTabViewItem()
+    public SettingsTabViewItem(MainWindow parent)
     {
         this.InitializeComponent();
+
+        parentWindow = parent;
 
         LayoutRoot.SizeChanged += LayoutRoot_SizeChanged;
         Loaded += SettingsTabViewItem_Loaded;
@@ -30,7 +32,7 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem
         CloseRightTabsCommand = new RelayCommand(ExecuteCloseRightTabs, CanCloseRightTabs);
     }
 
-    public SettingsTabViewItem(SettingsTabViewItem source) : this()
+    public SettingsTabViewItem(MainWindow parent, SettingsTabViewItem source) : this(parent)
     {
         Loaded += SettingsTabViewItem_Loaded;
 
@@ -56,9 +58,9 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem
 
         if (width < cThreshold)  // goto vertical
         {
-            if (initialise || isHorizontal)
+            if (initialise || isOrientationHorizontal)
             {
-                isHorizontal = false;
+                isOrientationHorizontal = false;
 
                 Grid.SetColumn(AboutInfo, 0);
                 Grid.SetRow(AboutInfo, 4);
@@ -78,9 +80,9 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem
         }
         else
         {
-            if (initialise || !isHorizontal)
+            if (initialise || !isOrientationHorizontal)
             {
-                isHorizontal = true;
+                isOrientationHorizontal = true;
 
                 Grid.SetColumn(AboutInfo, 1);
                 Grid.SetRow(AboutInfo, 0);
@@ -126,44 +128,37 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem
 
     private void CloseTabClickHandler(object sender, RoutedEventArgs e)
     {
-        MainWindow window = App.Instance.GetWindowForElement(this);
-        window.CloseTab(this);
+        parentWindow.CloseTab(this);
     }
 
     private bool CanCloseOtherTabs(object? param = null)
     {
-        MainWindow window = App.Instance.GetWindowForElement(this);
-        return window.CanCloseOtherTabs();
+        return parentWindow.CanCloseOtherTabs();
     }
 
     private async void ExecuteCloseOtherTabs(object? param)
     {
-        MainWindow window = App.Instance.GetWindowForElement(this);
-        await window.ExecuteCloseOtherTabs();
+        await parentWindow.ExecuteCloseOtherTabs();
     }
 
     private bool CanCloseLeftTabs(object? param = null)
     {
-        MainWindow window = App.Instance.GetWindowForElement(this);
-        return window.CanCloseLeftTabs();
+        return parentWindow.CanCloseLeftTabs();
     }
 
     private async void ExecuteCloseLeftTabs(object? param)
     {
-        MainWindow window = App.Instance.GetWindowForElement(this);
-        await window.ExecuteCloseLeftTabs();
+        await parentWindow.ExecuteCloseLeftTabs();
     }
 
     private bool CanCloseRightTabs(object? param = null)
     {
-        MainWindow window = App.Instance.GetWindowForElement(this);
-        return window.CanCloseRightTabs();
+        return parentWindow.CanCloseRightTabs();
     }
 
     private async void ExecuteCloseRightTabs(object? param)
     {
-        MainWindow window = App.Instance.GetWindowForElement(this);
-        await window.ExecuteCloseRightTabs();
+        await parentWindow.ExecuteCloseRightTabs();
     }
 
     public void UpdateContextMenuItemsEnabledState()

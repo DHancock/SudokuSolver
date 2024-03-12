@@ -80,11 +80,11 @@ internal sealed partial class MainWindow : WindowBase
     {
         if (storageFile is null)
         {
-            AddTab(new PuzzleTabViewItem());
+            AddTab(new PuzzleTabViewItem(this));
         }
         else
         {
-            AddTab(new PuzzleTabViewItem(storageFile));
+            AddTab(new PuzzleTabViewItem(this, storageFile));
         }
     }
 
@@ -94,11 +94,11 @@ internal sealed partial class MainWindow : WindowBase
     {
         if (existingTab is PuzzleTabViewItem existingPuzzleTab)
         {
-            AddTab(new PuzzleTabViewItem(existingPuzzleTab));
+            AddTab(new PuzzleTabViewItem(this, existingPuzzleTab));
         }
         else if (existingTab is SettingsTabViewItem existingSettingsTab)
         {
-            AddTab(new SettingsTabViewItem(existingSettingsTab));
+            AddTab(new SettingsTabViewItem(this, existingSettingsTab));
         }
     }
 
@@ -191,7 +191,7 @@ internal sealed partial class MainWindow : WindowBase
 
         if (tab is null)
         {
-            AddTab(new SettingsTabViewItem());
+            AddTab(new SettingsTabViewItem(this));
         }
         else
         {
@@ -300,12 +300,12 @@ internal sealed partial class MainWindow : WindowBase
             }
 
             // single instanced so no need to dispatch
-            MainWindow window = App.Instance.GetWindowForElement(sourceTab);
-            window.CloseTab(sourceTab);
+            MainWindow? window = App.Instance.GetWindowForElement(sourceTab);
+            window?.CloseTab(sourceTab);
 
             if (sourceTab is PuzzleTabViewItem existingPuzzleTab)
             {
-                AddTab(new PuzzleTabViewItem(existingPuzzleTab), index);
+                AddTab(new PuzzleTabViewItem(this, existingPuzzleTab), index);
             }
             else if (sourceTab is SettingsTabViewItem existingSettingsTab)
             {
@@ -315,7 +315,7 @@ internal sealed partial class MainWindow : WindowBase
                     CloseTab(existing);
                 }
 
-                AddTab(new SettingsTabViewItem(existingSettingsTab), index);
+                AddTab(new SettingsTabViewItem(this, existingSettingsTab), index);
             }
         }
     }
@@ -339,7 +339,7 @@ internal sealed partial class MainWindow : WindowBase
 
     private void Tabs_AddTabButtonClick(TabView sender, object args)
     {
-        TabViewItem tab = new PuzzleTabViewItem();
+        TabViewItem tab = new PuzzleTabViewItem(this);
         AddTab(tab);
     }
 

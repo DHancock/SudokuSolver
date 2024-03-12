@@ -16,12 +16,13 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
     private StorageFile? sourceFile;
     private ErrorDialog? errorDialog;
     private bool errorDialogOpen = false;
+    private readonly MainWindow parentWindow;
 
-
-    public PuzzleTabViewItem()
+    public PuzzleTabViewItem(MainWindow parent)
     {
         this.InitializeComponent();
 
+        parentWindow = parent;
         ViewModel = new PuzzleViewModel();
 
         FileMenuItem.Unloaded += (s, a) => FocusLastSelectedCell();
@@ -45,7 +46,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
         CloseRightTabsCommand = new RelayCommand(ExecuteCloseRightTabs, CanCloseRightTabs);
     }
 
-    public PuzzleTabViewItem(StorageFile storageFile) : this()
+    public PuzzleTabViewItem(MainWindow parent, StorageFile storageFile) : this(parent)
     {
         sourceFile = storageFile;
         Loaded += LoadedHandler;
@@ -65,7 +66,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
         }
     }
 
-    public PuzzleTabViewItem(PuzzleTabViewItem source) : this()
+    public PuzzleTabViewItem(MainWindow parent, PuzzleTabViewItem source) : this(parent)
     {
         ViewModel = source.ViewModel;
         sourceFile = source.sourceFile;
@@ -153,9 +154,8 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
 
     private void NewTabClickHandler(object sender, RoutedEventArgs e)
     {
-        MainWindow window = App.Instance.GetWindowForElement(this);
-        TabViewItem tab = new PuzzleTabViewItem();
-        window.AddTab(tab);
+        TabViewItem tab = new PuzzleTabViewItem(parentWindow);
+        parentWindow.AddTab(tab);
     }
 
     private async void OpenClickHandler(object sender, RoutedEventArgs e)
@@ -170,7 +170,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
         if (status != Status.Cancelled)
         {
             FileOpenPicker openPicker = new FileOpenPicker();
-            InitializeWithWindow.Initialize(openPicker, App.Instance.GetWindowForElement(this).WindowPtr);
+            InitializeWithWindow.Initialize(openPicker, parentWindow.WindowPtr);
             openPicker.FileTypeFilter.Add(App.cFileExt);
 
             StorageFile file = await openPicker.PickSingleFileAsync();
@@ -192,8 +192,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
 
     private void NewWindowClickHandler(object sender, RoutedEventArgs e)
     {
-        MainWindow window = App.Instance.GetWindowForElement(this);
-        _ = new MainWindow(WindowState.Normal, window.RestoreBounds);
+        _ = new MainWindow(WindowState.Normal, parentWindow.RestoreBounds);
     }
 
     private async void SaveClickHandler(object sender, RoutedEventArgs e)
@@ -210,8 +209,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
     {
         try
         {
-            MainWindow window = App.Instance.GetWindowForElement(this);
-            await window.PrintPuzzle(this);
+            await parentWindow.PrintPuzzle(this);
         }
         catch (Exception ex)
         {
@@ -223,15 +221,13 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
     {
         if (await HandleTabCloseRequested())
         {
-            MainWindow window = App.Instance.GetWindowForElement(this);
-            window.CloseTab(this);
+            parentWindow.CloseTab(this);
         }
     }
 
     private void CloseWindowClickHandler(object sender, RoutedEventArgs e)
     {
-        MainWindow window = App.Instance.GetWindowForElement(this);
-        window.PostCloseMessage();
+        parentWindow.PostCloseMessage();
     }
 
     private void ExitClickHandler(object sender, RoutedEventArgs e)
@@ -241,8 +237,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
 
     private void SettingsButton_Click(object sender, RoutedEventArgs e)
     {
-        MainWindow window = App.Instance.GetWindowForElement(this);
-        window.AddOrSelectSettingsTab();
+        parentWindow.AddOrSelectSettingsTab();
     }
 
     private async Task<Error> LoadFile(StorageFile file)
@@ -338,7 +333,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
     {
         Status status = Status.Cancelled;
         FileSavePicker savePicker = new FileSavePicker();
-        InitializeWithWindow.Initialize(savePicker, App.Instance.GetWindowForElement(this).WindowPtr);
+        InitializeWithWindow.Initialize(savePicker, parentWindow.WindowPtr);
 
         savePicker.FileTypeChoices.Add("Sudoku files", new List<string>() { App.cFileExt });
 
@@ -427,41 +422,34 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
         Puzzle.ResetOpacityTransitionForThemeChange();
     }
 
-
-    private bool CanCloseOtherTabs(object? param = null)
+    private bool CanCloseOtherTabs(object? param)
     {
-        MainWindow window = App.Instance.GetWindowForElement(this);
-        return window.CanCloseOtherTabs();
+        return parentWindow.CanCloseOtherTabs();
     }
 
     private async void ExecuteCloseOtherTabs(object? param)
     {
-        MainWindow window = App.Instance.GetWindowForElement(this);
-        await window.ExecuteCloseOtherTabs();
+        await parentWindow.ExecuteCloseOtherTabs();
     }
 
-    private bool CanCloseLeftTabs(object? param = null)
+    private bool CanCloseLeftTabs(object? param)
     {
-        MainWindow window = App.Instance.GetWindowForElement(this);
-        return window.CanCloseLeftTabs();
+        return parentWindow.CanCloseLeftTabs();
     }
 
     private async void ExecuteCloseLeftTabs(object? param)
     {
-        MainWindow window = App.Instance.GetWindowForElement(this);
-        await window.ExecuteCloseLeftTabs();
+        await parentWindow.ExecuteCloseLeftTabs();
     }
 
-    private bool CanCloseRightTabs(object? param = null)
+    private bool CanCloseRightTabs(object? param)
     {
-        MainWindow window = App.Instance.GetWindowForElement(this);
-        return window.CanCloseRightTabs();
+        return parentWindow.CanCloseRightTabs();
     }
 
     private async void ExecuteCloseRightTabs(object? param)
     {
-        MainWindow window = App.Instance.GetWindowForElement(this);
-        await window.ExecuteCloseRightTabs();
+        await parentWindow.ExecuteCloseRightTabs();
     }
 
     public void UpdateContextMenuItemsEnabledState()
