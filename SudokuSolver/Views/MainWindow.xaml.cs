@@ -281,52 +281,41 @@ internal sealed partial class MainWindow : WindowBase
     private void Tabs_TabStripDrop(object sender, DragEventArgs e)
     {
         // This event is called when we're dragging from one window to another 
-
-        if (e.DataView.Properties.TryGetValue(cDataIdentifier, out object? obj))
+        if (e.DataView.Properties.TryGetValue(cDataIdentifier, out object? obj) && (obj is TabViewItem sourceTab))
         {
-            if ((obj is TabViewItem sourceTab) && (sourceTab.Parent is TabViewListView sourceTabViewListView))
+            // First we need to get the position in the List to drop to
+            int index = -1;
+
+            // Determine which items in the list our pointer is between.
+            for (int i = 0; i < Tabs.TabItems.Count; i++)
             {
-                // First we need to get the position in the List to drop to
-                int index = -1;
-
-                // Determine which items in the list our pointer is between.
-                for (int i = 0; i < Tabs.TabItems.Count; i++)
+                if (Tabs.ContainerFromIndex(i) is TabViewItem item)
                 {
-                    if (Tabs.ContainerFromIndex(i) is TabViewItem item)
+                    if (e.GetPosition(item).X - item.ActualWidth < 0)
                     {
-                        if (e.GetPosition(item).X - item.ActualWidth < 0)
-                        {
-                            index = i;
-                            break;
-                        }
+                        index = i;
+                        break;
                     }
                 }
+            }
 
-                // single instanced so no need to dispatch
-                sourceTabViewListView.Items.Remove(sourceTab);
-                ((ITabItem)sourceTab).AdjustKeyboardAccelerators(enable: false);
+            // single instanced so no need to dispatch
+            MainWindow window = App.Instance.GetWindowForElement(sourceTab);
+            window.CloseTab(sourceTab);
 
-                TabViewItem? newTab = null;
-
-                if (sourceTab is PuzzleTabViewItem existingPuzzleTab)
+            if (sourceTab is PuzzleTabViewItem existingPuzzleTab)
+            {
+                AddTab(new PuzzleTabViewItem(existingPuzzleTab));
+            }
+            else if (sourceTab is SettingsTabViewItem existingSettingsTab)
+            {
+                // replace the existing, it preserves the drop position
+                if (Tabs.TabItems.FirstOrDefault(x => x is SettingsTabViewItem) is TabViewItem existing)
                 {
-                    newTab = new PuzzleTabViewItem(existingPuzzleTab);
-                }
-                else if (sourceTab is SettingsTabViewItem existingSettingsTab)
-                {
-                    // replace the existing, it preserves the expanders expanded state and reduces code paths
-                    if (Tabs.TabItems.FirstOrDefault(x => x is SettingsTabViewItem) is TabViewItem existing)
-                    {
-                        CloseTab(existing);
-                    }
-
-                    newTab = new SettingsTabViewItem(existingSettingsTab);
+                    CloseTab(existing);
                 }
 
-                if (newTab is not null)
-                {
-                    AddTab(newTab, index);
-                }
+                AddTab(new SettingsTabViewItem(existingSettingsTab));
             }
         }
     }
