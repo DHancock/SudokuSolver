@@ -379,7 +379,7 @@ internal abstract class WindowBase : Window
                         Point leftOffset = GetOffsetFromXamlRoot(left);
                         Point rightOffset = GetOffsetFromXamlRoot(right);
 
-                        Point topLeft = new Point(leftOffset.X + left.Margin.Left + left.ActualSize.X + left.Margin.Right, leftOffset.Y);
+                        Point topLeft = new Point(leftOffset.X + left.Margin.Left + left.ActualSize.X + left.Margin.Right, rightOffset.Y + tabView.Padding.Top);
                         Vector2 size = new Vector2((float)(rightOffset.X - topLeft.X), right.ActualSize.Y);
 
                         rects.Add(ScaledRect(topLeft, size, scaleFactor));
