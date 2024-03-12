@@ -99,7 +99,7 @@ public partial class App : Application
                     }
                     else
                     {
-                        TabViewItem newTab = new PuzzleTabViewItem(storageFile);
+                        TabViewItem newTab = new PuzzleTabViewItem(currentWindow, storageFile);
                         currentWindow.AddTab(newTab);
                     }
                 }
@@ -144,7 +144,7 @@ public partial class App : Application
                 }
                 else
                 {
-                    TabViewItem newTab = new PuzzleTabViewItem(storageFile);
+                    TabViewItem newTab = new PuzzleTabViewItem(currentWindow, storageFile);
                     currentWindow.AddTab(newTab);
                 }
 
@@ -156,18 +156,18 @@ public partial class App : Application
         return actioned;
     }
 
-    internal MainWindow GetWindowForElement(UIElement element)
+    internal MainWindow? GetWindowForElement(UIElement element)
     {
-        foreach (MainWindow wb in windowList)
+        foreach (MainWindow window in windowList)
         {
-            if (wb.Content.XamlRoot == element.XamlRoot)
+            if (window.Content.XamlRoot == element.XamlRoot)
             {
-                return wb;
+                return window;
             }
         }
 
-        Debug.Assert(false);
-        throw new KeyNotFoundException("window not found in windowList");
+        Debug.Fail($"{nameof(GetWindowForElement)} returns null");
+        return null;
     }
 
     internal void RegisterWindow(MainWindow window)
