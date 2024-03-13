@@ -78,28 +78,34 @@ internal sealed partial class MainWindow : WindowBase
     // used for launch activation and new window commands
     public MainWindow(WindowState windowState, RectInt32 bounds, StorageFile? storageFile = null) : this(windowState, bounds)
     {
-        if (storageFile is null)
+        Tabs.Loaded += (s, e) =>
         {
-            AddTab(new PuzzleTabViewItem(this));
-        }
-        else
-        {
-            AddTab(new PuzzleTabViewItem(this, storageFile));
-        }
+            if (storageFile is null)
+            {
+                AddTab(new PuzzleTabViewItem(this));
+            }
+            else
+            {
+                AddTab(new PuzzleTabViewItem(this, storageFile));
+            }
+        };
     }
 
 
     // used when a tab is dragged and dropped outside of its parent window
-    public MainWindow(TabViewItem existingTab, WindowState windowState, RectInt32 bounds) : this(windowState, bounds)
+    public MainWindow(TabViewItem existingTab, RectInt32 bounds) : this(WindowState.Normal, bounds)
     {
-        if (existingTab is PuzzleTabViewItem existingPuzzleTab)
+        Tabs.Loaded += (s, e) =>
         {
-            AddTab(new PuzzleTabViewItem(this, existingPuzzleTab));
-        }
-        else if (existingTab is SettingsTabViewItem existingSettingsTab)
-        {
-            AddTab(new SettingsTabViewItem(this, existingSettingsTab));
-        }
+            if (existingTab is PuzzleTabViewItem existingPuzzleTab)
+            {
+                AddTab(new PuzzleTabViewItem(this, existingPuzzleTab));
+            }
+            else if (existingTab is SettingsTabViewItem existingSettingsTab)
+            {
+                AddTab(new SettingsTabViewItem(this, existingSettingsTab));
+            }
+        };
     }
 
     private async Task HandleWindowCloseRequested()
@@ -265,7 +271,7 @@ internal sealed partial class MainWindow : WindowBase
         RectInt32 bounds = new RectInt32(p.X, p.Y, RestoreBounds.Width, RestoreBounds.Height);
 
         CloseTab(args.Tab);
-        MainWindow window = new MainWindow(args.Tab, WindowState.Normal, bounds);
+        MainWindow window = new MainWindow(args.Tab, bounds);
         window.AttemptSwitchToForeground();
     }
 
