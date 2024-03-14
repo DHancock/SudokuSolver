@@ -197,9 +197,12 @@ internal abstract class WindowBase : Window
         maximizeCommand = new RelayCommand(o => PostSysCommandMessage(SC.MAXIMIZE), CanMaximize);
         closeCommand = new RelayCommand(o => PostSysCommandMessage(SC.CLOSE));
 
-        MenuFlyout menuFlyout = new MenuFlyout();
-        menuFlyout.XamlRoot = Content.XamlRoot;
-        menuFlyout.MenuFlyoutPresenterStyle = (Style)((FrameworkElement)Content).Resources[cStyleKey];
+        MenuFlyout menuFlyout = new MenuFlyout()
+        {
+            XamlRoot = Content.XamlRoot,
+            MenuFlyoutPresenterStyle = (Style)((FrameworkElement)Content).Resources[cStyleKey],
+            OverlayInputPassThroughElement = Content,
+        };
 
         // always use narrow padding (the first time the menu is opened it may use normal padding, other times narrrow)
         Thickness narrow = (Thickness)((FrameworkElement)Content).Resources[cPaddingKey];
