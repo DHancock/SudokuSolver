@@ -70,10 +70,14 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
     {
         ViewModel = source.ViewModel;
         sourceFile = source.sourceFile;
-        Header = source.Header;
+        Loaded += LoadedHandler;
 
-        if (source.IsModified)
-            IconSource = new SymbolIconSource() { Symbol = Symbol.Edit, };
+        static void LoadedHandler(object sender, RoutedEventArgs e)
+        {
+            PuzzleTabViewItem tab = (PuzzleTabViewItem)sender;
+            tab.Loaded -= LoadedHandler;
+            tab.UpdateTabHeader();
+        }
     }
 
     public PuzzleViewModel ViewModel
