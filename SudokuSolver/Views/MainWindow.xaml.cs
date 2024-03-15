@@ -78,34 +78,28 @@ internal sealed partial class MainWindow : WindowBase
     // used for launch activation and new window commands
     public MainWindow(WindowState windowState, RectInt32 bounds, StorageFile? storageFile = null) : this(windowState, bounds)
     {
-        Tabs.Loaded += (s, e) =>
+        if (storageFile is null)
         {
-            if (storageFile is null)
-            {
-                AddTab(new PuzzleTabViewItem(this));
-            }
-            else
-            {
-                AddTab(new PuzzleTabViewItem(this, storageFile));
-            }
-        };
+            AddTab(new PuzzleTabViewItem(this));
+        }
+        else
+        {
+            AddTab(new PuzzleTabViewItem(this, storageFile));
+        }
     }
 
 
     // used when a tab is dragged and dropped outside of its parent window
     public MainWindow(TabViewItem existingTab, RectInt32 bounds) : this(WindowState.Normal, bounds)
     {
-        Tabs.Loaded += (s, e) =>
+        if (existingTab is PuzzleTabViewItem existingPuzzleTab)
         {
-            if (existingTab is PuzzleTabViewItem existingPuzzleTab)
-            {
-                AddTab(new PuzzleTabViewItem(this, existingPuzzleTab));
-            }
-            else if (existingTab is SettingsTabViewItem existingSettingsTab)
-            {
-                AddTab(new SettingsTabViewItem(this, existingSettingsTab));
-            }
-        };
+            AddTab(new PuzzleTabViewItem(this, existingPuzzleTab));
+        }
+        else if (existingTab is SettingsTabViewItem existingSettingsTab)
+        {
+            AddTab(new SettingsTabViewItem(this, existingSettingsTab));
+        }
     }
 
     private async Task HandleWindowCloseRequested()
@@ -240,6 +234,18 @@ internal sealed partial class MainWindow : WindowBase
 
     public void AddTab(TabViewItem tab, int index = -1)
     {
+        if (Tabs.IsLoaded)
+        {
+            AddTabInternal(tab, index);
+        }
+        else
+        {
+            Tabs.Loaded += (s, e) => AddTabInternal(tab, index);
+        }
+    }
+
+    private void AddTabInternal(TabViewItem tab, int index)
+    {
         Debug.Assert(tab is ITabItem);
 
         if ((index >= 0) && (index < Tabs.TabItems.Count))
@@ -250,7 +256,7 @@ internal sealed partial class MainWindow : WindowBase
         {
             Tabs.TabItems.Add(tab);
         }
-        
+
         Tabs.SelectedItem = tab;
         AddDragRegionEventHandlers(tab);
     }
