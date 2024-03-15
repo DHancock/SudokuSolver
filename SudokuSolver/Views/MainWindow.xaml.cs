@@ -242,23 +242,23 @@ internal sealed partial class MainWindow : WindowBase
         {
             Tabs.Loaded += (s, e) => AddTabInternal(tab, index);
         }
-    }
 
-    private void AddTabInternal(TabViewItem tab, int index)
-    {
-        Debug.Assert(tab is ITabItem);
-
-        if ((index >= 0) && (index < Tabs.TabItems.Count))
+        void AddTabInternal(TabViewItem tab, int index)
         {
-            Tabs.TabItems.Insert(index, tab);
-        }
-        else
-        {
-            Tabs.TabItems.Add(tab);
-        }
+            Debug.Assert(tab is ITabItem);
 
-        Tabs.SelectedItem = tab;
-        AddDragRegionEventHandlers(tab);
+            if ((index >= 0) && (index < Tabs.TabItems.Count))
+            {
+                Tabs.TabItems.Insert(index, tab);
+            }
+            else
+            {
+                Tabs.TabItems.Add(tab);
+            }
+
+            Tabs.SelectedItem = tab;
+            AddDragRegionEventHandlers(tab);
+        }
     }
 
     public void CloseTab(TabViewItem tab)
