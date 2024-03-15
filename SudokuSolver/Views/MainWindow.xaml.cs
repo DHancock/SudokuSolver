@@ -17,10 +17,13 @@ internal sealed partial class MainWindow : WindowBase
     private bool processingClose = false;
     private PrintHelper? printHelper;
 
-    private MainWindow(WindowState windowState, RectInt32 bounds)
+    private MainWindow()
     {
         InitializeComponent();
+    }
 
+    public MainWindow(WindowState windowState, RectInt32 bounds) : this()
+    {
         if (AppWindowTitleBar.IsCustomizationSupported())
         {
             ExtendsContentIntoTitleBar = true;
@@ -71,35 +74,6 @@ internal sealed partial class MainWindow : WindowBase
                 WindowIcon.Opacity = 0.25;
             }
         };
-    }
-
-
-
-    // used for launch activation and new window commands
-    public MainWindow(WindowState windowState, RectInt32 bounds, StorageFile? storageFile = null) : this(windowState, bounds)
-    {
-        if (storageFile is null)
-        {
-            AddTab(new PuzzleTabViewItem(this));
-        }
-        else
-        {
-            AddTab(new PuzzleTabViewItem(this, storageFile));
-        }
-    }
-
-
-    // used when a tab is dragged and dropped outside of its parent window
-    public MainWindow(TabViewItem existingTab, RectInt32 bounds) : this(WindowState.Normal, bounds)
-    {
-        if (existingTab is PuzzleTabViewItem existingPuzzleTab)
-        {
-            AddTab(new PuzzleTabViewItem(this, existingPuzzleTab));
-        }
-        else if (existingTab is SettingsTabViewItem existingSettingsTab)
-        {
-            AddTab(new SettingsTabViewItem(this, existingSettingsTab));
-        }
     }
 
     private async Task HandleWindowCloseRequested()
@@ -277,7 +251,18 @@ internal sealed partial class MainWindow : WindowBase
         RectInt32 bounds = new RectInt32(p.X, p.Y, RestoreBounds.Width, RestoreBounds.Height);
 
         CloseTab(args.Tab);
-        MainWindow window = new MainWindow(args.Tab, bounds);
+
+        MainWindow window = new MainWindow(WindowState.Normal, bounds);
+
+        if (args.Tab is PuzzleTabViewItem puzzleTab)
+        {
+            window.AddTab(new PuzzleTabViewItem(window, puzzleTab));
+        }
+        else if (args.Tab is SettingsTabViewItem settingsTab)
+        {
+            window.AddTab(new SettingsTabViewItem(window, settingsTab));
+        }
+
         window.AttemptSwitchToForeground();
     }
 
