@@ -51,13 +51,15 @@ public partial class App : Application
         {
             string[] commandLine = Environment.GetCommandLineArgs();
 
-            bool windowCreated = await ProcessCommandLine(commandLine);
+            await ProcessCommandLine(commandLine);
 
-            if (!windowCreated)
+            if (currentWindow is null)
             {
-                MainWindow window = new MainWindow(Settings.Data.WindowState, Settings.Data.RestoreBounds);
-                window.AttemptSwitchToForeground();
+                currentWindow = new MainWindow(Settings.Data.WindowState, Settings.Data.RestoreBounds);
+                currentWindow.AddTab(new PuzzleTabViewItem(currentWindow));
             }
+
+            currentWindow.AttemptSwitchToForeground();
         }
     }
 
@@ -93,15 +95,8 @@ public partial class App : Application
             {
                 if (storageItem is StorageFile storageFile)
                 {
-                    if (currentWindow is null)
-                    {
-                        currentWindow = new MainWindow(Settings.Data.WindowState, Settings.Data.RestoreBounds, storageFile);
-                    }
-                    else
-                    {
-                        TabViewItem newTab = new PuzzleTabViewItem(currentWindow, storageFile);
-                        currentWindow.AddTab(newTab);
-                    }
+                    currentWindow ??= new MainWindow(Settings.Data.WindowState, Settings.Data.RestoreBounds);
+                    currentWindow.AddTab(new PuzzleTabViewItem(currentWindow, storageFile));
                 }
             }
 
@@ -116,19 +111,14 @@ public partial class App : Application
         {
             List<string> commandLine = SplitLaunchActivationCommandLine(launchData.Arguments);
 
-            bool windowCreated = await ProcessCommandLine(commandLine);
+            await ProcessCommandLine(commandLine);
 
-            if (!windowCreated)
-            {
-                currentWindow?.AttemptSwitchToForeground();
-            }
+            currentWindow?.AttemptSwitchToForeground();
         }
     }
 
-    private async Task<bool> ProcessCommandLine(IReadOnlyList<string> args)
+    private async Task ProcessCommandLine(IReadOnlyList<string> args)
     {
-        bool actioned = false;
-
         // args[0] is typically the path to the executing assembly
         for (int index = 1; index < args.Count; index++)
         {
@@ -138,22 +128,10 @@ public partial class App : Application
             {
                 StorageFile storageFile = await StorageFile.GetFileFromPathAsync(arg);
 
-                if (currentWindow is null)
-                {
-                    currentWindow = new MainWindow(Settings.Data.WindowState, Settings.Data.RestoreBounds, storageFile);
-                }
-                else
-                {
-                    TabViewItem newTab = new PuzzleTabViewItem(currentWindow, storageFile);
-                    currentWindow.AddTab(newTab);
-                }
-
-                actioned = true;
-                currentWindow?.AttemptSwitchToForeground();
+                currentWindow ??= new MainWindow(Settings.Data.WindowState, Settings.Data.RestoreBounds);
+                currentWindow.AddTab(new PuzzleTabViewItem(currentWindow, storageFile));
             }
         }
-
-        return actioned;
     }
 
     internal MainWindow? GetWindowForElement(UIElement element)
