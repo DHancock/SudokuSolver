@@ -510,6 +510,12 @@ internal abstract class WindowBase : Window
                     continue;
                 }
 
+                case ScrollViewer scrollViewer:
+                {
+                    scrollViewer.ViewChanged += ScrollViewer_ViewChanged;
+                    break;
+                }
+
                 default: break;
             }
 
@@ -523,6 +529,7 @@ internal abstract class WindowBase : Window
         void Picker_FlyoutClosed(SimpleColorPicker sender, bool args) => SetWindowDragRegionsInternal();
         void MenuFlyout_Opened(object? sender, object e) => ClearWindowDragRegions();
         void MenuFlyout_Closed(object? sender, object e) => SetWindowDragRegionsInternal();
+        void ScrollViewer_ViewChanged(object? sender, ScrollViewerViewChangedEventArgs e) => SetWindowDragRegions();
     }
 
     private DispatcherTimer InitialiseDragRegionTimer()
