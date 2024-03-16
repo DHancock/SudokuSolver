@@ -46,6 +46,10 @@ internal sealed partial class MainWindow : WindowBase
             await HandleWindowCloseRequested();
         };
 
+        // these two are used in the iconic window displayed when hovering over the app's icon in the task bar
+        AppWindow.Title = App.cDisplayName;
+        AppWindow.SetIcon("Resources\\app.ico");
+
         AppWindow.MoveAndResize(App.Instance.GetNewWindowPosition(this, bounds));
 
         // setting the presenter will also activate the window

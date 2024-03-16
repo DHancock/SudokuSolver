@@ -362,13 +362,15 @@ internal abstract class WindowBase : Window
         }
     }
 
-    private void LocatePassThroughContent(List<RectInt32> rects, UIElement item)
+    private record class ScrollViewerBounds(in Point Offset, in Vector2 Size)
     {
-        static Point GetOffsetFromXamlRoot(UIElement e)
-        {
-            GeneralTransform gt = e.TransformToVisual(null);
-            return gt.TransformPoint(new Point(0, 0));
-        }
+        public double Top => Offset.Y;
+    }
+
+
+    private void LocatePassThroughContent(List<RectInt32> rects, UIElement item, ScrollViewerBounds? bounds = null)
+    {
+        ScrollViewerBounds? parentBounds = bounds;
 
         foreach (UIElement child in LogicalTreeHelper.GetChildren(item))
         {
@@ -387,9 +389,21 @@ internal abstract class WindowBase : Window
                 case CommandBar:
                 case ScrollBar:
                 case TextBlock tb when tb.Inlines.Any(x => x is Hyperlink):
-                case ScrollViewer sv when (sv.ComputedVerticalScrollBarVisibility == Visibility.Visible):
                 {
-                    rects.Add(ScaledRect(GetOffsetFromXamlRoot(child), child.ActualSize, scaleFactor));
+                    Point offset = GetOffsetFromXamlRoot(child);
+                    Vector2 actualSize = child.ActualSize;
+
+                    if ((parentBounds is not null) && (offset.Y < parentBounds.Top)) // top clip (for vertical scroll bars) 
+                    {
+                        actualSize.Y -= (float)(parentBounds.Top - offset.Y);
+
+                        if (actualSize.Y < 0.0)
+                            continue;
+
+                        offset.Y = parentBounds.Top;
+                    }
+
+                    rects.Add(ScaledRect(offset, actualSize, scaleFactor));
                     continue;
                 }
 
@@ -415,10 +429,36 @@ internal abstract class WindowBase : Window
                     continue;
                 }
 
+                case ScrollViewer:
+                {
+                    // nested scroll viewers is not supported
+                    bounds = new ScrollViewerBounds(GetOffsetFromXamlRoot(child), child.ActualSize);
+
+                    if (((ScrollViewer)child).ComputedVerticalScrollBarVisibility == Visibility.Visible)
+                    {
+                        ScrollBar? vScrollBar = child.FindChild<ScrollBar>();
+
+                        if (vScrollBar is not null)
+                        {
+                            Debug.Assert(vScrollBar.Name.Equals("VerticalScrollBar"));
+                            rects.Add(ScaledRect(GetOffsetFromXamlRoot(vScrollBar), vScrollBar.ActualSize, scaleFactor));
+                        }
+                    }
+
+                    break;
+                }
+
+
                 default: break;
             }
 
-            LocatePassThroughContent(rects, child);
+            LocatePassThroughContent(rects, child, bounds);
+        }
+
+        static Point GetOffsetFromXamlRoot(UIElement e)
+        {
+            GeneralTransform gt = e.TransformToVisual(null);
+            return gt.TransformPoint(new Point(0, 0));
         }
     }
 
