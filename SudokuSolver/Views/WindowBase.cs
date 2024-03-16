@@ -334,9 +334,9 @@ internal abstract class WindowBase : Window
 
     protected void SetWindowDragRegionsInternal()
     {
-        cancelDragRegionTimerEvent = false;
+        const int cInitialCapacity = 7;
 
-        const int cInitialCapacity = 6;
+        cancelDragRegionTimerEvent = false;
 
         try
         {
