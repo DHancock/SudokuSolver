@@ -63,8 +63,8 @@ internal abstract class WindowBase : Window
 
         scaleFactor = IntialiseScaleFactor();
 
-        scaledMinWidth = (int)(cMinWidth * scaleFactor);
-        scaledMinHeight = (int)(cMinHeight * scaleFactor);
+        scaledMinWidth = ConvertToDeviceSize(cMinWidth, scaleFactor);
+        scaledMinHeight = ConvertToDeviceSize(cMinHeight, scaleFactor);
     }
 
     private void AppWindow_Changed(AppWindow sender, AppWindowChangedEventArgs args)
@@ -110,8 +110,8 @@ internal abstract class WindowBase : Window
             case PInvoke.WM_DPICHANGED:
             {
                 scaleFactor = (wParam & 0xFFFF) / 96.0;
-                scaledMinWidth = (int)(cMinWidth * scaleFactor);
-                scaledMinHeight = (int)(cMinHeight * scaleFactor);
+                scaledMinWidth = ConvertToDeviceSize(cMinWidth, scaleFactor);
+                scaledMinHeight = ConvertToDeviceSize(cMinHeight, scaleFactor);
                 break;
             }
 
@@ -306,7 +306,7 @@ internal abstract class WindowBase : Window
         get => new RectInt32(restorePosition.X, restorePosition.Y, restoreSize.Width, restoreSize.Height);
     }
 
-    public static int ConvertToDeviceSize(double value, double scaleFactor) => Convert.ToInt32(Math.Clamp(value * scaleFactor, 0, short.MaxValue));
+    public static int ConvertToDeviceSize(double value, double scaleFactor) => Convert.ToInt32(value * scaleFactor);
 
     private double IntialiseScaleFactor()
     {
@@ -334,9 +334,9 @@ internal abstract class WindowBase : Window
 
     protected void SetWindowDragRegionsInternal()
     {
-        cancelDragRegionTimerEvent = false;
+        const int cInitialCapacity = 7;
 
-        const int cInitialCapacity = 6;
+        cancelDragRegionTimerEvent = false;
 
         try
         {
@@ -510,6 +510,12 @@ internal abstract class WindowBase : Window
                     continue;
                 }
 
+                case ScrollViewer scrollViewer:
+                {
+                    scrollViewer.ViewChanged += ScrollViewer_ViewChanged;
+                    break;
+                }
+
                 default: break;
             }
 
@@ -523,6 +529,7 @@ internal abstract class WindowBase : Window
         void Picker_FlyoutClosed(SimpleColorPicker sender, bool args) => SetWindowDragRegionsInternal();
         void MenuFlyout_Opened(object? sender, object e) => ClearWindowDragRegions();
         void MenuFlyout_Closed(object? sender, object e) => SetWindowDragRegionsInternal();
+        void ScrollViewer_ViewChanged(object? sender, ScrollViewerViewChangedEventArgs e) => SetWindowDragRegions();
     }
 
     private DispatcherTimer InitialiseDragRegionTimer()
