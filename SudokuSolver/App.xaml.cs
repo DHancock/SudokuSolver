@@ -192,9 +192,8 @@ public partial class App : Application
 
     private static RectInt32 CenterInPrimaryDisplay(WindowBase window)
     {
-        double scaleFactor = window.GetScaleFactor();
-        int width = WindowBase.ConvertToDeviceSize(window.InitialWidth, scaleFactor);
-        int height = WindowBase.ConvertToDeviceSize(window.InitialHeight, scaleFactor);
+        int width = window.ConvertToDeviceSize(window.InitialWidth);
+        int height = window.ConvertToDeviceSize(window.InitialHeight);
 
         RectInt32 windowArea;
         RectInt32 workArea = DisplayArea.Primary.WorkArea;
@@ -223,22 +222,18 @@ public partial class App : Application
 
         while ((index < windowList.Count) && (resetCount < windowList.Count))
         {
-            WindowBase existingWindow = windowList[index++];
+            MainWindow window = windowList[index++];
 
-            if (existingWindow is MainWindow)
+            PointInt32 existingPos = window.RestoreBounds.TopLeft();
+            int clientTitleBarHeight = window.ConvertToDeviceSize(cTitleBarHeight);
+
+            newPos = AdjustWindowBoundsForDisplay(new RectInt32(newPos.X, newPos.Y, bounds.Width, bounds.Height)).TopLeft();
+
+            if (TitleBarOverlaps(existingPos, newPos, clientTitleBarHeight))
             {
-                PointInt32 existingPos = existingWindow.RestoreBounds.TopLeft();
-                double scaleFactor = existingWindow.GetScaleFactor();
-                int clientTitleBarHeight = WindowBase.ConvertToDeviceSize(cTitleBarHeight, scaleFactor);
-
-                newPos = AdjustWindowBoundsForDisplay(new RectInt32(newPos.X, newPos.Y, bounds.Width, bounds.Height)).TopLeft();
-
-                if (TitleBarOverlaps(existingPos, newPos, clientTitleBarHeight))
-                {
-                    newPos = existingPos.Offset(clientTitleBarHeight + 1);
-                    index = 0;
-                    ++resetCount;  // avoid an infinate loop if the position cannot be adjusted due to display limits
-                }
+                newPos = existingPos.Offset(clientTitleBarHeight + 1);
+                index = 0;
+                ++resetCount;  // avoid an infinate loop if the position cannot be adjusted due to display limits
             }
         }
 

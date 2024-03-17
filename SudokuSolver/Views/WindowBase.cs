@@ -62,9 +62,8 @@ internal abstract class WindowBase : Window
         Activated += App.Instance.RecordWindowActivated;
 
         scaleFactor = IntialiseScaleFactor();
-
-        scaledMinWidth = ConvertToDeviceSize(cMinWidth, scaleFactor);
-        scaledMinHeight = ConvertToDeviceSize(cMinHeight, scaleFactor);
+        scaledMinWidth = ConvertToDeviceSize(cMinWidth);
+        scaledMinHeight = ConvertToDeviceSize(cMinHeight);
     }
 
     private void AppWindow_Changed(AppWindow sender, AppWindowChangedEventArgs args)
@@ -110,8 +109,8 @@ internal abstract class WindowBase : Window
             case PInvoke.WM_DPICHANGED:
             {
                 scaleFactor = (wParam & 0xFFFF) / 96.0;
-                scaledMinWidth = ConvertToDeviceSize(cMinWidth, scaleFactor);
-                scaledMinHeight = ConvertToDeviceSize(cMinHeight, scaleFactor);
+                scaledMinWidth = ConvertToDeviceSize(cMinWidth);
+                scaledMinHeight = ConvertToDeviceSize(cMinHeight);
                 break;
             }
 
@@ -306,7 +305,11 @@ internal abstract class WindowBase : Window
         get => new RectInt32(restorePosition.X, restorePosition.Y, restoreSize.Width, restoreSize.Height);
     }
 
-    public static int ConvertToDeviceSize(double value, double scaleFactor) => Convert.ToInt32(value * scaleFactor);
+    public int ConvertToDeviceSize(double value)
+    {
+        Debug.Assert(scaleFactor > 0);
+        return Convert.ToInt32(value * scaleFactor);
+    }
 
     private double IntialiseScaleFactor()
     {
