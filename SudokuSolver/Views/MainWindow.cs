@@ -5,7 +5,7 @@ namespace SudokuSolver.Views;
 
 public enum WindowState { Normal, Minimized, Maximized }
 
-internal abstract class WindowBase : Window
+internal partial class MainWindow : Window
 {
     private enum SC
     {
@@ -21,8 +21,8 @@ internal abstract class WindowBase : Window
     private const double cMinWidth = 410;
     private const double cMinHeight = 480;
 
-    public double InitialWidth { get; set; }
-    public double InitialHeight { get; set; }
+    public double InitialWidth { get; } = 563;
+    public double InitialHeight { get; } = 614;
     public IntPtr WindowPtr { get; }
 
     private RelayCommand? restoreCommand;
@@ -43,8 +43,10 @@ internal abstract class WindowBase : Window
     private int scaledMinHeight;
     private double scaleFactor;
 
-    public WindowBase()
+    public MainWindow()
     {
+        InitializeComponent();
+
         WindowPtr = WindowNative.GetWindowHandle(this);
 
         subClassDelegate = new SUBCLASSPROC(NewSubWindowProc);
@@ -62,9 +64,8 @@ internal abstract class WindowBase : Window
         Activated += App.Instance.RecordWindowActivated;
 
         scaleFactor = IntialiseScaleFactor();
-
-        scaledMinWidth = ConvertToDeviceSize(cMinWidth, scaleFactor);
-        scaledMinHeight = ConvertToDeviceSize(cMinHeight, scaleFactor);
+        scaledMinWidth = ConvertToDeviceSize(cMinWidth);
+        scaledMinHeight = ConvertToDeviceSize(cMinHeight);
     }
 
     private void AppWindow_Changed(AppWindow sender, AppWindowChangedEventArgs args)
@@ -110,8 +111,8 @@ internal abstract class WindowBase : Window
             case PInvoke.WM_DPICHANGED:
             {
                 scaleFactor = (wParam & 0xFFFF) / 96.0;
-                scaledMinWidth = ConvertToDeviceSize(cMinWidth, scaleFactor);
-                scaledMinHeight = ConvertToDeviceSize(cMinHeight, scaleFactor);
+                scaledMinWidth = ConvertToDeviceSize(cMinWidth);
+                scaledMinHeight = ConvertToDeviceSize(cMinHeight);
                 break;
             }
 
@@ -214,7 +215,7 @@ internal abstract class WindowBase : Window
         menuFlyout.Items.Add(new MenuFlyoutItem() { Text = "Maximize", Command = maximizeCommand, Padding = narrow, AccessKey = "X" });
         menuFlyout.Items.Add(new MenuFlyoutSeparator());
 
-        MenuFlyoutItem closeItem = new MenuFlyoutItem() { Text = "Close", Command = closeCommand, Padding = narrow, AccessKey = "C" };
+        MenuFlyoutItem closeItem = new MenuFlyoutItem() { Text = "Close window", Command = closeCommand, Padding = narrow, AccessKey = "C" };
         // the accelerator is disabled to avoid two close messages (the original system menu still exists)
         closeItem.KeyboardAccelerators.Add(new() { Modifiers = VirtualKeyModifiers.Menu, Key = VirtualKey.F4, IsEnabled = false });
         menuFlyout.Items.Add(closeItem);
@@ -306,7 +307,11 @@ internal abstract class WindowBase : Window
         get => new RectInt32(restorePosition.X, restorePosition.Y, restoreSize.Width, restoreSize.Height);
     }
 
-    public static int ConvertToDeviceSize(double value, double scaleFactor) => Convert.ToInt32(value * scaleFactor);
+    public int ConvertToDeviceSize(double value)
+    {
+        Debug.Assert(scaleFactor > 0);
+        return Convert.ToInt32(value * scaleFactor);
+    }
 
     private double IntialiseScaleFactor()
     {
@@ -316,7 +321,7 @@ internal abstract class WindowBase : Window
 
     public double GetScaleFactor() => scaleFactor;
 
-    protected void ClearWindowDragRegions()
+    private void ClearWindowDragRegions()
     {
         // Guard against race hazards. If a tab is selected using right click a size changed event is generated
         // and the timer started. The drag regions will be cleared when the context menu is opened, followed
@@ -332,7 +337,7 @@ internal abstract class WindowBase : Window
         }
     }
 
-    protected void SetWindowDragRegionsInternal()
+    private void SetWindowDragRegionsInternal()
     {
         const int cInitialCapacity = 7;
 
@@ -470,7 +475,7 @@ internal abstract class WindowBase : Window
                              Convert.ToInt32(size.Y * scale));
     }
 
-    protected void AddDragRegionEventHandlers(UIElement item)
+    private void AddDragRegionEventHandlers(UIElement item)
     {
         if (item.ContextFlyout is MenuFlyout menuFlyout)  // menu flyouts are not UIElements
         {
@@ -540,7 +545,7 @@ internal abstract class WindowBase : Window
         return dt;
     }
 
-    protected void SetWindowDragRegions()
+    private void SetWindowDragRegions()
     {
         // defer setting the drag regions while still resizing the window or scrolling
         // it's content. If the timer is already running, this resets the interval.
