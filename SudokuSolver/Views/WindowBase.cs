@@ -213,7 +213,7 @@ internal abstract class WindowBase : Window
         menuFlyout.Items.Add(new MenuFlyoutItem() { Text = "Maximize", Command = maximizeCommand, Padding = narrow, AccessKey = "X" });
         menuFlyout.Items.Add(new MenuFlyoutSeparator());
 
-        MenuFlyoutItem closeItem = new MenuFlyoutItem() { Text = "Close", Command = closeCommand, Padding = narrow, AccessKey = "C" };
+        MenuFlyoutItem closeItem = new MenuFlyoutItem() { Text = "Close window", Command = closeCommand, Padding = narrow, AccessKey = "C" };
         // the accelerator is disabled to avoid two close messages (the original system menu still exists)
         closeItem.KeyboardAccelerators.Add(new() { Modifiers = VirtualKeyModifiers.Menu, Key = VirtualKey.F4, IsEnabled = false });
         menuFlyout.Items.Add(closeItem);
