@@ -5,7 +5,7 @@ namespace SudokuSolver.Views;
 
 public enum WindowState { Normal, Minimized, Maximized }
 
-internal abstract class WindowBase : Window
+internal partial class MainWindow : Window
 {
     private enum SC
     {
@@ -21,8 +21,8 @@ internal abstract class WindowBase : Window
     private const double cMinWidth = 410;
     private const double cMinHeight = 480;
 
-    public double InitialWidth { get; set; }
-    public double InitialHeight { get; set; }
+    public double InitialWidth { get; } = 563;
+    public double InitialHeight { get; } = 614;
     public IntPtr WindowPtr { get; }
 
     private RelayCommand? restoreCommand;
@@ -43,8 +43,10 @@ internal abstract class WindowBase : Window
     private int scaledMinHeight;
     private double scaleFactor;
 
-    public WindowBase()
+    public MainWindow()
     {
+        InitializeComponent();
+
         WindowPtr = WindowNative.GetWindowHandle(this);
 
         subClassDelegate = new SUBCLASSPROC(NewSubWindowProc);
@@ -319,7 +321,7 @@ internal abstract class WindowBase : Window
 
     public double GetScaleFactor() => scaleFactor;
 
-    protected void ClearWindowDragRegions()
+    private void ClearWindowDragRegions()
     {
         // Guard against race hazards. If a tab is selected using right click a size changed event is generated
         // and the timer started. The drag regions will be cleared when the context menu is opened, followed
@@ -335,7 +337,7 @@ internal abstract class WindowBase : Window
         }
     }
 
-    protected void SetWindowDragRegionsInternal()
+    private void SetWindowDragRegionsInternal()
     {
         const int cInitialCapacity = 7;
 
@@ -473,7 +475,7 @@ internal abstract class WindowBase : Window
                              Convert.ToInt32(size.Y * scale));
     }
 
-    protected void AddDragRegionEventHandlers(UIElement item)
+    private void AddDragRegionEventHandlers(UIElement item)
     {
         if (item.ContextFlyout is MenuFlyout menuFlyout)  // menu flyouts are not UIElements
         {
@@ -543,7 +545,7 @@ internal abstract class WindowBase : Window
         return dt;
     }
 
-    protected void SetWindowDragRegions()
+    private void SetWindowDragRegions()
     {
         // defer setting the drag regions while still resizing the window or scrolling
         // it's content. If the timer is already running, this resets the interval.

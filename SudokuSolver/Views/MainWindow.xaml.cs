@@ -9,7 +9,7 @@ namespace SudokuSolver.Views;
 /// <summary>
 /// Interaction logic for MainWindow.xaml
 /// </summary>
-internal sealed partial class MainWindow : WindowBase
+internal sealed partial class MainWindow : Window
 {
     private const string cDataIdentifier = App.cDisplayName;
     private const string cProcessId = "pId";
@@ -17,10 +17,6 @@ internal sealed partial class MainWindow : WindowBase
     private bool processingClose = false;
     private PrintHelper? printHelper;
 
-    private MainWindow()
-    {
-        InitializeComponent();
-    }
 
     public MainWindow(WindowState windowState, RectInt32 bounds) : this()
     {

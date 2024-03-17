@@ -174,7 +174,7 @@ public partial class App : Application
 
     public void AttemptCloseAllWindows()
     {
-        foreach (WindowBase window in windowList)
+        foreach (MainWindow window in windowList)
         {
             window.PostCloseMessage();
         }
@@ -190,7 +190,7 @@ public partial class App : Application
         return GetNewWindowPosition(restoreBounds);
     }
 
-    private static RectInt32 CenterInPrimaryDisplay(WindowBase window)
+    private static RectInt32 CenterInPrimaryDisplay(MainWindow window)
     {
         int width = window.ConvertToDeviceSize(window.InitialWidth);
         int height = window.ConvertToDeviceSize(window.InitialHeight);
