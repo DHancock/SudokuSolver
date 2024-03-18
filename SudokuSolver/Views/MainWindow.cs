@@ -82,10 +82,6 @@ internal partial class MainWindow : Window
                 restoreSize = AppWindow.Size;
             }
         }
-        else if (args.DidPresenterChange)
-        {
-            UpdateSystemMenuItemsEnabledState();
-        }
     }
 
 
@@ -226,18 +222,6 @@ internal partial class MainWindow : Window
         menuFlyout.Items.Add(closeWindowItem);
 
         return menuFlyout;
-    }
-
-    private void UpdateSystemMenuItemsEnabledState()
-    {
-        if (systemMenu is not null)
-        {
-            restoreCommand?.RaiseCanExecuteChanged();
-            moveCommand?.RaiseCanExecuteChanged();
-            sizeCommand?.RaiseCanExecuteChanged();
-            minimizeCommand?.RaiseCanExecuteChanged();
-            maximizeCommand?.RaiseCanExecuteChanged();
-        }
     }
 
     public void PostCloseMessage() => PostSysCommandMessage(SC.CLOSE);

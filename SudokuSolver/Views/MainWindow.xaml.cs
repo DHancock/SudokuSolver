@@ -384,7 +384,6 @@ internal sealed partial class MainWindow : Window
         if (e.AddedItems.Count == 1)
         {
             ((ITabItem)e.AddedItems[0]).AdjustKeyboardAccelerators(enable: true);
-            ((ITabItem)e.AddedItems[0]).UpdateContextMenuItemsEnabledState();
 
             if (e.AddedItems[0] is SettingsTabViewItem)
             {

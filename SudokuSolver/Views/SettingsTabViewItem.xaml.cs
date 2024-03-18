@@ -160,11 +160,4 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem
     {
         await parentWindow.ExecuteCloseRightTabs();
     }
-
-    public void UpdateContextMenuItemsEnabledState()
-    {
-        CloseOtherTabsCommand.RaiseCanExecuteChanged();
-        CloseLeftTabsCommand.RaiseCanExecuteChanged();
-        CloseRightTabsCommand.RaiseCanExecuteChanged();
-    }
 }

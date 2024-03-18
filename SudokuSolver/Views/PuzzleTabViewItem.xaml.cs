@@ -440,11 +440,4 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
     {
         await parentWindow.ExecuteCloseRightTabs();
     }
-
-    public void UpdateContextMenuItemsEnabledState()
-    {
-        CloseOtherTabsCommand.RaiseCanExecuteChanged();
-        CloseLeftTabsCommand.RaiseCanExecuteChanged();
-        CloseRightTabsCommand.RaiseCanExecuteChanged();
-    }
 }
