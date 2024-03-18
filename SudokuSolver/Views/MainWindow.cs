@@ -216,7 +216,7 @@ internal partial class MainWindow : Window
         menuFlyout.Items.Add(new MenuFlyoutSeparator());
 
         MenuFlyoutItem closeTabItem = new MenuFlyoutItem() { Text = "Close tab", Command = closeTabCommand, Padding = narrow, AccessKey = "W" };
-        // the accelerator is disabled to avoid two close messages (the original system menu still exists)
+        // the accelerator is disabled to avoid two close messages (from either the puzzle tabs file menu or the settings tab context menu )
         closeTabItem.KeyboardAccelerators.Add(new() { Modifiers = VirtualKeyModifiers.Control, Key = VirtualKey.W, IsEnabled = false });
         menuFlyout.Items.Add(closeTabItem);
 
@@ -560,7 +560,7 @@ internal partial class MainWindow : Window
     private DispatcherTimer InitialiseDragRegionTimer()
     {
         DispatcherTimer dt = new DispatcherTimer();
-        dt.Interval = TimeSpan.FromMilliseconds(125);
+        dt.Interval = TimeSpan.FromMilliseconds(50);
         dt.Tick += DispatcherTimer_Tick;
         return dt;
     }
