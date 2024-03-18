@@ -17,7 +17,6 @@ internal partial class MainWindow : Window
         CLOSE = 0xF060,
     }
 
-
     private const double cMinWidth = 410;
     private const double cMinHeight = 480;
 
@@ -30,7 +29,8 @@ internal partial class MainWindow : Window
     private RelayCommand? sizeCommand;
     private RelayCommand? minimizeCommand;
     private RelayCommand? maximizeCommand;
-    private RelayCommand? closeCommand;
+    private RelayCommand? closeTabCommand;
+    private RelayCommand? closeWindowCommand;
 
     private readonly InputNonClientPointerSource inputNonClientPointerSource;
     private readonly SUBCLASSPROC subClassDelegate;
@@ -196,7 +196,8 @@ internal partial class MainWindow : Window
         sizeCommand = new RelayCommand(o => PostSysCommandMessage(SC.SIZE), CanSize);
         minimizeCommand = new RelayCommand(o => PostSysCommandMessage(SC.MINIMIZE), CanMinimize);
         maximizeCommand = new RelayCommand(o => PostSysCommandMessage(SC.MAXIMIZE), CanMaximize);
-        closeCommand = new RelayCommand(o => PostSysCommandMessage(SC.CLOSE));
+        closeTabCommand = new RelayCommand(ExecuteCloseTab, CanCloseTab);
+        closeWindowCommand = new RelayCommand(o => PostSysCommandMessage(SC.CLOSE));
 
         MenuFlyout menuFlyout = new MenuFlyout()
         {
@@ -215,10 +216,15 @@ internal partial class MainWindow : Window
         menuFlyout.Items.Add(new MenuFlyoutItem() { Text = "Maximize", Command = maximizeCommand, Padding = narrow, AccessKey = "X" });
         menuFlyout.Items.Add(new MenuFlyoutSeparator());
 
-        MenuFlyoutItem closeItem = new MenuFlyoutItem() { Text = "Close window", Command = closeCommand, Padding = narrow, AccessKey = "C" };
+        MenuFlyoutItem closeTabItem = new MenuFlyoutItem() { Text = "Close tab", Command = closeTabCommand, Padding = narrow, AccessKey = "W" };
         // the accelerator is disabled to avoid two close messages (the original system menu still exists)
-        closeItem.KeyboardAccelerators.Add(new() { Modifiers = VirtualKeyModifiers.Menu, Key = VirtualKey.F4, IsEnabled = false });
-        menuFlyout.Items.Add(closeItem);
+        closeTabItem.KeyboardAccelerators.Add(new() { Modifiers = VirtualKeyModifiers.Control, Key = VirtualKey.W, IsEnabled = false });
+        menuFlyout.Items.Add(closeTabItem);
+
+        MenuFlyoutItem closeWindowItem = new MenuFlyoutItem() { Text = "Close window", Command = closeWindowCommand, Padding = narrow, AccessKey = "C" };
+        // the accelerator is disabled to avoid two close messages (the original system menu still exists)
+        closeWindowItem.KeyboardAccelerators.Add(new() { Modifiers = VirtualKeyModifiers.Menu, Key = VirtualKey.F4, IsEnabled = false });
+        menuFlyout.Items.Add(closeWindowItem);
 
         return menuFlyout;
     }
@@ -265,6 +271,21 @@ internal partial class MainWindow : Window
     private bool CanMaximize(object? param)
     {
         return (AppWindow.Presenter is OverlappedPresenter op) && op.IsMaximizable && (op.State != OverlappedPresenterState.Maximized);
+    }
+
+    private bool CanCloseTab(object? param)
+    {
+        return !IsContentDialogOpen();
+    }
+
+    private async void ExecuteCloseTab(object? param)
+    {
+        if (CanCloseTab(param))
+        {
+            List<object> tabs = new List<object>();
+            tabs.Add(Tabs.SelectedItem);
+            await AttemptToCloseTabs(tabs);
+        }
     }
 
     public WindowState WindowState

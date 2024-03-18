@@ -132,7 +132,7 @@
 
     <TabViewItem.ContextFlyout>
         <MenuFlyout>
-            <MenuFlyoutItem Text="New tab" Click="NewTabClickHandler">
+            <MenuFlyoutItem Text="New tab" Click="NewTabClickHandler" AccessKey="N">
                 <MenuFlyoutItem.KeyboardAccelerators>
                     <KeyboardAccelerator Modifiers="Control" Key="N" IsEnabled="False"/>
                 </MenuFlyoutItem.KeyboardAccelerators>
@@ -140,15 +140,15 @@
 
             <MenuFlyoutSeparator/>
 
-            <MenuFlyoutItem Text="Close tab" Click="CloseTabClickHandler">
+            <MenuFlyoutItem Text="Close tab" Click="CloseTabClickHandler" AccessKey="C">
                 <MenuFlyoutItem.KeyboardAccelerators>
                     <KeyboardAccelerator Modifiers="Control" Key="W" IsEnabled="False"/>
                 </MenuFlyoutItem.KeyboardAccelerators>
             </MenuFlyoutItem>
 
-            <MenuFlyoutItem Text="Close other tabs" Command="{x:Bind CloseOtherTabsCommand}"/>
-            <MenuFlyoutItem Text="Close tabs to the left" Command="{x:Bind CloseLeftTabsCommand}"/>
-            <MenuFlyoutItem Text="Close tabs to the right" Command="{x:Bind CloseRightTabsCommand}"/>
+            <MenuFlyoutItem Text="Close other tabs" Command="{x:Bind CloseOtherTabsCommand}" AccessKey="O"/>
+            <MenuFlyoutItem Text="Close tabs to the left" Command="{x:Bind CloseLeftTabsCommand}" AccessKey="L"/>
+            <MenuFlyoutItem Text="Close tabs to the right" Command="{x:Bind CloseRightTabsCommand}" AccessKey="R"/>
         </MenuFlyout>
     </TabViewItem.ContextFlyout>
 </TabViewItem>
