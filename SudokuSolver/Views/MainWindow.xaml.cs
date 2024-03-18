@@ -76,15 +76,7 @@ internal sealed partial class MainWindow : Window
 
     public bool IsContentDialogOpen()
     {
-        foreach (Popup popUp in VisualTreeHelper.GetOpenPopupsForXamlRoot(Content.XamlRoot))
-        {
-            if (popUp.IsOpen && (popUp.Child is ContentDialog))
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return VisualTreeHelper.GetOpenPopupsForXamlRoot(Content.XamlRoot).Any(x => x.Child is ContentDialog);
     }
 
     private async Task HandleWindowCloseRequested()
