@@ -19,9 +19,8 @@ internal partial class MainWindow : Window
 
     private const double cMinWidth = 410;
     private const double cMinHeight = 480;
-
-    public double InitialWidth { get; } = 563;
-    public double InitialHeight { get; } = 614;
+    public const double cInitialWidth = 563;
+    public const double cInitialHeight = 614;
     public IntPtr WindowPtr { get; }
 
     private RelayCommand? restoreCommand;
