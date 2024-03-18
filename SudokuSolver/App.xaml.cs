@@ -192,8 +192,8 @@ public partial class App : Application
 
     private static RectInt32 CenterInPrimaryDisplay(MainWindow window)
     {
-        int width = window.ConvertToDeviceSize(window.InitialWidth);
-        int height = window.ConvertToDeviceSize(window.InitialHeight);
+        int width = window.ConvertToDeviceSize(MainWindow.cInitialWidth);
+        int height = window.ConvertToDeviceSize(MainWindow.cInitialHeight);
 
         RectInt32 windowArea;
         RectInt32 workArea = DisplayArea.Primary.WorkArea;

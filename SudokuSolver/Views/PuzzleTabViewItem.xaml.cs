@@ -267,17 +267,10 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
 
     private async Task<Status> SaveExistingFirst()
     {
-        Status status = Status.Continue;
-        string path;
+        Debug.Assert(!parentWindow.IsContentDialogOpen());
 
-        if (sourceFile is null)
-        {
-            path = App.cNewPuzzleName;
-        }
-        else
-        {
-            path = sourceFile.Path;
-        }
+        Status status = Status.Continue;
+        string path = (sourceFile is null) ? App.cNewPuzzleName : sourceFile.Path;
 
         ContentDialogResult result = await new ConfirmSaveDialog(path, XamlRoot, LayoutRoot.ActualTheme).ShowAsync();
 
@@ -340,16 +333,8 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
         InitializeWithWindow.Initialize(savePicker, parentWindow.WindowPtr);
 
         savePicker.FileTypeChoices.Add("Sudoku files", new List<string>() { App.cFileExt });
-
-        if (sourceFile is null)
-        {
-            savePicker.SuggestedFileName = App.cNewPuzzleName;
-        }
-        else
-        {
-            savePicker.SuggestedFileName = sourceFile.Name;
-        }
-
+        savePicker.SuggestedFileName = (sourceFile is null) ? App.cNewPuzzleName : sourceFile.Name;
+      
         StorageFile file = await savePicker.PickSaveFileAsync();
 
         if (file is not null)
@@ -454,12 +439,5 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
     private async void ExecuteCloseRightTabs(object? param)
     {
         await parentWindow.ExecuteCloseRightTabs();
-    }
-
-    public void UpdateContextMenuItemsEnabledState()
-    {
-        CloseOtherTabsCommand.RaiseCanExecuteChanged();
-        CloseLeftTabsCommand.RaiseCanExecuteChanged();
-        CloseRightTabsCommand.RaiseCanExecuteChanged();
     }
 }

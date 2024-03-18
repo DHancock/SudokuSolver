@@ -14,9 +14,7 @@ internal sealed partial class MainWindow : Window
     private const string cDataIdentifier = App.cDisplayName;
     private const string cProcessId = "pId";
 
-    private bool processingClose = false;
     private PrintHelper? printHelper;
-
 
     public MainWindow(WindowState windowState, RectInt32 bounds) : this()
     {
@@ -73,12 +71,27 @@ internal sealed partial class MainWindow : Window
             {
                 WindowIcon.Opacity = 0.25;
             }
-        };
+        }; 
+    }
+
+    public bool IsContentDialogOpen()
+    {
+        foreach (Popup popUp in VisualTreeHelper.GetOpenPopupsForXamlRoot(Content.XamlRoot))
+        {
+            if (popUp.IsOpen && (popUp.Child is ContentDialog))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private async Task HandleWindowCloseRequested()
     {
-        if (processingClose)  // a second close attempt will always succeed
+        // closing tabs is reentrant if a tab is awaiting a "confirm save" content dialog.
+        // a second close attempt, via the window caption close button will always succeed
+        if (IsContentDialogOpen())  
         {
             Tabs.TabItems.Clear();
             return;
@@ -106,8 +119,6 @@ internal sealed partial class MainWindow : Window
 
     private async Task<bool> AttemptToCloseTabs(IList<object> tabs)
     {
-        processingClose = true;
-
         List<(TabViewItem tab, int index)> modifiedTabs = new();
         List<TabViewItem> unModifiedTabs = new();
 
@@ -144,7 +155,6 @@ internal sealed partial class MainWindow : Window
             }
             else
             {
-                processingClose = false;
                 puzzleTab.FocusLastSelectedCell();
                 return true;
             }
@@ -155,7 +165,6 @@ internal sealed partial class MainWindow : Window
             CloseTab(tab);
         }
 
-        processingClose = false;
         return false;
     }
 
@@ -375,7 +384,6 @@ internal sealed partial class MainWindow : Window
         if (e.AddedItems.Count == 1)
         {
             ((ITabItem)e.AddedItems[0]).AdjustKeyboardAccelerators(enable: true);
-            ((ITabItem)e.AddedItems[0]).UpdateContextMenuItemsEnabledState();
 
             if (e.AddedItems[0] is SettingsTabViewItem)
             {
