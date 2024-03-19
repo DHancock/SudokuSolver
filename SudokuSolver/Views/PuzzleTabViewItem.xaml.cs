@@ -14,8 +14,6 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
 
     private PuzzleViewModel? viewModel;
     private StorageFile? sourceFile;
-    private ErrorDialog? errorDialog;
-    private bool errorDialogOpen = false;
     private readonly MainWindow parentWindow;
 
     public PuzzleTabViewItem(MainWindow parent)
@@ -86,8 +84,14 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
         set
         {
             Debug.Assert(value is not null);
+
+            if (viewModel is not null)
+            {
+                viewModel.PropertyChanged -= ViewModel_PropertyChanged;
+            }
+
             viewModel = value;
-            value.PropertyChanged += ViewModel_PropertyChanged;
+            viewModel.PropertyChanged += ViewModel_PropertyChanged;
             Puzzle.ViewModel = value;
         }
     }
@@ -96,42 +100,17 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
 
     public void FocusLastSelectedCell()
     {
-        if (!errorDialogOpen)
+        if (!parentWindow.IsContentDialogOpen() && IsSelected && parentWindow.IsActive)
         {
             Puzzle.FocusLastSelectedCell();
         }
     }
 
-    public async Task<bool> HandleTabCloseRequested()
+    public async Task<bool> SaveTabContents()
     {
-        Status status = Status.Continue;
+        Debug.Assert(IsModified);
 
-        if (IsModified)
-        {
-            CloseMenuFlyouts();
-            errorDialog?.Hide();
-
-            status = await SaveExistingFirst();
-        }
-
-        if (status == Status.Cancelled)  // the save existing prompt was canceled
-        {
-            FocusLastSelectedCell();
-            return false;
-        }
-
-        return true;
-    }
-
-    private void CloseMenuFlyouts()
-    {
-        foreach (Popup popup in VisualTreeHelper.GetOpenPopupsForXamlRoot(this.XamlRoot))
-        {
-            if (popup.Child is MenuFlyoutPresenter)
-            {
-                popup.IsOpen = false;
-            }
-        }
+        return await SaveExistingFirst() != Status.Cancelled;
     }
 
     public void AdjustKeyboardAccelerators(bool enable)
@@ -218,13 +197,20 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
         }
         catch (Exception ex)
         {
-            await ShowErrorDialog("A printing error occurred.", ex.Message);
+            await new ErrorDialog("A printing error occurred.", ex.Message, XamlRoot, ActualTheme).ShowAsync();
         }
     }
 
     private async void CloseTabClickHandler(object sender, RoutedEventArgs e)
     {
-        if (await HandleTabCloseRequested())
+        if (IsModified)
+        {
+            if (await SaveTabContents())
+            {
+                parentWindow.CloseTab(this);
+            }
+        }
+        else
         {
             parentWindow.CloseTab(this);
         }
@@ -259,8 +245,8 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
         }
         catch (Exception ex)
         {
-            string heading = $"An error occurred when opening {file.Name}.";
-            await ShowErrorDialog(heading, ex.Message);
+            string heading = $"An error occurred when opening {file.Name}";
+            await new ErrorDialog(heading, ex.Message, XamlRoot, ActualTheme).ShowAsync();
         }
 
         return error;
@@ -315,8 +301,8 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
             }
             catch (Exception ex)
             {
-                string heading = $"An error occurred when saving {sourceFile.Name}.";
-                await ShowErrorDialog(heading, ex.Message);
+                string heading = $"An error occurred when saving {sourceFile.Name}";
+                await new ErrorDialog(heading, ex.Message, XamlRoot, ActualTheme).ShowAsync();
             }
         }
         else
@@ -335,7 +321,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
 
         savePicker.FileTypeChoices.Add("Sudoku files", new List<string>() { App.cFileExt });
         savePicker.SuggestedFileName = (sourceFile is null) ? App.cNewPuzzleName : sourceFile.Name;
-      
+
         StorageFile file = await savePicker.PickSaveFileAsync();
 
         if (file is not null)
@@ -349,31 +335,12 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
             }
             catch (Exception ex)
             {
-                string heading = $"An error occurred when saving {file.Name}.";
-                await ShowErrorDialog(heading, ex.Message);
+                string heading = $"An error occurred when saving {file.Name}";
+                await new ErrorDialog(heading, ex.Message, XamlRoot, ActualTheme).ShowAsync();
             }
         }
 
         return status;
-    }
-
-    private async Task ShowErrorDialog(string message, string details)
-    {
-        if (errorDialog is null)
-        {
-            errorDialog = new ErrorDialog(XamlRoot);
-            errorDialog.Closed += (s, e) =>
-            {
-                errorDialogOpen = false;
-                FocusLastSelectedCell();
-            };
-        }
-
-        errorDialogOpen = true;
-        errorDialog.RequestedTheme = LayoutRoot.ActualTheme;
-        errorDialog.Message = message;
-        errorDialog.Details = details;
-        await errorDialog.ShowAsync();
     }
 
     private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)

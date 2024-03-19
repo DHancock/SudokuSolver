@@ -206,7 +206,7 @@ public partial class App : Application
         return windowArea;
     }
 
-    internal RectInt32 GetNewWindowPosition(RectInt32 bounds)
+    private RectInt32 GetNewWindowPosition(RectInt32 bounds)
     {
         static bool TitleBarOverlaps(PointInt32 a, PointInt32 b, int titleBarHeight)
         {
