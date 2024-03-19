@@ -14,6 +14,8 @@ internal sealed partial class MainWindow : Window
     private const string cDataIdentifier = App.cDisplayName;
     private const string cProcessId = "pId";
 
+    public bool IsActive { get; private set; } = true;
+
     private PrintHelper? printHelper;
 
     public MainWindow(WindowState windowState, RectInt32 bounds) : this()
@@ -60,6 +62,7 @@ internal sealed partial class MainWindow : Window
         {
             if (e.WindowActivationState != WindowActivationState.Deactivated)
             {
+                IsActive = true;
                 WindowIcon.Opacity = 1;
 
                 if (Tabs.SelectedItem is PuzzleTabViewItem puzzleTab)
@@ -69,6 +72,7 @@ internal sealed partial class MainWindow : Window
             }
             else
             {
+                IsActive = false;
                 WindowIcon.Opacity = 0.25;
             }
         }; 
@@ -81,7 +85,7 @@ internal sealed partial class MainWindow : Window
 
     private async Task HandleWindowCloseRequested()
     {
-        // closing tabs is reentrant if a tab is awaiting a "confirm save" content dialog.
+        // closing tabs is reentrant if a tab is awaiting a content dialog.
         // a second close attempt, via the window caption close button will always succeed
         if (IsContentDialogOpen())  
         {
@@ -139,9 +143,7 @@ internal sealed partial class MainWindow : Window
             Tabs.SelectedItem = tab;
             PuzzleTabViewItem puzzleTab = (PuzzleTabViewItem)tab;
 
-            bool closed = await puzzleTab.HandleTabCloseRequested();
-
-            if (closed)
+            if (await puzzleTab.SaveTabContents())
             {
                 CloseTab(tab);
             }
@@ -343,21 +345,16 @@ internal sealed partial class MainWindow : Window
 
     private async void Tabs_TabCloseRequested(TabView sender, TabViewTabCloseRequestedEventArgs args)
     {
-        await TabCloseRequested(args.Tab);
-    }
-
-    private async Task TabCloseRequested(TabViewItem tab)
-    {
-        if (tab is PuzzleTabViewItem puzzleTab)
+        if ((args.Tab is PuzzleTabViewItem puzzleTab) && puzzleTab.IsModified)
         {
-            if (await puzzleTab.HandleTabCloseRequested())
+            if (await puzzleTab.SaveTabContents())
             {
-                CloseTab(tab);
+                CloseTab(args.Tab);
             }
         }
         else
         {
-            CloseTab(tab);
+            CloseTab(args.Tab);
         }
     }
 
