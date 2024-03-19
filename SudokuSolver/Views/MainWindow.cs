@@ -65,6 +65,12 @@ internal partial class MainWindow : Window
         scaleFactor = IntialiseScaleFactor();
         scaledMinWidth = ConvertToDeviceSize(cMinWidth);
         scaledMinHeight = ConvertToDeviceSize(cMinHeight);
+
+        Closed += (s, e) =>
+        {
+            cancelDragRegionTimerEvent = true;
+            dispatcherTimer.Stop();
+        };
     }
 
     private void AppWindow_Changed(AppWindow sender, AppWindowChangedEventArgs args)
