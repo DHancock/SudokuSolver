@@ -291,13 +291,14 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
 
     private async Task<Status> Save()
     {
-        Status status = Status.Continue;
+        Status status = Status.Cancelled;
 
         if (sourceFile is not null)
         {
             try
             {
                 await SaveFile(sourceFile);
+                status = Status.Continue;
             }
             catch (Exception ex)
             {
@@ -316,9 +317,9 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
     private async Task<Status> SaveAs()
     {
         Status status = Status.Cancelled;
+
         FileSavePicker savePicker = new FileSavePicker();
         InitializeWithWindow.Initialize(savePicker, parentWindow.WindowPtr);
-
         savePicker.FileTypeChoices.Add("Sudoku files", new List<string>() { App.cFileExt });
         savePicker.SuggestedFileName = (sourceFile is null) ? App.cNewPuzzleName : sourceFile.Name;
 
