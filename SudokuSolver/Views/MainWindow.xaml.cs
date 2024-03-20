@@ -23,7 +23,7 @@ internal sealed partial class MainWindow : Window
         if (AppWindowTitleBar.IsCustomizationSupported())
         {
             ExtendsContentIntoTitleBar = true;
-            RightPaddingColumn.MinWidth = AppWindow.TitleBar.RightInset / GetScaleFactor();
+            RightPaddingColumn.MinWidth = AppWindow.TitleBar.RightInset / scaleFactor;
 
             UpdateCaptionButtonsTheme(LayoutRoot.ActualTheme);
             
