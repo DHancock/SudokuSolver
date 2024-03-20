@@ -329,8 +329,6 @@ internal partial class MainWindow : Window
         return dpi / 96.0;
     }
 
-    public double GetScaleFactor() => scaleFactor;
-
     private void ClearWindowDragRegions()
     {
         // Guard against race hazards. If a tab is selected using right click a size changed event is generated
