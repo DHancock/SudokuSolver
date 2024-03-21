@@ -166,11 +166,22 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
                 {
                     sourceFile = file;
                     UpdateTabHeader();
+                    AddToRecentFilesJumpList(file);
                 }
             }
         }
 
         FocusLastSelectedCell();
+    }
+
+    private static unsafe void AddToRecentFilesJumpList(StorageFile file)
+    {
+        const uint SHARD_PathW = 0x03;
+
+        fixed (char* lpStringLocal = file.Path)
+        {
+            PInvoke.SHAddToRecentDocs(SHARD_PathW, lpStringLocal);
+        }
     }
 
     private void NewWindowClickHandler(object sender, RoutedEventArgs e)
@@ -332,6 +343,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
                 await SaveFile(file);
                 sourceFile = file;
                 UpdateTabHeader();
+                AddToRecentFilesJumpList(file);
                 status = Status.Continue;
             }
             catch (Exception ex)

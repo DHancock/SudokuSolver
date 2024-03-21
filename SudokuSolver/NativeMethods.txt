@@ -6,7 +6,6 @@ DefSubclassProc
 WM_GETMINMAXINFO
 SetForegroundWindow
 GetForegroundWindow
-GetCurrentPackageFullName
 WM_SYSCOMMAND
 WM_NCRBUTTONUP
 WM_NCLBUTTONDOWN
@@ -14,3 +13,4 @@ GetCursorPos
 ScreenToClient
 PostMessage
 WM_DPICHANGED
+SHAddToRecentDocs
