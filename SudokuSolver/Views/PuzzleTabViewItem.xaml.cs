@@ -166,21 +166,26 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
                 {
                     sourceFile = file;
                     UpdateTabHeader();
-                    AddToRecentFilesJumpList(file);
+                    AddToRecentFilesJumpList();
                 }
             }
         }
-
+        
         FocusLastSelectedCell();
     }
 
-    private static unsafe void AddToRecentFilesJumpList(StorageFile file)
+    private unsafe void AddToRecentFilesJumpList()
     {
-        const uint SHARD_PathW = 0x03;
+        Debug.Assert(sourceFile is not null);
 
-        fixed (char* lpStringLocal = file.Path)
+        if (sourceFile is not null)
         {
-            PInvoke.SHAddToRecentDocs(SHARD_PathW, lpStringLocal);
+            const uint SHARD_PathW = 0x03;
+
+            fixed (char* lpStringLocal = sourceFile.Path)
+            {
+                PInvoke.SHAddToRecentDocs(SHARD_PathW, lpStringLocal);
+            }
         }
     }
 
@@ -343,7 +348,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
                 await SaveFile(file);
                 sourceFile = file;
                 UpdateTabHeader();
-                AddToRecentFilesJumpList(file);
+                AddToRecentFilesJumpList();
                 status = Status.Continue;
             }
             catch (Exception ex)
