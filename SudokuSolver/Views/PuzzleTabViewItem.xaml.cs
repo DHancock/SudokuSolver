@@ -32,6 +32,14 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
             // set for the next theme transition
             Puzzle.BackgroundBrushTransition.Duration = TimeSpan.FromMilliseconds(250);
             FocusLastSelectedCell();
+
+            Button? closeButton = this.FindChild<Button>();
+
+            if (closeButton is not null)
+            {
+                Debug.Assert(closeButton.Name.Equals("CloseButton"));
+                ToolTipService.SetToolTip(closeButton, "Close tab (Ctrl + W)");
+            }
         };
 
         Clipboard.ContentChanged += async (s, o) =>

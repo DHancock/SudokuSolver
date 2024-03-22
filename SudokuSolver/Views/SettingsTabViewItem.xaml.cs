@@ -1,3 +1,4 @@
+using SudokuSolver.Utilities;
 using SudokuSolver.ViewModels;
 
 namespace SudokuSolver.Views;
@@ -25,6 +26,14 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem
         {
             Loaded -= SettingsTabViewItem_Loaded;
             AdjustLayout(ActualSize.X, initialise: true);
+
+            Button? closeButton = this.FindChild<Button>();
+
+            if (closeButton is not null)
+            {
+                Debug.Assert(closeButton.Name.Equals("CloseButton"));
+                ToolTipService.SetToolTip(closeButton, "Close tab (Ctrl + W)");
+            }
         }
 
         CloseOtherTabsCommand = new RelayCommand(ExecuteCloseOtherTabs, CanCloseOtherTabs);
