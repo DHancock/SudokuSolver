@@ -51,37 +51,7 @@ internal static class Extensions
         return new PointInt32(a.X + offset, a.Y + offset);
     }
 
-    public static T? FindControl<T>(this FrameworkElement element, string name) where T : FrameworkElement
-    {
-        if (element is null)
-        {
-            return null;
-        }
-
-        if ((element is T target) && (element.Name == name))
-        {
-            return target;
-        }
-
-        int count = VisualTreeHelper.GetChildrenCount(element);
-
-        for (int i = 0; i < count; i++)
-        {
-            if (VisualTreeHelper.GetChild(element, i) is FrameworkElement child)
-            {
-                T? result = FindControl<T>(child, name);
-
-                if (result is not null)
-                {
-                    return result;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    public static T? FindChild<T>(this DependencyObject parent) where T : DependencyObject
+    public static T? FindChild<T>(this DependencyObject parent, string name) where T : FrameworkElement
     {
         int count = VisualTreeHelper.GetChildrenCount(parent);
 
@@ -89,12 +59,12 @@ internal static class Extensions
         {
             DependencyObject child = VisualTreeHelper.GetChild(parent, index);
 
-            if (child is T target)
+            if ((child is T target) && string.Equals(target.Name, name, StringComparison.Ordinal))
             {
                 return target;
             }
 
-            T? result = child.FindChild<T>();
+            T? result = child.FindChild<T>(name);
 
             if (result is not null)
             {

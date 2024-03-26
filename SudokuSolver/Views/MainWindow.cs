@@ -449,11 +449,11 @@ internal partial class MainWindow : Window
 
                     if (((ScrollViewer)child).ComputedVerticalScrollBarVisibility == Visibility.Visible)
                     {
-                        ScrollBar? vScrollBar = child.FindChild<ScrollBar>();
+                        ScrollBar? vScrollBar = child.FindChild<ScrollBar>("VerticalScrollBar");
+                        Debug.Assert(vScrollBar is not null);
 
                         if (vScrollBar is not null)
                         {
-                            Debug.Assert(vScrollBar.Name.Equals("VerticalScrollBar"));
                             rects.Add(ScaledRect(GetOffsetFromXamlRoot(vScrollBar), vScrollBar.ActualSize, scaleFactor));
                         }
                     }
