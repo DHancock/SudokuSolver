@@ -91,11 +91,10 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
         get => viewModel!;
         set
         {
-            Debug.Assert(value is not null);
-
             if (viewModel is not null)
             {
                 viewModel.PropertyChanged -= ViewModel_PropertyChanged;
+                Puzzle.SelectedIndexChanged -= ViewModel.Puzzle_SelectedIndexChanged;
             }
 
             viewModel = value;
