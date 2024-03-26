@@ -27,11 +27,11 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem
             Loaded -= SettingsTabViewItem_Loaded;
             AdjustLayout(ActualSize.X, initialise: true);
 
-            Button? closeButton = this.FindChild<Button>();
+            Button? closeButton = this.FindChild<Button>("CloseButton");
+            Debug.Assert(closeButton is not null);
 
             if (closeButton is not null)
             {
-                Debug.Assert(closeButton.Name.Equals("CloseButton"));
                 ToolTipService.SetToolTip(closeButton, "Close tab (Ctrl + W)");
             }
         }

@@ -509,7 +509,7 @@ internal sealed partial class MainWindow : Window
     {
         TabView tv = (TabView)sender;
 
-        TabViewListView? tvlv = tv.FindChild<TabViewListView>();
+        TabViewListView? tvlv = tv.FindChild<TabViewListView>("TabListView");
         Debug.Assert(tvlv is not null);
 
         // remove the delay displaying new tab headers
