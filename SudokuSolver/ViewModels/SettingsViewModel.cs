@@ -49,7 +49,10 @@ internal class SettingsViewModel : INotifyPropertyChanged
         ResetDarkVPossible = new RelayCommand(p => ResetDarkColor(5), p => IsDarkColorDifferent(5));
     }
 
+#pragma warning disable CA1822 // Mark members as static (notify property changed needs a class instance)
     public ElementTheme Theme => Settings.Data.Theme;
+
+#pragma warning restore CA1822 // Mark members as static
 
     public bool ShowPossibles
     {
