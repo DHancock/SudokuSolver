@@ -21,6 +21,7 @@ internal class Settings
     [JsonIgnore]
     public List<Color> DefaultDarkThemeColors { get; set; }
 
+    public bool SaveSessionState { get; set; } = true;
 
     private Settings()
     {
@@ -112,11 +113,7 @@ internal class Settings
 
         private static string GetSettingsFilePath()
         {
-            const string cFileName = "settings.json";
-            const string cDirName = "SudokuSolver.davidhancock.net";
-            string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-
-            return Path.Join(localAppData, cDirName, cFileName);
+            return Path.Join(App.GetAppDataPath(), "settings.json");
         }
 
         private static JsonSerializerOptions GetSerializerOptions()

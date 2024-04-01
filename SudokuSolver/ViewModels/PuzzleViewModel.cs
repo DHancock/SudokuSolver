@@ -116,6 +116,8 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         }
     }
 
+    public XElement GetPuzzleXml() => model.GetPuzzleXml();
+
     public void Save(Stream stream)
     {
         model.Save(stream);
@@ -123,13 +125,13 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         IsModified = false;
     }
 
-    public void Open(Stream stream)
+    public async Task OpenAsync(Stream stream)
     {
         PuzzleModel newModel = new PuzzleModel();
 
         try
         {
-            newModel.Open(stream);
+            await newModel.OpenAsync(stream);
         }
         catch
         {
@@ -139,6 +141,23 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         model = newModel;
         initialState = new PuzzleModel(model);
         IsModified = false;
+        UpdateView();
+        undoHelper.Push(model);
+        UpdateMenuItemsDisabledState();
+    }
+
+    public void LoadXml(XElement root)
+    {
+        try
+        {
+            model.LoadXml(root);
+        }
+        catch
+        {
+            throw;
+        }
+
+        initialState = new PuzzleModel(model);
         UpdateView();
         undoHelper.Push(model);
         UpdateMenuItemsDisabledState();

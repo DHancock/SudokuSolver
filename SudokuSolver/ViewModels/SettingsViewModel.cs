@@ -49,59 +49,7 @@ internal class SettingsViewModel : INotifyPropertyChanged
         ResetDarkVPossible = new RelayCommand(p => ResetDarkColor(5), p => IsDarkColorDifferent(5));
     }
 
-    public ElementTheme Theme
-    {
-        get => Settings.Data.Theme;
-        set
-        {
-            if (value != Settings.Data.Theme)
-            {
-                Settings.Data.Theme = value;
-
-                NotifyPropertyChanged();
-                NotifyPropertyChanged(nameof(IsLightTheme));
-                NotifyPropertyChanged(nameof(IsDarkTheme));
-                NotifyPropertyChanged(nameof(IsSystemTheme));
-            }
-        }
-    }
-
-    public bool IsLightTheme
-    {
-        get => Settings.Data.Theme == ElementTheme.Light;
-        set
-        {
-            if (value)
-            {
-                Theme = ElementTheme.Light;
-            }
-        }
-    }
-
-    public bool IsDarkTheme
-    {
-        get => Settings.Data.Theme == ElementTheme.Dark;
-        set
-        {
-            if (value)
-            {
-                Theme = ElementTheme.Dark;
-            }
-        }
-    }
-
-    public bool IsSystemTheme
-    {
-        get => Settings.Data.Theme == ElementTheme.Default;
-        set
-        {
-            if (value)
-            {
-                Theme = ElementTheme.Default;
-            }
-        }
-
-    }
+    public ElementTheme Theme => Settings.Data.Theme;
 
     public bool ShowPossibles
     {
@@ -250,6 +198,44 @@ internal class SettingsViewModel : INotifyPropertyChanged
             {
                 scb.Color = colors[index];
             }
+        }
+    }
+
+    public int ThemeRadioButtonsIndex
+    {
+        get
+        {
+            switch (Settings.Data.Theme)
+            {
+                case ElementTheme.Light: return 0;
+                case ElementTheme.Dark: return 1;
+            }
+
+            return 2;
+        }
+
+        set
+        {
+            switch (value)
+            {
+                case 0: Settings.Data.Theme = ElementTheme.Light; break;
+                case 1: Settings.Data.Theme = ElementTheme.Dark; break;
+                case 2: Settings.Data.Theme = ElementTheme.Default; break;
+            }
+
+            NotifyPropertyChanged();
+            NotifyPropertyChanged(nameof(Theme));
+        }
+    }
+
+    public int SessionRadioButtonsIndex
+    {
+        get => Settings.Data.SaveSessionState ? 0 : 1;
+
+        set
+        {
+            Settings.Data.SaveSessionState = value == 0;
+            NotifyPropertyChanged();
         }
     }
 

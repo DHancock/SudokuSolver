@@ -3,7 +3,7 @@ using SudokuSolver.ViewModels;
 
 namespace SudokuSolver.Views;
 
-internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem
+internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISession
 {
     public SettingsViewModel ViewModel { get; } = SettingsViewModel.Data;
     private RelayCommand CloseOtherTabsCommand { get; }
@@ -53,6 +53,32 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem
             ViewExpander.IsExpanded = source.ViewExpander.IsExpanded;
             LightColorsExpander.IsExpanded = source.LightColorsExpander.IsExpanded;
             DarkColorsExpander.IsExpanded = source.DarkColorsExpander.IsExpanded;
+            SessionExpander.IsExpanded = source.SessionExpander.IsExpanded;
+        }
+    }
+
+    public SettingsTabViewItem(MainWindow parent, XElement root) : this(parent)
+    {
+        Loaded += SettingsTabViewItem_Loaded;
+
+        void SettingsTabViewItem_Loaded(object sender, RoutedEventArgs e)
+        {
+            Loaded -= SettingsTabViewItem_Loaded;
+
+            XElement? data = root.Element("theme");
+            ThemeExpander.IsExpanded = (data is not null) && (data.Value == "true");
+
+            data = root.Element("view");
+            ViewExpander.IsExpanded = (data is not null) && (data.Value == "true");
+
+            data = root.Element("light");
+            LightColorsExpander.IsExpanded = (data is not null) && (data.Value == "true");
+
+            data = root.Element("dark");
+            DarkColorsExpander.IsExpanded = (data is not null) && (data.Value == "true");
+
+            data = root.Element("session");
+            SessionExpander.IsExpanded = (data is not null) && (data.Value == "true");
         }
     }
 
@@ -111,14 +137,6 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem
         }
     }
 
-    private void Expander_Expanding(Expander sender, ExpanderExpandingEventArgs args)
-    {
-        // always initialise the radio buttons state
-        LightRadioButton.IsChecked = Settings.Data.Theme == ElementTheme.Light;
-        DarkRadioButton.IsChecked = Settings.Data.Theme == ElementTheme.Dark;
-        SystemRadioButton.IsChecked = Settings.Data.Theme == ElementTheme.Default;
-    }
-
     public void AdjustKeyboardAccelerators(bool enable)
     {
         // accelerators on sub menus are only active when the menu is shown
@@ -168,5 +186,50 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem
     private async void ExecuteCloseRightTabs(object? param)
     {
         await parentWindow.ExecuteCloseRightTabs();
+    }
+
+    public XElement GetSessionData()
+    {
+        XElement root = new XElement("settings", new XAttribute("version", 1));
+
+        root.Add(new XElement("theme", ThemeExpander.IsExpanded));
+        root.Add(new XElement("view", ViewExpander.IsExpanded));
+        root.Add(new XElement("light", LightColorsExpander.IsExpanded));
+        root.Add(new XElement("dark", DarkColorsExpander.IsExpanded));
+        root.Add(new XElement("session", SessionExpander.IsExpanded));
+
+        return root;
+    }
+
+    public static bool ValidateSessionData(XElement root)
+    {
+        try
+        {
+            if ((root.Name == "settings") && (root.Attribute("version") is XAttribute vs) && int.TryParse(vs.Value, out int version))
+            {
+                if (version == 1)
+                {
+                    string[] names = ["theme", "view", "light", "dark", "session"];
+
+                    foreach (string name in names)
+                    {
+                        XElement? data = root.Element(name);
+
+                        if (data is null || !bool.TryParse(data.Value, out _))
+                        {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
+            }
+        }
+        catch(Exception ex) 
+        { 
+            Debug.WriteLine(ex); 
+        }
+
+        return false;
     }
 }

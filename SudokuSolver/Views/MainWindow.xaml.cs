@@ -9,7 +9,7 @@ namespace SudokuSolver.Views;
 /// <summary>
 /// Interaction logic for MainWindow.xaml
 /// </summary>
-internal sealed partial class MainWindow : Window
+internal sealed partial class MainWindow : Window, ISession
 {
     private const string cDataIdentifier = App.cDisplayName;
     private const string cProcessId = "pId";
@@ -80,20 +80,43 @@ internal sealed partial class MainWindow : Window
 
     public bool IsContentDialogOpen()
     {
-        return VisualTreeHelper.GetOpenPopupsForXamlRoot(Content.XamlRoot).Any(x => x.Child is ContentDialog);
+        try
+        {
+            return VisualTreeHelper.GetOpenPopupsForXamlRoot(Content.XamlRoot).Any(x => x.Child is ContentDialog);
+        }
+        catch (Exception ex)
+        {
+            // most likely that the Window.Content has already closed
+            Debug.WriteLine(ex);
+        }
+
+        return false;
     }
 
     private async Task HandleWindowCloseRequested()
     {
-        // closing tabs is reentrant if a tab is awaiting a content dialog.
-        // a second close attempt, via the window caption close button will always succeed
-        if (IsContentDialogOpen())  
+        if (Settings.Data.SaveSessionState && (App.Instance.SessionHelper.IsExit || (App.Instance.WindowCount == 1)))
         {
+            App.Instance.SessionHelper.AddWindow(this);
             Tabs.TabItems.Clear();
-            return;
-        }
 
-        await AttemptToCloseTabs(Tabs.TabItems);
+            if (App.Instance.WindowCount == 0)
+            {
+                await App.Instance.SessionHelper.SaveAsync();
+            }
+        }
+        else
+        {
+            // closing tabs is reentrant if a tab is awaiting a content dialog.
+            // a second close attempt, via the window caption close button will always succeed
+            if (IsContentDialogOpen())
+            {
+                Tabs.TabItems.Clear();
+                return;
+            }
+
+            await AttemptToCloseTabs(Tabs.TabItems);
+        }
     }
 
     private void ResetPuzzleTabsOpacity()
@@ -532,5 +555,87 @@ internal sealed partial class MainWindow : Window
         }
 
         return true;
+    }
+
+    public XElement GetSessionData()
+    {
+        XElement root = new XElement("window", new XAttribute("version", 1));
+
+        XElement bounds = new XElement("bounds");
+        root.Add(bounds);
+
+        RectInt32 restoreBounds = RestoreBounds;
+
+        bounds.Add(new XElement(nameof(RectInt32.X), restoreBounds.X));
+        bounds.Add(new XElement(nameof(RectInt32.Y), restoreBounds.Y));
+        bounds.Add(new XElement(nameof(RectInt32.Width), restoreBounds.Width));
+        bounds.Add(new XElement(nameof(RectInt32.Height), restoreBounds.Height));
+
+        foreach (object tab in Tabs.TabItems)
+        {
+            root.Add(((ISession)tab).GetSessionData());
+        }
+
+        return root;
+    }
+
+    public static bool ValidateSessionData(XElement root)
+    {
+        try
+        {
+            if ((root.Name == "window") && (root.Attribute("version") is XAttribute vw) && int.TryParse(vw.Value, out int version))
+            {
+                if (version == 1)
+                {
+                    XElement? bounds = root.Element("bounds");
+
+                    if ((bounds is not null) && bounds.HasElements)
+                    {
+                        string[] names = [nameof(RectInt32.X), nameof(RectInt32.Y), nameof(RectInt32.Width), nameof(RectInt32.Height)];
+
+                        foreach (string name in names)
+                        {
+                            XElement? field = bounds.Element(name);
+
+                            if (field is null || !int.TryParse(field.Value, out int value))
+                            {
+                                return false;
+                            }
+
+                            if (((field.Name == nameof(RectInt32.Width)) || (field.Name == nameof(RectInt32.Height))) && (value < 0))
+                            {
+                                return false;
+                            }
+                        }
+
+                        foreach (XElement child in root.Descendants("puzzle"))
+                        {
+                            if (!PuzzleTabViewItem.ValidateSessionData(child))
+                            {
+                                return false;
+                            }
+                        }
+
+                        int count = 0;
+
+                        foreach (XElement child in root.Descendants("settings"))
+                        {
+                            if ((++count > 1) || !SettingsTabViewItem.ValidateSessionData(child))
+                            {
+                                return false;
+                            }
+                        }
+
+                        return true;
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex);
+        }
+
+        return false;
     }
 }

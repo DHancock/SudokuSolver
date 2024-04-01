@@ -20,7 +20,7 @@ public partial class App : Application
     private readonly AppInstance appInstance;
     private readonly List<MainWindow> windowList = new();
     private MainWindow? currentWindow;
-
+    internal SessionHelper SessionHelper { get; } = new SessionHelper();
     private bool appClosing = false;
 
     /// <summary>
@@ -41,6 +41,11 @@ public partial class App : Application
     // Invoked on the ui thread when the application is launched normally
     protected async override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs _)
     {
+        if (Settings.Data.SaveSessionState)
+        {
+            await SessionHelper.LoadPreviousSession();
+        }
+
         AppActivationArguments args = appInstance.GetActivatedEventArgs();
 
         if (args.Kind == ExtendedActivationKind.File)
@@ -172,8 +177,12 @@ public partial class App : Application
         return appClosing;
     }
 
+    public int WindowCount => windowList.Count;
+
     public void AttemptCloseAllWindows()
     {
+        SessionHelper.IsExit = true;
+
         foreach (MainWindow window in windowList)
         {
             window.PostCloseMessage();
@@ -315,5 +324,11 @@ public partial class App : Application
         {
             currentWindow = (MainWindow)sender;
         }
+    }
+
+    public static string GetAppDataPath()
+    {
+        string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        return Path.Join(localAppData, "SudokuSolver.davidhancock.net");
     }
 }
