@@ -77,7 +77,7 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
             data = root.Element("dark");
             DarkColorsExpander.IsExpanded = (data is not null) && (data.Value == "true");
 
-            data = root.Element("session");
+            data = root.Element("start");
             SessionExpander.IsExpanded = (data is not null) && (data.Value == "true");
         }
     }
@@ -196,7 +196,7 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
         root.Add(new XElement("view", ViewExpander.IsExpanded));
         root.Add(new XElement("light", LightColorsExpander.IsExpanded));
         root.Add(new XElement("dark", DarkColorsExpander.IsExpanded));
-        root.Add(new XElement("session", SessionExpander.IsExpanded));
+        root.Add(new XElement("start", SessionExpander.IsExpanded));
 
         return root;
     }
@@ -209,7 +209,7 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
             {
                 if (version == 1)
                 {
-                    string[] names = ["theme", "view", "light", "dark", "session"];
+                    string[] names = ["theme", "view", "light", "dark", "start"];
 
                     foreach (string name in names)
                     {
