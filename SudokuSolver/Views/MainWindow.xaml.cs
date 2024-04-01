@@ -246,6 +246,7 @@ internal sealed partial class MainWindow : Window, ISession
         void AddTabInternal(TabViewItem tab, int index)
         {
             Debug.Assert(tab is ITabItem);
+            Debug.Assert(tab is ISession);
 
             if ((index >= 0) && (index < Tabs.TabItems.Count))
             {
