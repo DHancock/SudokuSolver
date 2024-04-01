@@ -4,7 +4,7 @@ using SudokuSolver.ViewModels;
 namespace SudokuSolver.Views;
 
 
-internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
+internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISession
 {
     private enum Error { Success, Failure }
     private enum Status { Cancelled, Continue }
@@ -86,6 +86,54 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
         }
     }
 
+    public PuzzleTabViewItem(MainWindow parent, XElement root) : this(parent)
+    {
+        Loaded += LoadedHandler;
+
+        async void LoadedHandler(object sender, RoutedEventArgs e)
+        {
+            PuzzleTabViewItem tab = (PuzzleTabViewItem)sender;
+            tab.Loaded -= LoadedHandler;
+
+            XElement? data = root.Element("path");
+
+            if (data is not null)
+            {
+                try
+                {
+                    tab.sourceFile = await StorageFile.GetFileFromPathAsync(data.Value);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.ToString());
+                }
+            }
+
+            data = root.Element("title");
+
+            if (data is not null)
+            {
+                tab.Header = data.Value;
+            }
+
+            data = root.Element("modified");
+
+            if (data is not null)
+            {
+                tab.ViewModel.IsModified = data.Value == "true";
+            }
+
+            data = root.Element("Sudoku");
+
+            if (data is not null)
+            {
+                tab.ViewModel.LoadXml(data);
+            }
+
+            tab.UpdateTabHeader();
+        }
+    }
+
     public PuzzleViewModel ViewModel
     {
         get => viewModel!;
@@ -107,7 +155,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
 
     public void FocusLastSelectedCell()
     {
-        if (!parentWindow.IsContentDialogOpen() && IsSelected && parentWindow.IsActive)
+        if (IsLoaded && IsSelected && parentWindow.IsActive && !parentWindow.IsContentDialogOpen())
         {
             Puzzle.FocusLastSelectedCell();
         }
@@ -116,7 +164,6 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
     public async Task<bool> SaveTabContents()
     {
         Debug.Assert(IsModified);
-
         return await SaveExistingFirst() != Status.Cancelled;
     }
 
@@ -260,9 +307,9 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
 
         try
         {
-            using (Stream stream = await file.OpenStreamForReadAsync())
+            await using (Stream stream = await file.OpenStreamForReadAsync())
             {
-                ViewModel.Open(stream);
+                await ViewModel.OpenAsync(stream);
                 error = Error.Success;
             }
         }
@@ -280,7 +327,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
         Debug.Assert(!parentWindow.IsContentDialogOpen());
 
         Status status = Status.Continue;
-        string path = (sourceFile is null) ? App.cNewPuzzleName : sourceFile.Path;
+        string path = (sourceFile is null) ? (string)Header : sourceFile.Path;
 
         ContentDialogResult result = await new ConfirmSaveDialog(path, XamlRoot, LayoutRoot.ActualTheme).ShowAsync();
 
@@ -344,7 +391,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
         FileSavePicker savePicker = new FileSavePicker();
         InitializeWithWindow.Initialize(savePicker, parentWindow.WindowPtr);
         savePicker.FileTypeChoices.Add("Sudoku files", new List<string>() { App.cFileExt });
-        savePicker.SuggestedFileName = (sourceFile is null) ? App.cNewPuzzleName : sourceFile.Name;
+        savePicker.SuggestedFileName = (sourceFile is null) ? (string)Header : sourceFile.Name;
 
         StorageFile file = await savePicker.PickSaveFileAsync();
 
@@ -380,8 +427,12 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
     {
         if (sourceFile is null)
         {
-            Header = App.cNewPuzzleName;
-            ToolTipService.SetToolTip(this, App.cNewPuzzleName);
+            if (Header is null)
+            {
+                Header = App.cNewPuzzleName;
+            }
+
+            ToolTipService.SetToolTip(this, Header);
         }
         else
         {
@@ -432,5 +483,58 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem
     private async void ExecuteCloseRightTabs(object? param)
     {
         await parentWindow.ExecuteCloseRightTabs();
+    }
+
+    public XElement GetSessionData()
+    {
+        XElement root = new XElement("puzzle", new XAttribute("version", 1));
+
+        root.Add(new XElement("title", Header));
+        root.Add(new XElement("path", SourceFile?.Path));
+        root.Add(new XElement("modified", IsModified));
+
+        root.Add(ViewModel.GetPuzzleXml());
+
+        return root;
+    }
+
+    public static bool ValidateSessionData(XElement root)
+    {
+        try
+        {
+            if ((root.Name == "puzzle") && (root.Attribute("version") is XAttribute vp) && int.TryParse(vp.Value, out int version))
+            {
+                if (version == 1)
+                {
+                    XElement? data = root.Element("title");
+
+                    if (data is not null && !string.IsNullOrWhiteSpace(data.Value))
+                    {
+                        data = root.Element("path");
+
+                        if (data is not null)
+                        {
+                            data = root.Element("modified");
+
+                            if ((data is not null) && bool.TryParse(data.Value, out _))
+                            {
+                                data = root.Element("Sudoku");
+
+                                if ((data is not null) && (data.Attribute("version") is XAttribute vs) && int.TryParse(vs.Value, out int sv))
+                                {
+                                    return sv == 2;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex);
+        }
+
+        return false;
     }
 }

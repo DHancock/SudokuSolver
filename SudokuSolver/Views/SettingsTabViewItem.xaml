@@ -14,7 +14,7 @@
         <!-- left, top, right, bottom -->
 
         <ScrollViewer Grid.Row="0" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
-            <Grid x:Name="LayoutRoot" RowDefinitions="Auto,Auto,Auto,Auto,Auto" Margin="20,40,0,0">
+            <Grid x:Name="LayoutRoot" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" Margin="20,40,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" MaxWidth="700"/>
                 </Grid.ColumnDefinitions>
@@ -32,18 +32,18 @@
                     </Style>
                 </Grid.Resources>
 
-                <Expander x:Name="ThemeExpander" Grid.Row="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Expanding="Expander_Expanding">
+                <Expander x:Name="ThemeExpander" Grid.Row="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                     <Expander.Header>
                         <StackPanel Orientation="Horizontal">
                             <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xF08C;"/>
                             <TextBlock Text="App theme"/>
                         </StackPanel>
                     </Expander.Header>
-                    <StackPanel>
-                        <RadioButton x:Name="LightRadioButton" IsChecked="{x:Bind ViewModel.IsLightTheme, Mode=TwoWay}" Content="Light"/>
-                        <RadioButton x:Name="DarkRadioButton" IsChecked="{x:Bind ViewModel.IsDarkTheme, Mode=TwoWay}" Content="Dark"/>
-                        <RadioButton x:Name="SystemRadioButton" IsChecked="{x:Bind ViewModel.IsSystemTheme, Mode=TwoWay}" Content="Use system setting"/>
-                    </StackPanel>
+                    <RadioButtons SelectedIndex="{x:Bind ViewModel.ThemeRadioButtonsIndex, Mode=TwoWay}">
+                        <x:String>Light</x:String>
+                        <x:String>Dark</x:String>
+                        <x:String>Use system setting</x:String>
+                    </RadioButtons>
                 </Expander>
 
                 <Expander x:Name="ViewExpander" Grid.Row="1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
@@ -132,8 +132,20 @@
                                 </MenuFlyout>
                             </SplitButton.Flyout>
                         </SplitButton>
-
                     </Grid>
+                </Expander>
+                
+                <Expander x:Name="SessionExpander" Grid.Row="4" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                    <Expander.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <SymbolIcon Symbol="NewWindow"/>
+                            <TextBlock Text="When Sudoku Solver starts"/>
+                        </StackPanel>
+                    </Expander.Header>
+                    <RadioButtons SelectedIndex="{x:Bind ViewModel.SessionRadioButtonsIndex, Mode=TwoWay}">
+                        <x:String>Open content from the previous session</x:String>
+                        <x:String>Open a new window</x:String>
+                    </RadioButtons>
                 </Expander>
 
                 <local:AboutBox x:Name="AboutInfo"/>

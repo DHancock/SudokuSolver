@@ -55,7 +55,7 @@ internal sealed class PrintHelper
         // printing isn't reentrant
         currentlyPrinting = true;
 
-        headerText = tab.SourceFile is null ? App.cNewPuzzleName : tab.SourceFile.Path;
+        headerText = tab.SourceFile is null ? (string)tab.Header : tab.SourceFile.Path;
         settings = Settings.Data.PrintSettings.Clone();
 
         // a user control containing a puzzle view

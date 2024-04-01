@@ -36,22 +36,27 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
 
     public void Save(Stream stream)
     {
-        XElement xmlTree = new XElement(Cx.Sudoku, new XAttribute(Cx.version, Cx.current_version));
+        XElement xmlTree = GetPuzzleXml();
+        xmlTree.Save(stream);
+    }
+
+    public XElement GetPuzzleXml()
+    {
+        XElement root = new XElement(Cx.Sudoku, new XAttribute(Cx.version, Cx.current_version));
 
         foreach (Cell cell in Cells)
         {
             if (cell.HasValue)
             {
-                xmlTree.Add(new XElement(Cx.Cell, new XElement(Cx.x, cell.Index % 9),
+                root.Add(new XElement(Cx.Cell, new XElement(Cx.x, cell.Index % 9),
                                                   new XElement(Cx.y, cell.Index / 9),
                                                   new XElement(Cx.value, cell.Value),
                                                   new XElement(Cx.origin, cell.Origin.ToString())));
             }
         }
 
-        xmlTree.Save(stream);
+        return root;
     }
-
 
     public void Clear()
     {
@@ -63,44 +68,47 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
         CompletedCellsCount = 0;
     }
 
-
-    public void Open(Stream stream)
+    public async Task OpenAsync(Stream stream)
     {
-        XDocument document = XDocument.Load(stream);
+        XDocument document = await XDocument.LoadAsync(stream, LoadOptions.None, CancellationToken.None);
 
-        // sanity check
         if ((document.Root == null) || (document.Root.Name != Cx.Sudoku))
         {
             throw new InvalidDataException("File contains invalid data.");
         }
 
+        LoadXml(document.Root);
+    }
+
+
+    public void LoadXml(XElement root)
+    {
         // version check
         int version = 0;
 
-        if (document.Root.HasAttributes)
+        if (root.HasAttributes)
         {
-            XAttribute? va = document.Root.Attribute(Cx.version);
+            XAttribute? va = root.Attribute(Cx.version);
 
             if ((va == null) || !int.TryParse(va.Value, out version))
             {
                 throw new InvalidDataException("Failed to read the files version attribute.");
             }
         }
-        
+
         switch (version)
         {
-            case 0: OpenVersion_0(document); break;
-            case 1: OpenVersion_1(document); break;
-            case 2: OpenVersion_2(document); break;
+            case 0: OpenVersion_0(root); break;
+            case 1: OpenVersion_1(root); break;
+            case 2: OpenVersion_2(root); break;
 
             default: throw new InvalidDataException("The file was created by newer version of this application. Please upgrade to open this file.");
         }
     }
 
-
-    private void OpenVersion_0(XDocument document)
+    private void OpenVersion_0(XElement root)
     {
-        foreach (XElement cell in document.Descendants(Cx.Cell))
+        foreach (XElement cell in root.Descendants(Cx.Cell))
         {
             if (int.TryParse(cell.Attribute(Cx.x)?.Value, out int x) && (x >= 0) && (x < 9)
                 && int.TryParse(cell.Attribute(Cx.y)?.Value, out int y) && (y >= 0) && (y < 9)
@@ -117,25 +125,25 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
         AttemptSimpleTrialAndError();
     }
 
-    private void OpenVersion_1(XDocument document)
+    private void OpenVersion_1(XElement root)
     {
         // a bug in release 1.7.0 saved all "User" values as "Provided" in error even though that 
         // feature hadn't been released. Convert "Provided" origins in old files back to "User" 
         // now that it is. Bump file format version so new files aren't affected.
-        OpenVersion1and2Helper(document, fixProvidedOrigin: true);
+        OpenVersion1and2Helper(root, fixProvidedOrigin: true);
     }
 
     
-    private void OpenVersion_2(XDocument document)
+    private void OpenVersion_2(XElement root)
     {
         // puzzles are saved using file format version 2 from release 1.8.0
-        OpenVersion1and2Helper(document, fixProvidedOrigin: false);
+        OpenVersion1and2Helper(root, fixProvidedOrigin: false);
     }
 
 
-    private void OpenVersion1and2Helper(XDocument document, bool fixProvidedOrigin) 
+    private void OpenVersion1and2Helper(XElement root, bool fixProvidedOrigin) 
     {
-        foreach (XElement cell in document.Descendants(Cx.Cell))
+        foreach (XElement cell in root.Descendants(Cx.Cell))
         {
             if (Enum.TryParse(cell.Element(Cx.origin)?.Value, out Origins origin) && ((origin == Origins.User) || (origin == Origins.Provided))
                 && int.TryParse(cell.Element(Cx.x)?.Value, out int x) && (x >= 0) && (x < 9)
