@@ -38,7 +38,7 @@ internal class SessionHelper
         }
     }
 
-    public static async Task LoadPreviousSession()
+    public static async Task LoadPreviousSessionAsync()
     {
         try
         {

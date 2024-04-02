@@ -36,33 +36,33 @@
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
 
-                <MenuFlyoutItem Text="Open" Click="OpenClickHandler" IsEnabled="{x:Bind local:PuzzleTabViewItem.IsFileDialogAvailable}" AccessKey="O">
+                <MenuFlyoutItem Text="Open" Click="OpenClickHandlerAsync" IsEnabled="{x:Bind local:PuzzleTabViewItem.IsFileDialogAvailable}" AccessKey="O">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="O" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
 
-                <MenuFlyoutItem Text="Save" Click="SaveClickHandler" IsEnabled="{x:Bind local:PuzzleTabViewItem.IsFileDialogAvailable}" AccessKey="S">
+                <MenuFlyoutItem Text="Save" Click="SaveClickHandlerAsync" IsEnabled="{x:Bind local:PuzzleTabViewItem.IsFileDialogAvailable}" AccessKey="S">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="S" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
 
-                <MenuFlyoutItem Text="Save As..." Click="SaveAsClickHandler" IsEnabled="{x:Bind local:PuzzleTabViewItem.IsFileDialogAvailable}" AccessKey="A">
+                <MenuFlyoutItem Text="Save As..." Click="SaveAsClickHandlerAsync" IsEnabled="{x:Bind local:PuzzleTabViewItem.IsFileDialogAvailable}" AccessKey="A">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="S" Modifiers="Control,Shift"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
 
                 <MenuFlyoutSeparator />
-                <MenuFlyoutItem Text="Print..." Click="PrintClickHandler" IsEnabled="{x:Bind local:PuzzleTabViewItem.IsPrintingAvailable}" AccessKey="P">
+                <MenuFlyoutItem Text="Print..." Click="PrintClickHandlerAsync" IsEnabled="{x:Bind local:PuzzleTabViewItem.IsPrintingAvailable}" AccessKey="P">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="P" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
 
                 <MenuFlyoutSeparator />
-                <MenuFlyoutItem Text="Close tab" Click="CloseTabClickHandler" AccessKey="C">
+                <MenuFlyoutItem Text="Close tab" Click="CloseTabClickHandlerAsync" AccessKey="C">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="W" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
@@ -140,7 +140,7 @@
 
             <MenuFlyoutSeparator/>
 
-            <MenuFlyoutItem Text="Close tab" Click="CloseTabClickHandler" AccessKey="C">
+            <MenuFlyoutItem Text="Close tab" Click="CloseTabClickHandlerAsync" AccessKey="C">
                 <MenuFlyoutItem.KeyboardAccelerators>
                     <KeyboardAccelerator Modifiers="Control" Key="W" IsEnabled="False"/>
                 </MenuFlyoutItem.KeyboardAccelerators>

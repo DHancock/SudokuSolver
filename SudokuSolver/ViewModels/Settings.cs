@@ -33,9 +33,9 @@ internal class Settings
         DarkThemeColors = new List<Color>(DefaultDarkThemeColors);
     }
 
-    public async Task Save()
+    public async Task SaveAsync()
     {
-        await Inner.Save(this);
+        await Inner.SaveAsync(this);
     }
 
     private sealed class Inner : Settings
@@ -46,7 +46,7 @@ internal class Settings
         {
         }
 
-        public static async Task Save(Settings settings)
+        public static async Task SaveAsync(Settings settings)
         {
             try
             {
