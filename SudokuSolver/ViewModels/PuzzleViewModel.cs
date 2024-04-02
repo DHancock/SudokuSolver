@@ -125,7 +125,7 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
         IsModified = false;
     }
 
-    public void LoadXml(XElement? root, bool isModified = false)
+    public void LoadXml(XElement? root, bool isModified)
     {
         PuzzleModel newModel = new PuzzleModel();
 

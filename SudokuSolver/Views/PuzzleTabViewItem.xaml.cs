@@ -311,7 +311,8 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
             await using (Stream stream = await file.OpenStreamForReadAsync())
             {
                 XDocument document = await XDocument.LoadAsync(stream, LoadOptions.None, CancellationToken.None);
-                ViewModel.LoadXml(document.Root);
+
+                ViewModel.LoadXml(document.Root, isModified: false);
                 error = Error.Success;
             }
         }
