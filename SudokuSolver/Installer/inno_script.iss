@@ -17,13 +17,11 @@ DefaultDirName={autopf}\{#appDisplayName}
 DefaultGroupName={#appDisplayName}
 OutputDir={#SourcePath}\bin
 UninstallDisplayIcon={app}\{#appExeName}
-Compression=lzma2
+Compression=lzma2/ultra64 
 SolidCompression=yes
 OutputBaseFilename={#appName}_v{#appVer}
 InfoBeforeFile="{#SourcePath}\unlicense.txt"
 PrivilegesRequired=lowest
-AllowUNCPath=no
-AllowNetworkDrive=no
 WizardStyle=classic
 WizardSizePercent=110,110
 DirExistsWarning=yes
@@ -38,8 +36,8 @@ ArchitecturesAllowed=x86 x64 arm64
 
 [Files]
 Source: "..\bin\Release\win-x64\publish\*"; DestDir: "{app}"; Check: IsX64; Flags: recursesubdirs; 
-Source: "..\bin\Release\win-arm64\publish\*"; DestDir: "{app}"; Check: IsARM64; Flags: recursesubdirs;
-Source: "..\bin\Release\win-x86\publish\*"; DestDir: "{app}"; Check: IsX86; Flags: recursesubdirs;
+Source: "..\bin\Release\win-arm64\publish\*"; DestDir: "{app}"; Check: IsARM64; Flags: recursesubdirs solidbreak;
+Source: "..\bin\Release\win-x86\publish\*"; DestDir: "{app}"; Check: IsX86; Flags: recursesubdirs solidbreak;
 
 [Icons]
 Name: "{group}\{#appDisplayName}"; Filename: "{app}\{#appExeName}"
