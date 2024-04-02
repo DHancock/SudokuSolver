@@ -97,7 +97,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
             XElement? data = root.Element("path");
 
-            if (data is not null)
+            if ((data is not null) && !string.IsNullOrEmpty(data.Value))
             {
                 try
                 {
@@ -311,7 +311,8 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
             await using (Stream stream = await file.OpenStreamForReadAsync())
             {
                 XDocument document = await XDocument.LoadAsync(stream, LoadOptions.None, CancellationToken.None);
-                ViewModel.LoadXml(document.Root);
+
+                ViewModel.LoadXml(document.Root, isModified: false);
                 error = Error.Success;
             }
         }
