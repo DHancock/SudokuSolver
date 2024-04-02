@@ -117,17 +117,18 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
             }
 
             data = root.Element("modified");
+            bool isModified = false;
 
             if (data is not null)
             {
-                tab.ViewModel.IsModified = data.Value == "true";
+                isModified = data.Value == "true";
             }
 
             data = root.Element("Sudoku");
 
             if (data is not null)
             {
-                tab.ViewModel.LoadXml(data);
+                tab.ViewModel.LoadXml(data, isModified);
             }
 
             tab.UpdateTabHeader();
@@ -309,7 +310,8 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         {
             await using (Stream stream = await file.OpenStreamForReadAsync())
             {
-                await ViewModel.OpenAsync(stream);
+                XDocument document = await XDocument.LoadAsync(stream, LoadOptions.None, CancellationToken.None);
+                ViewModel.LoadXml(document.Root);
                 error = Error.Success;
             }
         }
@@ -349,7 +351,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         {
             using (Stream stream = transaction.Stream.AsStreamForWrite())
             {
-                ViewModel.Save(stream);
+                await ViewModel.SaveAsync(stream);
 
                 // delete any existing file data beyond the end of the stream
                 transaction.Stream.Size = transaction.Stream.Position;
