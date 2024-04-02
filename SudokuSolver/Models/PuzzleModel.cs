@@ -33,11 +33,11 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
         CompletedCellsCount = source.CompletedCellsCount;
     }
 
-
-    public void Save(Stream stream)
+    
+    public async Task SaveAsync(Stream stream)
     {
         XElement xmlTree = GetPuzzleXml();
-        xmlTree.Save(stream);
+        await xmlTree.SaveAsync(stream, SaveOptions.None, CancellationToken.None);
     }
 
     public XElement GetPuzzleXml()
@@ -68,22 +68,13 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
         CompletedCellsCount = 0;
     }
 
-    public async Task OpenAsync(Stream stream)
+    public void LoadXml(XElement? root)
     {
-        XDocument document = await XDocument.LoadAsync(stream, LoadOptions.None, CancellationToken.None);
-
-        if ((document.Root == null) || (document.Root.Name != Cx.Sudoku))
+        if ((root == null) || (root.Name != Cx.Sudoku))
         {
             throw new InvalidDataException("File contains invalid data.");
         }
 
-        LoadXml(document.Root);
-    }
-
-
-    public void LoadXml(XElement root)
-    {
-        // version check
         int version = 0;
 
         if (root.HasAttributes)
