@@ -197,7 +197,7 @@ internal partial class MainWindow : Window
         sizeCommand = new RelayCommand(o => PostSysCommandMessage(SC.SIZE), CanSize);
         minimizeCommand = new RelayCommand(o => PostSysCommandMessage(SC.MINIMIZE), CanMinimize);
         maximizeCommand = new RelayCommand(o => PostSysCommandMessage(SC.MAXIMIZE), CanMaximize);
-        closeTabCommand = new RelayCommand(ExecuteCloseTab, CanCloseTab);
+        closeTabCommand = new RelayCommand(ExecuteCloseTabAsync, CanCloseTab);
         closeWindowCommand = new RelayCommand(o => PostSysCommandMessage(SC.CLOSE));
 
         MenuFlyout menuFlyout = new MenuFlyout()
@@ -267,13 +267,13 @@ internal partial class MainWindow : Window
         return !IsContentDialogOpen();
     }
 
-    private async void ExecuteCloseTab(object? param)
+    private async void ExecuteCloseTabAsync(object? param)
     {
         if (CanCloseTab(param))
         {
             List<object> tabs = new List<object>();
             tabs.Add(Tabs.SelectedItem);
-            await AttemptToCloseTabs(tabs);
+            await AttemptToCloseTabsAsync(tabs);
         }
     }
 

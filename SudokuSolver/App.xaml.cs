@@ -43,7 +43,7 @@ public partial class App : Application
     {
         if (Settings.Data.SaveSessionState)
         {
-            await SessionHelper.LoadPreviousSession();
+            await SessionHelper.LoadPreviousSessionAsync();
         }
 
         AppActivationArguments args = appInstance.GetActivatedEventArgs();
@@ -56,7 +56,7 @@ public partial class App : Application
         {
             string[] commandLine = Environment.GetCommandLineArgs();
 
-            await ProcessCommandLine(commandLine);
+            await ProcessCommandLineAsync(commandLine);
 
             if (currentWindow is null)
             {
@@ -82,7 +82,7 @@ public partial class App : Application
                 }
                 else if (e.Kind == ExtendedActivationKind.Launch)
                 {
-                    await ProcessRedirectedLaunchActivation(e);
+                    await ProcessRedirectedLaunchActivationAsync(e);
                 }
             }
         });
@@ -110,19 +110,19 @@ public partial class App : Application
     }
 
 
-    private async Task ProcessRedirectedLaunchActivation(AppActivationArguments args)
+    private async Task ProcessRedirectedLaunchActivationAsync(AppActivationArguments args)
     {
         if (args.Data is ILaunchActivatedEventArgs launchData)
         {
             List<string> commandLine = SplitLaunchActivationCommandLine(launchData.Arguments);
 
-            await ProcessCommandLine(commandLine);
+            await ProcessCommandLineAsync(commandLine);
 
             currentWindow?.AttemptSwitchToForeground();
         }
     }
 
-    private async Task ProcessCommandLine(IReadOnlyList<string> args)
+    private async Task ProcessCommandLineAsync(IReadOnlyList<string> args)
     {
         // args[0] is typically the path to the executing assembly
         for (int index = 1; index < args.Count; index++)

@@ -36,9 +36,9 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
             }
         }
 
-        CloseOtherTabsCommand = new RelayCommand(ExecuteCloseOtherTabs, CanCloseOtherTabs);
-        CloseLeftTabsCommand = new RelayCommand(ExecuteCloseLeftTabs, CanCloseLeftTabs);
-        CloseRightTabsCommand = new RelayCommand(ExecuteCloseRightTabs, CanCloseRightTabs);
+        CloseOtherTabsCommand = new RelayCommand(ExecuteCloseOtherTabsAsync, CanCloseOtherTabs);
+        CloseLeftTabsCommand = new RelayCommand(ExecuteCloseLeftTabsAsync, CanCloseLeftTabs);
+        CloseRightTabsCommand = new RelayCommand(ExecuteCloseRightTabsAsync, CanCloseRightTabs);
     }
 
     public SettingsTabViewItem(MainWindow parent, SettingsTabViewItem source) : this(parent)
@@ -163,9 +163,9 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
         return parentWindow.CanCloseOtherTabs();
     }
 
-    private async void ExecuteCloseOtherTabs(object? param)
+    private async void ExecuteCloseOtherTabsAsync(object? param)
     {
-        await parentWindow.ExecuteCloseOtherTabs();
+        await parentWindow.ExecuteCloseOtherTabsAsync();
     }
 
     private bool CanCloseLeftTabs(object? param = null)
@@ -173,9 +173,9 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
         return parentWindow.CanCloseLeftTabs();
     }
 
-    private async void ExecuteCloseLeftTabs(object? param)
+    private async void ExecuteCloseLeftTabsAsync(object? param)
     {
-        await parentWindow.ExecuteCloseLeftTabs();
+        await parentWindow.ExecuteCloseLeftTabsAsync();
     }
 
     private bool CanCloseRightTabs(object? param = null)
@@ -183,9 +183,9 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
         return parentWindow.CanCloseRightTabs();
     }
 
-    private async void ExecuteCloseRightTabs(object? param)
+    private async void ExecuteCloseRightTabsAsync(object? param)
     {
-        await parentWindow.ExecuteCloseRightTabs();
+        await parentWindow.ExecuteCloseRightTabsAsync();
     }
 
     public XElement GetSessionData()

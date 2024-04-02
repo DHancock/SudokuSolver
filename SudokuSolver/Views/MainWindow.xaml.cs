@@ -39,7 +39,7 @@ internal sealed partial class MainWindow : Window, ISession
         AppWindow.Closing += async (s, args) =>
         {
             args.Cancel = true;
-            await HandleWindowCloseRequested();
+            await HandleWindowCloseRequestedAsync();
         };
 
         // these two are used in the iconic window displayed when hovering over the app's icon in the task bar
@@ -93,7 +93,7 @@ internal sealed partial class MainWindow : Window, ISession
         return false;
     }
 
-    private async Task HandleWindowCloseRequested()
+    private async Task HandleWindowCloseRequestedAsync()
     {
         if (Settings.Data.SaveSessionState && (App.Instance.SessionHelper.IsExit || (App.Instance.WindowCount == 1)))
         {
@@ -115,7 +115,7 @@ internal sealed partial class MainWindow : Window, ISession
                 return;
             }
 
-            await AttemptToCloseTabs(Tabs.TabItems);
+            await AttemptToCloseTabsAsync(Tabs.TabItems);
         }
     }
 
@@ -130,13 +130,13 @@ internal sealed partial class MainWindow : Window, ISession
         }
     }
 
-    public async Task PrintPuzzle(PuzzleTabViewItem tab)
+    public async Task PrintPuzzleAsync(PuzzleTabViewItem tab)
     {
         printHelper ??= new PrintHelper(this);
         await printHelper.PrintViewAsync(PrintCanvas, tab);
     }
 
-    private async Task<bool> AttemptToCloseTabs(IList<object> tabs)
+    private async Task<bool> AttemptToCloseTabsAsync(IList<object> tabs)
     {
         List<(TabViewItem tab, int index)> modifiedTabs = new();
         List<TabViewItem> unModifiedTabs = new();
@@ -166,7 +166,7 @@ internal sealed partial class MainWindow : Window, ISession
             Tabs.SelectedItem = tab;
             PuzzleTabViewItem puzzleTab = (PuzzleTabViewItem)tab;
 
-            if (await puzzleTab.SaveTabContents())
+            if (await puzzleTab.SaveTabContentsAsync())
             {
                 CloseTab(tab);
             }
@@ -199,7 +199,7 @@ internal sealed partial class MainWindow : Window, ISession
         }
     }
 
-    private async void Tabs_TabItemsChanged(TabView sender, IVectorChangedEventArgs args)
+    private async void Tabs_TabItemsChangedAsync(TabView sender, IVectorChangedEventArgs args)
     {
         if (sender.TabItems.Count == 0)
         {
@@ -212,7 +212,7 @@ internal sealed partial class MainWindow : Window, ISession
 
             if (isLastWindow)
             {
-                await Settings.Data.Save();
+                await Settings.Data.SaveAsync();
             }
 
             Close();
@@ -367,11 +367,11 @@ internal sealed partial class MainWindow : Window, ISession
         AddTab(tab);
     }
 
-    private async void Tabs_TabCloseRequested(TabView sender, TabViewTabCloseRequestedEventArgs args)
+    private async void Tabs_TabCloseRequestedAsync(TabView sender, TabViewTabCloseRequestedEventArgs args)
     {
         if ((args.Tab is PuzzleTabViewItem puzzleTab) && puzzleTab.IsModified)
         {
-            if (await puzzleTab.SaveTabContents())
+            if (await puzzleTab.SaveTabContentsAsync())
             {
                 CloseTab(args.Tab);
             }
@@ -471,14 +471,14 @@ internal sealed partial class MainWindow : Window, ISession
         return Tabs.TabItems.Count > 1;
     }
 
-    public async Task ExecuteCloseOtherTabs()
+    public async Task ExecuteCloseOtherTabsAsync()
     {
         if (CanCloseOtherTabs())
         {
             List<object> otherTabs = new List<object>(Tabs.TabItems.Count - 1);
             otherTabs.AddRange(Tabs.TabItems.Where(x => !ReferenceEquals(x, Tabs.SelectedItem)));
 
-            await AttemptToCloseTabs(otherTabs);
+            await AttemptToCloseTabsAsync(otherTabs);
         }
     }
 
@@ -487,7 +487,7 @@ internal sealed partial class MainWindow : Window, ISession
         return (Tabs.TabItems.Count > 1) && (Tabs.TabItems[0] != Tabs.SelectedItem);
     }
 
-    public async Task ExecuteCloseLeftTabs()
+    public async Task ExecuteCloseLeftTabsAsync()
     {
         if (CanCloseLeftTabs())
         {
@@ -499,7 +499,7 @@ internal sealed partial class MainWindow : Window, ISession
                 leftTabs.Add(Tabs.TabItems[index]);
             }
 
-            await AttemptToCloseTabs(leftTabs);
+            await AttemptToCloseTabsAsync(leftTabs);
         }
     }
 
@@ -508,7 +508,7 @@ internal sealed partial class MainWindow : Window, ISession
         return (Tabs.TabItems.Count > 1) && (Tabs.TabItems[Tabs.TabItems.Count - 1] != Tabs.SelectedItem);
     }
 
-    public async Task ExecuteCloseRightTabs()
+    public async Task ExecuteCloseRightTabsAsync()
     {
         if (CanCloseRightTabs())
         {
@@ -524,7 +524,7 @@ internal sealed partial class MainWindow : Window, ISession
                     rightTabs.Add(Tabs.TabItems[index]);
                 }
 
-                await AttemptToCloseTabs(rightTabs);
+                await AttemptToCloseTabsAsync(rightTabs);
             }
         }
     }

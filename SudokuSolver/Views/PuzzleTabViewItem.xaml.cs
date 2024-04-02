@@ -44,26 +44,26 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
         Clipboard.ContentChanged += async (s, o) =>
         {
-            await ViewModel.ClipboardContentChanged();
+            await ViewModel.ClipboardContentChangedAsync();
         };
 
-        CloseOtherTabsCommand = new RelayCommand(ExecuteCloseOtherTabs, CanCloseOtherTabs);
-        CloseLeftTabsCommand = new RelayCommand(ExecuteCloseLeftTabs, CanCloseLeftTabs);
-        CloseRightTabsCommand = new RelayCommand(ExecuteCloseRightTabs, CanCloseRightTabs);
+        CloseOtherTabsCommand = new RelayCommand(ExecuteCloseOtherTabsAsync, CanCloseOtherTabs);
+        CloseLeftTabsCommand = new RelayCommand(ExecuteCloseLeftTabsAsync, CanCloseLeftTabs);
+        CloseRightTabsCommand = new RelayCommand(ExecuteCloseRightTabsAsync, CanCloseRightTabs);
     }
 
     public PuzzleTabViewItem(MainWindow parent, StorageFile storageFile) : this(parent)
     {
         sourceFile = storageFile;
-        Loaded += LoadedHandler;
+        Loaded += LoadedHandlerAsync;
 
-        static async void LoadedHandler(object sender, RoutedEventArgs e)
+        static async void LoadedHandlerAsync(object sender, RoutedEventArgs e)
         {
             PuzzleTabViewItem tab = (PuzzleTabViewItem)sender;
-            tab.Loaded -= LoadedHandler;
+            tab.Loaded -= LoadedHandlerAsync;
             tab.Header = tab.sourceFile?.Name;
 
-            if (await tab.LoadFile(tab.sourceFile!) != Error.Success)
+            if (await tab.LoadFileAsync(tab.sourceFile!) != Error.Success)
             {
                 tab.sourceFile = null;
             }
@@ -88,12 +88,12 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
     public PuzzleTabViewItem(MainWindow parent, XElement root) : this(parent)
     {
-        Loaded += LoadedHandler;
+        Loaded += LoadedHandlerAsync;
 
-        async void LoadedHandler(object sender, RoutedEventArgs e)
+        async void LoadedHandlerAsync(object sender, RoutedEventArgs e)
         {
             PuzzleTabViewItem tab = (PuzzleTabViewItem)sender;
-            tab.Loaded -= LoadedHandler;
+            tab.Loaded -= LoadedHandlerAsync;
 
             XElement? data = root.Element("path");
 
@@ -161,10 +161,10 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         }
     }
 
-    public async Task<bool> SaveTabContents()
+    public async Task<bool> SaveTabContentsAsync()
     {
         Debug.Assert(IsModified);
-        return await SaveExistingFirst() != Status.Cancelled;
+        return await SaveExistingFirstAsync() != Status.Cancelled;
     }
 
     public void AdjustKeyboardAccelerators(bool enable)
@@ -195,13 +195,13 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         parentWindow.AddTab(tab);
     }
 
-    private async void OpenClickHandler(object sender, RoutedEventArgs e)
+    private async void OpenClickHandlerAsync(object sender, RoutedEventArgs e)
     {
         Status status = Status.Continue;
 
         if (IsModified)
         {
-            status = await SaveExistingFirst();
+            status = await SaveExistingFirstAsync();
         }
 
         if (status != Status.Cancelled)
@@ -214,7 +214,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
             if (file is not null)
             {
-                Error error = await LoadFile(file);
+                Error error = await LoadFileAsync(file);
 
                 if (error == Error.Success)
                 {
@@ -249,21 +249,21 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         window.AddTab(new PuzzleTabViewItem(window));
     }
 
-    private async void SaveClickHandler(object sender, RoutedEventArgs e)
+    private async void SaveClickHandlerAsync(object sender, RoutedEventArgs e)
     {
-        await Save();
+        await SaveAsync();
     }
 
-    private async void SaveAsClickHandler(object sender, RoutedEventArgs e)
+    private async void SaveAsClickHandlerAsync(object sender, RoutedEventArgs e)
     {
-        await SaveAs();
+        await SaveAsAsync();
     }
 
-    private async void PrintClickHandler(object sender, RoutedEventArgs e)
+    private async void PrintClickHandlerAsync(object sender, RoutedEventArgs e)
     {
         try
         {
-            await parentWindow.PrintPuzzle(this);
+            await parentWindow.PrintPuzzleAsync(this);
         }
         catch (Exception ex)
         {
@@ -271,11 +271,11 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         }
     }
 
-    private async void CloseTabClickHandler(object sender, RoutedEventArgs e)
+    private async void CloseTabClickHandlerAsync(object sender, RoutedEventArgs e)
     {
         if (IsModified)
         {
-            if (await SaveTabContents())
+            if (await SaveTabContentsAsync())
             {
                 parentWindow.CloseTab(this);
             }
@@ -301,7 +301,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         parentWindow.AddOrSelectSettingsTab();
     }
 
-    private async Task<Error> LoadFile(StorageFile file)
+    private async Task<Error> LoadFileAsync(StorageFile file)
     {
         Error error = Error.Failure;
 
@@ -322,7 +322,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         return error;
     }
 
-    private async Task<Status> SaveExistingFirst()
+    private async Task<Status> SaveExistingFirstAsync()
     {
         Debug.Assert(!parentWindow.IsContentDialogOpen());
 
@@ -333,7 +333,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
         if (result == ContentDialogResult.Primary)
         {
-            status = await Save();  // if it's a new file, the Save As picker could be canceled
+            status = await SaveAsync();  // if it's a new file, the Save As picker could be canceled
         }
         else if (result == ContentDialogResult.None)
         {
@@ -343,7 +343,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         return status;
     }
 
-    private async Task SaveFile(StorageFile file)
+    private async Task SaveFileAsync(StorageFile file)
     {
         using (StorageStreamTransaction transaction = await file.OpenTransactedWriteAsync())
         {
@@ -359,7 +359,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         }
     }
 
-    private async Task<Status> Save()
+    private async Task<Status> SaveAsync()
     {
         Status status = Status.Cancelled;
 
@@ -367,7 +367,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         {
             try
             {
-                await SaveFile(sourceFile);
+                await SaveFileAsync(sourceFile);
                 status = Status.Continue;
             }
             catch (Exception ex)
@@ -378,13 +378,13 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         }
         else
         {
-            status = await SaveAs();
+            status = await SaveAsAsync();
         }
 
         return status;
     }
 
-    private async Task<Status> SaveAs()
+    private async Task<Status> SaveAsAsync()
     {
         Status status = Status.Cancelled;
 
@@ -399,7 +399,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         {
             try
             {
-                await SaveFile(file);
+                await SaveFileAsync(file);
                 sourceFile = file;
                 UpdateTabHeader();
                 AddToRecentFilesJumpList();
@@ -460,9 +460,9 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         return parentWindow.CanCloseOtherTabs();
     }
 
-    private async void ExecuteCloseOtherTabs(object? param)
+    private async void ExecuteCloseOtherTabsAsync(object? param)
     {
-        await parentWindow.ExecuteCloseOtherTabs();
+        await parentWindow.ExecuteCloseOtherTabsAsync();
     }
 
     private bool CanCloseLeftTabs(object? param)
@@ -470,9 +470,9 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         return parentWindow.CanCloseLeftTabs();
     }
 
-    private async void ExecuteCloseLeftTabs(object? param)
+    private async void ExecuteCloseLeftTabsAsync(object? param)
     {
-        await parentWindow.ExecuteCloseLeftTabs();
+        await parentWindow.ExecuteCloseLeftTabsAsync();
     }
 
     private bool CanCloseRightTabs(object? param)
@@ -480,9 +480,9 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         return parentWindow.CanCloseRightTabs();
     }
 
-    private async void ExecuteCloseRightTabs(object? param)
+    private async void ExecuteCloseRightTabsAsync(object? param)
     {
-        await parentWindow.ExecuteCloseRightTabs();
+        await parentWindow.ExecuteCloseRightTabsAsync();
     }
 
     public XElement GetSessionData()

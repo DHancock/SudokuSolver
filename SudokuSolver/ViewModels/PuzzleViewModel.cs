@@ -313,13 +313,13 @@ internal sealed class PuzzleViewModel : INotifyPropertyChanged
 
     private bool CanPaste(object? param = null) => (selectedIndex >= 0) && (clipboardValue > 0);
 
-    public async Task ClipboardContentChanged()
+    public async Task ClipboardContentChangedAsync()
     {
-        clipboardValue = await ReadClipboardNumber();
+        clipboardValue = await ReadClipboardNumberAsync();
         PasteCommand.RaiseCanExecuteChanged();
     }
 
-    private static async Task<int> ReadClipboardNumber()
+    private static async Task<int> ReadClipboardNumberAsync()
     {
         try
         {
