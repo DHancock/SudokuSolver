@@ -109,17 +109,6 @@ begin
 end;
 
 
-procedure CurPageChanged(CurPageID: Integer);
-begin
-  if CurPageID = wpSelectTasks then
-    WizardForm.NextButton.Caption := SetupMessage(msgButtonInstall)
-  else if CurPageID = wpFinished then
-    WizardForm.NextButton.Caption := SetupMessage(msgButtonFinish)
-  else
-    WizardForm.NextButton.Caption := SetupMessage(msgButtonNext);
-end;
-
-
 function NewLine: String;
 begin
   Result := #13#10;
