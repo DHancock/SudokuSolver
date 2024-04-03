@@ -1,5 +1,5 @@
 ; This script assumes that all release configurations have been published
-; and they are WinAppSdk and .Net framework are self contained.
+; and the WinAppSdk and .Net framework are self contained.
 ; Inno 6.2.2
 
 #define appDisplayName "Sudoku Solver"
@@ -156,8 +156,8 @@ begin
     PageText.ShowAccelChar := False;
     PageText.WordWrap := True;
     PageText.Caption := 'Uninstall has detected that {#appDisplayName} is running. ' + NewLine + NewLine +
-                        'Please close all {#appDisplayName} windows before continuing. ' + NewLine + NewLine +
-                        'If you continue without closing, {#appDisplayName} will be terminated ' +
+                        'Please save all changes before continuing. ' + NewLine + NewLine +
+                        'If you continue without saving, {#appDisplayName} will be terminated ' +
                         'and any unsaved changes will be lost.' 
 
              
