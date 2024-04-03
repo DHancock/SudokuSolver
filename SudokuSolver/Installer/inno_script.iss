@@ -1,5 +1,6 @@
-; This script assumes that all release configurations have been published
-; and the WinAppSdk and .Net framework are self contained.
+; This worker script is intended to be called from one of the build_XXX scripts
+; where the platform variable is defined. It assumes that all release configurations 
+; have been published and the WinAppSdk and .Net framework are self contained.
 ; Inno 6.2.2
 
 #define appDisplayName "Sudoku Solver"
@@ -19,7 +20,7 @@ OutputDir={#SourcePath}\bin
 UninstallDisplayIcon={app}\{#appExeName}
 Compression=lzma2/ultra64 
 SolidCompression=yes
-OutputBaseFilename={#appName}_v{#appVer}
+OutputBaseFilename={#appName}_{#platform}_v{#appVer}
 InfoBeforeFile="{#SourcePath}\unlicense.txt"
 PrivilegesRequired=lowest
 WizardStyle=classic
@@ -32,12 +33,18 @@ MinVersion=10.0.17763
 AppPublisher=David
 AppUpdatesURL=https://github.com/DHancock/SudokuSolver/releases
 ArchitecturesInstallIn64BitMode=x64 arm64
-ArchitecturesAllowed=x86 x64 arm64
+ArchitecturesAllowed={#platform}
 
 [Files]
-Source: "..\bin\Release\win-x64\publish\*"; DestDir: "{app}"; Check: IsX64; Flags: recursesubdirs; 
-Source: "..\bin\Release\win-arm64\publish\*"; DestDir: "{app}"; Check: IsARM64; Flags: recursesubdirs solidbreak;
-Source: "..\bin\Release\win-x86\publish\*"; DestDir: "{app}"; Check: IsX86; Flags: recursesubdirs solidbreak;
+#if platform == "x64"
+  Source: "..\bin\Release\win-x64\publish\*"; DestDir: "{app}"; Flags: recursesubdirs; 
+#elif platform == "arm64"
+  Source: "..\bin\Release\win-arm64\publish\*"; DestDir: "{app}"; Flags: recursesubdirs;
+#elif platform == "x86"
+  Source: "..\bin\Release\win-x86\publish\*"; DestDir: "{app}"; Flags: recursesubdirs;
+#else
+  #error unknown platform
+#endif
 
 [Icons]
 Name: "{group}\{#appDisplayName}"; Filename: "{app}\{#appExeName}"
