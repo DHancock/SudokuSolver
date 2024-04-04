@@ -32,8 +32,10 @@ DisableReadyPage=yes
 MinVersion=10.0.17763
 AppPublisher=David
 AppUpdatesURL=https://github.com/DHancock/SudokuSolver/releases
-ArchitecturesInstallIn64BitMode=x64 arm64
-ArchitecturesAllowed={#platform}
+
+#if platform == "x64" || platform == "arm64"
+  ArchitecturesAllowed={#platform} 
+#endif
 
 [Files]
 #if platform == "x64"
