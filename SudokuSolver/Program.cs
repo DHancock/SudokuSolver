@@ -1,6 +1,4 @@
 ﻿using Microsoft.UI.Dispatching;
-using SdkRelease = Microsoft.WindowsAppSDK.Release;
-using RuntimeVersion = Microsoft.WindowsAppSDK.Runtime.Version;
 using DispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue;
 
 namespace SudokuSolver;
@@ -15,41 +13,31 @@ public static class Program
         bool isRegister = (args.Length == 1) && string.Equals(args[0], "/register", StringComparison.Ordinal);
         bool isUnregister = (args.Length == 1) && string.Equals(args[0], "/unregister", StringComparison.Ordinal);
 
-        if (InitializeWinAppSdk(noUI: isRegister || isUnregister))
+        if (isRegister)
         {
-            try
-            {
-                if (isRegister)
-                {
-                    RegisterFileTypeActivation();
-                }
-                else if (isUnregister)
-                {
-                    UnregisterFileTypeActivation();
-                }
-                else
-                {
-                    AppInstance appInstance = AppInstance.FindOrRegisterForKey(cAppKey);
+            RegisterFileTypeActivation();
+        }
+        else if (isUnregister)
+        {
+            UnregisterFileTypeActivation();
+        }
+        else
+        {
+            AppInstance appInstance = AppInstance.FindOrRegisterForKey(cAppKey);
 
-                    if (!appInstance.IsCurrent)
-                    {
-                        AppActivationArguments aea = AppInstance.GetCurrent().GetActivatedEventArgs();
-                        RedirectActivationTo(aea, appInstance);
-                    }
-                    else
-                    {
-                        Application.Start((p) =>
-                        {
-                            var context = new DispatcherQueueSynchronizationContext(DispatcherQueue.GetForCurrentThread());
-                            SynchronizationContext.SetSynchronizationContext(context);
-                            _ = new App(appInstance);
-                        });
-                    }
-                }
-            }
-            finally
+            if (!appInstance.IsCurrent)
             {
-                Bootstrap.Shutdown();
+                AppActivationArguments aea = AppInstance.GetCurrent().GetActivatedEventArgs();
+                RedirectActivationTo(aea, appInstance);
+            }
+            else
+            {
+                Application.Start((p) =>
+                {
+                    var context = new DispatcherQueueSynchronizationContext(DispatcherQueue.GetForCurrentThread());
+                    SynchronizationContext.SetSynchronizationContext(context);
+                    _ = new App(appInstance);
+                });
             }
         }
     }
@@ -68,15 +56,6 @@ public static class Program
         string[] fileTypes = [App.cFileExt];
 
         ActivationRegistrationManager.UnregisterForFileTypeActivation(fileTypes, Environment.ProcessPath);
-    }
-
-    private static bool InitializeWinAppSdk(bool noUI)
-    {
-        uint sdkVersion = SdkRelease.MajorMinor;
-        PackageVersion minRuntimeVersion = new PackageVersion(RuntimeVersion.Major, RuntimeVersion.Minor, RuntimeVersion.Build);
-        Bootstrap.InitializeOptions options = noUI ? Bootstrap.InitializeOptions.None : Bootstrap.InitializeOptions.OnNoMatch_ShowUI;
-
-        return Bootstrap.TryInitialize(sdkVersion, null, minRuntimeVersion, options, out _);
     }
 
     public static void RedirectActivationTo(AppActivationArguments args, AppInstance keyInstance)
