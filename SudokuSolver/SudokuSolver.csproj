@@ -20,8 +20,6 @@
     <FileVersion>1.11.1</FileVersion>
   </PropertyGroup>
 
-	
-
   <ItemGroup>
     <PackageReference Include="AssyntSoftware.WinUI3Controls" Version="2.2.1" />
     <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.49-beta">
@@ -48,8 +46,6 @@
 		<None Update="Resources\warning.bmp">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
-
-		<Compile Include="$(MicrosoftWindowsAppSDKPackageDir)include\WindowsAppSDK-VersionInfo.cs" />
 	</ItemGroup>
 	
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
