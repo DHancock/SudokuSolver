@@ -46,7 +46,7 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
 
         foreach (Cell cell in Cells)
         {
-            if (cell.HasValue)
+            if (cell.HasValue && (cell.Origin == Origins.User || cell.Origin == Origins.Provided))
             {
                 root.Add(new XElement(Cx.Cell, new XElement(Cx.x, cell.Index % 9),
                                                   new XElement(Cx.y, cell.Index / 9),
