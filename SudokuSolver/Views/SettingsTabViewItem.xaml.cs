@@ -98,7 +98,7 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
                 isOrientationHorizontal = false;
 
                 Grid.SetColumn(AboutInfo, 0);
-                Grid.SetRow(AboutInfo, 4);
+                Grid.SetRow(AboutInfo, 5);
                 Grid.SetRowSpan(AboutInfo, 1);
 
                 LayoutRoot.ColumnDefinitions[0].MinWidth = 0;
