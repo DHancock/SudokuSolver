@@ -50,16 +50,9 @@ internal class Settings
         {
             try
             {
-                string path = GetSettingsFilePath();
-                string? directory = Path.GetDirectoryName(path);
-                Debug.Assert(!string.IsNullOrWhiteSpace(directory));
+                Directory.CreateDirectory(App.GetAppDataPath());
 
-                if (!Directory.Exists(directory))
-                {
-                    Directory.CreateDirectory(directory);
-                }
-
-                await File.WriteAllTextAsync(path, JsonSerializer.Serialize(settings, GetSerializerOptions()));
+                await File.WriteAllTextAsync(GetSettingsFilePath(), JsonSerializer.Serialize(settings, GetSerializerOptions()));
             }
             catch (Exception ex)
             {

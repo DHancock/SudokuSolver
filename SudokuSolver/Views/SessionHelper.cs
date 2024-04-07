@@ -27,6 +27,8 @@ internal class SessionHelper
     {
         try
         {
+            Directory.CreateDirectory(App.GetAppDataPath());
+
             await using (Stream stream = new FileStream(GetSessionPath(), FileMode.Create))
             {
                 await root.SaveAsync(stream, SaveOptions.None, CancellationToken.None);
