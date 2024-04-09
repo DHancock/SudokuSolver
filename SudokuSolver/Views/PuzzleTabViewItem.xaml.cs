@@ -96,7 +96,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         {
             PuzzleTabViewItem tab = (PuzzleTabViewItem)sender;
             tab.Loaded -= LoadedHandlerAsync;
-
+            bool forceModified = false;
             XElement? data = root.Element("path");
 
             if ((data is not null) && !string.IsNullOrEmpty(data.Value))
@@ -108,6 +108,9 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
                 catch (Exception ex)
                 {
                     Debug.WriteLine(ex.ToString());
+
+                    // indicate that it may need to be resaved
+                    forceModified = true;
                 }
             }
 
@@ -130,7 +133,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
             if (data is not null)
             {
-                tab.ViewModel.LoadXml(data, isModified);
+                tab.ViewModel.LoadXml(data, isModified || forceModified);
             }
 
             tab.UpdateTabHeader();
