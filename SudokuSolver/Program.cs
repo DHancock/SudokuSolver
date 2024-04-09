@@ -48,7 +48,7 @@ public static class Program
         string[] verbs = ["open"];
         string logo = $"{Environment.ProcessPath},0";
 
-        ActivationRegistrationManager.RegisterForFileTypeActivation(fileTypes, logo, App.cDisplayName, verbs, string.Empty);
+        ActivationRegistrationManager.RegisterForFileTypeActivation(fileTypes, logo, App.Instance.AppDisplayName, verbs, string.Empty);
     }
 
     private static void UnregisterFileTypeActivation()
@@ -72,4 +72,3 @@ public static class Program
         mres.Wait();
     }
 }
-

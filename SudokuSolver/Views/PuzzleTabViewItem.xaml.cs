@@ -38,7 +38,8 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
             if (closeButton is not null)
             {
-                ToolTipService.SetToolTip(closeButton, "Close tab (Ctrl + W)");
+                string text = App.Instance.ResourceLoader.GetString("CloseTabToolTip");
+                ToolTipService.SetToolTip(closeButton, text);
             }
         };
 
@@ -61,7 +62,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         {
             PuzzleTabViewItem tab = (PuzzleTabViewItem)sender;
             tab.Loaded -= LoadedHandlerAsync;
-            tab.Header = tab.sourceFile?.Name;
+            tab.HeaderText = tab.sourceFile!.Name;
 
             if (await tab.LoadFileAsync(tab.sourceFile!) != Error.Success)
             {
@@ -76,6 +77,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
     {
         ViewModel = source.ViewModel;
         sourceFile = source.sourceFile;
+        HeaderText = source.HeaderText;
         Loaded += LoadedHandler;
 
         static void LoadedHandler(object sender, RoutedEventArgs e)
@@ -113,7 +115,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
             if (data is not null)
             {
-                tab.Header = data.Value;
+                tab.HeaderText = data.Value;
             }
 
             data = root.Element("modified");
@@ -150,6 +152,12 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
             viewModel.PropertyChanged += ViewModel_PropertyChanged;
             Puzzle.ViewModel = value;
         }
+    }
+
+    public string HeaderText
+    {
+        get => ((TextBlock)Header).Text;
+        private set => ((TextBlock)Header).Text = value;
     }
 
     public StorageFile? SourceFile => sourceFile;
@@ -268,7 +276,8 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         }
         catch (Exception ex)
         {
-            await new ErrorDialog("A printing error occurred.", ex.Message, XamlRoot, ActualTheme).ShowAsync();
+            string heading = App.Instance.ResourceLoader.GetString("PrintErrorHeading");
+            await new ErrorDialog(heading, ex.Message, XamlRoot, ActualTheme).ShowAsync();
         }
     }
 
@@ -318,7 +327,8 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         }
         catch (Exception ex)
         {
-            string heading = $"An error occurred when opening {file.Name}";
+            string template = App.Instance.ResourceLoader.GetString("FileOpenErrorTemplate");
+            string heading = string.Format(template, file.Name);
             await new ErrorDialog(heading, ex.Message, XamlRoot, ActualTheme).ShowAsync();
         }
 
@@ -330,7 +340,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         Debug.Assert(!parentWindow.IsContentDialogOpen());
 
         Status status = Status.Continue;
-        string path = (sourceFile is null) ? (string)Header : sourceFile.Path;
+        string path = (sourceFile is null) ? HeaderText : sourceFile.Path;
 
         ContentDialogResult result = await new ConfirmSaveDialog(path, XamlRoot, LayoutRoot.ActualTheme).ShowAsync();
 
@@ -375,7 +385,8 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
             }
             catch (Exception ex)
             {
-                string heading = $"An error occurred when saving {sourceFile.Name}";
+                string template = App.Instance.ResourceLoader.GetString("FileSaveErrorTemplate");
+                string heading = string.Format(template, sourceFile.Name);
                 await new ErrorDialog(heading, ex.Message, XamlRoot, ActualTheme).ShowAsync();
             }
         }
@@ -393,8 +404,9 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
         FileSavePicker savePicker = new FileSavePicker();
         InitializeWithWindow.Initialize(savePicker, parentWindow.WindowPtr);
-        savePicker.FileTypeChoices.Add("Sudoku files", new List<string>() { App.cFileExt });
-        savePicker.SuggestedFileName = (sourceFile is null) ? (string)Header : sourceFile.Name;
+        string fileChoice = App.Instance.ResourceLoader.GetString("SavePickerFileChoice");
+        savePicker.FileTypeChoices.Add(fileChoice, new List<string>() { App.cFileExt });
+        savePicker.SuggestedFileName = (sourceFile is null) ? HeaderText : sourceFile.Name;
 
         StorageFile file = await savePicker.PickSaveFileAsync();
 
@@ -410,7 +422,8 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
             }
             catch (Exception ex)
             {
-                string heading = $"An error occurred when saving {file.Name}";
+                string template = App.Instance.ResourceLoader.GetString("FileSaveErrorTemplate");
+                string heading = string.Format(template, file.Name);
                 await new ErrorDialog(heading, ex.Message, XamlRoot, ActualTheme).ShowAsync();
             }
         }
@@ -430,16 +443,11 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
     {
         if (sourceFile is null)
         {
-            if (Header is null)
-            {
-                Header = App.cNewPuzzleName;
-            }
-
-            ToolTipService.SetToolTip(this, Header);
+            ToolTipService.SetToolTip(this, null);
         }
         else
         {
-            Header = sourceFile.Name;
+            HeaderText = sourceFile.Name;
             ToolTipService.SetToolTip(this, sourceFile.Path);
         }
 
@@ -492,7 +500,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
     {
         XElement root = new XElement("puzzle", new XAttribute("version", 1));
 
-        root.Add(new XElement("title", Header));
+        root.Add(new XElement("title", HeaderText));
         root.Add(new XElement("path", SourceFile?.Path));
         root.Add(new XElement("modified", IsModified));
 

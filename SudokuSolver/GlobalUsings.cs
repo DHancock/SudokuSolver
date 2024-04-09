@@ -11,7 +11,7 @@ global using Microsoft.UI.Xaml.Input;
 global using Microsoft.UI.Xaml.Media;
 global using Microsoft.UI.Xaml.Media.Imaging;
 global using Microsoft.UI.Xaml.Printing;
-global using Microsoft.Windows.ApplicationModel.DynamicDependency;
+global using Microsoft.Windows.ApplicationModel.Resources;
 global using Microsoft.Windows.AppLifecycle;
 
 global using System.Collections;

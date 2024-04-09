@@ -11,7 +11,7 @@ namespace SudokuSolver.Views;
 /// </summary>
 internal sealed partial class MainWindow : Window, ISession
 {
-    private const string cDataIdentifier = App.cDisplayName;
+    private const string cDataIdentifier = "SudokuSolverId";
     private const string cProcessId = "pId";
 
     public bool IsActive { get; private set; } = true;
@@ -43,7 +43,7 @@ internal sealed partial class MainWindow : Window, ISession
         };
 
         // these two are used in the iconic window displayed when hovering over the app's icon in the task bar
-        AppWindow.Title = App.cDisplayName;
+        AppWindow.Title = App.Instance.AppDisplayName;
         AppWindow.SetIcon("Resources\\app.ico");
 
         AppWindow.MoveAndResize(App.Instance.GetNewWindowPosition(this, bounds));

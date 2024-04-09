@@ -12,14 +12,13 @@ namespace SudokuSolver;
 public partial class App : Application
 {
     public const string cFileExt = ".sdku";
-    public const string cDisplayName = "Sudoku Solver";
-    public const string cNewPuzzleName = "Untitled";
     public static App Instance => (App)Current;
 
     private readonly DispatcherQueue uiThreadDispatcher;
     private readonly AppInstance appInstance;
     private readonly List<MainWindow> windowList = new();
     private MainWindow? currentWindow;
+    internal ResourceLoader ResourceLoader { get; } = new ResourceLoader();
     internal SessionHelper SessionHelper { get; } = new SessionHelper();
     private bool appClosing = false;
 
@@ -331,4 +330,6 @@ public partial class App : Application
         string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         return Path.Join(localAppData, "SudokuSolver.davidhancock.net");
     }
+
+    public string AppDisplayName => ResourceLoader.GetString("AppDisplayName");
 }

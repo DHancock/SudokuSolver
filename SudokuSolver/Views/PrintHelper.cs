@@ -49,13 +49,13 @@ internal sealed class PrintHelper
 
         if (currentlyPrinting)
         {
-            throw new InvalidOperationException("Printing cannot be started at this time.");
+            throw new InvalidOperationException(App.Instance.ResourceLoader.GetString("PrintReentrantErrorText"));
         }
 
         // printing isn't reentrant
         currentlyPrinting = true;
 
-        headerText = tab.SourceFile is null ? (string)tab.Header : tab.SourceFile.Path;
+        headerText = tab.SourceFile is null ? tab.HeaderText : tab.SourceFile.Path;
         settings = Settings.Data.PrintSettings.Clone();
 
         // a user control containing a puzzle view
@@ -100,11 +100,17 @@ internal sealed class PrintHelper
 
         // add custom size option
         PrintCustomItemListOptionDetails sizeOption;
-        sizeOption = printDetailedOptions.CreateItemListOption(CustomOption.PrintSize.ToString(), "Scale");
+
+        ResourceLoader rl = App.Instance.ResourceLoader;
+
+        sizeOption = printDetailedOptions.CreateItemListOption(CustomOption.PrintSize.ToString(), rl.GetString("PrintSizeHeader"));
+
+        string sizeTemplate = rl.GetString("PrintSizeTemplate");
+        string fitToPage = rl.GetString("PrintFitToPage");
 
         foreach (PrintSize size in Enum.GetValues<PrintSize>().Reverse())
         {
-            sizeOption.AddItem(size.ToString(), size == PrintSize.Size_100 ? "Fit to page" : $"{(int)size}%");
+            sizeOption.AddItem(size.ToString(), size == PrintSize.Size_100 ? fitToPage : string.Format(sizeTemplate, (int)size));
         }
 
         sizeOption.TrySetValue(settings.PrintSize.ToString());
@@ -112,33 +118,33 @@ internal sealed class PrintHelper
 
         // add custom alignment option
         PrintCustomItemListOptionDetails alignOption;
-        alignOption = printDetailedOptions.CreateItemListOption(CustomOption.Alignment.ToString(), "Position on page");
-        alignOption.AddItem(Alignment.TopLeft.ToString(), "top left");
-        alignOption.AddItem(Alignment.TopCenter.ToString(), "top center");
-        alignOption.AddItem(Alignment.TopRight.ToString(), "top right");
-        alignOption.AddItem(Alignment.MiddleLeft.ToString(), "left of center");
-        alignOption.AddItem(Alignment.MiddleCenter.ToString(), "centered");
-        alignOption.AddItem(Alignment.MiddleRight.ToString(), "right of center");
-        alignOption.AddItem(Alignment.BottomLeft.ToString(), "bottom left");
-        alignOption.AddItem(Alignment.BottomCenter.ToString(), "bottom center");
-        alignOption.AddItem(Alignment.BottomRight.ToString(), "bottom right");
+        alignOption = printDetailedOptions.CreateItemListOption(CustomOption.Alignment.ToString(), rl.GetString("PrintPositionHeader"));
+        alignOption.AddItem(Alignment.TopLeft.ToString(), rl.GetString("PrintTopLeft"));
+        alignOption.AddItem(Alignment.TopCenter.ToString(), rl.GetString("PrintTopCenter"));
+        alignOption.AddItem(Alignment.TopRight.ToString(), rl.GetString("PrintTopRight"));
+        alignOption.AddItem(Alignment.MiddleLeft.ToString(), rl.GetString("PrintMiddleLeft"));
+        alignOption.AddItem(Alignment.MiddleCenter.ToString(), rl.GetString("PrintMiddleCenter"));
+        alignOption.AddItem(Alignment.MiddleRight.ToString(), rl.GetString("PrintMiddleRight"));
+        alignOption.AddItem(Alignment.BottomLeft.ToString(), rl.GetString("PrintBottomLeft"));
+        alignOption.AddItem(Alignment.BottomCenter.ToString(), rl.GetString("PrintBottomCenter"));
+        alignOption.AddItem(Alignment.BottomRight.ToString(), rl.GetString("PrintBottomRight"));
 
         alignOption.TrySetValue(settings.PrintAlignment.ToString());
         displayedOptions.Add(alignOption.OptionId);
 
         // add margin option
         PrintCustomItemListOptionDetails marginOption;
-        marginOption = printDetailedOptions.CreateItemListOption(CustomOption.Margin.ToString(), "Print margins");
-        marginOption.AddItem(Margin.None.ToString(), "none");
-        marginOption.AddItem(Margin.Small.ToString(), "small");
-        marginOption.AddItem(Margin.Medium.ToString(), "medium");
-        marginOption.AddItem(Margin.Large.ToString(), "large");
+        marginOption = printDetailedOptions.CreateItemListOption(CustomOption.Margin.ToString(), rl.GetString("PrintMarginsHeader"));
+        marginOption.AddItem(Margin.None.ToString(), rl.GetString("PrintNone"));
+        marginOption.AddItem(Margin.Small.ToString(), rl.GetString("PrintSmall"));
+        marginOption.AddItem(Margin.Medium.ToString(), rl.GetString("PrintMedium"));
+        marginOption.AddItem(Margin.Large.ToString(), rl.GetString("PrintLarge"));
 
         marginOption.TrySetValue(settings.PrintMargin.ToString());
         displayedOptions.Add(marginOption.OptionId);
 
         // add heading (file name) option
-        PrintCustomToggleOptionDetails header = printDetailedOptions.CreateToggleOption(CustomOption.ShowHeader.ToString(), "Print file name");
+        PrintCustomToggleOptionDetails header = printDetailedOptions.CreateToggleOption(CustomOption.ShowHeader.ToString(), rl.GetString("PrintFileNameHeader"));
         header.TrySetValue(settings.ShowHeader);
         displayedOptions.Add(header.OptionId);
 

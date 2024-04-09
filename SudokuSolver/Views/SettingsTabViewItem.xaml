@@ -19,7 +19,7 @@
                     <ColumnDefinition Width="*" MaxWidth="700"/>
                 </Grid.ColumnDefinitions>
                 <Grid.Resources>
-                    <Style TargetType="TextBlock">
+                    <Style TargetType="TextBlock" BasedOn="{StaticResource BodyTextBlockStyle}">
                         <Setter Property="Margin" Value="10,0,0,0"/>
                     </Style>
                     <Style TargetType="Expander">
@@ -36,13 +36,13 @@
                     <Expander.Header>
                         <StackPanel Orientation="Horizontal">
                             <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xF08C;"/>
-                            <TextBlock Text="App theme"/>
+                            <TextBlock x:Uid="AppTheme"/>
                         </StackPanel>
                     </Expander.Header>
                     <RadioButtons SelectedIndex="{x:Bind ViewModel.ThemeRadioButtonsIndex, Mode=TwoWay}">
-                        <x:String>Light</x:String>
-                        <x:String>Dark</x:String>
-                        <x:String>Use system setting</x:String>
+                        <TextBlock x:Uid="AppThemeLight" Margin="0"/>
+                        <TextBlock x:Uid="AppThemeDark" Margin="0"/>
+                        <TextBlock x:Uid="AppThemeSystem" Margin="0"/>
                     </RadioButtons>
                 </Expander>
 
@@ -50,12 +50,12 @@
                     <Expander.Header>
                         <StackPanel Orientation="Horizontal">
                             <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE80A;"/>
-                            <TextBlock Text="View options"/>
+                            <TextBlock x:Uid="ViewOptions"/>
                         </StackPanel>
                     </Expander.Header>
                     <StackPanel>
-                        <CheckBox Content="Show possible values" IsChecked="{x:Bind ViewModel.ShowPossibles, Mode=TwoWay}"/>
-                        <CheckBox Content="Show solution" IsChecked="{x:Bind ViewModel.ShowSolution, Mode=TwoWay}"/>
+                        <CheckBox x:Uid="ShowPossibles" IsChecked="{x:Bind ViewModel.ShowPossibles, Mode=TwoWay}"/>
+                        <CheckBox x:Uid="ShowSolution" IsChecked="{x:Bind ViewModel.ShowSolution, Mode=TwoWay}"/>
                     </StackPanel>
                 </Expander>
 
@@ -63,17 +63,17 @@
                     <Expander.Header>
                         <StackPanel Orientation="Horizontal">
                             <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE790;"/>
-                            <TextBlock Text="Light theme colors"/>
+                            <TextBlock x:Uid="LightThemeColors"/>
                         </StackPanel>
                     </Expander.Header>
 
                     <Grid ColumnDefinitions ="Auto,Auto,*" RowDefinitions="*,*,*,*,*,*">
-                        <TextBlock Grid.Row="0" Text="User entered values" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="1" Text="Provided values" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="2" Text="Calculated values" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="3" Text="Possible Values" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="4" Text="Horizontal Possibles" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="5" Text="Vertical Possibles" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="0" x:Uid="UserValues" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="1" x:Uid="ProvidedValues" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="2" x:Uid="CalculatdValues" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="3" x:Uid="PossibleValues" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="4" x:Uid="HorizontalPossibles" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="5" x:Uid="VerticalPossibles" HorizontalAlignment="Right" VerticalAlignment="Center"/>
 
                         <w3c:SimpleColorPicker Grid.Row="0" Grid.Column="1" Color="{x:Bind ViewModel.UserLight, Mode=TwoWay}"/>
                         <w3c:SimpleColorPicker Grid.Row="1" Grid.Column="1" Color="{x:Bind ViewModel.ProvidedLight, Mode=TwoWay}"/>
@@ -85,12 +85,12 @@
                         <SplitButton Grid.Row="5" Grid.Column="2" Content="Reset" Command="{x:Bind ViewModel.ResetLightColors}" HorizontalAlignment="Right" Margin="10,0,0,0">
                             <SplitButton.Flyout>
                                 <MenuFlyout Placement="Bottom">
-                                    <MenuFlyoutItem Text="User values" Command="{x:Bind ViewModel.ResetLightUser}"/>
-                                    <MenuFlyoutItem Text="Provided values" Command="{x:Bind ViewModel.ResetLightProvided}"/>
-                                    <MenuFlyoutItem Text="Calculated values" Command="{x:Bind ViewModel.ResetLightCalculated}"/>
-                                    <MenuFlyoutItem Text="Possible values" Command="{x:Bind ViewModel.ResetLightPossible}"/>
-                                    <MenuFlyoutItem Text="Horizontal Possibles" Command="{x:Bind ViewModel.ResetLightHPossible}"/>
-                                    <MenuFlyoutItem Text="Vertical Possibles" Command="{x:Bind ViewModel.ResetLightVPossible}"/>
+                                    <MenuFlyoutItem x:Uid="UserValues" Command="{x:Bind ViewModel.ResetLightUser}"/>
+                                    <MenuFlyoutItem x:Uid="ProvidedValues" Command="{x:Bind ViewModel.ResetLightProvided}"/>
+                                    <MenuFlyoutItem x:Uid="CalculatdValues" Command="{x:Bind ViewModel.ResetLightCalculated}"/>
+                                    <MenuFlyoutItem x:Uid="PossibleValues" Command="{x:Bind ViewModel.ResetLightPossible}"/>
+                                    <MenuFlyoutItem x:Uid="HorizontalPossibles" Command="{x:Bind ViewModel.ResetLightHPossible}"/>
+                                    <MenuFlyoutItem x:Uid="VerticalPossibles" Command="{x:Bind ViewModel.ResetLightVPossible}"/>
                                 </MenuFlyout>
                             </SplitButton.Flyout>
                         </SplitButton>
@@ -101,17 +101,17 @@
                     <Expander.Header>
                         <StackPanel Orientation="Horizontal">
                             <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE790;"/>
-                            <TextBlock Text="Dark theme colors"/>
+                            <TextBlock x:Uid="DarkThemeColors"/>
                         </StackPanel>
                     </Expander.Header>
 
                     <Grid ColumnDefinitions ="Auto,Auto,*" RowDefinitions="*,*,*,*,*,*">
-                        <TextBlock Grid.Row="0" Text="User entered values" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="1" Text="Provided values" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="2" Text="Calculated values" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="3" Text="Possibles" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="4" Text="Horizontal Possibles" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="5" Text="Vertical Possibles" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="0" x:Uid="UserValues" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="1" x:Uid="ProvidedValues" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="2" x:Uid="CalculatdValues" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="3" x:Uid="PossibleValues" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="4" x:Uid="HorizontalPossibles" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="5" x:Uid="VerticalPossibles" HorizontalAlignment="Right" VerticalAlignment="Center"/>
 
                         <w3c:SimpleColorPicker Grid.Row="0" Grid.Column="1" Color="{x:Bind ViewModel.UserDark, Mode=TwoWay}"/>
                         <w3c:SimpleColorPicker Grid.Row="1" Grid.Column="1" Color="{x:Bind ViewModel.ProvidedDark, Mode=TwoWay}"/>
@@ -123,12 +123,12 @@
                         <SplitButton Grid.Row="5" Grid.Column="2" Content="Reset" Command="{x:Bind ViewModel.ResetDarkColors}" HorizontalAlignment="Right" Margin="10,0,0,0">
                             <SplitButton.Flyout>
                                 <MenuFlyout Placement="Bottom">
-                                    <MenuFlyoutItem Text="User values" Command="{x:Bind ViewModel.ResetDarkUser}"/>
-                                    <MenuFlyoutItem Text="Provided values" Command="{x:Bind ViewModel.ResetDarkProvided}"/>
-                                    <MenuFlyoutItem Text="Calculated values" Command="{x:Bind ViewModel.ResetDarkCalculated}"/>
-                                    <MenuFlyoutItem Text="Possible values" Command="{x:Bind ViewModel.ResetDarkPossible}"/>
-                                    <MenuFlyoutItem Text="Horizontal Possibles" Command="{x:Bind ViewModel.ResetDarkHPossible}"/>
-                                    <MenuFlyoutItem Text="Vertical Possibles" Command="{x:Bind ViewModel.ResetDarkVPossible}"/>
+                                    <MenuFlyoutItem x:Uid="UserValues" Command="{x:Bind ViewModel.ResetDarkUser}"/>
+                                    <MenuFlyoutItem x:Uid="ProvidedValues" Command="{x:Bind ViewModel.ResetDarkProvided}"/>
+                                    <MenuFlyoutItem x:Uid="CalculatdValues" Command="{x:Bind ViewModel.ResetDarkCalculated}"/>
+                                    <MenuFlyoutItem x:Uid="PossibleValues" Command="{x:Bind ViewModel.ResetDarkPossible}"/>
+                                    <MenuFlyoutItem x:Uid="HorizontalPossibles" Command="{x:Bind ViewModel.ResetDarkHPossible}"/>
+                                    <MenuFlyoutItem x:Uid="VerticalPossibles" Command="{x:Bind ViewModel.ResetDarkVPossible}"/>
                                 </MenuFlyout>
                             </SplitButton.Flyout>
                         </SplitButton>
@@ -139,12 +139,12 @@
                     <Expander.Header>
                         <StackPanel Orientation="Horizontal">
                             <SymbolIcon Symbol="NewWindow"/>
-                            <TextBlock Text="When Sudoku Solver starts"/>
+                            <TextBlock x:Uid="WhenStarts"/>
                         </StackPanel>
                     </Expander.Header>
                     <RadioButtons SelectedIndex="{x:Bind ViewModel.SessionRadioButtonsIndex, Mode=TwoWay}">
-                        <x:String>Open content from the previous session</x:String>
-                        <x:String>Open a new window</x:String>
+                        <TextBlock x:Uid="PreviousSession" Margin="0"/>
+                        <TextBlock x:Uid="NewWindow" Margin="0"/>
                     </RadioButtons>
                 </Expander>
 
@@ -154,7 +154,7 @@
     </Grid>
 
     <TabViewItem.Header>
-        <x:String>Settings</x:String>
+        <TextBlock x:Uid="Settings" Margin="0"/>
     </TabViewItem.Header>
 
     <TabViewItem.IconSource>
@@ -163,15 +163,15 @@
 
     <TabViewItem.ContextFlyout>
         <MenuFlyout>
-            <MenuFlyoutItem Text="Close tab" Click="CloseTabClickHandler" AccessKey="C">
+            <MenuFlyoutItem x:Uid="CloseTab" Click="CloseTabClickHandler" AccessKey="C">
                 <MenuFlyoutItem.KeyboardAccelerators>
                     <KeyboardAccelerator Modifiers="Control" Key="W"/>
                 </MenuFlyoutItem.KeyboardAccelerators>
             </MenuFlyoutItem>
 
-            <MenuFlyoutItem Text="Close other tabs" Command="{x:Bind CloseOtherTabsCommand}" AccessKey="O"/>
-            <MenuFlyoutItem Text="Close tabs to the left" Command="{x:Bind CloseLeftTabsCommand}" AccessKey="L"/>
-            <MenuFlyoutItem Text="Close tabs to the right" Command="{x:Bind CloseRightTabsCommand}" AccessKey="R"/>
+            <MenuFlyoutItem x:Uid="CloseOtherTabs" Command="{x:Bind CloseOtherTabsCommand}" AccessKey="O"/>
+            <MenuFlyoutItem x:Uid="CloseLeftTabs" Command="{x:Bind CloseLeftTabsCommand}" AccessKey="L"/>
+            <MenuFlyoutItem x:Uid="CloseRightTabs" Command="{x:Bind CloseRightTabsCommand}" AccessKey="R"/>
         </MenuFlyout>
     </TabViewItem.ContextFlyout>
 </TabViewItem>

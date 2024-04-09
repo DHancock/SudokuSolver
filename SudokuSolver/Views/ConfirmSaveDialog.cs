@@ -9,11 +9,15 @@ internal sealed class ConfirmSaveDialog : ContentDialog
 
         XamlRoot = xamlRoot;
         RequestedTheme = actualTheme;
-        Title = App.cDisplayName;
-        PrimaryButtonText = "Save";
-        SecondaryButtonText = "Don't Save";
-        CloseButtonText = "Cancel";
-        Content = $"Would you like to save changes to {puzzleName}?";
+
+        Title = App.Instance.AppDisplayName;
+        PrimaryButtonText = App.Instance.ResourceLoader.GetString("SaveButton");
+        SecondaryButtonText = App.Instance.ResourceLoader.GetString("DontSaveButton");
+        CloseButtonText = App.Instance.ResourceLoader.GetString("CancelButton");
+
+        string template = App.Instance.ResourceLoader.GetString("ConfirmSaveTemplate");
+        Content = string.Format(template, puzzleName);
+
         DefaultButton = ContentDialogButton.Primary;
     }
 }
