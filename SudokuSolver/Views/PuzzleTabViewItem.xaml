@@ -15,110 +15,105 @@
         </Grid.RowDefinitions>
 
         <MenuBar x:Name="Menu" HorizontalAlignment="Left">
-            <MenuBar.Resources>
-                <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
-                    <Setter Property="FontWeight" Value="Normal"/>
-                </Style>
-            </MenuBar.Resources>
 
-            <MenuBarItem Title="File" AccessKey="F">
+            <MenuBarItem x:Uid="File" AccessKey="F">
 
                 <!-- new and close tabs key accelerators are disabled, they are handled by the tab context menu-->
-                <MenuFlyoutItem Text="New tab" Click="NewTabClickHandler" AccessKey="N" x:Name="FileMenuItem">
+                <MenuFlyoutItem x:Uid="NewTab" Click="NewTabClickHandler" AccessKey="N" x:Name="FileMenuItem">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="N" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
 
-                <MenuFlyoutItem Text="New window" Click="NewWindowClickHandler" AccessKey="W">
+                <MenuFlyoutItem x:Uid="NewWindowMenu" Click="NewWindowClickHandler" AccessKey="W">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="N" Modifiers="Control,Shift"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
 
-                <MenuFlyoutItem Text="Open" Click="OpenClickHandlerAsync" IsEnabled="{x:Bind local:PuzzleTabViewItem.IsFileDialogAvailable}" AccessKey="O">
+                <MenuFlyoutItem x:Uid="Open" Click="OpenClickHandlerAsync" IsEnabled="{x:Bind local:PuzzleTabViewItem.IsFileDialogAvailable}" AccessKey="O">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="O" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
 
-                <MenuFlyoutItem Text="Save" Click="SaveClickHandlerAsync" IsEnabled="{x:Bind local:PuzzleTabViewItem.IsFileDialogAvailable}" AccessKey="S">
+                <MenuFlyoutItem x:Uid="Save" Click="SaveClickHandlerAsync" IsEnabled="{x:Bind local:PuzzleTabViewItem.IsFileDialogAvailable}" AccessKey="S">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="S" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
 
-                <MenuFlyoutItem Text="Save As..." Click="SaveAsClickHandlerAsync" IsEnabled="{x:Bind local:PuzzleTabViewItem.IsFileDialogAvailable}" AccessKey="A">
+                <MenuFlyoutItem x:Uid="SaveAs" Click="SaveAsClickHandlerAsync" IsEnabled="{x:Bind local:PuzzleTabViewItem.IsFileDialogAvailable}" AccessKey="A">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="S" Modifiers="Control,Shift"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
 
                 <MenuFlyoutSeparator />
-                <MenuFlyoutItem Text="Print..." Click="PrintClickHandlerAsync" IsEnabled="{x:Bind local:PuzzleTabViewItem.IsPrintingAvailable}" AccessKey="P">
+                <MenuFlyoutItem x:Uid="Print" Click="PrintClickHandlerAsync" IsEnabled="{x:Bind local:PuzzleTabViewItem.IsPrintingAvailable}" AccessKey="P">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="P" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
 
                 <MenuFlyoutSeparator />
-                <MenuFlyoutItem Text="Close tab" Click="CloseTabClickHandlerAsync" AccessKey="C">
+                <MenuFlyoutItem x:Uid="CloseTab" Click="CloseTabClickHandlerAsync" AccessKey="C">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="W" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
 
-                <MenuFlyoutItem Text="Close window" Click="CloseWindowClickHandler" AccessKey="E">
+                <MenuFlyoutItem x:Uid="CloseWindow" Click="CloseWindowClickHandler" AccessKey="E">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="W" Modifiers="Control,Shift"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
-                <MenuFlyoutItem Text="Exit" Click="ExitClickHandler" AccessKey="X"/>
+                <MenuFlyoutItem x:Uid="Exit" Click="ExitClickHandler" AccessKey="X"/>
             </MenuBarItem>
 
-            <MenuBarItem Title="Edit" AccessKey="E" >
-                <MenuFlyoutItem x:Name="EditMenuItem" Text="Undo" Command="{x:Bind ViewModel.UndoCommand}" AccessKey="U">
+            <MenuBarItem x:Uid="Edit" AccessKey="E" >
+                <MenuFlyoutItem x:Name="EditMenuItem" x:Uid="Undo" Command="{x:Bind ViewModel.UndoCommand}" AccessKey="U">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="Z" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
-                <MenuFlyoutItem Text="Redo" Command="{x:Bind ViewModel.RedoCommand}" AccessKey="R">
+                <MenuFlyoutItem x:Uid="Redo" Command="{x:Bind ViewModel.RedoCommand}" AccessKey="R">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="Y" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
 
                 <MenuFlyoutSeparator />
-                <MenuFlyoutItem Text="Cut" Command="{x:Bind ViewModel.CutCommand}" AccessKey="T">
+                <MenuFlyoutItem x:Uid="Cut" Command="{x:Bind ViewModel.CutCommand}" AccessKey="T">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="X" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
-                <MenuFlyoutItem Text="Copy" Command="{x:Bind ViewModel.CopyCommand}" AccessKey="C">
+                <MenuFlyoutItem x:Uid="Copy" Command="{x:Bind ViewModel.CopyCommand}" AccessKey="C">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="C" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
-                <MenuFlyoutItem Text="Paste" Command="{x:Bind ViewModel.PasteCommand}" AccessKey="P">
+                <MenuFlyoutItem x:Uid="Paste" Command="{x:Bind ViewModel.PasteCommand}" AccessKey="P">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="V" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
                 <MenuFlyoutSeparator />
-                <MenuFlyoutSubItem Text="Provided" AccessKey="P">
-                    <MenuFlyoutItem Text="Mark" Command="{x:Bind ViewModel.MarkProvidedCommand}" AccessKey="M"/>
-                    <MenuFlyoutItem Text="Clear" Command="{x:Bind ViewModel.ClearProvidedCommand}" AccessKey="C"/>
+                <MenuFlyoutSubItem x:Uid="Provided" AccessKey="P">
+                    <MenuFlyoutItem x:Uid="Mark" Command="{x:Bind ViewModel.MarkProvidedCommand}" AccessKey="M"/>
+                    <MenuFlyoutItem x:Uid="Clear" Command="{x:Bind ViewModel.ClearProvidedCommand}" AccessKey="C"/>
                 </MenuFlyoutSubItem>
             </MenuBarItem>
 
-            <MenuBarItem Title="View" AccessKey="V">
-                <ToggleMenuFlyoutItem x:Name="ViewMenuItem" Text="Possibles" IsChecked="{x:Bind ViewModel.ShowPossibles, Mode=TwoWay}" AccessKey="P"/>
-                <ToggleMenuFlyoutItem Text="Solution" IsChecked="{x:Bind ViewModel.ShowSolution, Mode=TwoWay}" AccessKey="S"/>
+            <MenuBarItem x:Uid="View" AccessKey="V">
+                <ToggleMenuFlyoutItem x:Name="ViewMenuItem" x:Uid="Possibles" IsChecked="{x:Bind ViewModel.ShowPossibles, Mode=TwoWay}" AccessKey="P"/>
+                <ToggleMenuFlyoutItem x:Uid="Solution" IsChecked="{x:Bind ViewModel.ShowSolution, Mode=TwoWay}" AccessKey="S"/>
             </MenuBarItem>
         </MenuBar>
 
         <CommandBar Grid.Column="1" DefaultLabelPosition="Collapsed" OverflowButtonVisibility="Collapsed" Background="Transparent">
-            <AppBarButton MinWidth="40" MaxWidth="40" ToolTipService.ToolTip="Settings" ToolTipService.Placement="Top" Click="SettingsButton_Click">
+            <AppBarButton MinWidth="40" MaxWidth="40" x:Uid="SettingsIcon" ToolTipService.Placement="Top" Click="SettingsButton_Click">
                 <SymbolIcon Symbol="Setting"/>
             </AppBarButton>
         </CommandBar>
@@ -127,12 +122,12 @@
     </Grid>
 
     <TabViewItem.Header>
-        <x:String>Untitled</x:String>
+        <TextBlock x:Uid="Untitled"/>
     </TabViewItem.Header>
 
     <TabViewItem.ContextFlyout>
         <MenuFlyout>
-            <MenuFlyoutItem Text="New tab" Click="NewTabClickHandler" AccessKey="N">
+            <MenuFlyoutItem x:Uid="NewTab" Click="NewTabClickHandler" AccessKey="N">
                 <MenuFlyoutItem.KeyboardAccelerators>
                     <KeyboardAccelerator Modifiers="Control" Key="N" IsEnabled="False"/>
                 </MenuFlyoutItem.KeyboardAccelerators>
@@ -140,15 +135,15 @@
 
             <MenuFlyoutSeparator/>
 
-            <MenuFlyoutItem Text="Close tab" Click="CloseTabClickHandlerAsync" AccessKey="C">
+            <MenuFlyoutItem x:Uid="CloseTab" Click="CloseTabClickHandlerAsync" AccessKey="C">
                 <MenuFlyoutItem.KeyboardAccelerators>
                     <KeyboardAccelerator Modifiers="Control" Key="W" IsEnabled="False"/>
                 </MenuFlyoutItem.KeyboardAccelerators>
             </MenuFlyoutItem>
 
-            <MenuFlyoutItem Text="Close other tabs" Command="{x:Bind CloseOtherTabsCommand}" AccessKey="O"/>
-            <MenuFlyoutItem Text="Close tabs to the left" Command="{x:Bind CloseLeftTabsCommand}" AccessKey="L"/>
-            <MenuFlyoutItem Text="Close tabs to the right" Command="{x:Bind CloseRightTabsCommand}" AccessKey="R"/>
+            <MenuFlyoutItem x:Uid="CloseOtherTabs" Command="{x:Bind CloseOtherTabsCommand}" AccessKey="O"/>
+            <MenuFlyoutItem x:Uid="CloseLeftTabs" Command="{x:Bind CloseLeftTabsCommand}" AccessKey="L"/>
+            <MenuFlyoutItem x:Uid="CloseRightTabs" Command="{x:Bind CloseRightTabsCommand}" AccessKey="R"/>
         </MenuFlyout>
     </TabViewItem.ContextFlyout>
 </TabViewItem>

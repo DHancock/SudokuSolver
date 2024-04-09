@@ -11,8 +11,10 @@ namespace SudokuSolver.Views
 
             XamlRoot = xamlRoot;
             RequestedTheme = actualTheme;
-            Title = App.cDisplayName;
-            PrimaryButtonText = "OK";
+
+            Title = App.Instance.AppDisplayName;
+            PrimaryButtonText = App.Instance.ResourceLoader.GetString("OKButton");
+
             DefaultButton = ContentDialogButton.Primary;
 
             Loaded += (s, e) =>
