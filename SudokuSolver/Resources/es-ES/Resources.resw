@@ -118,264 +118,264 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AppDisplayName" xml:space="preserve">
-    <value>Solveur de Sudoku</value>
+    <value>Solucionador de Sudoku</value>
   </data>
   <data name="AppTheme.Text" xml:space="preserve">
-    <value>Thème de l’application</value>
+    <value>Tema de la aplicación</value>
   </data>
   <data name="AppThemeDark.Text" xml:space="preserve">
-    <value>Sombre</value>
+    <value>Oscuro</value>
   </data>
   <data name="AppThemeLight.Text" xml:space="preserve">
-    <value>Lumière</value>
+    <value>Luz</value>
   </data>
   <data name="AppThemeSystem.Text" xml:space="preserve">
-    <value>Utiliser les paramètres du système</value>
+    <value>Usar la configuración del sistema</value>
   </data>
   <data name="CalculatdValues.Text" xml:space="preserve">
-    <value>Valeurs calculées</value>
+    <value>Valores calculados</value>
   </data>
   <data name="CancelButton" xml:space="preserve">
-    <value>Annuler</value>
+    <value>Cancelar</value>
   </data>
   <data name="Clear.Text" xml:space="preserve">
-    <value>Clair</value>
+    <value>Claro</value>
   </data>
   <data name="CloseLeftTabs.Text" xml:space="preserve">
-    <value>Fermer les onglets à gauche</value>
+    <value>Cerrar pestañas a la izquierda</value>
   </data>
   <data name="CloseOtherTabs.Text" xml:space="preserve">
-    <value>Fermer les autres onglets</value>
+    <value>Cerrar otras pestañas</value>
   </data>
   <data name="CloseRightTabs.Text" xml:space="preserve">
-    <value>Fermer les onglets à droite</value>
+    <value>Cerrar pestañas a la derecha</value>
   </data>
   <data name="CloseTab.Text" xml:space="preserve">
-    <value>Fermer l’onglet</value>
+    <value>Cerrar pestaña</value>
   </data>
   <data name="CloseTabToolTip" xml:space="preserve">
-    <value>Fermer l’onglet (Ctrl + W)</value>
+    <value>Cerrar pestaña (Ctrl + W)</value>
   </data>
   <data name="CloseWindow.Text" xml:space="preserve">
-    <value>Fermer la fenêtre</value>
+    <value>Cerrar ventana</value>
   </data>
   <data name="ConfirmSaveTemplate" xml:space="preserve">
-    <value>Souhaitez-vous enregistrer les modifications apportées à {0}?</value>
+    <value>¿Desea guardar los cambios en {0}?</value>
   </data>
   <data name="Copy.Text" xml:space="preserve">
-    <value>Copier</value>
+    <value>Copiar</value>
   </data>
   <data name="Cut.Text" xml:space="preserve">
-    <value>Couper</value>
+    <value>Cortar</value>
   </data>
   <data name="DarkThemeColors.Text" xml:space="preserve">
-    <value>Couleurs de thème sombre</value>
+    <value>Colores oscuros del tema</value>
   </data>
   <data name="DontSaveButton" xml:space="preserve">
-    <value>Ne pas enregistrer</value>
+    <value>No guardes</value>
   </data>
   <data name="Edit.Title" xml:space="preserve">
-    <value>Éditer</value>
+    <value>Editar</value>
   </data>
   <data name="Exit.Text" xml:space="preserve">
-    <value>Sortie</value>
+    <value>Salida</value>
   </data>
   <data name="File.Title" xml:space="preserve">
-    <value>Lime</value>
+    <value>Archivo</value>
   </data>
   <data name="FileOpenErrorTemplate" xml:space="preserve">
-    <value>Une erreur s’est produite lors de l’ouverture de {0}</value>
+    <value>Se ha producido un error al abrir {0}</value>
   </data>
   <data name="FileSaveErrorTemplate" xml:space="preserve">
-    <value>Une erreur s’est produite lors de l’enregistrement {0}</value>
+    <value>Se ha producido un error al guardar {0}</value>
   </data>
   <data name="GitHubRepository.Text" xml:space="preserve">
-    <value>Référentiel GitHub</value>
+    <value>Repositorio de GitHub</value>
   </data>
   <data name="HorizontalPossibles.Text" xml:space="preserve">
-    <value>Possibilités horizontales</value>
+    <value>Posibles horizontales</value>
   </data>
   <data name="LightThemeColors.Text" xml:space="preserve">
-    <value>Couleurs du thème clair</value>
+    <value>Colores del tema claro</value>
   </data>
   <data name="Mark.Text" xml:space="preserve">
-    <value>Marque</value>
+    <value>Marcar</value>
   </data>
   <data name="NewTab.Text" xml:space="preserve">
-    <value>Nouvel onglet</value>
+    <value>Nueva pestaña</value>
   </data>
   <data name="NewTabHeader" xml:space="preserve">
-    <value>Sans titre</value>
+    <value>Untitled</value>
   </data>
   <data name="NewWindow.Text" xml:space="preserve">
-    <value>Ouvrir une nouvelle fenêtre</value>
+    <value>Abrir una ventana nueva</value>
   </data>
   <data name="NewWindowMenu.Text" xml:space="preserve">
-    <value>Nouvelle fenêtre</value>
+    <value>Ventana nueva</value>
   </data>
   <data name="OKButton" xml:space="preserve">
     <value>OK</value>
   </data>
   <data name="Open.Text" xml:space="preserve">
-    <value>Ouvrir</value>
+    <value>Abrir</value>
   </data>
   <data name="Paste.Text" xml:space="preserve">
-    <value>Pâte</value>
+    <value>Pegar</value>
   </data>
   <data name="Possibles.Text" xml:space="preserve">
-    <value>Les possibilités</value>
+    <value>Posibles</value>
   </data>
   <data name="PossibleValues.Text" xml:space="preserve">
-    <value>Valeurs possibles</value>
+    <value>Valores posibles</value>
   </data>
   <data name="PreviousSession.Text" xml:space="preserve">
-    <value>Ouvrir le contenu de la session précédente</value>
+    <value>Abrir contenido de la sesión anterior</value>
   </data>
   <data name="Print.Text" xml:space="preserve">
-    <value>Imprimer</value>
+    <value>Impresión</value>
   </data>
   <data name="PrintBottomCenter" xml:space="preserve">
-    <value>en bas au centre</value>
+    <value>Abajo en el centro</value>
   </data>
   <data name="PrintBottomLeft" xml:space="preserve">
-    <value>en bas à gauche</value>
+    <value>abajo a la izquierda</value>
   </data>
   <data name="PrintBottomRight" xml:space="preserve">
-    <value>en bas à droite</value>
+    <value>abajo a la derecha</value>
   </data>
   <data name="PrintErrorHeading" xml:space="preserve">
-    <value>Une erreur s’est produite lors de l’impression.</value>
+    <value>Se ha producido un error al imprimir.</value>
   </data>
   <data name="PrintFileNameHeader" xml:space="preserve">
-    <value>Imprimer le nom du fichier</value>
+    <value>Imprimir nombre de archivo</value>
   </data>
   <data name="PrintFitToPage" xml:space="preserve">
-    <value>Ajuster à la page</value>
+    <value>Ajustar a la página</value>
   </data>
   <data name="PrintLarge" xml:space="preserve">
-    <value>grand</value>
+    <value>grande</value>
   </data>
   <data name="PrintMarginsHeader" xml:space="preserve">
-    <value>Marges d’impression</value>
+    <value>Márgenes de impresión</value>
   </data>
   <data name="PrintMedium" xml:space="preserve">
-    <value>Douleur moyenne</value>
+    <value>Medio</value>
   </data>
   <data name="PrintMiddleCenter" xml:space="preserve">
-    <value>Centré</value>
+    <value>centrado</value>
   </data>
   <data name="PrintMiddleLeft" xml:space="preserve">
-    <value>à gauche du centre</value>
+    <value>Izquierda del centro</value>
   </data>
   <data name="PrintMiddleRight" xml:space="preserve">
-    <value>Centre droit</value>
+    <value>A la derecha del centro</value>
   </data>
   <data name="PrintNone" xml:space="preserve">
-    <value>aucun</value>
+    <value>ninguno</value>
   </data>
   <data name="PrintPositionHeader" xml:space="preserve">
-    <value>Position sur la page</value>
+    <value>Posición en la página</value>
   </data>
   <data name="PrintReentrantErrorText" xml:space="preserve">
-    <value>L’impression ne peut pas être démarrée pour le moment.</value>
+    <value>La impresión no se puede iniciar en este momento.</value>
   </data>
   <data name="PrintSizeHeader" xml:space="preserve">
-    <value>Écaille</value>
+    <value>Escama</value>
   </data>
   <data name="PrintSizeTemplate" xml:space="preserve">
     <value>{0}%</value>
   </data>
   <data name="PrintSmall" xml:space="preserve">
-    <value>petit</value>
+    <value>pequeño</value>
   </data>
   <data name="PrintTopCenter" xml:space="preserve">
-    <value>en haut au centre</value>
+    <value>Arriba en el centro</value>
   </data>
   <data name="PrintTopLeft" xml:space="preserve">
-    <value>en haut à gauche</value>
+    <value>arriba a la izquierda</value>
   </data>
   <data name="PrintTopRight" xml:space="preserve">
-    <value>en haut à droite</value>
+    <value>arriba a la derecha</value>
   </data>
   <data name="Provided.Text" xml:space="preserve">
-    <value>Pourvu que</value>
+    <value>Con tal que</value>
   </data>
   <data name="ProvidedValues.Text" xml:space="preserve">
-    <value>Valeurs fournies</value>
+    <value>Valores proporcionados</value>
   </data>
   <data name="Redo.Text" xml:space="preserve">
-    <value>Refaire</value>
+    <value>Rehacer</value>
   </data>
   <data name="Save.Text" xml:space="preserve">
-    <value>Sauvegarder</value>
+    <value>Salvar</value>
   </data>
   <data name="SaveAs.Text" xml:space="preserve">
-    <value>Enregistrer sous</value>
+    <value>Guardar como</value>
   </data>
   <data name="SaveButton" xml:space="preserve">
-    <value>Sauvegarder</value>
+    <value>Salvar</value>
   </data>
   <data name="SavePickerFileChoice" xml:space="preserve">
-    <value>Fichiers Sudoku</value>
+    <value>Archivos de Sudoku</value>
   </data>
   <data name="Settings.Text" xml:space="preserve">
-    <value>Paramètres</value>
+    <value>Configuración</value>
   </data>
   <data name="SettingsIcon.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Paramètres</value>
+    <value>Configuración</value>
   </data>
   <data name="ShowPossibles.Content" xml:space="preserve">
-    <value>Afficher les valeurs possibles</value>
+    <value>Mostrar valores posibles</value>
   </data>
   <data name="ShowSolution.Content" xml:space="preserve">
-    <value>Voir la solution</value>
+    <value>Mostrar solución</value>
   </data>
   <data name="Solution.Text" xml:space="preserve">
-    <value>Solution</value>
+    <value>Solución</value>
   </data>
   <data name="SystemMenuCloseTab" xml:space="preserve">
-    <value>Fermer l’onglet</value>
+    <value>Cerrar pestaña</value>
   </data>
   <data name="SystemMenuCloseWindow" xml:space="preserve">
-    <value>Fermer la fenêtre</value>
+    <value>Cerrar ventana</value>
   </data>
   <data name="SystemMenuMaximize" xml:space="preserve">
-    <value>Maximiser</value>
+    <value>Maximizar</value>
   </data>
   <data name="SystemMenuMinimize" xml:space="preserve">
-    <value>Minimiser</value>
+    <value>Minimizar</value>
   </data>
   <data name="SystemMenuMove" xml:space="preserve">
-    <value>Bouger</value>
+    <value>Mover</value>
   </data>
   <data name="SystemMenuRestore" xml:space="preserve">
-    <value>Restaurer</value>
+    <value>Restaurar</value>
   </data>
   <data name="SystemMenuSize" xml:space="preserve">
-    <value>Taille</value>
+    <value>Tamaño</value>
   </data>
   <data name="Undo.Text" xml:space="preserve">
-    <value>Défaire</value>
+    <value>Deshacer</value>
   </data>
   <data name="Untitled.Text" xml:space="preserve">
-    <value>Untitled</value>
+    <value>Sin título</value>
   </data>
   <data name="UserValues.Text" xml:space="preserve">
-    <value>Valeurs de l’utilisateur</value>
+    <value>Valores de usuario</value>
   </data>
   <data name="VersionTemplate" xml:space="preserve">
-    <value>Version: {0}</value>
+    <value>Versión: {0}</value>
   </data>
   <data name="VerticalPossibles.Text" xml:space="preserve">
-    <value>Possibilités verticales</value>
+    <value>Posibles verticales</value>
   </data>
   <data name="View.Title" xml:space="preserve">
-    <value>Vue</value>
+    <value>Vista</value>
   </data>
   <data name="ViewOptions.Text" xml:space="preserve">
-    <value>Afficher les options</value>
+    <value>Opciones de visualización</value>
   </data>
   <data name="WhenStarts.Text" xml:space="preserve">
-    <value>Quand le solveur de Sudoku démarre</value>
+    <value>Cuando se inicia Sudoku Solver</value>
   </data>
 </root>
