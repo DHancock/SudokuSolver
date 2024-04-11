@@ -117,149 +117,14 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AppDisplayName" xml:space="preserve">
-    <value>Sudoku Solver</value>
-  </data>
-  <data name="AppTheme.Text" xml:space="preserve">
-    <value>App theme</value>
-  </data>
-  <data name="AppThemeDark.Text" xml:space="preserve">
-    <value>Dark</value>
-  </data>
-  <data name="AppThemeLight.Text" xml:space="preserve">
-    <value>Light</value>
-  </data>
-  <data name="AppThemeSystem.Text" xml:space="preserve">
-    <value>Use system setting</value>
-  </data>
-  <data name="CalculatdValues.Text" xml:space="preserve">
-    <value>Calculated values</value>
-  </data>
-  <data name="CancelButton" xml:space="preserve">
-    <value>Cancel</value>
-  </data>
-  <data name="Clear.Text" xml:space="preserve">
-    <value>Clear</value>
-  </data>
-  <data name="CloseLeftTabs.Text" xml:space="preserve">
-    <value>Close tabs to the left</value>
-  </data>
-  <data name="CloseOtherTabs.Text" xml:space="preserve">
-    <value>Close other tabs</value>
-  </data>
-  <data name="CloseRightTabs.Text" xml:space="preserve">
-    <value>Close tabs to the right</value>
-  </data>
-  <data name="CloseTab.Text" xml:space="preserve">
-    <value>Close tab</value>
-  </data>
-  <data name="CloseTabToolTip" xml:space="preserve">
-    <value>Close tab (Ctrl + W)</value>
-  </data>
-  <data name="CloseWindow.Text" xml:space="preserve">
-    <value>Close window</value>
-  </data>
-  <data name="ConfirmSaveTemplate" xml:space="preserve">
-    <value>Would you like to save changes to {0}?</value>
-  </data>
-  <data name="Copy.Text" xml:space="preserve">
-    <value>Copy</value>
-  </data>
-  <data name="Cut.Text" xml:space="preserve">
-    <value>Cut</value>
-  </data>
   <data name="DarkThemeColors.Text" xml:space="preserve">
     <value>Dark theme colours</value>
-  </data>
-  <data name="DontSaveButton" xml:space="preserve">
-    <value>Don't save</value>
-  </data>
-  <data name="Edit.Title" xml:space="preserve">
-    <value>Edit</value>
-  </data>
-  <data name="Exit.Text" xml:space="preserve">
-    <value>Exit</value>
-  </data>
-  <data name="File.Title" xml:space="preserve">
-    <value>File</value>
-  </data>
-  <data name="FileOpenErrorTemplate" xml:space="preserve">
-    <value>An error occurred when opening {0}</value>
-  </data>
-  <data name="FileSaveErrorTemplate" xml:space="preserve">
-    <value>An error occurred when saving {0}</value>
-  </data>
-  <data name="GitHubRepository.Text" xml:space="preserve">
-    <value>GitHub Repository</value>
-  </data>
-  <data name="HorizontalPossibles.Text" xml:space="preserve">
-    <value>Horizontal possibles</value>
   </data>
   <data name="LightThemeColors.Text" xml:space="preserve">
     <value>Light theme colours</value>
   </data>
-  <data name="Mark.Text" xml:space="preserve">
-    <value>Mark</value>
-  </data>
-  <data name="NewTab.Text" xml:space="preserve">
-    <value>New tab</value>
-  </data>
-  <data name="NewTabHeader" xml:space="preserve">
-    <value>Untitled</value>
-  </data>
-  <data name="NewWindow.Text" xml:space="preserve">
-    <value>Open a new window</value>
-  </data>
-  <data name="NewWindowMenu.Text" xml:space="preserve">
-    <value>New window</value>
-  </data>
-  <data name="OKButton" xml:space="preserve">
-    <value>OK</value>
-  </data>
-  <data name="Open.Text" xml:space="preserve">
-    <value>Open</value>
-  </data>
-  <data name="Paste.Text" xml:space="preserve">
-    <value>Paste</value>
-  </data>
-  <data name="Possibles.Text" xml:space="preserve">
-    <value>Possibles</value>
-  </data>
-  <data name="PossibleValues.Text" xml:space="preserve">
-    <value>Possible values</value>
-  </data>
-  <data name="PreviousSession.Text" xml:space="preserve">
-    <value>Open content from the previous session</value>
-  </data>
-  <data name="Print.Text" xml:space="preserve">
-    <value>Print</value>
-  </data>
   <data name="PrintBottomCenter" xml:space="preserve">
     <value>bottom centre</value>
-  </data>
-  <data name="PrintBottomLeft" xml:space="preserve">
-    <value>bottom left</value>
-  </data>
-  <data name="PrintBottomRight" xml:space="preserve">
-    <value>bottom right</value>
-  </data>
-  <data name="PrintErrorHeading" xml:space="preserve">
-    <value>An error occurred while printing.</value>
-  </data>
-  <data name="PrintFileNameHeader" xml:space="preserve">
-    <value>Print file name</value>
-  </data>
-  <data name="PrintFitToPage" xml:space="preserve">
-    <value>Fit to page</value>
-  </data>
-  <data name="PrintLarge" xml:space="preserve">
-    <value>large</value>
-  </data>
-  <data name="PrintMarginsHeader" xml:space="preserve">
-    <value>Print margins</value>
-  </data>
-  <data name="PrintMedium" xml:space="preserve">
-    <value>medium</value>
   </data>
   <data name="PrintMiddleCenter" xml:space="preserve">
     <value>centred</value>
@@ -270,112 +135,13 @@
   <data name="PrintMiddleRight" xml:space="preserve">
     <value>right of centre</value>
   </data>
-  <data name="PrintNone" xml:space="preserve">
-    <value>none</value>
-  </data>
-  <data name="PrintPositionHeader" xml:space="preserve">
-    <value>Position on page</value>
-  </data>
-  <data name="PrintReentrantErrorText" xml:space="preserve">
-    <value>Printing cannot be started at this time.</value>
-  </data>
-  <data name="PrintSizeHeader" xml:space="preserve">
-    <value>Scale</value>
-  </data>
-  <data name="PrintSizeTemplate" xml:space="preserve">
-    <value>{0}%</value>
-  </data>
-  <data name="PrintSmall" xml:space="preserve">
-    <value>small</value>
-  </data>
   <data name="PrintTopCenter" xml:space="preserve">
     <value>top centre</value>
-  </data>
-  <data name="PrintTopLeft" xml:space="preserve">
-    <value>top left</value>
-  </data>
-  <data name="PrintTopRight" xml:space="preserve">
-    <value>top right</value>
-  </data>
-  <data name="Provided.Text" xml:space="preserve">
-    <value>Provided</value>
-  </data>
-  <data name="ProvidedValues.Text" xml:space="preserve">
-    <value>Provided values</value>
-  </data>
-  <data name="Redo.Text" xml:space="preserve">
-    <value>Redo</value>
-  </data>
-  <data name="Save.Text" xml:space="preserve">
-    <value>Save</value>
-  </data>
-  <data name="SaveAs.Text" xml:space="preserve">
-    <value>Save as</value>
-  </data>
-  <data name="SaveButton" xml:space="preserve">
-    <value>Save</value>
-  </data>
-  <data name="SavePickerFileChoice" xml:space="preserve">
-    <value>Sudoku files</value>
-  </data>
-  <data name="Settings.Text" xml:space="preserve">
-    <value>Settings</value>
-  </data>
-  <data name="SettingsIcon.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Settings</value>
-  </data>
-  <data name="ShowPossibles.Content" xml:space="preserve">
-    <value>Show possible values</value>
-  </data>
-  <data name="ShowSolution.Content" xml:space="preserve">
-    <value>Show solution</value>
-  </data>
-  <data name="Solution.Text" xml:space="preserve">
-    <value>Solution</value>
-  </data>
-  <data name="SystemMenuCloseTab" xml:space="preserve">
-    <value>Close tab</value>
-  </data>
-  <data name="SystemMenuCloseWindow" xml:space="preserve">
-    <value>Close window</value>
   </data>
   <data name="SystemMenuMaximize" xml:space="preserve">
     <value>Maximise</value>
   </data>
   <data name="SystemMenuMinimize" xml:space="preserve">
     <value>Minimise</value>
-  </data>
-  <data name="SystemMenuMove" xml:space="preserve">
-    <value>Move</value>
-  </data>
-  <data name="SystemMenuRestore" xml:space="preserve">
-    <value>Restore</value>
-  </data>
-  <data name="SystemMenuSize" xml:space="preserve">
-    <value>Size</value>
-  </data>
-  <data name="Undo.Text" xml:space="preserve">
-    <value>Undo</value>
-  </data>
-  <data name="Untitled.Text" xml:space="preserve">
-    <value>Untitled</value>
-  </data>
-  <data name="UserValues.Text" xml:space="preserve">
-    <value>User values</value>
-  </data>
-  <data name="VersionTemplate" xml:space="preserve">
-    <value>Version: {0}</value>
-  </data>
-  <data name="VerticalPossibles.Text" xml:space="preserve">
-    <value>Vertical possibles</value>
-  </data>
-  <data name="View.Title" xml:space="preserve">
-    <value>View</value>
-  </data>
-  <data name="ViewOptions.Text" xml:space="preserve">
-    <value>View options</value>
-  </data>
-  <data name="WhenStarts.Text" xml:space="preserve">
-    <value>When Sudoku Solver starts</value>
   </data>
 </root>
