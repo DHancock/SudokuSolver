@@ -205,7 +205,7 @@
     <value>Nouvel onglet</value>
   </data>
   <data name="NewTabHeader" xml:space="preserve">
-    <value>Untitled</value>
+    <value>Sans titre</value>
   </data>
   <data name="NewWindow.Text" xml:space="preserve">
     <value>Ouvrir une nouvelle fenêtre</value>
