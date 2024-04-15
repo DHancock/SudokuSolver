@@ -124,58 +124,58 @@
     <value>Tema dell'app</value>
   </data>
   <data name="AppThemeDark.Text" xml:space="preserve">
-    <value>Oscuro</value>
+    <value>Scuro</value>
   </data>
   <data name="AppThemeLight.Text" xml:space="preserve">
-    <value>Leggero</value>
+    <value>Luce</value>
   </data>
   <data name="AppThemeSystem.Text" xml:space="preserve">
-    <value>Usa le impostazioni di sistema</value>
+    <value>Utilizzare l'impostazione di sistema</value>
   </data>
   <data name="CalculatdValues.Text" xml:space="preserve">
     <value>Valori calcolati</value>
   </data>
   <data name="CancelButton" xml:space="preserve">
-    <value>Annulla</value>
+    <value>Annullamento</value>
   </data>
   <data name="Clear.Text" xml:space="preserve">
-    <value>Chiaro</value>
+    <value>Libero</value>
   </data>
   <data name="CloseLeftTabs.Text" xml:space="preserve">
-    <value>Chiudi le schede a sinistra</value>
+    <value>Chiudere le schede a sinistra</value>
   </data>
   <data name="CloseOtherTabs.Text" xml:space="preserve">
-    <value>Chiudi le altre schede</value>
+    <value>Chiudere altre schede</value>
   </data>
   <data name="CloseRightTabs.Text" xml:space="preserve">
-    <value>Chiudi le schede a destra</value>
+    <value>Chiudere le schede a destra</value>
   </data>
   <data name="CloseTab.Text" xml:space="preserve">
-    <value>Chiudi scheda</value>
+    <value>Chiudere la scheda</value>
   </data>
   <data name="CloseTabToolTip" xml:space="preserve">
-    <value>Chiudi scheda (Ctrl + W)</value>
+    <value>Chiudere la scheda (Ctrl + W)</value>
   </data>
   <data name="CloseWindow.Text" xml:space="preserve">
-    <value>Chiudi finestra</value>
+    <value>Chiudere la finestra</value>
   </data>
   <data name="ConfirmSaveTemplate" xml:space="preserve">
-    <value>Salvare le modifiche apportate a {0}?</value>
+    <value>Si desidera salvare le modifiche in {0}?</value>
   </data>
   <data name="Copy.Text" xml:space="preserve">
-    <value>Copiare</value>
+    <value>Copia</value>
   </data>
   <data name="Cut.Text" xml:space="preserve">
     <value>Tagliare</value>
   </data>
   <data name="DarkThemeColors.Text" xml:space="preserve">
-    <value>Colori scuri del tema</value>
+    <value>Colori del tema scuro</value>
   </data>
   <data name="DontSaveButton" xml:space="preserve">
     <value>Non salvare</value>
   </data>
   <data name="Edit.Title" xml:space="preserve">
-    <value>Redigere</value>
+    <value>Modifica</value>
   </data>
   <data name="Exit.Text" xml:space="preserve">
     <value>Uscita</value>
@@ -184,31 +184,31 @@
     <value>File</value>
   </data>
   <data name="FileOpenErrorTemplate" xml:space="preserve">
-    <value>Si è verificato un errore durante l'apertura {0}</value>
+    <value>Si è verificato un errore durante l'apertura di {0}</value>
   </data>
   <data name="FileSaveErrorTemplate" xml:space="preserve">
-    <value>Si è verificato un errore durante il salvataggio {0}</value>
+    <value>Si è verificato un errore durante il salvataggio di {0}</value>
   </data>
   <data name="GitHubRepository.Text" xml:space="preserve">
-    <value>GitHub Repository</value>
+    <value>Repository GitHub</value>
   </data>
   <data name="HorizontalPossibles.Text" xml:space="preserve">
     <value>Possibilità orizzontali</value>
   </data>
   <data name="LightThemeColors.Text" xml:space="preserve">
-    <value>Colori del tema chiaro</value>
+    <value>Colori del tema luce</value>
   </data>
   <data name="Mark.Text" xml:space="preserve">
-    <value>Segno</value>
+    <value>Marchio</value>
   </data>
   <data name="NewTab.Text" xml:space="preserve">
     <value>Nuova scheda</value>
   </data>
   <data name="NewTabHeader" xml:space="preserve">
-    <value>Untitled</value>
+    <value>Senza titolo</value>
   </data>
   <data name="NewWindow.Text" xml:space="preserve">
-    <value>Apri una nuova finestra</value>
+    <value>Aprire una nuova finestra</value>
   </data>
   <data name="NewWindowMenu.Text" xml:space="preserve">
     <value>Nuova finestra</value>
@@ -220,19 +220,19 @@
     <value>Aperto</value>
   </data>
   <data name="Paste.Text" xml:space="preserve">
-    <value>Incollare</value>
+    <value>Incolla</value>
   </data>
   <data name="Possibles.Text" xml:space="preserve">
-    <value>Possibili</value>
+    <value>Possibilità</value>
   </data>
   <data name="PossibleValues.Text" xml:space="preserve">
     <value>Valori possibili</value>
   </data>
   <data name="PreviousSession.Text" xml:space="preserve">
-    <value>Aprire il contenuto della sessione precedente</value>
+    <value>Aprire i contenuti della sessione precedente</value>
   </data>
   <data name="Print.Text" xml:space="preserve">
-    <value>Stampare</value>
+    <value>Stampa</value>
   </data>
   <data name="PrintBottomCenter" xml:space="preserve">
     <value>in basso al centro</value>
@@ -247,7 +247,7 @@
     <value>Si è verificato un errore durante la stampa.</value>
   </data>
   <data name="PrintFileNameHeader" xml:space="preserve">
-    <value>Stampa nome file</value>
+    <value>Stampa del nome del file</value>
   </data>
   <data name="PrintFitToPage" xml:space="preserve">
     <value>Adatta alla pagina</value>
@@ -259,7 +259,7 @@
     <value>Margini di stampa</value>
   </data>
   <data name="PrintMedium" xml:space="preserve">
-    <value>Medio</value>
+    <value>medio</value>
   </data>
   <data name="PrintMiddleCenter" xml:space="preserve">
     <value>centrato</value>
@@ -268,16 +268,16 @@
     <value>a sinistra del centro</value>
   </data>
   <data name="PrintMiddleRight" xml:space="preserve">
-    <value>destra del centro</value>
+    <value>a destra del centro</value>
   </data>
   <data name="PrintNone" xml:space="preserve">
     <value>nessuno</value>
   </data>
   <data name="PrintPositionHeader" xml:space="preserve">
-    <value>Posizione sulla pagina</value>
+    <value>Posizione nella pagina</value>
   </data>
   <data name="PrintReentrantErrorText" xml:space="preserve">
-    <value>Al momento non è possibile avviare la stampa.</value>
+    <value>In questo momento non è possibile avviare la stampa.</value>
   </data>
   <data name="PrintSizeHeader" xml:space="preserve">
     <value>Scala</value>
@@ -289,7 +289,7 @@
     <value>piccolo</value>
   </data>
   <data name="PrintTopCenter" xml:space="preserve">
-    <value>in alto al centro</value>
+    <value>centro superiore</value>
   </data>
   <data name="PrintTopLeft" xml:space="preserve">
     <value>in alto a sinistra</value>
@@ -298,7 +298,7 @@
     <value>in alto a destra</value>
   </data>
   <data name="Provided.Text" xml:space="preserve">
-    <value>A condizione che</value>
+    <value>Fornito</value>
   </data>
   <data name="ProvidedValues.Text" xml:space="preserve">
     <value>Valori forniti</value>
@@ -307,16 +307,16 @@
     <value>Rifare</value>
   </data>
   <data name="Save.Text" xml:space="preserve">
-    <value>Salvare</value>
+    <value>Risparmiare</value>
   </data>
   <data name="SaveAs.Text" xml:space="preserve">
     <value>Salva con nome</value>
   </data>
   <data name="SaveButton" xml:space="preserve">
-    <value>Salvare</value>
+    <value>Risparmiare</value>
   </data>
   <data name="SavePickerFileChoice" xml:space="preserve">
-    <value>File di Sudoku</value>
+    <value>File Sudoku</value>
   </data>
   <data name="Settings.Text" xml:space="preserve">
     <value>Impostazioni</value>
@@ -328,34 +328,34 @@
     <value>Mostra i valori possibili</value>
   </data>
   <data name="ShowSolution.Content" xml:space="preserve">
-    <value>Mostra soluzione</value>
+    <value>Mostra la soluzione</value>
   </data>
   <data name="Solution.Text" xml:space="preserve">
     <value>Soluzione</value>
   </data>
   <data name="SystemMenuCloseTab" xml:space="preserve">
-    <value>Chiudi scheda</value>
+    <value>Chiudere la scheda</value>
   </data>
   <data name="SystemMenuCloseWindow" xml:space="preserve">
-    <value>Chiudi finestra</value>
+    <value>Chiudere la finestra</value>
   </data>
   <data name="SystemMenuMaximize" xml:space="preserve">
     <value>Massimizzare</value>
   </data>
   <data name="SystemMenuMinimize" xml:space="preserve">
-    <value>Minimizzare</value>
+    <value>Ridurre al minimo</value>
   </data>
   <data name="SystemMenuMove" xml:space="preserve">
-    <value>Sposta</value>
+    <value>Muoversi</value>
   </data>
   <data name="SystemMenuRestore" xml:space="preserve">
-    <value>Restaurare</value>
+    <value>Ripristino</value>
   </data>
   <data name="SystemMenuSize" xml:space="preserve">
-    <value>Grandezza</value>
+    <value>Dimensione</value>
   </data>
   <data name="Undo.Text" xml:space="preserve">
-    <value>Disfare</value>
+    <value>Annullamento</value>
   </data>
   <data name="Untitled.Text" xml:space="preserve">
     <value>Senza titolo</value>
@@ -376,6 +376,6 @@
     <value>Visualizza le opzioni</value>
   </data>
   <data name="WhenStarts.Text" xml:space="preserve">
-    <value>All'avvio di Sudoku Solver</value>
+    <value>Quando Sudoku Solver si avvia</value>
   </data>
 </root>

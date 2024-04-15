@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AppDisplayName" xml:space="preserve">
-    <value>Solucionador de Sudoku</value>
+    <value>Solucionador de Sudokus</value>
   </data>
   <data name="AppTheme.Text" xml:space="preserve">
     <value>Tema de la aplicación</value>
@@ -130,7 +130,7 @@
     <value>Luz</value>
   </data>
   <data name="AppThemeSystem.Text" xml:space="preserve">
-    <value>Usar la configuración del sistema</value>
+    <value>Utilizar la configuración del sistema</value>
   </data>
   <data name="CalculatdValues.Text" xml:space="preserve">
     <value>Valores calculados</value>
@@ -163,16 +163,16 @@
     <value>¿Desea guardar los cambios en {0}?</value>
   </data>
   <data name="Copy.Text" xml:space="preserve">
-    <value>Copiar</value>
+    <value>Copia</value>
   </data>
   <data name="Cut.Text" xml:space="preserve">
-    <value>Cortar</value>
+    <value>Corte</value>
   </data>
   <data name="DarkThemeColors.Text" xml:space="preserve">
-    <value>Colores oscuros del tema</value>
+    <value>Colores oscuros</value>
   </data>
   <data name="DontSaveButton" xml:space="preserve">
-    <value>No guardes</value>
+    <value>No guarde</value>
   </data>
   <data name="Edit.Title" xml:space="preserve">
     <value>Editar</value>
@@ -190,28 +190,28 @@
     <value>Se ha producido un error al guardar {0}</value>
   </data>
   <data name="GitHubRepository.Text" xml:space="preserve">
-    <value>Repositorio de GitHub</value>
+    <value>Repositorio GitHub</value>
   </data>
   <data name="HorizontalPossibles.Text" xml:space="preserve">
-    <value>Posibles horizontales</value>
+    <value>Posibilidades horizontales</value>
   </data>
   <data name="LightThemeColors.Text" xml:space="preserve">
-    <value>Colores del tema claro</value>
+    <value>Colores claros</value>
   </data>
   <data name="Mark.Text" xml:space="preserve">
-    <value>Marcar</value>
+    <value>Mark</value>
   </data>
   <data name="NewTab.Text" xml:space="preserve">
     <value>Nueva pestaña</value>
   </data>
   <data name="NewTabHeader" xml:space="preserve">
-    <value>Untitled</value>
+    <value>Sin título</value>
   </data>
   <data name="NewWindow.Text" xml:space="preserve">
-    <value>Abrir una ventana nueva</value>
+    <value>Abrir una nueva ventana</value>
   </data>
   <data name="NewWindowMenu.Text" xml:space="preserve">
-    <value>Ventana nueva</value>
+    <value>Nueva ventana</value>
   </data>
   <data name="OKButton" xml:space="preserve">
     <value>OK</value>
@@ -229,13 +229,13 @@
     <value>Valores posibles</value>
   </data>
   <data name="PreviousSession.Text" xml:space="preserve">
-    <value>Abrir contenido de la sesión anterior</value>
+    <value>Abrir el contenido de la sesión anterior</value>
   </data>
   <data name="Print.Text" xml:space="preserve">
-    <value>Impresión</value>
+    <value>Imprimir</value>
   </data>
   <data name="PrintBottomCenter" xml:space="preserve">
-    <value>Abajo en el centro</value>
+    <value>centro inferior</value>
   </data>
   <data name="PrintBottomLeft" xml:space="preserve">
     <value>abajo a la izquierda</value>
@@ -259,16 +259,16 @@
     <value>Márgenes de impresión</value>
   </data>
   <data name="PrintMedium" xml:space="preserve">
-    <value>Medio</value>
+    <value>medio</value>
   </data>
   <data name="PrintMiddleCenter" xml:space="preserve">
     <value>centrado</value>
   </data>
   <data name="PrintMiddleLeft" xml:space="preserve">
-    <value>Izquierda del centro</value>
+    <value>izquierda del centro</value>
   </data>
   <data name="PrintMiddleRight" xml:space="preserve">
-    <value>A la derecha del centro</value>
+    <value>derecha del centro</value>
   </data>
   <data name="PrintNone" xml:space="preserve">
     <value>ninguno</value>
@@ -277,10 +277,10 @@
     <value>Posición en la página</value>
   </data>
   <data name="PrintReentrantErrorText" xml:space="preserve">
-    <value>La impresión no se puede iniciar en este momento.</value>
+    <value>La impresión no puede iniciarse en este momento.</value>
   </data>
   <data name="PrintSizeHeader" xml:space="preserve">
-    <value>Escama</value>
+    <value>Escala</value>
   </data>
   <data name="PrintSizeTemplate" xml:space="preserve">
     <value>{0}%</value>
@@ -289,7 +289,7 @@
     <value>pequeño</value>
   </data>
   <data name="PrintTopCenter" xml:space="preserve">
-    <value>Arriba en el centro</value>
+    <value>centro superior</value>
   </data>
   <data name="PrintTopLeft" xml:space="preserve">
     <value>arriba a la izquierda</value>
@@ -298,7 +298,7 @@
     <value>arriba a la derecha</value>
   </data>
   <data name="Provided.Text" xml:space="preserve">
-    <value>Con tal que</value>
+    <value>Proporcionado</value>
   </data>
   <data name="ProvidedValues.Text" xml:space="preserve">
     <value>Valores proporcionados</value>
@@ -307,22 +307,22 @@
     <value>Rehacer</value>
   </data>
   <data name="Save.Text" xml:space="preserve">
-    <value>Salvar</value>
+    <value>Guardar</value>
   </data>
   <data name="SaveAs.Text" xml:space="preserve">
     <value>Guardar como</value>
   </data>
   <data name="SaveButton" xml:space="preserve">
-    <value>Salvar</value>
+    <value>Guardar</value>
   </data>
   <data name="SavePickerFileChoice" xml:space="preserve">
-    <value>Archivos de Sudoku</value>
+    <value>Archivos Sudoku</value>
   </data>
   <data name="Settings.Text" xml:space="preserve">
-    <value>Configuración</value>
+    <value>Ajustes</value>
   </data>
   <data name="SettingsIcon.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Configuración</value>
+    <value>Ajustes</value>
   </data>
   <data name="ShowPossibles.Content" xml:space="preserve">
     <value>Mostrar valores posibles</value>
@@ -340,10 +340,10 @@
     <value>Cerrar ventana</value>
   </data>
   <data name="SystemMenuMaximize" xml:space="preserve">
-    <value>Maximizar</value>
+    <value>Maximice</value>
   </data>
   <data name="SystemMenuMinimize" xml:space="preserve">
-    <value>Minimizar</value>
+    <value>Minimice</value>
   </data>
   <data name="SystemMenuMove" xml:space="preserve">
     <value>Mover</value>
@@ -352,7 +352,7 @@
     <value>Restaurar</value>
   </data>
   <data name="SystemMenuSize" xml:space="preserve">
-    <value>Tamaño</value>
+    <value>Talla</value>
   </data>
   <data name="Undo.Text" xml:space="preserve">
     <value>Deshacer</value>
@@ -367,13 +367,13 @@
     <value>Versión: {0}</value>
   </data>
   <data name="VerticalPossibles.Text" xml:space="preserve">
-    <value>Posibles verticales</value>
+    <value>Posibilidades verticales</value>
   </data>
   <data name="View.Title" xml:space="preserve">
-    <value>Vista</value>
+    <value>Ver</value>
   </data>
   <data name="ViewOptions.Text" xml:space="preserve">
-    <value>Opciones de visualización</value>
+    <value>Ver opciones</value>
   </data>
   <data name="WhenStarts.Text" xml:space="preserve">
     <value>Cuando se inicia Sudoku Solver</value>
