@@ -23,9 +23,6 @@ SolidCompression=yes
 OutputBaseFilename={#appName}_{#platform}_v{#appVer}
 InfoBeforeFile="{#SourcePath}\0BSD.txt"
 PrivilegesRequired=lowest
-WizardStyle=classic
-WizardSizePercent=110,100
-DirExistsWarning=yes
 DisableWelcomePage=yes
 DisableProgramGroupPage=yes
 DisableReadyPage=yes
@@ -55,6 +52,8 @@ Name: "fr"; MessagesFile: "compiler:Languages\French.isl"
 Name: "de"; MessagesFile: "compiler:Languages\German.isl"
 Name: "it"; MessagesFile: "compiler:Languages\Italian.isl"
 Name: "es"; MessagesFile: "compiler:Languages\Spanish.isl"
+// the two unofficial chinese translations have beeen downloaded from https://jrsoftware.org/files/istrans
+// both are currently at version 6.1.0+
 Name: "zh_Hans"; MessagesFile: "Languages\ChineseSimplified.isl"
 Name: "zh_Hant"; MessagesFile: "Languages\ChineseTraditional.isl"
 
