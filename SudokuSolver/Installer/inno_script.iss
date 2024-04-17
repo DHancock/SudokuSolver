@@ -3,6 +3,14 @@
 ; have been published and the WinAppSdk and .Net framework are self contained.
 ; Inno 6.2.2
 
+#ifndef platform
+  #error platform is not defined
+#endif
+  
+#if !((platform == "x64") || (platform == "x86") || (platform == "arm64"))
+  #error invalid platform definition
+#endif
+
 #define appDisplayName "Sudoku Solver"
 #define appName "SudokuSolver"
 #define appExeName appName + ".exe"
@@ -41,8 +49,6 @@ ShowLanguageDialog=no
   Source: "..\bin\Release\win-arm64\publish\*"; DestDir: "{app}"; Flags: recursesubdirs;
 #elif platform == "x86"
   Source: "..\bin\Release\win-x86\publish\*"; DestDir: "{app}"; Flags: recursesubdirs;
-#else
-  #error unknown platform
 #endif
 
 [Languages]
@@ -88,7 +94,7 @@ Filename: powershell.exe; Parameters: "Get-Process '{#appName}' | where Path -eq
 [Code]
 function IsDowngradeInstall: Boolean; forward;
 
-// because "DisableReadyPage" and "DisableProgramGroupPage" are set to yes adjusted the next/install button text
+// because "DisableReadyPage" and "DisableProgramGroupPage" are set to yes adjust the next/install button text
 procedure CurPageChanged(CurPageID: Integer);
 begin
   if CurPageID = wpSelectTasks then
