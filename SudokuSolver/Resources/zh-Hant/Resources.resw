@@ -121,7 +121,7 @@
     <value>Sudoku Solver</value>
   </data>
   <data name="AppTheme.Text" xml:space="preserve">
-    <value>應用程序主題</value>
+    <value>應用程式主題</value>
   </data>
   <data name="AppThemeDark.Text" xml:space="preserve">
     <value>深色</value>
@@ -130,7 +130,7 @@
     <value>淺色</value>
   </data>
   <data name="AppThemeSystem.Text" xml:space="preserve">
-    <value>使用系統設置</value>
+    <value>使用系統設定</value>
   </data>
   <data name="CalculatdValues.Text" xml:space="preserve">
     <value>計算數值</value>
@@ -157,10 +157,10 @@
     <value>關閉選項卡 (Ctrl + W)</value>
   </data>
   <data name="CloseWindow.Text" xml:space="preserve">
-    <value>關閉窗口</value>
+    <value>關閉視窗</value>
   </data>
   <data name="ConfirmSaveTemplate" xml:space="preserve">
-    <value>您想保存對 {0} 的更改嗎？</value>
+    <value>您想儲存 {0} 的變更嗎？</value>
   </data>
   <data name="Copy.Text" xml:space="preserve">
     <value>複製</value>
@@ -184,13 +184,13 @@
     <value>文件</value>
   </data>
   <data name="FileOpenErrorTemplate" xml:space="preserve">
-    <value>打開 {0} 時出錯</value>
+    <value>開啟 {0} 時出錯</value>
   </data>
   <data name="FileSaveErrorTemplate" xml:space="preserve">
-    <value>保存 {0} 時出錯</value>
+    <value>儲存 {0} 時出錯</value>
   </data>
   <data name="GitHubRepository.Text" xml:space="preserve">
-    <value>GitHub 存儲庫</value>
+    <value>GitHub 儲存庫</value>
   </data>
   <data name="HorizontalPossibles.Text" xml:space="preserve">
     <value>水平放置</value>
@@ -208,10 +208,10 @@
     <value>未命名</value>
   </data>
   <data name="NewWindow.Text" xml:space="preserve">
-    <value>打開一個新窗口</value>
+    <value>打開一個新視窗</value>
   </data>
   <data name="NewWindowMenu.Text" xml:space="preserve">
-    <value>新建窗口</value>
+    <value>新視窗</value>
   </data>
   <data name="OKButton" xml:space="preserve">
     <value>確定</value>
@@ -220,7 +220,7 @@
     <value>打開</value>
   </data>
   <data name="Paste.Text" xml:space="preserve">
-    <value>粘貼</value>
+    <value>貼上</value>
   </data>
   <data name="Possibles.Text" xml:space="preserve">
     <value>可能</value>
@@ -229,10 +229,10 @@
     <value>可能的值</value>
   </data>
   <data name="PreviousSession.Text" xml:space="preserve">
-    <value>打開上一個會話中的內容</value>
+    <value>開啟上一個會話中的內容</value>
   </data>
   <data name="Print.Text" xml:space="preserve">
-    <value>打印</value>
+    <value>列印</value>
   </data>
   <data name="PrintBottomCenter" xml:space="preserve">
     <value>底部中心</value>
@@ -244,10 +244,10 @@
     <value>右下角</value>
   </data>
   <data name="PrintErrorHeading" xml:space="preserve">
-    <value>打印時發生錯誤。</value>
+    <value>列印時發生錯誤。</value>
   </data>
   <data name="PrintFileNameHeader" xml:space="preserve">
-    <value>打印文件名</value>
+    <value>列印檔案名稱</value>
   </data>
   <data name="PrintFitToPage" xml:space="preserve">
     <value>適合頁面</value>
@@ -256,7 +256,7 @@
     <value>大</value>
   </data>
   <data name="PrintMarginsHeader" xml:space="preserve">
-    <value>打印邊距</value>
+    <value>列印邊距</value>
   </data>
   <data name="PrintMedium" xml:space="preserve">
     <value>中等</value>
@@ -277,7 +277,7 @@
     <value>頁面位置</value>
   </data>
   <data name="PrintReentrantErrorText" xml:space="preserve">
-    <value>此時無法開始打印。</value>
+    <value>此時無法開始列印。</value>
   </data>
   <data name="PrintSizeHeader" xml:space="preserve">
     <value>縮放</value>
@@ -307,22 +307,22 @@
     <value>重做</value>
   </data>
   <data name="Save.Text" xml:space="preserve">
-    <value>保存</value>
+    <value>儲存</value>
   </data>
   <data name="SaveAs.Text" xml:space="preserve">
-    <value>另存爲</value>
+    <value>另存為</value>
   </data>
   <data name="SaveButton" xml:space="preserve">
-    <value>保存</value>
+    <value>儲存</value>
   </data>
   <data name="SavePickerFileChoice" xml:space="preserve">
     <value>Sudoku 文件</value>
   </data>
   <data name="Settings.Text" xml:space="preserve">
-    <value>設置</value>
+    <value>設定</value>
   </data>
   <data name="SettingsIcon.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>設置</value>
+    <value>設定</value>
   </data>
   <data name="ShowPossibles.Content" xml:space="preserve">
     <value>顯示可能的值</value>
@@ -337,7 +337,7 @@
     <value>關閉選項卡</value>
   </data>
   <data name="SystemMenuCloseWindow" xml:space="preserve">
-    <value>關閉窗口</value>
+    <value>關閉視窗</value>
   </data>
   <data name="SystemMenuMaximize" xml:space="preserve">
     <value>最大化</value>
@@ -355,13 +355,13 @@
     <value>大小</value>
   </data>
   <data name="Undo.Text" xml:space="preserve">
-    <value>撤消</value>
+    <value>撤銷</value>
   </data>
   <data name="Untitled.Text" xml:space="preserve">
     <value>未命名</value>
   </data>
   <data name="UserValues.Text" xml:space="preserve">
-    <value>用戶值</value>
+    <value>使用者值</value>
   </data>
   <data name="VersionTemplate" xml:space="preserve">
     <value>版本: {0}</value>
@@ -376,6 +376,6 @@
     <value>查看選項</value>
   </data>
   <data name="WhenStarts.Text" xml:space="preserve">
-    <value>當 Sudoku Solver 啓動時</value>
+    <value>當 Sudoku Solver 啟動時</value>
   </data>
 </root>
