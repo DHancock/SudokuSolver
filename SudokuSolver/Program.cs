@@ -30,15 +30,7 @@ public static class Program
 
     public static void RedirectActivationTo(AppActivationArguments args, AppInstance keyInstance)
     {
-        ManualResetEventSlim mres = new ManualResetEventSlim();
-
         // avoids the need for an async main entry point, which breaks the clipboard...
-        Task.Run(() =>
-        {
-            keyInstance.RedirectActivationToAsync(args).AsTask().Wait();
-            mres.Set();
-        });
-
-        mres.Wait();
+        keyInstance.RedirectActivationToAsync(args).AsTask().Wait();
     }
 }
