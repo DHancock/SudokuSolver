@@ -40,12 +40,34 @@ public partial class App : Application
     // Invoked on the ui thread when the application is launched normally
     protected async override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs _)
     {
+        AppActivationArguments args = appInstance.GetActivatedEventArgs();
+
+        if (args.Kind == ExtendedActivationKind.Launch)
+        {
+            string[] commandLine = Environment.GetCommandLineArgs();
+
+            if (commandLine.Length == 2)
+            {
+                // called by the installer
+                if (commandLine[1] == "/register")
+                {
+                    RegisterFileTypeActivation();
+                    PInvoke.PostQuitMessage(0);
+                    return;
+                }
+                else if (commandLine[1] == "/unregister")
+                {
+                    UnregisterFileTypeActivation();
+                    PInvoke.PostQuitMessage(0);
+                    return;
+                }
+            }
+        }
+
         if (Settings.Data.SaveSessionState)
         {
             await SessionHelper.LoadPreviousSessionAsync();
         }
-
-        AppActivationArguments args = appInstance.GetActivatedEventArgs();
 
         if (args.Kind == ExtendedActivationKind.File)
         {
@@ -64,6 +86,33 @@ public partial class App : Application
             }
 
             currentWindow.AttemptSwitchToForeground();
+        }
+    }
+
+    private static void RegisterFileTypeActivation()
+    {
+        string[] verbs = ["open"];
+        string logo = $"{Environment.ProcessPath},0";
+
+        try
+        {
+            ActivationRegistrationManager.RegisterForFileTypeActivation([App.cFileExt], logo, App.Instance.AppDisplayName, verbs, string.Empty);
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine($"register file type failed: {ex}");
+        }
+    }
+
+    private static void UnregisterFileTypeActivation()
+    {
+        try
+        {
+            ActivationRegistrationManager.UnregisterForFileTypeActivation([App.cFileExt], Environment.ProcessPath);
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine($"unregister file type failed: {ex}");
         }
     }
 
