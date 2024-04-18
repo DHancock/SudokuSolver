@@ -43,13 +43,7 @@ ShowLanguageDialog=no
 #endif
 
 [Files]
-#if platform == "x64"
-  Source: "..\bin\Release\win-x64\publish\*"; DestDir: "{app}"; Flags: recursesubdirs; 
-#elif platform == "arm64"
-  Source: "..\bin\Release\win-arm64\publish\*"; DestDir: "{app}"; Flags: recursesubdirs;
-#elif platform == "x86"
-  Source: "..\bin\Release\win-x86\publish\*"; DestDir: "{app}"; Flags: recursesubdirs;
-#endif
+Source: "..\bin\Release\win-{#platform}\publish\*"; DestDir: "{app}"; Flags: recursesubdirs; 
 
 [Languages]
 Name: en; MessagesFile: "compiler:Default.isl"
