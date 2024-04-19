@@ -270,6 +270,11 @@ internal sealed partial class MainWindow : Window, ISession
         // the tab's keyboard accelerators would still
         // be active (until presumably it's garbage collected)
         ((ITabItem)tab).AdjustKeyboardAccelerators(enable: false);
+
+        if (Tabs.TabItems.Count == 0)
+        {
+            SessionHelper.DeleteSession();
+        }
     }
 
     private void Tabs_TabDroppedOutside(TabView sender, TabViewTabDroppedOutsideEventArgs args)
