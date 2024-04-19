@@ -208,9 +208,9 @@ internal sealed partial class MainWindow : Window, ISession
 
             AppWindow.Hide();
 
-            bool isLastWindow = App.Instance.UnRegisterWindow(this);
+            App.Instance.UnRegisterWindow(this);
 
-            if (isLastWindow)
+            if (App.Instance.WindowCount == 0)
             {
                 await Settings.Data.SaveAsync();
             }
