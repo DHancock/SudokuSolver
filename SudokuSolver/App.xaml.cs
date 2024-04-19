@@ -208,7 +208,7 @@ public partial class App : Application
         currentWindow = window;
     }
 
-    internal bool UnRegisterWindow(MainWindow window)
+    internal void UnRegisterWindow(MainWindow window)
     {
         appClosing = windowList.Count == 1;
 
@@ -221,8 +221,6 @@ public partial class App : Application
         {
             currentWindow = windowList.LastOrDefault();
         }
-
-        return appClosing;
     }
 
     public int WindowCount => windowList.Count;
