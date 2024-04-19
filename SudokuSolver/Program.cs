@@ -14,8 +14,8 @@ public static class Program
 
         if (!appInstance.IsCurrent)
         {
-            AppActivationArguments aea = AppInstance.GetCurrent().GetActivatedEventArgs();
-            RedirectActivationTo(aea, appInstance);
+            AppActivationArguments args = AppInstance.GetCurrent().GetActivatedEventArgs();
+            appInstance.RedirectActivationToAsync(args).AsTask().Wait();
         }
         else
         {
@@ -26,11 +26,5 @@ public static class Program
                 _ = new App(appInstance);
             });
         }
-    }
-
-    public static void RedirectActivationTo(AppActivationArguments args, AppInstance keyInstance)
-    {
-        // avoids the need for an async main entry point, which breaks the clipboard...
-        keyInstance.RedirectActivationToAsync(args).AsTask().Wait();
     }
 }
