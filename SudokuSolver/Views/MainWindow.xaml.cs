@@ -271,7 +271,7 @@ internal sealed partial class MainWindow : Window, ISession
         // be active (until presumably it's garbage collected)
         ((ITabItem)tab).AdjustKeyboardAccelerators(enable: false);
 
-        if (Tabs.TabItems.Count == 0)
+        if ((Tabs.TabItems.Count == 0) && (App.Instance.WindowCount == 0))
         {
             SessionHelper.DeleteSession();
         }
