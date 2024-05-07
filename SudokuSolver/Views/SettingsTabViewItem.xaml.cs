@@ -32,7 +32,8 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
 
             if (closeButton is not null)
             {
-                ToolTipService.SetToolTip(closeButton, "Close tab (Ctrl + W)");
+                string text = App.Instance.ResourceLoader.GetString("CloseTabToolTip");
+                ToolTipService.SetToolTip(closeButton, text);
             }
         }
 
