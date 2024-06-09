@@ -4,7 +4,7 @@ namespace SudokuSolver.ViewModels;
 
 internal class Settings
 {
-    public static Settings Data = Inner.Load();
+    public static Settings Data = Load();
 
     public PerViewSettings ViewSettings { get; set; } = new PerViewSettings();
     public PerPrintSettings PrintSettings { get; set; } = new PerPrintSettings();
@@ -23,7 +23,9 @@ internal class Settings
 
     public bool SaveSessionState { get; set; } = true;
 
-    private Settings()
+    // while this breaks the singlton pattern, the code generator doesn't 
+    // work with nested classes. Worse things have happened at sea...
+    public Settings()
     {
         // load defaults before the current settings over write them
         DefaultLightThemeColors = SettingsViewModel.ReadResourceThemeColors("Light");
@@ -35,88 +37,66 @@ internal class Settings
 
     public async Task SaveAsync()
     {
-        await Inner.SaveAsync(this);
+        try
+        {
+            Directory.CreateDirectory(App.GetAppDataPath());
+
+            string jsonString = JsonSerializer.Serialize(this, SettingsJsonContext.Default.Settings);
+            await File.WriteAllTextAsync(GetSettingsFilePath(), jsonString);
+        }
+        catch (Exception ex)
+        {
+            Debug.Fail(ex.ToString());
+        }
     }
 
-    private sealed class Inner : Settings
+    private static Settings Load()
     {
-        // Json deserialization requires a public parameterless constructor.
-        // That breaks the singleton pattern, so use a private inner inherited class
-        public Inner()
-        {
-        }
+        string path = GetSettingsFilePath();
 
-        public static async Task SaveAsync(Settings settings)
+        if (File.Exists(path))
         {
             try
             {
-                Directory.CreateDirectory(App.GetAppDataPath());
+                string data = File.ReadAllText(path);
 
-                await File.WriteAllTextAsync(GetSettingsFilePath(), JsonSerializer.Serialize(settings, GetSerializerOptions()));
+                if (!string.IsNullOrWhiteSpace(data))
+                {
+                    Settings? settings = JsonSerializer.Deserialize<Settings>(data, SettingsJsonContext.Default.Settings);
+
+                    if (settings is not null)
+                    {
+                        SettingsViewModel.UpdateResourceThemeColors("Light", settings.LightThemeColors);
+
+                        // if reading an old settings file with fewer custom colors, make up the numbers with default values
+                        for (int index = settings.LightThemeColors.Count; index < settings.DefaultLightThemeColors.Count; index++)
+                        {
+                            settings.LightThemeColors.Add(settings.DefaultLightThemeColors[index]);
+                        }
+
+                        SettingsViewModel.UpdateResourceThemeColors("Dark", settings.DarkThemeColors);
+
+                        for (int index = settings.DarkThemeColors.Count; index < settings.DefaultDarkThemeColors.Count; index++)
+                        {
+                            settings.DarkThemeColors.Add(settings.DefaultLightThemeColors[index]);
+                        }
+
+                        return settings;
+                    }
+                }
             }
             catch (Exception ex)
             {
-                Debug.Fail(ex.ToString());
+                Debug.Fail(ex.Message);
             }
         }
 
-        public static Settings Load()
-        {
-            string path = GetSettingsFilePath();
+        return new Settings();
+    }
 
-            if (File.Exists(path))
-            {
-                try
-                {
-                    string data = File.ReadAllText(path);
-
-                    if (!string.IsNullOrWhiteSpace(data))
-                    {
-                        Settings? settings = JsonSerializer.Deserialize<Inner>(data, GetSerializerOptions());
-
-                        if (settings is not null)
-                        {
-                            SettingsViewModel.UpdateResourceThemeColors("Light", settings.LightThemeColors);
-
-                            // if reading an old settings file with fewer custom colors, make up the numbers with default values
-                            for (int index = settings.LightThemeColors.Count; index < settings.DefaultLightThemeColors.Count; index++)
-                            {
-                                settings.LightThemeColors.Add(settings.DefaultLightThemeColors[index]);
-                            }
-
-                            SettingsViewModel.UpdateResourceThemeColors("Dark", settings.DarkThemeColors);
-
-                            for (int index = settings.DarkThemeColors.Count; index < settings.DefaultDarkThemeColors.Count; index++)
-                            {
-                                settings.DarkThemeColors.Add(settings.DefaultLightThemeColors[index]);
-                            }
-
-                            return settings;
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.Fail(ex.Message);
-                }
-            }
-
-            return new Settings();
-        }
-
-        private static string GetSettingsFilePath()
-        {
-            return Path.Join(App.GetAppDataPath(), "settings.json");
-        }
-
-        private static JsonSerializerOptions GetSerializerOptions()
-        {
-            return new JsonSerializerOptions()
-            {
-                WriteIndented = true,
-                IncludeFields = true,
-            };
-        }
+    private static string GetSettingsFilePath()
+    {
+        return Path.Join(App.GetAppDataPath(), "settings.json");
     }
 
     // View specific settings
@@ -140,3 +120,7 @@ internal class Settings
     }
 }
 
+[JsonSerializable(typeof(Settings))]
+internal partial class SettingsJsonContext : JsonSerializerContext
+{
+}
