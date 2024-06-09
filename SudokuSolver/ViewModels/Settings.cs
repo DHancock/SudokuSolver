@@ -24,7 +24,7 @@ internal class Settings
     public bool SaveSessionState { get; set; } = true;
 
     // while this breaks the singlton pattern, the code generator doesn't 
-    // work with nested classes. Worse things have happened at sea...
+    // work with private nested classes. Worse things have happened at sea...
     public Settings()
     {
         // load defaults before the current settings over write them
@@ -54,41 +54,38 @@ internal class Settings
     {
         string path = GetSettingsFilePath();
 
-        if (File.Exists(path))
+        try
         {
-            try
+            string data = File.ReadAllText(path);
+
+            if (!string.IsNullOrWhiteSpace(data))
             {
-                string data = File.ReadAllText(path);
+                Settings? settings = JsonSerializer.Deserialize<Settings>(data, SettingsJsonContext.Default.Settings);
 
-                if (!string.IsNullOrWhiteSpace(data))
+                if (settings is not null)
                 {
-                    Settings? settings = JsonSerializer.Deserialize<Settings>(data, SettingsJsonContext.Default.Settings);
+                    SettingsViewModel.UpdateResourceThemeColors("Light", settings.LightThemeColors);
 
-                    if (settings is not null)
+                    // if reading an old settings file with fewer custom colors, make up the numbers with default values
+                    for (int index = settings.LightThemeColors.Count; index < settings.DefaultLightThemeColors.Count; index++)
                     {
-                        SettingsViewModel.UpdateResourceThemeColors("Light", settings.LightThemeColors);
-
-                        // if reading an old settings file with fewer custom colors, make up the numbers with default values
-                        for (int index = settings.LightThemeColors.Count; index < settings.DefaultLightThemeColors.Count; index++)
-                        {
-                            settings.LightThemeColors.Add(settings.DefaultLightThemeColors[index]);
-                        }
-
-                        SettingsViewModel.UpdateResourceThemeColors("Dark", settings.DarkThemeColors);
-
-                        for (int index = settings.DarkThemeColors.Count; index < settings.DefaultDarkThemeColors.Count; index++)
-                        {
-                            settings.DarkThemeColors.Add(settings.DefaultLightThemeColors[index]);
-                        }
-
-                        return settings;
+                        settings.LightThemeColors.Add(settings.DefaultLightThemeColors[index]);
                     }
+
+                    SettingsViewModel.UpdateResourceThemeColors("Dark", settings.DarkThemeColors);
+
+                    for (int index = settings.DarkThemeColors.Count; index < settings.DefaultDarkThemeColors.Count; index++)
+                    {
+                        settings.DarkThemeColors.Add(settings.DefaultLightThemeColors[index]);
+                    }
+
+                    return settings;
                 }
             }
-            catch (Exception ex)
-            {
-                Debug.Fail(ex.Message);
-            }
+        }
+        catch (Exception ex)
+        {
+            Debug.Fail(ex.Message);
         }
 
         return new Settings();
@@ -120,6 +117,7 @@ internal class Settings
     }
 }
 
+[JsonSourceGenerationOptions(IncludeFields = true)]
 [JsonSerializable(typeof(Settings))]
 internal partial class SettingsJsonContext : JsonSerializerContext
 {
