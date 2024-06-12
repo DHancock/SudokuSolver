@@ -85,7 +85,7 @@ internal class Settings
         }
         catch (Exception ex)
         {
-            Debug.Fail(ex.Message);
+            Debug.WriteLine(ex.Message);
         }
 
         return new Settings();
