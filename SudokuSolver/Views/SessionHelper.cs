@@ -74,7 +74,7 @@ internal class SessionHelper
                             {
                                 if (!MainWindow.ValidateSessionData(window))
                                 {
-                                    // In this first version this should only happen if the user has been editting the 
+                                    // In this first version this should only happen if the user has been editing the 
                                     // session file, in which case all bets are off...
                                     return;
                                 }
@@ -115,6 +115,9 @@ internal class SessionHelper
                 }
             }
 
+            // Always set the window state is to Normal, similar to Notepad. It could be confusing if there are multiple
+            // windows and one is maximized. At least the windows z order would have to be saved and restored as well,  
+            // not impossible but probably best to keep it simple.
             MainWindow parentWindow = new MainWindow(WindowState.Normal, restoreBounds);
 
             foreach (XElement child in window.Descendants())
