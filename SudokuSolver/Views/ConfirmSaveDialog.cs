@@ -1,6 +1,6 @@
 ﻿namespace SudokuSolver.Views;
 
-internal sealed class ConfirmSaveDialog : ContentDialog
+internal sealed partial class ConfirmSaveDialog : ContentDialog
 {
     public ConfirmSaveDialog(string puzzleName, XamlRoot xamlRoot, ElementTheme actualTheme) : base()
     {

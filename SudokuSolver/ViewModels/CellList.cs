@@ -1,6 +1,6 @@
 ﻿namespace SudokuSolver.ViewModels;
 
-internal sealed class CellList : ObservableCollection<Cell>
+internal sealed partial class CellList : ObservableCollection<Cell>
 {
     private const int cLength = 81;
 

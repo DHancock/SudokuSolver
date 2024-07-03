@@ -2,7 +2,7 @@
 
 using Line = Microsoft.UI.Xaml.Shapes.Line;
 
-internal sealed class SudokuGrid : Panel
+internal sealed partial class SudokuGrid : Panel
 {
     private double minorGridLineWidth = 0.0;
     private double majorGridLineWidth = 0.0;

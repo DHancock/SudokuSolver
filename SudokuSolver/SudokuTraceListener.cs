@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SudokuSolver;
 
-internal class SudokuTraceListener : TraceListener
+internal sealed partial class SudokuTraceListener : TraceListener
 {
     const int cMaxStoreLength = 1024 * 10;
 

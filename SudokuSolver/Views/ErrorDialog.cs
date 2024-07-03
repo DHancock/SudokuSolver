@@ -2,7 +2,7 @@
 
 namespace SudokuSolver.Views
 {
-    internal sealed class ErrorDialog : ContentDialog
+    internal sealed partial class ErrorDialog : ContentDialog
     {
         public ErrorDialog(string message, string details, XamlRoot xamlRoot, ElementTheme actualTheme) : base()
         {

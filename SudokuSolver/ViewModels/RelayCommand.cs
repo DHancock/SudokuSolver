@@ -1,6 +1,6 @@
 ﻿namespace SudokuSolver.ViewModels;
 
-internal sealed class RelayCommand : ICommand
+internal sealed partial class RelayCommand : ICommand
 {
     private readonly Action<object?> execute;
     private readonly Func<object?, bool> canExecute;
