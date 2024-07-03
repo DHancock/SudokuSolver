@@ -4,7 +4,7 @@ using SudokuSolver.Utilities;
 
 namespace SudokuSolver.ViewModels;
 
-internal sealed class PuzzleViewModel : INotifyPropertyChanged
+internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
 {
     public CellList Cells { get; }
 

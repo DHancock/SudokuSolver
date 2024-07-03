@@ -1,6 +1,6 @@
 ﻿namespace SudokuSolver.Models;
 
-internal sealed class CellList : IReadOnlyList<Cell>
+internal sealed partial class CellList : IReadOnlyList<Cell>
 {
     private const int cLength = 81;
 
