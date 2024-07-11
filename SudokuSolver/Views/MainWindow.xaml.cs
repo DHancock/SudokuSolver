@@ -430,7 +430,7 @@ internal sealed partial class MainWindow : Window, ISession
                 AppWindow.TitleBar.ButtonForegroundColor = Colors.Black;
                 AppWindow.TitleBar.ButtonPressedForegroundColor = Colors.Black;
                 AppWindow.TitleBar.ButtonHoverForegroundColor = Colors.Black;
-                AppWindow.TitleBar.ButtonHoverBackgroundColor = Colors.Gainsboro;
+                AppWindow.TitleBar.ButtonHoverBackgroundColor = Colors.LightGray;
                 AppWindow.TitleBar.ButtonInactiveForegroundColor = Colors.DarkGray;
             }
             else
