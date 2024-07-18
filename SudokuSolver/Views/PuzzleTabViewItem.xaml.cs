@@ -153,10 +153,8 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
         foreach (IStorageItem item in items)
         {
-            if (item.IsOfType(StorageItemTypes.File) &&
-                App.cFileExt.Equals(Path.GetExtension(item.Path), StringComparison.CurrentCultureIgnoreCase))
+            if (IsValidStorgeItem(item))
             {
-                Debug.Assert(item is StorageFile);
                 parentWindow.AddTab(new PuzzleTabViewItem(parentWindow, (StorageFile)item));
             }
         }
@@ -164,14 +162,26 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
     private void Puzzle_DragEnter(object sender, DragEventArgs e)
     {
-        if (e.DataView.Contains("FileDrop")) // at least exclude text drops
-        {
-            e.AcceptedOperation = DataPackageOperation.Copy;
+        IReadOnlyList<IStorageItem> items = e.DataView.GetStorageItemsAsync().GetAwaiter().GetResult();
 
-            e.DragUIOverride.IsGlyphVisible = false;
-            e.DragUIOverride.IsCaptionVisible = false;
-            e.DragUIOverride.SetContentFromBitmapImage(AboutBox.GetImage(ActualTheme));
+        foreach (IStorageItem item in items)
+        {
+            if (IsValidStorgeItem(item))
+            {
+                e.AcceptedOperation = DataPackageOperation.Copy;
+
+                e.DragUIOverride.IsGlyphVisible = false;
+                e.DragUIOverride.IsCaptionVisible = false;
+                e.DragUIOverride.SetContentFromBitmapImage(AboutBox.GetImage(ActualTheme));
+                return;
+            }
         }
+    }
+
+    private static bool IsValidStorgeItem(IStorageItem item)
+    {
+        return item.IsOfType(StorageItemTypes.File) &&
+                App.cFileExt.Equals(Path.GetExtension(item.Path), StringComparison.CurrentCultureIgnoreCase);
     }
 
     public PuzzleViewModel ViewModel
