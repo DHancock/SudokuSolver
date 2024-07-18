@@ -51,6 +51,13 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         CloseOtherTabsCommand = new RelayCommand(ExecuteCloseOtherTabsAsync, CanCloseOtherTabs);
         CloseLeftTabsCommand = new RelayCommand(ExecuteCloseLeftTabsAsync, CanCloseLeftTabs);
         CloseRightTabsCommand = new RelayCommand(ExecuteCloseRightTabsAsync, CanCloseRightTabs);
+
+        if (!IntegrityLevel.IsElevated)
+        {
+            Puzzle.AllowDrop = true;
+            Puzzle.DragEnter += Puzzle_DragEnter;
+            Puzzle.Drop += Puzzle_Drop;
+        }
     }
 
     public PuzzleTabViewItem(MainWindow parent, StorageFile storageFile) : this(parent)
@@ -137,6 +144,33 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
             }
 
             tab.UpdateTabHeader();
+        }
+    }
+
+    private async void Puzzle_Drop(object sender, DragEventArgs e)
+    {
+        IReadOnlyList<IStorageItem> items = await e.DataView.GetStorageItemsAsync();
+
+        foreach (IStorageItem item in items)
+        {
+            if (item.IsOfType(StorageItemTypes.File) &&
+                App.cFileExt.Equals(Path.GetExtension(item.Path), StringComparison.CurrentCultureIgnoreCase))
+            {
+                Debug.Assert(item is StorageFile);
+                parentWindow.AddTab(new PuzzleTabViewItem(parentWindow, (StorageFile)item));
+            }
+        }
+    }
+
+    private void Puzzle_DragEnter(object sender, DragEventArgs e)
+    {
+        if (e.DataView.Contains("FileDrop")) // at least exclude text drops
+        {
+            e.AcceptedOperation = DataPackageOperation.Copy;
+
+            e.DragUIOverride.IsGlyphVisible = false;
+            e.DragUIOverride.IsCaptionVisible = false;
+            e.DragUIOverride.SetContentFromBitmapImage(AboutBox.GetImage(ActualTheme));
         }
     }
 

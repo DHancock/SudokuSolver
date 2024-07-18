@@ -1,4 +1,6 @@
-﻿namespace SudokuSolver.Views;
+﻿using SudokuSolver.Utilities;
+
+namespace SudokuSolver.Views;
 
 public sealed partial class AboutBox : UserControl
 {
@@ -29,7 +31,12 @@ public sealed partial class AboutBox : UserControl
 
     private void LoadImage()
     {
-        string fileName = AboutImage.ActualTheme == ElementTheme.Light ? "about_light.png" : "about_dark.png";
-        AboutImage.Source = new BitmapImage(new Uri("ms-appx:///Resources/" + fileName));
+        AboutImage.Source = GetImage(AboutImage.ActualTheme);
+    }
+
+    public static BitmapImage GetImage(ElementTheme theme)
+    {
+        string fileName = Utils.NormaliseTheme(theme) == ElementTheme.Light ? "about_light.png" : "about_dark.png";
+        return new BitmapImage(new Uri("ms-appx:///Resources/" + fileName));
     }
 }
