@@ -172,11 +172,11 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
                 {
                     if (IsValidStorgeItem(item))
                     {
-                        e.AcceptedOperation = DataPackageOperation.Copy;
-
                         e.DragUIOverride.IsGlyphVisible = false;
                         e.DragUIOverride.IsCaptionVisible = false;
                         e.DragUIOverride.SetContentFromBitmapImage(AboutBox.GetImage(ActualTheme));
+
+                        e.AcceptedOperation = DataPackageOperation.Copy;
                         return;
                     }
                 }
