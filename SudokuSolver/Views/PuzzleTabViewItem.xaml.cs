@@ -60,20 +60,18 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         }
     }
 
-    public PuzzleTabViewItem(MainWindow parent, StorageFile storageFile) : this(parent)
+    public PuzzleTabViewItem(MainWindow parent, StorageFile storageFile, bool suppressErrors) : this(parent)
     {
-        sourceFile = storageFile;
         Loaded += LoadedHandlerAsync;
 
-        static async void LoadedHandlerAsync(object sender, RoutedEventArgs e)
+        async void LoadedHandlerAsync(object sender, RoutedEventArgs e)
         {
             PuzzleTabViewItem tab = (PuzzleTabViewItem)sender;
             tab.Loaded -= LoadedHandlerAsync;
-            tab.HeaderText = tab.sourceFile!.Name;
-
-            if (await tab.LoadFileAsync(tab.sourceFile!) != Error.Success)
+            
+            if (await tab.LoadFileAsync(storageFile, suppressErrors) == Error.Success)
             {
-                tab.sourceFile = null;
+                tab.sourceFile = storageFile;
             }
 
             tab.UpdateTabHeader();
@@ -155,7 +153,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         {
             if (IsValidStorgeItem(item))
             {
-                parentWindow.AddTab(new PuzzleTabViewItem(parentWindow, (StorageFile)item));
+                parentWindow.AddTab(new PuzzleTabViewItem(parentWindow, (StorageFile)item, suppressErrors: items.Count > 1));
             }
         }
     }
@@ -280,7 +278,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
             if (file is not null)
             {
-                Error error = await LoadFileAsync(file);
+                Error error = await LoadFileAsync(file, suppressErrors: false);
 
                 if (error == Error.Success)
                 {
@@ -368,7 +366,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         parentWindow.AddOrSelectSettingsTab();
     }
 
-    private async Task<Error> LoadFileAsync(StorageFile file)
+    private async Task<Error> LoadFileAsync(StorageFile file, bool suppressErrors)
     {
         Error error = Error.Failure;
 
@@ -384,9 +382,12 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         }
         catch (Exception ex)
         {
-            string template = App.Instance.ResourceLoader.GetString("FileOpenErrorTemplate");
-            string heading = string.Format(template, file.Name);
-            await new ErrorDialog(heading, ex.Message, XamlRoot, ActualTheme).ShowAsync();
+            if (!suppressErrors) // avoid opening two content dialogs when dropping two or more invalid files
+            {
+                string template = App.Instance.ResourceLoader.GetString("FileOpenErrorTemplate");
+                string heading = string.Format(template, file.Name);
+                await new ErrorDialog(heading, ex.Message, XamlRoot, ActualTheme).ShowAsync();
+            }
         }
 
         return error;
