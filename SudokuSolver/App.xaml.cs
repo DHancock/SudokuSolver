@@ -139,7 +139,7 @@ public partial class App : Application
     }
 
 
-    // can be called from both normal launch and redirrection
+    // can be called from both normal launch and redirection
     private void ProcessFileActivation(AppActivationArguments args)
     {
         if ((args.Data is IFileActivatedEventArgs fileData) && (fileData.Files.Count > 0) && !appClosing)
@@ -149,7 +149,7 @@ public partial class App : Application
                 if (storageItem is StorageFile storageFile)
                 {
                     currentWindow ??= new MainWindow(Settings.Data.WindowState, Settings.Data.RestoreBounds);
-                    currentWindow.AddTab(new PuzzleTabViewItem(currentWindow, storageFile));
+                    currentWindow.AddTab(new PuzzleTabViewItem(currentWindow, storageFile, suppressErrors: fileData.Files.Count > 1));
                 }
             }
 
@@ -182,7 +182,7 @@ public partial class App : Application
                 StorageFile storageFile = await StorageFile.GetFileFromPathAsync(arg);
 
                 currentWindow ??= new MainWindow(Settings.Data.WindowState, Settings.Data.RestoreBounds);
-                currentWindow.AddTab(new PuzzleTabViewItem(currentWindow, storageFile));
+                currentWindow.AddTab(new PuzzleTabViewItem(currentWindow, storageFile, suppressErrors: args.Count > 2));
             }
         }
     }
@@ -288,7 +288,7 @@ public partial class App : Application
             {
                 newPos = existingPos.Offset(clientTitleBarHeight + 1);
                 index = 0;
-                ++resetCount;  // avoid an infinate loop if the position cannot be adjusted due to display limits
+                ++resetCount;  // avoid an infinite loop if the position cannot be adjusted due to display limits
             }
         }
 
