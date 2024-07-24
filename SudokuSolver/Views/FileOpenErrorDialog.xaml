@@ -8,7 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">
 
     <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-        <TextBlock Text="An error occured opening"/>
+        <TextBlock x:Uid="FileOpenErrorHeader"/>
         <TreeView x:Name="ErrorTreeView" SelectionMode="None"/>
     </StackPanel>
 </ContentDialog>

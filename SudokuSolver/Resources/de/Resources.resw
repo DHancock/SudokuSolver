@@ -183,8 +183,8 @@
   <data name="File.Title" xml:space="preserve">
     <value>Datei</value>
   </data>
-  <data name="FileOpenErrorTemplate" xml:space="preserve">
-    <value>Beim Öffnen von {0} ist ein Fehler aufgetreten</value>
+  <data name="FileOpenErrorHeader.Text" xml:space="preserve">
+    <value>Beim Öffnen ist ein Fehler aufgetreten</value>
   </data>
   <data name="FileSaveErrorTemplate" xml:space="preserve">
     <value>Beim Speichern von {0} ist ein Fehler aufgetreten.</value>
