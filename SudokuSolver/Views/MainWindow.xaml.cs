@@ -17,6 +17,7 @@ internal sealed partial class MainWindow : Window, ISession
     public bool IsActive { get; private set; } = true;
 
     private PrintHelper? printHelper;
+    private FileOpenErrorDialog? dialog;
 
     public MainWindow(WindowState windowState, RectInt32 bounds) : this()
     {
@@ -78,20 +79,7 @@ internal sealed partial class MainWindow : Window, ISession
         }; 
     }
 
-    public bool IsContentDialogOpen()
-    {
-        try
-        {
-            return VisualTreeHelper.GetOpenPopupsForXamlRoot(Content.XamlRoot).Any(x => x.Child is ContentDialog);
-        }
-        catch (Exception ex)
-        {
-            // most likely that the Window.Content has already closed
-            Debug.WriteLine(ex);
-        }
-
-        return false;
-    }
+    public bool IsContentDialogOpen() => GetOpenContentDialog() is not null;
 
     private async Task HandleWindowCloseRequestedAsync()
     {
@@ -107,16 +95,44 @@ internal sealed partial class MainWindow : Window, ISession
         }
         else
         {
-            // closing tabs is reentrant if a tab is awaiting a content dialog.
-            // a second close attempt, via the window caption close button will always succeed
-            if (IsContentDialogOpen())
+            // Closing tabs is reentrant when awaiting a content dialog.
+            // Unfortunately there doesn't seem to be a way to disable the caption close button
+            ContentDialog? dialog = GetOpenContentDialog();
+
+            if (dialog is ConfirmSaveDialog)
             {
                 Tabs.TabItems.Clear();
                 return;
             }
+            else
+            {
+                dialog?.Hide();
+            }
 
             await AttemptToCloseTabsAsync(Tabs.TabItems);
         }
+    }
+
+
+    private ContentDialog? GetOpenContentDialog()
+    {   
+        try
+        {
+            foreach (Popup popup in VisualTreeHelper.GetOpenPopupsForXamlRoot(Content.XamlRoot))
+            {
+                if (popup.Child is ContentDialog contentDialog)
+                {
+                    return contentDialog;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            // Window.Content may have already closed
+            Debug.WriteLine(ex);
+        }
+
+        return null;
     }
 
     private void ResetPuzzleTabsOpacity()
@@ -299,7 +315,7 @@ internal sealed partial class MainWindow : Window, ISession
     }
 
 #pragma warning disable CA1822 // Mark members as static
-    public void Tabs_TabDragStarting(TabView sender, TabViewTabDragStartingEventArgs args)
+    private void Tabs_TabDragStarting(TabView sender, TabViewTabDragStartingEventArgs args)
     {
         args.Data.Properties.Add(cDataIdentifier, args.Tab);
         args.Data.Properties.Add(cProcessId, Environment.ProcessId);
@@ -418,7 +434,7 @@ internal sealed partial class MainWindow : Window, ISession
     {
         Debug.Assert(theme is not ElementTheme.Default);
 
-        if (AppWindow is not null)  // may occure if the window is closed immediately after requesting a theme change
+        if (AppWindow is not null)  // may occur if the window is closed immediately after requesting a theme change
         {
             AppWindow.TitleBar.BackgroundColor = Colors.Transparent;
             AppWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
@@ -446,7 +462,7 @@ internal sealed partial class MainWindow : Window, ISession
 
     private void RightPaddingColumn_SizeChanged(object sender, SizeChangedEventArgs e)
     {
-        // this accomodates both window width changes and adding/removing tabs
+        // this accommodates both window width changes and adding/removing tabs
         SetWindowDragRegions();
     }
 
@@ -643,5 +659,26 @@ internal sealed partial class MainWindow : Window, ISession
         }
 
         return false;
+    }
+
+    public async void ShowFileOpenError(FrameworkElement parent, string fileName, string details)
+    {
+        if (dialog is not null)
+        {
+            dialog.AddError(fileName, details);
+        }
+        else
+        {
+            dialog = new FileOpenErrorDialog(parent.XamlRoot, parent.ActualTheme);
+            dialog.Closed += Dialog_Closed;
+            dialog.AddError(fileName, details);
+
+            await dialog.ShowAsync();
+        }
+
+        void Dialog_Closed(ContentDialog sender, ContentDialogClosedEventArgs args)
+        {
+            dialog = null;
+        }
     }
 }

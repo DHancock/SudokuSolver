@@ -183,8 +183,8 @@
   <data name="File.Title" xml:space="preserve">
     <value>文件</value>
   </data>
-  <data name="FileOpenErrorTemplate" xml:space="preserve">
-    <value>開啟 {0} 時出錯</value>
+  <data name="FileOpenErrorHeader.Text" xml:space="preserve">
+    <value>打开时发生错误</value>
   </data>
   <data name="FileSaveErrorTemplate" xml:space="preserve">
     <value>儲存 {0} 時出錯</value>

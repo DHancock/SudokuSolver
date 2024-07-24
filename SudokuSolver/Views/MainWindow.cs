@@ -62,7 +62,7 @@ internal partial class MainWindow : Window
         AppWindow.Changed += AppWindow_Changed;
         Activated += App.Instance.RecordWindowActivated;
 
-        scaleFactor = IntialiseScaleFactor();
+        scaleFactor = InitialiseScaleFactor();
         scaledMinWidth = ConvertToDeviceSize(cMinWidth);
         scaledMinHeight = ConvertToDeviceSize(cMinHeight);
 
@@ -207,7 +207,7 @@ internal partial class MainWindow : Window
             OverlayInputPassThroughElement = Content,
         };
 
-        // always use narrow padding (the first time the menu is opened it may use normal padding, other times narrrow)
+        // always use narrow padding (the first time the menu is opened it may use normal padding, other times narrow)
         Thickness narrow = (Thickness)((FrameworkElement)Content).Resources[cPaddingKey];
         ResourceLoader rl = App.Instance.ResourceLoader;
 
@@ -324,7 +324,7 @@ internal partial class MainWindow : Window
         return Convert.ToInt32(value * scaleFactor);
     }
 
-    private double IntialiseScaleFactor()
+    private double InitialiseScaleFactor()
     {
         double dpi = PInvoke.GetDpiForWindow((HWND)WindowPtr);
         return dpi / 96.0;

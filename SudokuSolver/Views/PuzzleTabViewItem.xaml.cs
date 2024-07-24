@@ -60,7 +60,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         }
     }
 
-    public PuzzleTabViewItem(MainWindow parent, StorageFile storageFile, bool suppressErrors) : this(parent)
+    public PuzzleTabViewItem(MainWindow parent, StorageFile storageFile) : this(parent)
     {
         Loaded += LoadedHandlerAsync;
 
@@ -68,12 +68,12 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         {
             PuzzleTabViewItem tab = (PuzzleTabViewItem)sender;
             tab.Loaded -= LoadedHandlerAsync;
-            
-            if (await tab.LoadFileAsync(storageFile, suppressErrors) == Error.Success)
+
+            if (await tab.LoadFileAsync(storageFile) == Error.Success)
             {
                 tab.sourceFile = storageFile;
             }
-
+            
             tab.UpdateTabHeader();
         }
     }
@@ -153,7 +153,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         {
             if (IsValidStorgeItem(item))
             {
-                parentWindow.AddTab(new PuzzleTabViewItem(parentWindow, (StorageFile)item, suppressErrors: items.Count > 1));
+                parentWindow.AddTab(new PuzzleTabViewItem(parentWindow, (StorageFile)item));
             }
         }
     }
@@ -278,7 +278,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
             if (file is not null)
             {
-                Error error = await LoadFileAsync(file, suppressErrors: false);
+                Error error = await LoadFileAsync(file);
 
                 if (error == Error.Success)
                 {
@@ -366,7 +366,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         parentWindow.AddOrSelectSettingsTab();
     }
 
-    private async Task<Error> LoadFileAsync(StorageFile file, bool suppressErrors)
+    private async Task<Error> LoadFileAsync(StorageFile file)
     {
         Error error = Error.Failure;
 
@@ -382,12 +382,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         }
         catch (Exception ex)
         {
-            if (!suppressErrors) // avoid opening two content dialogs when dropping two or more invalid files
-            {
-                string template = App.Instance.ResourceLoader.GetString("FileOpenErrorTemplate");
-                string heading = string.Format(template, file.Name);
-                await new ErrorDialog(heading, ex.Message, XamlRoot, ActualTheme).ShowAsync();
-            }
+            parentWindow.ShowFileOpenError(this, file.Name, ex.Message);
         }
 
         return error;

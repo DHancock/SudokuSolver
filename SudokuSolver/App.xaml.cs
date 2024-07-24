@@ -149,7 +149,7 @@ public partial class App : Application
                 if (storageItem is StorageFile storageFile)
                 {
                     currentWindow ??= new MainWindow(Settings.Data.WindowState, Settings.Data.RestoreBounds);
-                    currentWindow.AddTab(new PuzzleTabViewItem(currentWindow, storageFile, suppressErrors: fileData.Files.Count > 1));
+                    currentWindow.AddTab(new PuzzleTabViewItem(currentWindow, storageFile));
                 }
             }
 
@@ -182,7 +182,7 @@ public partial class App : Application
                 StorageFile storageFile = await StorageFile.GetFileFromPathAsync(arg);
 
                 currentWindow ??= new MainWindow(Settings.Data.WindowState, Settings.Data.RestoreBounds);
-                currentWindow.AddTab(new PuzzleTabViewItem(currentWindow, storageFile, suppressErrors: args.Count > 2));
+                currentWindow.AddTab(new PuzzleTabViewItem(currentWindow, storageFile));
             }
         }
     }
