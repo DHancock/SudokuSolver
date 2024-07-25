@@ -87,11 +87,6 @@ internal sealed partial class MainWindow : Window, ISession
         {
             App.Instance.SessionHelper.AddWindow(this);
             Tabs.TabItems.Clear();
-
-            if (App.Instance.WindowCount == 0)
-            {
-                await App.Instance.SessionHelper.SaveAsync();
-            }
         }
         else
         {
@@ -230,7 +225,14 @@ internal sealed partial class MainWindow : Window, ISession
 
             if (App.Instance.WindowCount == 0)
             {
-                await Settings.Data.SaveAsync();
+                if (Settings.Data.SaveSessionState)
+                {
+                    await Task.WhenAll([Settings.Data.SaveAsync(), App.Instance.SessionHelper.SaveAsync()]);
+                }
+                else 
+                {
+                    await Settings.Data.SaveAsync();
+                }
             }
 
             Close();
