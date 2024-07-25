@@ -104,9 +104,11 @@ internal sealed partial class MainWindow : Window, ISession
                 Tabs.TabItems.Clear();
                 return;
             }
-            else
+            
+            if (dialog is not null)
             {
-                dialog?.Hide();
+                Debug.Assert(dialog is ErrorDialog);
+                dialog.Hide();
             }
 
             await AttemptToCloseTabsAsync(Tabs.TabItems);
