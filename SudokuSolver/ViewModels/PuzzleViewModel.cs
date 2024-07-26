@@ -29,7 +29,7 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
 
     public PuzzleViewModel()
     {
-        this.viewSettings = Settings.Data.ViewSettings.Clone();
+        this.viewSettings = Settings.Instance.ViewSettings.Clone();
 
         model = new PuzzleModel();
         initialState = new PuzzleModel();

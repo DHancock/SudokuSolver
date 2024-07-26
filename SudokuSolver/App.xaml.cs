@@ -64,7 +64,7 @@ public partial class App : Application
             }
         }
 
-        if (Settings.Data.SaveSessionState)
+        if (Settings.Instance.SaveSessionState)
         {
             await SessionHelper.LoadPreviousSessionAsync();
         }
@@ -81,7 +81,7 @@ public partial class App : Application
 
             if (currentWindow is null)
             {
-                currentWindow = new MainWindow(Settings.Data.WindowState, Settings.Data.RestoreBounds);
+                currentWindow = new MainWindow(Settings.Instance.WindowState, Settings.Instance.RestoreBounds);
                 currentWindow.AddTab(new PuzzleTabViewItem(currentWindow));
             }
 
@@ -148,7 +148,7 @@ public partial class App : Application
             {
                 if (storageItem is StorageFile storageFile)
                 {
-                    currentWindow ??= new MainWindow(Settings.Data.WindowState, Settings.Data.RestoreBounds);
+                    currentWindow ??= new MainWindow(Settings.Instance.WindowState, Settings.Instance.RestoreBounds);
                     currentWindow.AddTab(new PuzzleTabViewItem(currentWindow, storageFile));
                 }
             }
@@ -181,7 +181,7 @@ public partial class App : Application
             {
                 StorageFile storageFile = await StorageFile.GetFileFromPathAsync(arg);
 
-                currentWindow ??= new MainWindow(Settings.Data.WindowState, Settings.Data.RestoreBounds);
+                currentWindow ??= new MainWindow(Settings.Instance.WindowState, Settings.Instance.RestoreBounds);
                 currentWindow.AddTab(new PuzzleTabViewItem(currentWindow, storageFile));
             }
         }

@@ -56,7 +56,7 @@ internal sealed class PrintHelper
         currentlyPrinting = true;
 
         headerText = tab.SourceFile is null ? tab.HeaderText : tab.SourceFile.Path;
-        settings = Settings.Data.PrintSettings.Clone();
+        settings = Settings.Instance.PrintSettings.Clone();
 
         // a user control containing a puzzle view
         printPage = new PrintPage(tab.ViewModel);
@@ -157,28 +157,28 @@ internal sealed class PrintHelper
             {
                 PrintCustomItemListOptionDetails option = (PrintCustomItemListOptionDetails)sender.Options[optionId];
                 settings.PrintSize = Enum.Parse<PrintSize>((string)option.Value);
-                Settings.Data.PrintSettings.PrintSize = settings.PrintSize;
+                Settings.Instance.PrintSettings.PrintSize = settings.PrintSize;
                 invalidatePreview = true;
             }
             else if (CustomOption.Alignment.ToString() == optionId)
             {
                 PrintCustomItemListOptionDetails option = (PrintCustomItemListOptionDetails)sender.Options[optionId];
                 settings.PrintAlignment = Enum.Parse<Alignment>((string)option.Value);
-                Settings.Data.PrintSettings.PrintAlignment = settings.PrintAlignment;
+                Settings.Instance.PrintSettings.PrintAlignment = settings.PrintAlignment;
                 invalidatePreview = true;
             }
             else if (CustomOption.Margin.ToString() == optionId)
             {
                 PrintCustomItemListOptionDetails option = (PrintCustomItemListOptionDetails)sender.Options[optionId];
                 settings.PrintMargin = Enum.Parse<Margin>((string)option.Value);
-                Settings.Data.PrintSettings.PrintMargin = settings.PrintMargin;
+                Settings.Instance.PrintSettings.PrintMargin = settings.PrintMargin;
                 invalidatePreview = true;
             }
             else if (CustomOption.ShowHeader.ToString() == optionId)
             {
                 PrintCustomToggleOptionDetails option = (PrintCustomToggleOptionDetails)sender.Options[optionId];
                 settings.ShowHeader = (bool)option.Value;
-                Settings.Data.PrintSettings.ShowHeader = settings.ShowHeader;
+                Settings.Instance.PrintSettings.ShowHeader = settings.ShowHeader;
                 invalidatePreview = true;
             }
 

@@ -50,26 +50,26 @@ internal sealed partial class SettingsViewModel : INotifyPropertyChanged
     }
 
 #pragma warning disable CA1822 // Mark members as static (notify property changed needs a class instance)
-    public ElementTheme Theme => Settings.Data.Theme;
+    public ElementTheme Theme => Settings.Instance.Theme;
 
 #pragma warning restore CA1822 // Mark members as static
 
     public bool ShowPossibles
     {
-        get => Settings.Data.ViewSettings.ShowPossibles;
+        get => Settings.Instance.ViewSettings.ShowPossibles;
         set
         {
-            Settings.Data.ViewSettings.ShowPossibles = value;
+            Settings.Instance.ViewSettings.ShowPossibles = value;
             NotifyPropertyChanged();
         }
     }
 
     public bool ShowSolution
     {
-        get => Settings.Data.ViewSettings.ShowSolution;
+        get => Settings.Instance.ViewSettings.ShowSolution;
         set
         {
-            Settings.Data.ViewSettings.ShowSolution = value;
+            Settings.Instance.ViewSettings.ShowSolution = value;
             NotifyPropertyChanged();
         }
     }
@@ -88,17 +88,17 @@ internal sealed partial class SettingsViewModel : INotifyPropertyChanged
     public Color HPossibleDark { get => GetterDark(4); set => SetterDark(4, value); }
     public Color VPossibleDark { get => GetterDark(5); set => SetterDark(5, value); }
 
-    private static Color GetterLight(int index) => Settings.Data.LightThemeColors[index];
-    private static Color GetterDark(int index) => Settings.Data.DarkThemeColors[index];
+    private static Color GetterLight(int index) => Settings.Instance.LightThemeColors[index];
+    private static Color GetterDark(int index) => Settings.Instance.DarkThemeColors[index];
 
     private void SetterLight(int index, Color value, [CallerMemberName] string? propertyName = default)
     {
-        Setter(isLight: true, index, value, Settings.Data.LightThemeColors, propertyName);
+        Setter(isLight: true, index, value, Settings.Instance.LightThemeColors, propertyName);
     }
 
     private void SetterDark(int index, Color value, [CallerMemberName] string? propertyName = default)
     {
-        Setter(isLight: false, index, value, Settings.Data.DarkThemeColors, propertyName);
+        Setter(isLight: false, index, value, Settings.Instance.DarkThemeColors, propertyName);
     }
 
     private void Setter(bool isLight, int index, Color value, List<Color> colors, string? propertyName)
@@ -125,7 +125,7 @@ internal sealed partial class SettingsViewModel : INotifyPropertyChanged
     {
         for (int index = 0; index < cPropertyNames.Length; index++)
         {
-            SetterLight(index, Settings.Data.DefaultLightThemeColors[index], $"{cPropertyNames[index]}Light");
+            SetterLight(index, Settings.Instance.DefaultLightThemeColors[index], $"{cPropertyNames[index]}Light");
         }
     }
 
@@ -133,38 +133,38 @@ internal sealed partial class SettingsViewModel : INotifyPropertyChanged
     {
         for (int index = 0; index < cPropertyNames.Length; index++)
         {
-            SetterDark(index, Settings.Data.DefaultDarkThemeColors[index], $"{cPropertyNames[index]}Dark");
+            SetterDark(index, Settings.Instance.DefaultDarkThemeColors[index], $"{cPropertyNames[index]}Dark");
         }
     }
 
     private void ResetLightColor(int index)
     {
-        SetterLight(index, Settings.Data.DefaultLightThemeColors[index], $"{cPropertyNames[index]}Light");
+        SetterLight(index, Settings.Instance.DefaultLightThemeColors[index], $"{cPropertyNames[index]}Light");
     }
 
     private static bool IsLightColorDifferent(int index)
     {
-        return !Settings.Data.LightThemeColors[index].Equals(Settings.Data.DefaultLightThemeColors[index]);
+        return !Settings.Instance.LightThemeColors[index].Equals(Settings.Instance.DefaultLightThemeColors[index]);
     }
 
     private void ResetDarkColor(int index)
     {
-        SetterDark(index, Settings.Data.DefaultDarkThemeColors[index], $"{cPropertyNames[index]}Dark");
+        SetterDark(index, Settings.Instance.DefaultDarkThemeColors[index], $"{cPropertyNames[index]}Dark");
     }
 
     private static bool IsDarkColorDifferent(int index)
     {
-        return !Settings.Data.DarkThemeColors[index].Equals(Settings.Data.DefaultDarkThemeColors[index]);
+        return !Settings.Instance.DarkThemeColors[index].Equals(Settings.Instance.DefaultDarkThemeColors[index]);
     }
 
     private bool CanExecuteResetLightColors(object? param)
     {
-        return !Enumerable.SequenceEqual(Settings.Data.DefaultLightThemeColors, Settings.Data.LightThemeColors);
+        return !Enumerable.SequenceEqual(Settings.Instance.DefaultLightThemeColors, Settings.Instance.LightThemeColors);
     }
 
     private bool CanExecuteResetDarkColors(object? param)
     {
-        return !Enumerable.SequenceEqual(Settings.Data.DefaultDarkThemeColors, Settings.Data.DarkThemeColors);
+        return !Enumerable.SequenceEqual(Settings.Instance.DefaultDarkThemeColors, Settings.Instance.DarkThemeColors);
     }
 
     public static List<Color> ReadResourceThemeColors(string themeKey)
@@ -208,7 +208,7 @@ internal sealed partial class SettingsViewModel : INotifyPropertyChanged
     {
         get
         {
-            switch (Settings.Data.Theme)
+            switch (Settings.Instance.Theme)
             {
                 case ElementTheme.Light: return 0;
                 case ElementTheme.Dark: return 1;
@@ -221,9 +221,9 @@ internal sealed partial class SettingsViewModel : INotifyPropertyChanged
         {
             switch (value)
             {
-                case 0: Settings.Data.Theme = ElementTheme.Light; break;
-                case 1: Settings.Data.Theme = ElementTheme.Dark; break;
-                case 2: Settings.Data.Theme = ElementTheme.Default; break;
+                case 0: Settings.Instance.Theme = ElementTheme.Light; break;
+                case 1: Settings.Instance.Theme = ElementTheme.Dark; break;
+                case 2: Settings.Instance.Theme = ElementTheme.Default; break;
             }
 
             NotifyPropertyChanged();
@@ -233,11 +233,11 @@ internal sealed partial class SettingsViewModel : INotifyPropertyChanged
 
     public int SessionRadioButtonsIndex
     {
-        get => Settings.Data.SaveSessionState ? 0 : 1;
+        get => Settings.Instance.SaveSessionState ? 0 : 1;
 
         set
         {
-            Settings.Data.SaveSessionState = value == 0;
+            Settings.Instance.SaveSessionState = value == 0;
             NotifyPropertyChanged();
         }
     }

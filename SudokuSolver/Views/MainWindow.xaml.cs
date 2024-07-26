@@ -83,7 +83,7 @@ internal sealed partial class MainWindow : Window, ISession
 
     private async Task HandleWindowCloseRequestedAsync()
     {
-        if (Settings.Data.SaveSessionState && (App.Instance.SessionHelper.IsExit || (App.Instance.WindowCount == 1)))
+        if (Settings.Instance.SaveSessionState && (App.Instance.SessionHelper.IsExit || (App.Instance.WindowCount == 1)))
         {
             App.Instance.SessionHelper.AddWindow(this);
             Tabs.TabItems.Clear();
@@ -216,8 +216,8 @@ internal sealed partial class MainWindow : Window, ISession
     {
         if (sender.TabItems.Count == 0)
         {
-            Settings.Data.RestoreBounds = RestoreBounds;
-            Settings.Data.WindowState = WindowState;
+            Settings.Instance.RestoreBounds = RestoreBounds;
+            Settings.Instance.WindowState = WindowState;
 
             AppWindow.Hide();
 
@@ -225,13 +225,13 @@ internal sealed partial class MainWindow : Window, ISession
 
             if (App.Instance.WindowCount == 0)
             {
-                if (Settings.Data.SaveSessionState)
+                if (Settings.Instance.SaveSessionState)
                 {
-                    await Task.WhenAll([Settings.Data.SaveAsync(), App.Instance.SessionHelper.SaveAsync()]);
+                    await Task.WhenAll([Settings.Instance.SaveAsync(), App.Instance.SessionHelper.SaveAsync()]);
                 }
                 else 
                 {
-                    await Settings.Data.SaveAsync();
+                    await Settings.Instance.SaveAsync();
                 }
             }
 
