@@ -81,6 +81,6 @@ internal partial class PuzzleView : UserControl
     {
         Debug.Assert(!IsLoaded);
         // the next time this tab is loaded the opacity transition may need to be restarted
-        Grid.Opacity = (themeWhenSelected != Utils.NormaliseTheme(Settings.Data.Theme)) ? 0 : 1;
+        Grid.Opacity = (themeWhenSelected != Utils.NormaliseTheme(Settings.Instance.Theme)) ? 0 : 1;
     }
 }

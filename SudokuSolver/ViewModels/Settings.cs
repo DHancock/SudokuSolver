@@ -4,7 +4,7 @@ namespace SudokuSolver.ViewModels;
 
 internal class Settings
 {
-    public static Settings Data = Load();
+    public static Settings Instance = Load();
 
     public PerViewSettings ViewSettings { get; set; } = new PerViewSettings();
     public PerPrintSettings PrintSettings { get; set; } = new PerPrintSettings();
@@ -23,7 +23,7 @@ internal class Settings
 
     public bool SaveSessionState { get; set; } = true;
 
-    // while this breaks the singlton pattern, the code generator doesn't 
+    // while this breaks the singleton pattern, the code generator doesn't 
     // work with private nested classes. Worse things have happened at sea...
     public Settings()
     {
