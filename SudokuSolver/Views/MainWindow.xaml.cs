@@ -102,7 +102,7 @@ internal sealed partial class MainWindow : Window, ISession
             
             if (dialog is not null)
             {
-                Debug.Assert(dialog is ErrorDialog);
+                Debug.Assert(dialog is ErrorDialog or FileOpenErrorDialog);
                 dialog.Hide();
             }
 
