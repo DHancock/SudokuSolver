@@ -5,7 +5,7 @@ namespace SudokuSolver.Views;
 
 internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISession
 {
-    public SettingsViewModel ViewModel { get; } = SettingsViewModel.Data;
+    public SettingsViewModel ViewModel { get; } = SettingsViewModel.Instance;
     private RelayCommand CloseOtherTabsCommand { get; }
     private RelayCommand CloseLeftTabsCommand { get; }
     private RelayCommand CloseRightTabsCommand { get; }
