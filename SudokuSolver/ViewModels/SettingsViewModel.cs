@@ -27,7 +27,7 @@ internal sealed partial class SettingsViewModel : INotifyPropertyChanged
 
     // This singleton class mirrors the Settings singleton. The Settings singleton is responsible for reading and writing
     // the data. This class handles notification changes for ui binding, forwarding any data to the Settings class
-    public static SettingsViewModel Data = new SettingsViewModel();
+    public static SettingsViewModel Instance = new SettingsViewModel();
 
     private SettingsViewModel()
     {

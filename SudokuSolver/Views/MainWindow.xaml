@@ -13,7 +13,7 @@
         <MicaBackdrop Kind="BaseAlt"/>
     </Window.SystemBackdrop>
 
-    <Grid x:Name="LayoutRoot" RequestedTheme="{x:Bind vm:SettingsViewModel.Data.Theme, Mode=OneWay}">
+    <Grid x:Name="LayoutRoot" RequestedTheme="{x:Bind vm:SettingsViewModel.Instance.Theme, Mode=OneWay}">
 
         <!-- used to add print preview pages to the visual tree -->
         <Canvas x:Name="PrintCanvas" Opacity="0"/>
