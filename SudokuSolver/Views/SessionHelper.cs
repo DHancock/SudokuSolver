@@ -31,7 +31,7 @@ internal class SessionHelper
 
             await using (Stream stream = new FileStream(GetSessionPath(), FileMode.Create))
             {
-                await root.SaveAsync(stream, SaveOptions.None, CancellationToken.None);
+                await root.SaveAsync(stream, SaveOptions.DisableFormatting, CancellationToken.None);
             }
         }
         catch (Exception ex)
