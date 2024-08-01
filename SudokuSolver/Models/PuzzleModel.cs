@@ -37,7 +37,7 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
     public async Task SaveAsync(Stream stream)
     {
         XElement xmlTree = GetPuzzleXml();
-        await xmlTree.SaveAsync(stream, SaveOptions.None, CancellationToken.None);
+        await xmlTree.SaveAsync(stream, SaveOptions.DisableFormatting, CancellationToken.None);
     }
 
     public XElement GetPuzzleXml()
