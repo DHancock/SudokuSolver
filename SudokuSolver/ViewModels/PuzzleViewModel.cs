@@ -161,17 +161,6 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
         Debug.Assert(model.CompletedCellCountIsValid);
     }
 
-    public void New()
-    {
-        model.Clear();
-        UpdateView();
-        undoHelper.Push(model);
-        initialState.Clear();
-        IsModified = false;
-
-        UpdateMenuItemsDisabledState();
-    }
-
     public bool ShowPossibles
     {
         get => viewSettings.ShowPossibles;
