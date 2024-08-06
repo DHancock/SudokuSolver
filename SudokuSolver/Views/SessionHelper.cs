@@ -40,25 +40,11 @@ internal class SessionHelper
         }
     }
 
-    // if the window is closed by closing the last tab rather than explicitly via a
-    // menu item or the close caption button, delete any existing session data
-    public static void DeleteSession()
-    {
-        try
-        {
-            File.Delete(GetSessionPath());
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine(ex.ToString());
-        }
-    }
-
     public static async Task LoadPreviousSessionAsync()
     {
         try
         {
-            await using (Stream stream = new FileStream(GetSessionPath(), FileMode.Open))
+            await using (Stream stream = new FileStream(GetSessionPath(), FileMode.Open, FileAccess.Read))
             {
                 XDocument document = await XDocument.LoadAsync(stream, LoadOptions.None, CancellationToken.None);
 
