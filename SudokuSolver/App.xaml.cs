@@ -57,6 +57,7 @@ public partial class App : Application
                 }
                 else if (commandLine[1] == "/unregister")
                 {
+                    DeleteAppData();
                     UnregisterFileTypeActivation();
                     PInvoke.PostQuitMessage(0);
                     return;
@@ -113,6 +114,19 @@ public partial class App : Application
         catch (Exception ex)
         {
             Trace.WriteLine($"unregister file type failed: {ex}");
+        }
+    }
+
+    private static void DeleteAppData()
+    {
+        try
+        {
+            DirectoryInfo di = new DirectoryInfo(GetAppDataPath());
+            di.Delete(true);
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine(ex.ToString());
         }
     }
 
