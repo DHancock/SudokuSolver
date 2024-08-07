@@ -44,7 +44,7 @@ internal sealed partial class MainWindow : Window, ISession
         };
 
         // these two are used in the iconic window displayed when hovering over the app's icon in the task bar
-        AppWindow.Title = App.Instance.AppDisplayName;
+        AppWindow.Title = App.cAppDisplayName;
         AppWindow.SetIcon("Resources\\app.ico");
 
         AppWindow.MoveAndResize(App.Instance.GetNewWindowPosition(this, bounds));

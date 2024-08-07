@@ -14,4 +14,3 @@ ScreenToClient
 PostMessage
 WM_DPICHANGED
 SHAddToRecentDocs
-PostQuitMessage

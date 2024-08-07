@@ -13,7 +13,7 @@ internal sealed partial class FileOpenErrorDialog : ContentDialog
         XamlRoot = xamlRoot;
         RequestedTheme = actualTheme;
 
-        Title = App.Instance.AppDisplayName;
+        Title = App.cAppDisplayName;
         PrimaryButtonText = App.Instance.ResourceLoader.GetString("OKButton");
         DefaultButton = ContentDialogButton.Primary;
 
