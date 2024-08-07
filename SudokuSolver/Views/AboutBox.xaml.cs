@@ -15,7 +15,7 @@ public sealed partial class AboutBox : UserControl
         string? version = Path.GetFileNameWithoutExtension(typeof(App).Assembly.GetName().Version?.ToString());
 
         VersionTextBlock.Text = string.Format(template, version);
-        AppNameTextBlock.Text = App.Instance.AppDisplayName;
+        AppNameTextBlock.Text = App.cAppDisplayName;
     }
 
     private void AboutImage_ActualThemeChanged(FrameworkElement sender, object args)

@@ -12,6 +12,7 @@ namespace SudokuSolver;
 public partial class App : Application
 {
     public const string cFileExt = ".sdku";
+    public const string cAppDisplayName = "Sudoku Solver";
     public static App Instance => (App)Current;
 
     private readonly DispatcherQueue uiThreadDispatcher;
@@ -40,35 +41,12 @@ public partial class App : Application
     // Invoked on the ui thread when the application is launched normally
     protected async override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs _)
     {
-        AppActivationArguments args = appInstance.GetActivatedEventArgs();
-
-        if (args.Kind == ExtendedActivationKind.Launch)
-        {
-            string[] commandLine = Environment.GetCommandLineArgs();
-
-            if (commandLine.Length == 2)
-            {
-                // called by the installer
-                if (commandLine[1] == "/register")
-                {
-                    RegisterFileTypeActivation();
-                    PInvoke.PostQuitMessage(0);
-                    return;
-                }
-                else if (commandLine[1] == "/unregister")
-                {
-                    DeleteAppData();
-                    UnregisterFileTypeActivation();
-                    PInvoke.PostQuitMessage(0);
-                    return;
-                }
-            }
-        }
-
         if (Settings.Instance.SaveSessionState)
         {
             await SessionHelper.LoadPreviousSessionAsync();
         }
+
+        AppActivationArguments args = appInstance.GetActivatedEventArgs();
 
         if (args.Kind == ExtendedActivationKind.File)
         {
@@ -80,53 +58,13 @@ public partial class App : Application
 
             await ProcessCommandLineAsync(commandLine);
 
-            if (currentWindow is null)
+            if (currentWindow is null) // an error occured, at least open an empty tab
             {
                 currentWindow = new MainWindow(Settings.Instance.WindowState, Settings.Instance.RestoreBounds);
                 currentWindow.AddTab(new PuzzleTabViewItem(currentWindow));
             }
 
             currentWindow.AttemptSwitchToForeground();
-        }
-    }
-
-    private static void RegisterFileTypeActivation()
-    {
-        string[] verbs = ["open"];
-        string logo = $"{Environment.ProcessPath},0";
-
-        try
-        {
-            ActivationRegistrationManager.RegisterForFileTypeActivation([App.cFileExt], logo, App.Instance.AppDisplayName, verbs, string.Empty);
-        }
-        catch (Exception ex)
-        {
-            Trace.WriteLine($"register file type failed: {ex}");
-        }
-    }
-
-    private static void UnregisterFileTypeActivation()
-    {
-        try
-        {
-            ActivationRegistrationManager.UnregisterForFileTypeActivation([App.cFileExt], Environment.ProcessPath);
-        }
-        catch (Exception ex)
-        {
-            Trace.WriteLine($"unregister file type failed: {ex}");
-        }
-    }
-
-    private static void DeleteAppData()
-    {
-        try
-        {
-            DirectoryInfo di = new DirectoryInfo(GetAppDataPath());
-            di.Delete(true);
-        }
-        catch (Exception ex)
-        {
-            Trace.WriteLine(ex.ToString());
         }
     }
 
@@ -389,8 +327,6 @@ public partial class App : Application
     public static string GetAppDataPath()
     {
         string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        return Path.Join(localAppData, "SudokuSolver.davidhancock.net");
+        return Path.Join(localAppData, "sudokusolver.davidhancock.net");
     }
-
-    public string AppDisplayName => ResourceLoader.GetString("AppDisplayName");
 }

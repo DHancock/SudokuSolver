@@ -10,7 +10,7 @@ internal sealed partial class ConfirmSaveDialog : ContentDialog
         XamlRoot = xamlRoot;
         RequestedTheme = actualTheme;
 
-        Title = App.Instance.AppDisplayName;
+        Title = App.cAppDisplayName;
         PrimaryButtonText = App.Instance.ResourceLoader.GetString("SaveButton");
         SecondaryButtonText = App.Instance.ResourceLoader.GetString("DontSaveButton");
         CloseButtonText = App.Instance.ResourceLoader.GetString("CancelButton");
