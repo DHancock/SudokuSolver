@@ -10,7 +10,7 @@ internal class Settings
     public PerPrintSettings PrintSettings { get; set; } = new PerPrintSettings();
     public WindowState WindowState { get; set; } = WindowState.Normal;
     public RectInt32 RestoreBounds { get; set; } = default;
-    public ElementTheme Theme { get; set; } = Application.Current.RequestedTheme == ApplicationTheme.Light ? ElementTheme.Light : ElementTheme.Dark;
+    public ElementTheme Theme { get; set; } = ElementTheme.Default;
 
     public List<Color> LightThemeColors { get; set; }
     public List<Color> DarkThemeColors { get; set; }
