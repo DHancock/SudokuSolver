@@ -19,7 +19,7 @@
 
 [Setup]
 AppId={#appId}
-appName={#appDisplayName}
+AppName={#appDisplayName}
 AppVersion={#appVer}
 AppVerName={cm:NameAndVersion,{#appDisplayName},{#appVer}}
 DefaultDirName={autopf}\{#appDisplayName}
@@ -82,8 +82,7 @@ Filename: "{app}\{#appExeName}"; Parameters: "/register";
 Filename: "{app}\{#appExeName}"; Description: "{cm:LaunchProgram,{#appDisplayName}}"; Flags: postinstall skipifsilent
 
 [UninstallRun]
-Filename: "{app}\{#appExeName}"; Parameters: "/unregister"; 
-Filename: powershell.exe; Parameters: "Get-Process '{#appName}' | where Path -eq '{app}\{#appExeName}' | kill -Force"; Flags: runhidden
+Filename: "{app}\{#appExeName}"; Parameters: "/unregister";
 
 [Code]
 function IsDowngradeInstall: Boolean; forward;
