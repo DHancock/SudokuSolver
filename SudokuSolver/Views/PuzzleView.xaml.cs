@@ -75,7 +75,27 @@ internal partial class PuzzleView : UserControl
         }
     }
 
-    public void FocusLastSelectedCell() => lastSelectedCell?.Focus(FocusState.Programmatic);
+    public void FocusLastSelectedCell()
+    {
+        if (lastSelectedCell is not null)
+        {
+            bool focused = lastSelectedCell.Focus(FocusState.Programmatic);
+            Debug.WriteLine($"FocusLastSelectedCell success = {focused}");
+        }
+    }
+
+    public void ClearCellSelection()
+    {
+        if (lastSelectedCell is not null)
+        {
+            // attempting to focus the last selected cell when switching to this tab
+            // fails probably due to the framework element's parent being null when the 
+            // tab selection changed event is received. Just clear the selection now 
+            // when switching from this tab to avoid leaving it in a invalid state. 
+            lastSelectedCell.IsSelected = false;
+            lastSelectedCell = null;
+        }
+    }
 
     public void ResetOpacityTransitionForThemeChange()
     {

@@ -225,6 +225,8 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         }
     }
 
+    public void ClearCellSelection() => Puzzle.ClearCellSelection();
+
     public async Task<bool> SaveTabContentsAsync()
     {
         Debug.Assert(IsModified);
