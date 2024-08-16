@@ -35,16 +35,12 @@ internal sealed partial class Cell : UserControl
         get => isSelected;
         set
         {
-            if (isSelected != value)
+            if (isSelected != value)  
             {
                 isSelected = value;
+                SelectionChanged?.Invoke(this, new SelectionChangedEventArgs(Data.Index, value));
 
-                SelectionChanged?.Invoke(this, new SelectionChangedEventArgs(Data.Index, value)); 
-
-                if (!isSelected) // set by the puzzle to enforce single selection
-                {
-                    GoToVisualState(VisualState.Normal);
-                }
+                GoToVisualState(value ? VisualState.SelectedFocused : VisualState.Normal);
             }
         }
     }
