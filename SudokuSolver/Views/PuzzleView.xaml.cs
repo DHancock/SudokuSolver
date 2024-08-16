@@ -79,8 +79,8 @@ internal partial class PuzzleView : UserControl
     {
         if (lastSelectedCell is not null)
         {
-            bool focused = lastSelectedCell.Focus(FocusState.Programmatic);
-            Debug.WriteLine($"FocusLastSelectedCell success = {focused}");
+            Debug.Assert(lastSelectedCell.Parent is not null);
+            lastSelectedCell.Focus(FocusState.Programmatic);
         }
     }
 
