@@ -18,6 +18,7 @@ internal sealed partial class MainWindow : Window, ISession
 
     private PrintHelper? printHelper;
     private FileOpenErrorDialog? dialog;
+    private DateTime lastPointerTimeStamp;
 
     public MainWindow(WindowState windowState, RectInt32 bounds) : this()
     {
@@ -678,6 +679,24 @@ internal sealed partial class MainWindow : Window, ISession
         void Dialog_Closed(ContentDialog sender, ContentDialogClosedEventArgs args)
         {
             dialog = null;
+        }
+    }
+
+    private void TabStripHeader_PointerPressed(object sender, PointerRoutedEventArgs e)
+    {
+        HideSystemMenu();
+        ShowSystemMenu(viaKeyboard: true); // open at keyboard location as not to obscure double clicks
+
+        TimeSpan doubleClickTime = TimeSpan.FromMilliseconds(PInvoke.GetDoubleClickTime());
+        DateTime utcNow = DateTime.UtcNow;
+
+        if ((utcNow - lastPointerTimeStamp) < doubleClickTime)
+        {
+            PostCloseMessage(); 
+        }
+        else
+        {
+            lastPointerTimeStamp = utcNow;
         }
     }
 }

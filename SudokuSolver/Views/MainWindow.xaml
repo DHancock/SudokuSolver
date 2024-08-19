@@ -45,9 +45,11 @@
                 <KeyboardAccelerator Key="Number8" Modifiers="Control" Invoked="NavigateToNumberedTab_Invoked" />
                 <KeyboardAccelerator Key="Number9" Modifiers="Control" Invoked="NavigateToNumberedTab_Invoked" />
             </TabView.KeyboardAccelerators>
-            
+
             <TabView.TabStripHeader>
-                <Image x:Name="WindowIcon" Source="ms-appx:///Resources/app.png" Height="16" Margin="10,8,4,0"/>
+                <Grid PointerPressed="TabStripHeader_PointerPressed" Background="{ThemeResource LayerOnMicaBaseAltFillColorTransparentBrush}">
+                    <Image x:Name="WindowIcon" Source="ms-appx:///Resources/app.png" Height="16" Margin="10,8,4,0"/>
+                </Grid>
             </TabView.TabStripHeader>
             <TabView.TabStripFooter>
                 <!-- used to stop the caption buttons overlapping the new tab button -->
