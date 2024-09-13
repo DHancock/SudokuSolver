@@ -1,20 +1,11 @@
-﻿; This worker script is intended to be called from one of the build_XXX scripts
-; where the platform variable is defined. It assumes that all release configurations 
-; have been published and the WinAppSdk and .Net framework are self contained.
+﻿; This script assumes that all release configurations have been published
+; and that the WinAppSdk and .Net framework are self contained.
 ; Inno 6.2.2
-
-#ifndef platform
-  #error platform is not defined
-#endif
-  
-#if !((platform == "x64") || (platform == "x86") || (platform == "arm64"))
-  #error invalid platform definition
-#endif
 
 #define appDisplayName "Sudoku Solver"
 #define appName "SudokuSolver"
 #define appExeName appName + ".exe"
-#define appVer RemoveFileExt(GetVersionNumbersString("..\bin\Release\win-" + platform + "\publish\" + appExeName));
+#define appVer RemoveFileExt(GetVersionNumbersString("..\bin\Release\win-x64\publish\" + appExeName));
 #define appId "sudukosolver.8628521D92E74106"
 
 [Setup]
@@ -28,7 +19,7 @@ OutputDir={#SourcePath}\bin
 UninstallDisplayIcon={app}\{#appExeName}
 Compression=lzma2/ultra64 
 SolidCompression=yes
-OutputBaseFilename={#appName}_{#platform}_v{#appVer}
+OutputBaseFilename={#appName}_v{#appVer}
 InfoBeforeFile="{#SourcePath}\0BSD.txt"
 PrivilegesRequired=lowest
 DisableProgramGroupPage=yes
@@ -37,13 +28,13 @@ MinVersion=10.0.17763
 AppPublisher=David
 AppUpdatesURL=https://github.com/DHancock/SudokuSolver/releases
 ShowLanguageDialog=no
-
-#if platform == "x64" || platform == "arm64"
-  ArchitecturesAllowed={#platform} 
-#endif
+ArchitecturesInstallIn64BitMode=x64 arm64
+ArchitecturesAllowed=x86 x64 arm64
 
 [Files]
-Source: "..\bin\Release\win-{#platform}\publish\*"; DestDir: "{app}"; Flags: recursesubdirs; 
+Source: "..\bin\Release\win-x64\publish\*"; DestDir: "{app}"; Check: IsX64; Flags: recursesubdirs solidbreak;
+Source: "..\bin\Release\win-arm64\publish\*"; DestDir: "{app}"; Check: IsARM64; Flags: recursesubdirs solidbreak;
+Source: "..\bin\Release\win-x86\publish\*"; DestDir: "{app}"; Check: IsX86; Flags: recursesubdirs;
 
 [Languages]
 Name: en; MessagesFile: "compiler:Default.isl"
