@@ -17,7 +17,12 @@ public static class Program
         else if ((args.Length == 1) && (args[0] == "/unregister"))
         {
             KillOtherProcessesSync();
-            DeleteAppData();
+
+            // The installer has to uninstall any previous untrimmed version first.
+            // That would result in losing the settings and any session data, so
+            // it's probably preferable to leave the app data as is.
+            //DeleteAppData();
+
             UnregisterFileTypeActivation();
         }
         else
@@ -71,7 +76,8 @@ public static class Program
         }
     }
 
-    private static void DeleteAppData()
+#if false
+    private static void DeleteAppData() // the settings file and any session data
     {
         try
         {
@@ -83,6 +89,7 @@ public static class Program
             Debug.WriteLine(ex.ToString());
         }
     }
+#endif
 
     private static void KillOtherProcessesSync() // ensure uninstall is able to complete
     {
