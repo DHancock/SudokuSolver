@@ -32,9 +32,9 @@ ArchitecturesInstallIn64BitMode=x64 arm64
 ArchitecturesAllowed=x86 x64 arm64
 
 [Files]
-Source: "..\bin\Release\win-x64\publish\*"; DestDir: "{app}"; Check: IsX64; Flags: recursesubdirs solidbreak;
+Source: "..\bin\Release\win-x64\publish\*"; DestDir: "{app}"; Check: IsX64; Flags: recursesubdirs;
 Source: "..\bin\Release\win-arm64\publish\*"; DestDir: "{app}"; Check: IsARM64; Flags: recursesubdirs solidbreak;
-Source: "..\bin\Release\win-x86\publish\*"; DestDir: "{app}"; Check: IsX86; Flags: recursesubdirs;
+Source: "..\bin\Release\win-x86\publish\*"; DestDir: "{app}"; Check: IsX86; Flags: recursesubdirs solidbreak;
 
 [Languages]
 Name: en; MessagesFile: "compiler:Default.isl"
@@ -77,6 +77,8 @@ Filename: "{app}\{#appExeName}"; Parameters: "/unregister";
 
 [Code]
 function IsDowngradeInstall: Boolean; forward;
+function IsInstalledAppUntrimmed(const InstalledVersion: String): Boolean; forward;
+
 
 // because "DisableReadyPage" and "DisableProgramGroupPage" are set to yes adjust the next/install button text
 procedure CurPageChanged(CurPageID: Integer);
@@ -105,6 +107,50 @@ begin
   end;
 end;
 
+
+// The remnants of an untrimmed install will cause a trimmed version
+// to fail to start. Have to uninstall the untrimmed version first.
+// This also means the benfits of trimming will now be in effect.
+// The old installer releases will be removed from GitHub.
+procedure CurStepChanged(CurStep: TSetupStep);
+var
+  ResultCode, Attempts: Integer;
+  RegKey, InstalledVersion, UninstallerPath: String; 
+begin
+  if (CurStep = ssInstall) then
+  begin
+    RegKey := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#appId}_is1';
+
+    if RegQueryStringValue(HKCU, RegKey, 'DisplayVersion', InstalledVersion) and IsInstalledAppUntrimmed(InstalledVersion) then
+    begin
+      if RegQueryStringValue(HKCU, RegKey, 'UninstallString', UninstallerPath) then
+      begin
+        UninstallerPath := RemoveQuotes(UninstallerPath);
+        
+        Exec(UninstallerPath, '/VERYSILENT', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+        
+        if ResultCode = 0 then // wait until the uninstall has completed
+        begin
+          Attempts := 2 * 30 ; // timeout after approximately 30 seconds
+           
+          while FileExists(UninstallerPath) and (Attempts > 0) do
+          Begin
+            Sleep(500);
+            Attempts := Attempts - 1;
+          end;
+        end;
+      
+        if (ResultCode <> 0) or FileExists(UninstallerPath) then
+        begin
+          SuppressibleMsgBox('Setup failed to uninstall a previous version.', mbCriticalError, MB_OK, IDOK) ;
+          Abort;
+        end;
+      end;
+    end;
+  end;
+end;
+
+
 // A < B returns -ve
 // A = B returns 0
 // A > B returns +ve
@@ -118,15 +164,22 @@ begin
   Result := ComparePackedVersion(X, Y);
 end;
 
+
 function IsDowngradeInstall: Boolean;
 var
-  InstalledVersion: String;
+  RegKey, InstalledVersion: String;
 begin
   Result := false;
+  RegKey := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#appId}_is1';
   
-  if RegQueryStringValue(HKCU, 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#appId}_is1', 'DisplayVersion', InstalledVersion) then
+  if RegQueryStringValue(HKCU, RegKey, 'DisplayVersion', InstalledVersion) then
     Result := VersionComparer(InstalledVersion, '{#appVer}') > 0;
 end;
  
+ 
+function IsInstalledAppUntrimmed(const InstalledVersion: String): Boolean;
+begin
+  Result := VersionComparer(InstalledVersion, '1.13.0') < 0 ;
+end;
 
 
