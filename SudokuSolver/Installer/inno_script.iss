@@ -219,7 +219,7 @@ begin
         
       if FileExists(SourceDir + FilePart) then
         FileCopy(SourceDir + FilePart, DestDir + FilePart, false)
-    end
+    end;
   except
   end;
 end;   
