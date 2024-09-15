@@ -73,12 +73,6 @@ public static class Program
 
     private static void DeleteAppData() 
     {
-        // The installer has to uninstall an untrimmed version first when upgrading
-        // otherwise the app won't start. Trimmming is introduced in version 1.13.0
-        // Deleting the AppData would result in losing the settings and any session
-        // data, which could contain unsaved changes, so it's probably preferable
-        // to just leave it as is. No good solution to this one.
-#if false
         try
         {
             DirectoryInfo di = new DirectoryInfo(App.GetAppDataPath());
@@ -88,7 +82,6 @@ public static class Program
         {
             Debug.WriteLine(ex.ToString());
         }
-#endif
     }
 
     private static void KillOtherProcessesSync() // ensure uninstall is able to complete

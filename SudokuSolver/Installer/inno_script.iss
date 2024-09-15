@@ -78,7 +78,8 @@ Filename: "{app}\{#appExeName}"; Parameters: "/unregister";
 [Code]
 function IsDowngradeInstall: Boolean; forward;
 function IsInstalledAppUntrimmed(const InstalledVersion: String): Boolean; forward;
-
+procedure BackupAppData; forward;
+procedure RestoreAppData; forward;
 
 // because "DisableReadyPage" and "DisableProgramGroupPage" are set to yes adjust the next/install button text
 procedure CurPageChanged(CurPageID: Integer);
@@ -96,7 +97,7 @@ var
 begin
   Result := true;
   
-  try
+  try 
     if IsDowngradeInstall then
       RaiseException(CustomMessage('DownGradeNotSupported'));
     
@@ -125,6 +126,8 @@ begin
     begin
       if RegQueryStringValue(HKCU, RegKey, 'UninstallString', UninstallerPath) then
       begin
+        BackupAppData;
+        
         UninstallerPath := RemoveQuotes(UninstallerPath);
         
         Exec(UninstallerPath, '/VERYSILENT', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
@@ -145,6 +148,8 @@ begin
           SuppressibleMsgBox('Setup failed to uninstall a previous version.', mbCriticalError, MB_OK, IDOK) ;
           Abort;
         end;
+        
+        RestoreAppData;
       end;
     end;
   end;
@@ -181,5 +186,54 @@ function IsInstalledAppUntrimmed(const InstalledVersion: String): Boolean;
 begin
   Result := VersionComparer(InstalledVersion, '1.13.0') < 0 ;
 end;
+
+
+procedure TransferFiles(const BackUp: Boolean);
+var
+  SourceDir, DestDir, DirPart, FilePart, TempA, TempB: string;
+begin
+  try
+    DirPart := '\sudokusolver.davidhancock.net';
+    TempA := ExpandConstant('{localappdata}') + DirPart;
+    TempB := ExpandConstant('{%temp}') + DirPart; 
+    
+    if BackUp then
+    begin
+      SourceDir := TempA;
+      DestDir := TempB;
+    end
+    else
+    begin
+      SourceDir := TempB
+      DestDir := TempA;
+    end;
+      
+    if ForceDirectories(DestDir) then
+    begin
+      FilePart := '\settings.json';
+      
+      if FileExists(SourceDir + FilePart) then
+        FileCopy(SourceDir + FilePart, DestDir + FilePart, false);
+        
+      FilePart := '\session.xml';
+        
+      if FileExists(SourceDir + FilePart) then
+        FileCopy(SourceDir + FilePart, DestDir + FilePart, false)
+    end
+  except
+  end;
+end;   
+
+
+procedure BackupAppData();
+begin
+  TransferFiles(true);
+end;  
+
+
+procedure RestoreAppData();
+begin
+  TransferFiles(false);
+end;  
 
 
