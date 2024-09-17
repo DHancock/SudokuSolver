@@ -14,7 +14,7 @@
         <Image x:Name="AboutImage" Width="62" Height="62" Margin="0,0,0,20" HorizontalAlignment="Center"/>
         <TextBlock Grid.Row="1" x:Name="AppNameTextBlock" FontSize="17" HorizontalAlignment="Center"/>
         <TextBlock Grid.Row="2" x:Name="VersionTextBlock" HorizontalAlignment="Center"/>
-        <TextBlock Grid.Row="3" HorizontalAlignment="Center"><Hyperlink NavigateUri="https://github.com/dhancock/sudokusolver"><Run x:Uid="GitHubRepository"/></Hyperlink></TextBlock>
+        <TextBlock Grid.Row="3" x:Name="HyperlinkTextBlock" HorizontalAlignment="Center"><Hyperlink NavigateUri="https://github.com/dhancock/sudokusolver"><Run x:Uid="GitHubRepository"/></Hyperlink></TextBlock>
     </Grid>
 
 </UserControl>
