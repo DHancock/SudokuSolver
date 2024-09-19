@@ -109,6 +109,12 @@ begin
 end;
 
 
+function GetUninstallRegKey: String;
+begin
+  Result := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#appId}_is1';
+end;
+
+
 // The remnants of an untrimmed install will cause a trimmed version
 // to fail to start. Have to uninstall the untrimmed version first.
 // This also means the benfits of trimming will now be in effect.
@@ -116,21 +122,17 @@ end;
 procedure CurStepChanged(CurStep: TSetupStep);
 var
   ResultCode, Attempts: Integer;
-  RegKey, InstalledVersion, UninstallerPath: String; 
+  InstalledVersion, UninstallerPath: String; 
 begin
   if (CurStep = ssInstall) then
   begin
-    RegKey := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#appId}_is1';
-
-    if RegQueryStringValue(HKCU, RegKey, 'DisplayVersion', InstalledVersion) and IsInstalledAppUntrimmed(InstalledVersion) then
+    if RegQueryStringValue(HKCU, GetUninstallRegKey, 'DisplayVersion', InstalledVersion) and IsInstalledAppUntrimmed(InstalledVersion) then
     begin
-      if RegQueryStringValue(HKCU, RegKey, 'UninstallString', UninstallerPath) then
+      if RegQueryStringValue(HKCU, GetUninstallRegKey, 'UninstallString', UninstallerPath) then
       begin
         BackupAppData;
         
-        UninstallerPath := RemoveQuotes(UninstallerPath);
-        
-        Exec(UninstallerPath, '/VERYSILENT', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+        Exec(RemoveQuotes(UninstallerPath), '/VERYSILENT', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
         
         if ResultCode = 0 then // wait until the uninstall has completed
         begin
@@ -175,9 +177,8 @@ var
   RegKey, InstalledVersion: String;
 begin
   Result := false;
-  RegKey := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#appId}_is1';
   
-  if RegQueryStringValue(HKCU, RegKey, 'DisplayVersion', InstalledVersion) then
+  if RegQueryStringValue(HKCU, GetUninstallRegKey, 'DisplayVersion', InstalledVersion) then
     Result := VersionComparer(InstalledVersion, '{#appVer}') > 0;
 end;
  
