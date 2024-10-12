@@ -387,7 +387,7 @@ internal partial class MainWindow : Window
                 case Expander:
                 case CommandBar:
                 case ScrollBar:
-                case TextBlock tb when ReferenceEquals(tb, tb.Tag): // it contains a hyperlink
+                case TextBlock tb when tb.Inlines.Any(x => x is Hyperlink):
                 {
                     Point offset = GetOffsetFromXamlRoot(child);
                     Vector2 actualSize = child.ActualSize;
