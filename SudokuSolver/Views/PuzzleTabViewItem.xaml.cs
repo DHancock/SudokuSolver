@@ -603,4 +603,31 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
         return false;
     }
+
+    private void DuplicateTabClickHandler(object sender, RoutedEventArgs e)
+    {
+        XElement root = GetSessionData();
+        SetElement(root, "path", string.Empty);
+        SetElement(root, "modified", PuzzleHasData(root) ? "true" : "false");
+
+        TabViewItem tab = new PuzzleTabViewItem(parentWindow, root);
+        parentWindow.AddTab(tab);
+
+        static void SetElement(XElement root, string name, string value)
+        {
+            XElement? data = root.Element(name);
+
+            if (data is not null)
+            {
+                data.Value = value;
+            }
+        }
+
+        static bool PuzzleHasData(XElement root)
+        {
+            XElement? s = root.Element("Sudoku");
+            XElement? c = s?.Element("Cell");
+            return c is not null;
+        }
+    }
 }

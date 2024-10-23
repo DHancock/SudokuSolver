@@ -378,4 +378,7 @@
   <data name="WhenStarts.Text" xml:space="preserve">
     <value>当 Sudoku Solver 启动时</value>
   </data>
+  <data name="DuplicateTab.Text" xml:space="preserve">
+    <value>复制选项卡</value>
+  </data>
 </root>

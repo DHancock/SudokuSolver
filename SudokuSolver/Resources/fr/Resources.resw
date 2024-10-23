@@ -378,4 +378,7 @@
   <data name="WhenStarts.Text" xml:space="preserve">
     <value>Lorsque Sudoku Solver démarre</value>
   </data>
+  <data name="DuplicateTab.Text" xml:space="preserve">
+    <value>Onglet dupliquer</value>
+  </data>
 </root>
