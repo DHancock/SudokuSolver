@@ -133,8 +133,13 @@
                 </MenuFlyoutItem.KeyboardAccelerators>
             </MenuFlyoutItem>
 
-            <MenuFlyoutSeparator/>
+            <MenuFlyoutItem x:Uid="DuplicateTab" Click="DuplicateTabClickHandler" AccessKey="D">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Modifiers="Control" Key="D"/>
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
 
+            <MenuFlyoutSeparator/>
             <MenuFlyoutItem x:Uid="CloseTab" Click="CloseTabClickHandlerAsync" AccessKey="C">
                 <MenuFlyoutItem.KeyboardAccelerators>
                     <KeyboardAccelerator Modifiers="Control" Key="W" IsEnabled="False"/>
