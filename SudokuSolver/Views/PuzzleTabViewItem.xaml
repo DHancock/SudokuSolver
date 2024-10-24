@@ -133,7 +133,7 @@
                 </MenuFlyoutItem.KeyboardAccelerators>
             </MenuFlyoutItem>
 
-            <MenuFlyoutItem x:Uid="DuplicateTab" Click="DuplicateTabClickHandler" AccessKey="D">
+            <MenuFlyoutItem x:Uid="DuplicateTab" Click="DuplicateTabClickHandler" AccessKey="D" x:Name="DuplicateMenuItem">
                 <MenuFlyoutItem.KeyboardAccelerators>
                     <KeyboardAccelerator Modifiers="Control" Key="D"/>
                 </MenuFlyoutItem.KeyboardAccelerators>

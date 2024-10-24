@@ -40,6 +40,8 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
         CloseOtherTabsCommand = new RelayCommand(ExecuteCloseOtherTabsAsync, CanCloseOtherTabs);
         CloseLeftTabsCommand = new RelayCommand(ExecuteCloseLeftTabsAsync, CanCloseLeftTabs);
         CloseRightTabsCommand = new RelayCommand(ExecuteCloseRightTabsAsync, CanCloseRightTabs);
+
+        AdjustKeyboardAccelerators(enable: false);
     }
 
     public SettingsTabViewItem(MainWindow parent, SettingsTabViewItem source) : this(parent)
