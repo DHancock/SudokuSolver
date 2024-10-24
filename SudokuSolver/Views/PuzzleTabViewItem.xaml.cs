@@ -15,6 +15,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
     private PuzzleViewModel? viewModel;
     private StorageFile? sourceFile;
     private readonly MainWindow parentWindow;
+    private int initialisationPhase = 0;
 
     public PuzzleTabViewItem(MainWindow parent)
     {
@@ -27,11 +28,12 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         ViewMenuItem.Unloaded += (s, a) => FocusLastSelectedCell();
         EditMenuItem.Unloaded += (s, a) => FocusLastSelectedCell();
 
+        initialisationPhase += 1;
+
         Loaded += (s, e) =>
         {
             // set for the next theme transition
             Puzzle.BackgroundBrushTransition.Duration = TimeSpan.FromMilliseconds(250);
-            FocusLastSelectedCell();
 
             Button? closeButton = this.FindChild<Button>("CloseButton");
             Debug.Assert(closeButton is not null);
@@ -41,12 +43,16 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
                 string text = App.Instance.ResourceLoader.GetString("CloseTabToolTip");
                 ToolTipService.SetToolTip(closeButton, text);
             }
+
+            initialisationPhase -= 1;
         };
 
         Clipboard.ContentChanged += async (s, o) =>
         {
             await ViewModel.ClipboardContentChangedAsync();
         };
+
+        AdjustKeyboardAccelerators(enable: false);
 
         CloseOtherTabsCommand = new RelayCommand(ExecuteCloseOtherTabsAsync, CanCloseOtherTabs);
         CloseLeftTabsCommand = new RelayCommand(ExecuteCloseLeftTabsAsync, CanCloseLeftTabs);
@@ -62,8 +68,10 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
     public PuzzleTabViewItem(MainWindow parent, StorageFile storageFile) : this(parent)
     {
-        Loaded += LoadedHandlerAsync;
+        initialisationPhase += 1;
 
+        Loaded += LoadedHandlerAsync;
+        
         async void LoadedHandlerAsync(object sender, RoutedEventArgs e)
         {
             PuzzleTabViewItem tab = (PuzzleTabViewItem)sender;
@@ -75,11 +83,15 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
             }
             
             tab.UpdateTabHeader();
+
+            tab.initialisationPhase -= 1;
         }
     }
 
     public PuzzleTabViewItem(MainWindow parent, PuzzleTabViewItem source) : this(parent)
     {
+        initialisationPhase += 1;
+
         ViewModel = source.ViewModel;
         sourceFile = source.sourceFile;
         HeaderText = source.HeaderText;
@@ -90,11 +102,15 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
             PuzzleTabViewItem tab = (PuzzleTabViewItem)sender;
             tab.Loaded -= LoadedHandler;
             tab.UpdateTabHeader();
+
+            tab.initialisationPhase -= 1;
         }
     }
 
     public PuzzleTabViewItem(MainWindow parent, XElement root) : this(parent)
     {
+        initialisationPhase += 1;
+
         Loaded += LoadedHandlerAsync;
 
         async void LoadedHandlerAsync(object sender, RoutedEventArgs e)
@@ -142,6 +158,8 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
             }
 
             tab.UpdateTabHeader();
+
+            tab.initialisationPhase -= 1;
         }
     }
 
@@ -247,6 +265,8 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
                 }
             }
         }
+
+        DuplicateMenuItem.IsEnabled = enable;
     }
 
     public static bool IsPrintingAvailable => !IntegrityLevel.IsElevated && PrintManager.IsSupported();
@@ -606,6 +626,9 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
     private void DuplicateTabClickHandler(object sender, RoutedEventArgs e)
     {
+        if (initialisationPhase > 0)   // on hot key repeat, don't duplicate a partially initialised tab
+            return;
+
         XElement root = GetSessionData();
         SetElement(root, "path", string.Empty);
         SetElement(root, "modified", PuzzleHasData(root) ? "true" : "false");
