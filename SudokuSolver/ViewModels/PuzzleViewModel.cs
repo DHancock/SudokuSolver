@@ -141,6 +141,9 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
         model = newModel;
         initialState = new PuzzleModel(model);
         IsModified = isModified;
+        undoHelper.Reset();
+        undoHelper.Push(model);
+
         UpdateView();
         UpdateMenuItemsDisabledState();
     }
