@@ -28,6 +28,8 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         ViewMenuItem.Unloaded += (s, a) => FocusLastSelectedCell();
         EditMenuItem.Unloaded += (s, a) => FocusLastSelectedCell();
 
+        GotFocus += (s, a) => FocusLastSelectedCell();
+
         initialisationPhase += 1;
 
         Loaded += (s, e) =>
@@ -242,8 +244,6 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
             Puzzle.FocusLastSelectedCell();
         }
     }
-
-    public void ClearCellSelection() => Puzzle.ClearCellSelection();
 
     public async Task<bool> SaveTabContentsAsync()
     {
