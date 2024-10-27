@@ -57,6 +57,12 @@ internal sealed class UndoHelper
 
     public bool CanRedo => redoStack.Count > 0;
 
+    public void Reset()
+    {
+        undoStack.Clear();
+        redoStack.Clear();
+        currentModel = null;
+    }
 
     private sealed class UndoStack<T> where T : new()
     {
@@ -90,6 +96,8 @@ internal sealed class UndoHelper
             Debug.Fail("attempted Pop() from an empty list");
             return new T();
         }
+
+        public void Clear() => list.Clear();
 
         public int Count => list.Count;
     }

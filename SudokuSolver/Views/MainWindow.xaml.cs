@@ -413,10 +413,6 @@ internal sealed partial class MainWindow : Window, ISession
             {
                 SetWindowDragRegionsInternal();
             }
-            else if (e.RemovedItems[0] is PuzzleTabViewItem puzzleTab)
-            {
-                puzzleTab.ClearCellSelection();
-            }
         }
 
         if (e.AddedItems.Count == 1)

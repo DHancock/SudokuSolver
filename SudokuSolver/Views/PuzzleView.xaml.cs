@@ -79,21 +79,24 @@ internal partial class PuzzleView : UserControl
     {
         if (lastSelectedCell is not null)
         {
-            Debug.Assert(lastSelectedCell.Parent is not null);
-            lastSelectedCell.Focus(FocusState.Programmatic);
-        }
-    }
-
-    public void ClearCellSelection()
-    {
-        if (lastSelectedCell is not null)
-        {
-            // attempting to focus the last selected cell when switching to this tab
-            // fails probably due to the framework element's parent being null when the 
-            // tab selection changed event is received. Just clear the selection now 
-            // when switching from this tab to avoid leaving it in a invalid state. 
-            lastSelectedCell.IsSelected = false;
-            lastSelectedCell = null;
+            if (lastSelectedCell.Parent is not null)
+            {
+                bool success = lastSelectedCell.Focus(FocusState.Programmatic);
+                Debug.Assert(success);
+            }
+            else
+            {
+                // When a TabSelectionChanged event is received the new tab's visual tree hasn't yet been restored
+                // and the selected cells parent will be null. That would cause an attempt to focus it to fail.
+                Task.Run(() =>
+                {
+                    DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () =>
+                    {
+                        bool success = lastSelectedCell is null || lastSelectedCell.Focus(FocusState.Programmatic);
+                        Debug.Assert(success);
+                    });
+                });
+            }
         }
     }
 
