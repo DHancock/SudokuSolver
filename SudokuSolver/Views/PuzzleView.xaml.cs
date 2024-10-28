@@ -87,7 +87,8 @@ internal partial class PuzzleView : UserControl
             else
             {
                 // When a TabSelectionChanged event is received the new tab's visual tree hasn't yet been restored
-                // and the selected cells parent will be null. That would cause an attempt to focus it to fail.
+                // and the selected cells parent will be null. It still is when the parent TabViewItem gets focus.
+                // That would cause an attempt to focus the selected cell to fail.
                 Task.Run(() =>
                 {
                     DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () =>
