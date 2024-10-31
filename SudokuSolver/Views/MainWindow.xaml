@@ -52,8 +52,15 @@
                 </Grid>
             </TabView.TabStripHeader>
             <TabView.TabStripFooter>
-                <!-- used to stop the caption buttons overlapping the new tab button -->
-                <Grid x:Name="RightPaddingColumn" SizeChanged="RightPaddingColumn_SizeChanged"/>
+                <Grid ColumnDefinitions ="Auto,*">
+                    <Border Grid.Column="0" Padding="{ThemeResource TabViewItemAddButtonContainerPadding}" VerticalAlignment="Bottom">
+                        <Button HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource TabViewButtonStyle}" Click="TabListMenuButton_Click">
+                            <FontIcon FontSize="{ThemeResource TabViewItemAddButtonFontSize}" FontFamily="{ThemeResource SymbolThemeFontFamily}" Glyph="&#xE96E;"/>
+                        </Button>
+                    </Border>
+                    <!-- used to stop the caption buttons overlapping the new tab button -->
+                    <Grid x:Name="RightPaddingColumn" Grid.Column="1"  SizeChanged="RightPaddingColumn_SizeChanged"/>
+                </Grid>
             </TabView.TabStripFooter>
         </TabView>
     </Grid>

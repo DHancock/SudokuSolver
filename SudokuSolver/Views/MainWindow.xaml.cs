@@ -695,4 +695,57 @@ internal sealed partial class MainWindow : Window, ISession
             lastPointerTimeStamp = utcNow;
         }
     }
+
+    private void TabListMenuButton_Click(object sender, RoutedEventArgs e)
+    {
+        MenuFlyout flyout = BuildTabListMenu();
+        FlyoutShowOptions options = new() { Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft };
+
+        flyout.ShowAt((DependencyObject)sender, options);
+    }
+
+    private MenuFlyout BuildTabListMenu()
+    {
+        const string cStyleKey = "DefaultMenuFlyoutPresenterStyle";
+        const string cPaddingKey = "MenuFlyoutItemThemePaddingNarrow";
+
+        Debug.Assert(Content is FrameworkElement);
+        Debug.Assert(((FrameworkElement)Content).Resources.ContainsKey(cStyleKey));
+        Debug.Assert(((FrameworkElement)Content).Resources.ContainsKey(cPaddingKey));
+
+        RelayCommand switchTabCommand = new RelayCommand(ExecuteSwitchTab, CanSwitchTab);
+      
+        MenuFlyout menuFlyout = new MenuFlyout()
+        {
+            XamlRoot = Content.XamlRoot,
+            MenuFlyoutPresenterStyle = (Style)((FrameworkElement)Content).Resources[cStyleKey],
+            OverlayInputPassThroughElement = Content,
+        };
+
+        // ensure the use of narrow padding
+        Thickness narrow = (Thickness)((FrameworkElement)Content).Resources[cPaddingKey];
+
+        foreach (object tvi in Tabs.TabItems) 
+        {
+            if (tvi is ITabItem tab)
+            {
+                menuFlyout.Items.Add(new MenuFlyoutItem() { Text = tab.HeaderText, CommandParameter = tvi, Command = switchTabCommand, Padding = narrow });
+            }
+        }
+
+        return menuFlyout;
+    }
+
+    private void ExecuteSwitchTab(object? param)
+    {
+        Debug.Assert(param is not null);
+        Tabs.SelectedItem = param;
+    }
+
+    private bool CanSwitchTab(object? param)
+    {
+        // used to indicate the currently selected tab
+        Debug.Assert(param is not null);
+        return !ReferenceEquals(Tabs.SelectedItem, param);
+    }
 }
