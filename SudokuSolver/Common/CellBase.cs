@@ -2,38 +2,26 @@
 
 internal abstract class CellBase : IEquatable<CellBase>
 {
-    private int cellValue;
+    public int Index { get; private set; }
 
-    public int Index { get; protected set; }
-
+    public int Value = 0;
     public BitField Possibles = BitField.AllTrue;
     public BitField HorizontalDirections = BitField.Empty;
     public BitField VerticalDirections = BitField.Empty;
 
     public Origins Origin { get; set; } = Origins.NotDefined;
 
-
     public CellBase(int index)
     {
         Index = index;
     }
-
 
     public CellBase(CellBase source)
     {
         CopyFrom(source);
     }
     
-
-    public virtual int Value
-    {
-        get { return cellValue; }
-        set { cellValue = value; }
-    }
-
-
     public bool HasValue => Value > 0;
-
 
     public void CopyFrom(CellBase source)
     {
@@ -42,11 +30,11 @@ internal abstract class CellBase : IEquatable<CellBase>
 
         if (source.HasValue)
         {
-            cellValue = source.Value;
+            Value = source.Value;
         }
         else
         {
-            cellValue = 0;
+            Value = 0;
             Possibles = source.Possibles;
             VerticalDirections = source.VerticalDirections;
             HorizontalDirections = source.HorizontalDirections;
@@ -59,6 +47,8 @@ internal abstract class CellBase : IEquatable<CellBase>
         {
             return false;
         }
+
+        Debug.Assert(Index == other.Index);
 
         if (HasValue == other.HasValue)
         {
