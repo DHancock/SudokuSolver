@@ -385,6 +385,7 @@ internal partial class MainWindow : Window
                 case PuzzleView:
                 case MenuBar:
                 case Expander:
+                case Button:
                 case CommandBar:
                 case ScrollBar:
                 case TextBlock tb when ReferenceEquals(tb, tb.Tag): // it contains a hyperlink
@@ -408,7 +409,7 @@ internal partial class MainWindow : Window
 
                 case TabView tabView:
                 {
-                    // the passthrough region is the space between the header and footer
+                    // the passthrough region for the tabs is the space between the header and footer
                     if ((tabView.TabStripHeader is FrameworkElement left) && (tabView.TabStripFooter is UIElement right))
                     {
                         Point leftOffset = GetOffsetFromXamlRoot(left);
@@ -421,6 +422,9 @@ internal partial class MainWindow : Window
 
                         // the header is also the window icon area
                         rects.Add(ScaledRect(leftOffset, left.ActualSize, scaleFactor));
+
+                        // add the drop down button at the left edge of the footer
+                        LocatePassThroughContent(rects, right);
                     }
 
                     if (tabView.SelectedItem is TabViewItem tabViewItem)

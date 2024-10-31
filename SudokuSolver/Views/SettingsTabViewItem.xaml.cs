@@ -235,4 +235,6 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
 
         return false;
     }
+
+    public string HeaderText => ((TextBlock)Header).Text;
 }
