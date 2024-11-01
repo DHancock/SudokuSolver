@@ -696,25 +696,19 @@ internal sealed partial class MainWindow : Window, ISession
         }
     }
 
-    private void TabListMenuButton_Click(object sender, RoutedEventArgs e)
+    private void TabJumpListMenuButton_Click(object sender, RoutedEventArgs e)
     {
-        MenuFlyout flyout = BuildTabListMenu();
+        MenuFlyout flyout = BuildTabJumpListMenu();
         FlyoutShowOptions options = new() { Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft };
 
         flyout.ShowAt((DependencyObject)sender, options);
     }
 
-    private MenuFlyout BuildTabListMenu()
+    private MenuFlyout BuildTabJumpListMenu()
     {
         const string cStyleKey = "DefaultMenuFlyoutPresenterStyle";
         const string cPaddingKey = "MenuFlyoutItemThemePaddingNarrow";
 
-        Debug.Assert(Content is FrameworkElement);
-        Debug.Assert(((FrameworkElement)Content).Resources.ContainsKey(cStyleKey));
-        Debug.Assert(((FrameworkElement)Content).Resources.ContainsKey(cPaddingKey));
-
-        RelayCommand switchTabCommand = new RelayCommand(ExecuteSwitchTab, CanSwitchTab);
-      
         MenuFlyout menuFlyout = new MenuFlyout()
         {
             XamlRoot = Content.XamlRoot,
@@ -722,30 +716,37 @@ internal sealed partial class MainWindow : Window, ISession
             OverlayInputPassThroughElement = Content,
         };
 
+        menuFlyout.Closed += MenuFlyout_Closed;
+
         // ensure the use of narrow padding
         Thickness narrow = (Thickness)((FrameworkElement)Content).Resources[cPaddingKey];
 
-        foreach (object tvi in Tabs.TabItems) 
+        foreach (object tabItem in Tabs.TabItems) 
         {
-            if (tvi is ITabItem tab)
+            if (tabItem is ITabItem iTab)
             {
-                menuFlyout.Items.Add(new MenuFlyoutItem() { Text = tab.HeaderText, CommandParameter = tvi, Command = switchTabCommand, Padding = narrow });
+                MenuFlyoutItem menuItem = new() { Text = iTab.HeaderText, Tag = tabItem, Padding = narrow };
+
+                menuItem.Click += MenuItem_Click;
+                menuItem.IsEnabled = !ReferenceEquals(Tabs.SelectedItem, tabItem);
+
+                menuFlyout.Items.Add(menuItem);
             }
         }
 
         return menuFlyout;
     }
 
-    private void ExecuteSwitchTab(object? param)
+    private void MenuFlyout_Closed(object? sender, object e)
     {
-        Debug.Assert(param is not null);
-        Tabs.SelectedItem = param;
+        if (Tabs.SelectedItem is PuzzleTabViewItem puzzleTabViewItem)
+        {
+            puzzleTabViewItem.FocusLastSelectedCell();
+        }
     }
 
-    private bool CanSwitchTab(object? param)
+    private void MenuItem_Click(object sender, RoutedEventArgs e)
     {
-        // used to indicate the currently selected tab
-        Debug.Assert(param is not null);
-        return !ReferenceEquals(Tabs.SelectedItem, param);
+        Tabs.SelectedItem = ((FrameworkElement)sender).Tag;
     }
 }
