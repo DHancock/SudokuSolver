@@ -55,11 +55,11 @@
                 <Grid ColumnDefinitions ="Auto,*">
                     <Border Padding="{ThemeResource TabViewItemAddButtonContainerPadding}" VerticalAlignment="Bottom">
                         <Button HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource TabViewButtonStyle}" Click="TabJumpListMenuButton_Click" HighContrastAdjustment="None">
-                            <FontIcon FontSize="{ThemeResource TabViewItemAddButtonFontSize}" FontFamily="{ThemeResource SymbolThemeFontFamily}" Opacity="0.6" Glyph="&#xE96E;"/>
+                            <FontIcon FontSize="{ThemeResource TabViewItemAddButtonFontSize}" FontFamily="{ThemeResource SymbolThemeFontFamily}" Foreground="{ThemeResource TabViewItemIconForeground}" Glyph="&#xE96E;"/>
                         </Button>
                     </Border>
-                    <!-- used to stop the caption buttons overlapping the new tab button -->
-                    <Grid x:Name="RightPaddingColumn" Grid.Column="1"  SizeChanged="RightPaddingColumn_SizeChanged"/>
+                    <!-- used to stop the caption buttons overlapping the tab buttons -->
+                    <Grid x:Name="RightPaddingColumn" Grid.Column="1" SizeChanged="RightPaddingColumn_SizeChanged"/>
                 </Grid>
             </TabView.TabStripFooter>
         </TabView>
