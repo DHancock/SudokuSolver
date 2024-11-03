@@ -53,9 +53,9 @@
             </TabView.TabStripHeader>
             <TabView.TabStripFooter>
                 <Grid ColumnDefinitions ="Auto,*">
-                    <Border Grid.Column="0" Padding="{ThemeResource TabViewItemAddButtonContainerPadding}" VerticalAlignment="Bottom">
-                        <Button HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource TabViewButtonStyle}" Click="TabJumpListMenuButton_Click">
-                            <FontIcon FontSize="{ThemeResource TabViewItemAddButtonFontSize}" FontFamily="{ThemeResource SymbolThemeFontFamily}" Glyph="&#xE96E;"/>
+                    <Border Padding="{ThemeResource TabViewItemAddButtonContainerPadding}" VerticalAlignment="Bottom">
+                        <Button HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource TabViewButtonStyle}" Click="TabJumpListMenuButton_Click" HighContrastAdjustment="None">
+                            <FontIcon FontSize="{ThemeResource TabViewItemAddButtonFontSize}" FontFamily="{ThemeResource SymbolThemeFontFamily}" Opacity="0.6" Glyph="&#xE96E;"/>
                         </Button>
                     </Border>
                     <!-- used to stop the caption buttons overlapping the new tab button -->
