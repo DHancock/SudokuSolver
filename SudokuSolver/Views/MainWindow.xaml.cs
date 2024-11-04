@@ -28,7 +28,7 @@ internal sealed partial class MainWindow : Window, ISession
             RightPaddingColumn.MinWidth = AppWindow.TitleBar.RightInset / scaleFactor;
 
             UpdateCaptionButtonsTheme(LayoutRoot.ActualTheme);
-            
+
             LayoutRoot.ActualThemeChanged += (s, a) =>
             {
                 UpdateCaptionButtonsTheme(s.ActualTheme);
@@ -77,7 +77,7 @@ internal sealed partial class MainWindow : Window, ISession
                 IsActive = false;
                 WindowIcon.Opacity = 0.25;
             }
-        }; 
+        };
     }
 
     public bool IsContentDialogOpen() => GetOpenContentDialog() is not null;
@@ -100,7 +100,7 @@ internal sealed partial class MainWindow : Window, ISession
                 Tabs.TabItems.Clear();
                 return;
             }
-            
+
             if (dialog is not null)
             {
                 Debug.Assert(dialog is ErrorDialog or FileOpenErrorDialog);
@@ -113,7 +113,7 @@ internal sealed partial class MainWindow : Window, ISession
 
 
     private ContentDialog? GetOpenContentDialog()
-    {   
+    {
         try
         {
             foreach (Popup popup in VisualTreeHelper.GetOpenPopupsForXamlRoot(Content.XamlRoot))
@@ -137,7 +137,7 @@ internal sealed partial class MainWindow : Window, ISession
     {
         foreach (object obj in Tabs.TabItems)
         {
-            if (!ReferenceEquals(obj, Tabs.SelectedItem) && (obj is PuzzleTabViewItem puzzleTab)) 
+            if (!ReferenceEquals(obj, Tabs.SelectedItem) && (obj is PuzzleTabViewItem puzzleTab))
             {
                 puzzleTab.ResetOpacityTransitionForThemeChange();
             }
@@ -230,7 +230,7 @@ internal sealed partial class MainWindow : Window, ISession
                 {
                     await Task.WhenAll([Settings.Instance.SaveAsync(), App.Instance.SessionHelper.SaveAsync()]);
                 }
-                else 
+                else
                 {
                     await Settings.Instance.SaveAsync();
                 }
@@ -476,7 +476,7 @@ internal sealed partial class MainWindow : Window, ISession
         {
             index = Tabs.TabItems.Count - 1;
         }
-        
+
         if ((index >= 0) && (index < Tabs.TabItems.Count))
         {
             Tabs.SelectedItem = Tabs.TabItems[index];
@@ -688,7 +688,7 @@ internal sealed partial class MainWindow : Window, ISession
 
         if ((utcNow - lastPointerTimeStamp) < doubleClickTime)
         {
-            PostCloseMessage(); 
+            PostCloseMessage();
         }
         else
         {
@@ -721,7 +721,7 @@ internal sealed partial class MainWindow : Window, ISession
         // ensure the use of narrow padding
         Thickness narrow = (Thickness)((FrameworkElement)Content).Resources[cPaddingKey];
 
-        foreach (object tabItem in Tabs.TabItems) 
+        foreach (object tabItem in Tabs.TabItems)
         {
             if (tabItem is ITabItem iTab)
             {
@@ -735,18 +735,19 @@ internal sealed partial class MainWindow : Window, ISession
         }
 
         return menuFlyout;
-    }
 
-    private void MenuFlyout_Closed(object? sender, object e)
-    {
-        if (Tabs.SelectedItem is PuzzleTabViewItem puzzleTabViewItem)
+
+        void MenuFlyout_Closed(object? sender, object e)
         {
-            puzzleTabViewItem.FocusLastSelectedCell();
+            if (Tabs.SelectedItem is PuzzleTabViewItem puzzleTabViewItem)
+            {
+                puzzleTabViewItem.FocusLastSelectedCell();
+            }
         }
-    }
 
-    private void MenuItem_Click(object sender, RoutedEventArgs e)
-    {
-        Tabs.SelectedItem = ((FrameworkElement)sender).Tag;
+        void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            Tabs.SelectedItem = ((FrameworkElement)sender).Tag;
+        }
     }
 }
