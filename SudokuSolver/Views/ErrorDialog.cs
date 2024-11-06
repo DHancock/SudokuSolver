@@ -1,27 +1,31 @@
 ﻿using SudokuSolver.Utilities;
 
-namespace SudokuSolver.Views
+namespace SudokuSolver.Views;
+
+internal sealed partial class ErrorDialog : ContentDialog
 {
-    internal sealed partial class ErrorDialog : ContentDialog
+    public ErrorDialog(FrameworkElement parent, string message, string details) : base()
     {
-        public ErrorDialog(string message, string details, XamlRoot xamlRoot, ElementTheme actualTheme) : base()
+        // for entrance transition animation
+        Style = (Style)Application.Current.Resources["DefaultContentDialogStyle"];
+
+        XamlRoot = parent.XamlRoot;
+        RequestedTheme = parent.ActualTheme;
+
+        Title = App.cAppDisplayName;
+        PrimaryButtonText = App.Instance.ResourceLoader.GetString("OKButton");
+
+        DefaultButton = ContentDialogButton.Primary;
+
+        Loaded += (s, e) =>
         {
-            // for entrance transition animation
-            Style = (Style)Application.Current.Resources["DefaultContentDialogStyle"];
+            Utils.PlayExclamation();
+            Content = $"{message}{Environment.NewLine}{Environment.NewLine}{details}";
+        };
+    }
 
-            XamlRoot = xamlRoot;
-            RequestedTheme = actualTheme;
-
-            Title = App.cAppDisplayName;
-            PrimaryButtonText = App.Instance.ResourceLoader.GetString("OKButton");
-
-            DefaultButton = ContentDialogButton.Primary;
-
-            Loaded += (s, e) =>
-            {
-                Utils.PlayExclamation();
-                Content = $"{message}{Environment.NewLine}{Environment.NewLine}{details}";
-            };
-        }
+    public static ErrorDialog Factory(FrameworkElement parent, string message, string details)
+    {
+        return new ErrorDialog(parent, message, details);
     }
 }

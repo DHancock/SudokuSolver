@@ -17,8 +17,8 @@ internal sealed partial class MainWindow : Window, ISession
     public bool IsActive { get; private set; } = true;
 
     private PrintHelper? printHelper;
-    private FileOpenErrorDialog? dialog;
     private DateTime lastPointerTimeStamp;
+    public ContentDialogHelper ContentDialogHelper { get; } = new();
 
     public MainWindow(WindowState windowState, RectInt32 bounds) : this()
     {
@@ -80,8 +80,6 @@ internal sealed partial class MainWindow : Window, ISession
         };
     }
 
-    public bool IsContentDialogOpen() => GetOpenContentDialog() is not null;
-
     private async Task HandleWindowCloseRequestedAsync()
     {
         if (Settings.Instance.SaveSessionState && (App.Instance.SessionHelper.IsExit || (App.Instance.WindowCount == 1)))
@@ -93,44 +91,14 @@ internal sealed partial class MainWindow : Window, ISession
         {
             // Closing tabs is reentrant when awaiting a content dialog.
             // Unfortunately there doesn't seem to be a way to disable the caption close button
-            ContentDialog? dialog = GetOpenContentDialog();
-
-            if (dialog is ConfirmSaveDialog)
+            if (ContentDialogHelper.IsConfirmSaveDialogOpen)
             {
                 Tabs.TabItems.Clear();
                 return;
             }
 
-            if (dialog is not null)
-            {
-                Debug.Assert(dialog is ErrorDialog or FileOpenErrorDialog);
-                dialog.Hide();
-            }
-
             await AttemptToCloseTabsAsync(Tabs.TabItems);
         }
-    }
-
-
-    private ContentDialog? GetOpenContentDialog()
-    {
-        try
-        {
-            foreach (Popup popup in VisualTreeHelper.GetOpenPopupsForXamlRoot(Content.XamlRoot))
-            {
-                if (popup.Child is ContentDialog contentDialog)
-                {
-                    return contentDialog;
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            // Window.Content may have already closed
-            Debug.WriteLine(ex);
-        }
-
-        return null;
     }
 
     private void ResetPuzzleTabsOpacity()
@@ -655,27 +623,6 @@ internal sealed partial class MainWindow : Window, ISession
         }
 
         return false;
-    }
-
-    public async void ShowFileOpenError(FrameworkElement parent, string fileName, string details)
-    {
-        if (dialog is not null)
-        {
-            dialog.AddError(fileName, details);
-        }
-        else
-        {
-            dialog = new FileOpenErrorDialog(parent.XamlRoot, parent.ActualTheme);
-            dialog.Closed += Dialog_Closed;
-            dialog.AddError(fileName, details);
-
-            await dialog.ShowAsync();
-        }
-
-        void Dialog_Closed(ContentDialog sender, ContentDialogClosedEventArgs args)
-        {
-            dialog = null;
-        }
     }
 
     private void TabStripHeader_PointerPressed(object sender, PointerRoutedEventArgs e)

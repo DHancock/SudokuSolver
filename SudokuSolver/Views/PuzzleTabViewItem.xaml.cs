@@ -130,7 +130,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine(ex.ToString());
+                    Debug.WriteLine($"{data.Value} - {ex}");
 
                     // indicate that it may need to be resaved
                     forceModified = true;
@@ -239,7 +239,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
     public void FocusLastSelectedCell()
     {
-        if (IsLoaded && IsSelected && parentWindow.IsActive && !parentWindow.IsContentDialogOpen())
+        if (IsLoaded && IsSelected && parentWindow.IsActive && !parentWindow.ContentDialogHelper.IsContentDialogOpen)
         {
             Puzzle.FocusLastSelectedCell();
         }
@@ -267,6 +267,14 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         }
 
         DuplicateMenuItem.IsEnabled = enable;
+    }
+
+    public void AdjustMenuAccessKeys(bool enable)
+    {
+        foreach (MenuBarItem mbi in Menu.Items)
+        {
+            mbi.IsEnabled = enable;
+        }
     }
 
     public static bool IsPrintingAvailable => !IntegrityLevel.IsElevated && PrintManager.IsSupported();
@@ -354,7 +362,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         catch (Exception ex)
         {
             string heading = App.Instance.ResourceLoader.GetString("PrintErrorHeading");
-            await new ErrorDialog(heading, ex.Message, XamlRoot, ActualTheme).ShowAsync();
+            await parentWindow.ContentDialogHelper.ShowErrorDialogAsync(this, heading, ex.Message);
         }
     }
 
@@ -404,7 +412,17 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         }
         catch (Exception ex)
         {
-            parentWindow.ShowFileOpenError(this, file.Name, ex.Message);
+            FileOpenErrorDialog? dialog = parentWindow.ContentDialogHelper.GetFileOpenErrorDialog();
+
+            if (dialog is not null)
+            {
+                // if the user drags and drops files which have more than one error
+                dialog.AddError(file.Name, ex.Message);
+            }
+            else
+            {
+                await parentWindow.ContentDialogHelper.ShowFileOpenErrorDialogAsync(this, file.Name, ex.Message);
+            }
         }
 
         return error;
@@ -412,12 +430,10 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
     private async Task<Status> SaveExistingFirstAsync()
     {
-        Debug.Assert(!parentWindow.IsContentDialogOpen());
-
         Status status = Status.Continue;
         string path = (sourceFile is null) ? HeaderText : sourceFile.Path;
 
-        ContentDialogResult result = await new ConfirmSaveDialog(path, XamlRoot, LayoutRoot.ActualTheme).ShowAsync();
+        ContentDialogResult result = await parentWindow.ContentDialogHelper.ShowConfirmSaveDialogAsync(this, path);
 
         if (result == ContentDialogResult.Primary)
         {
@@ -462,7 +478,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
             {
                 string template = App.Instance.ResourceLoader.GetString("FileSaveErrorTemplate");
                 string heading = string.Format(template, sourceFile.Name);
-                await new ErrorDialog(heading, ex.Message, XamlRoot, ActualTheme).ShowAsync();
+                await parentWindow.ContentDialogHelper.ShowErrorDialogAsync(this, heading, ex.Message);
             }
         }
         else
@@ -499,7 +515,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
             {
                 string template = App.Instance.ResourceLoader.GetString("FileSaveErrorTemplate");
                 string heading = string.Format(template, file.Name);
-                await new ErrorDialog(heading, ex.Message, XamlRoot, ActualTheme).ShowAsync();
+                await parentWindow.ContentDialogHelper.ShowErrorDialogAsync(this, heading, ex.Message);
             }
         }
 
