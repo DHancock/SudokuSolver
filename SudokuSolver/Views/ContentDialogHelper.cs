@@ -23,7 +23,13 @@ internal class ContentDialogHelper
 
     private async Task<ContentDialogResult> ShowDialogAsync(PuzzleTabViewItem parent, Func<FrameworkElement, string, string, ContentDialog> f, string message, string details)
     {
-        Debug.Assert(previousDialog is null);
+        if (previousDialog is not null)
+        {
+            // while this condition may not be currently possible, it shouldn't be a fatal error either.
+            Debug.Fail("Requesting too many content dialogs");
+            return ContentDialogResult.None;
+        }
+
         previousDialog = currentDialog;
 
         currentDialog = f(parent, message, details); 
@@ -34,7 +40,7 @@ internal class ContentDialogHelper
         while (previousDialog is not null)
         {
             // Hide() is also asynchronous
-            // Please don't try that at home kids. I'm a trained professional.
+            // Please don't try this at home kids. I'm a trained professional.
             await Task.Delay(10);
         }
 
