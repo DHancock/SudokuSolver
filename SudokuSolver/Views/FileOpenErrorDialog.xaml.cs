@@ -4,7 +4,7 @@ namespace SudokuSolver.Views;
 
 internal sealed partial class FileOpenErrorDialog : ContentDialog
 {
-    public FileOpenErrorDialog(FrameworkElement parent, string message, string details)
+    private FileOpenErrorDialog(FrameworkElement parent, string message, string details)
     {
         this.InitializeComponent();
 

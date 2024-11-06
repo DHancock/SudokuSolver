@@ -4,7 +4,7 @@ namespace SudokuSolver.Views;
 
 internal sealed partial class ErrorDialog : ContentDialog
 {
-    public ErrorDialog(FrameworkElement parent, string message, string details) : base()
+    private ErrorDialog(FrameworkElement parent, string message, string details) : base()
     {
         // for entrance transition animation
         Style = (Style)Application.Current.Resources["DefaultContentDialogStyle"];
