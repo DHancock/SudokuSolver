@@ -391,6 +391,10 @@ internal sealed partial class MainWindow : Window, ISession
             {
                 SetWindowDragRegionsInternal();
             }
+            else if (e.AddedItems[0] is PuzzleTabViewItem puzzle)
+            {
+                puzzle.FocusLastSelectedCell();
+            }
         }
     }
 
