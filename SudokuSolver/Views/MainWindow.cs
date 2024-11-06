@@ -250,7 +250,7 @@ internal partial class MainWindow : Window
 
     private bool CanCloseTab(object? param)
     {
-        return !IsContentDialogOpen();
+        return !ContentDialogHelper.IsContentDialogOpen;
     }
 
     private async void ExecuteCloseTabAsync(object? param)

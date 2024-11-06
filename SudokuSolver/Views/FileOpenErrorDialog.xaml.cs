@@ -4,18 +4,20 @@ namespace SudokuSolver.Views;
 
 internal sealed partial class FileOpenErrorDialog : ContentDialog
 {
-    public FileOpenErrorDialog(XamlRoot xamlRoot, ElementTheme actualTheme)
+    public FileOpenErrorDialog(FrameworkElement parent, string message, string details)
     {
         this.InitializeComponent();
 
         Style = (Style)Application.Current.Resources["DefaultContentDialogStyle"];
 
-        XamlRoot = xamlRoot;
-        RequestedTheme = actualTheme;
+        XamlRoot = parent.XamlRoot;
+        RequestedTheme = parent.ActualTheme;
 
         Title = App.cAppDisplayName;
         PrimaryButtonText = App.Instance.ResourceLoader.GetString("OKButton");
         DefaultButton = ContentDialogButton.Primary;
+
+         AddError(message, details);
 
         Loaded += (s, e) => Utils.PlayExclamation();
     }
@@ -42,5 +44,10 @@ internal sealed partial class FileOpenErrorDialog : ContentDialog
 
             ErrorTreeView.RootNodes.Add(parent);
         }
+    }
+
+    public static FileOpenErrorDialog Factory(FrameworkElement parent, string message, string details)
+    {
+        return new FileOpenErrorDialog(parent, message, details);
     }
 }
