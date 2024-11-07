@@ -1,9 +1,13 @@
 ﻿using SudokuSolver.Utilities;
 
+using Windows.UI.Text;
+
 namespace SudokuSolver.Views;
 
 internal sealed partial class FileOpenErrorDialog : ContentDialog
 {
+    public ObservableCollection<ErrorInfo> Errors { get; } = new();
+
     private FileOpenErrorDialog(FrameworkElement parent, string message, string details)
     {
         this.InitializeComponent();
@@ -17,7 +21,7 @@ internal sealed partial class FileOpenErrorDialog : ContentDialog
         PrimaryButtonText = App.Instance.ResourceLoader.GetString("OKButton");
         DefaultButton = ContentDialogButton.Primary;
 
-         AddError(message, details);
+        AddError(message, details);
 
         Loaded += (s, e) => Utils.PlayExclamation();
     }
@@ -35,14 +39,7 @@ internal sealed partial class FileOpenErrorDialog : ContentDialog
 
         void AddErrorInternal(string fileName, string details)
         {
-            TreeViewNode child = new TreeViewNode();
-            child.Content = details;
-
-            TreeViewNode parent = new TreeViewNode();
-            parent.Content = fileName;
-            parent.Children.Add(child);
-
-            ErrorTreeView.RootNodes.Add(parent);
+            Errors.Add(new ErrorInfo(fileName, details));
         }
     }
 
@@ -51,3 +48,30 @@ internal sealed partial class FileOpenErrorDialog : ContentDialog
         return new FileOpenErrorDialog(parent, message, details);
     }
 }
+
+internal sealed class ErrorInfo
+{
+    public string Text { get; }
+    public List<ErrorInfo> Children { get; }
+
+    public ErrorInfo(string fileName, string details) 
+    {
+        Text = fileName;
+        Children = new() { new ErrorInfo(details) };
+    }
+
+    public ErrorInfo(string details)
+    {
+        Text = details;
+        Children = new();
+    }
+
+    public static FontWeight GetFontWeight(int childCount)
+    {
+        const int cNormal = 400;
+        const int cSemiBold = 600;
+
+        return childCount > 0 ? new FontWeight(cSemiBold) : new FontWeight(cNormal);
+    }
+}
+
