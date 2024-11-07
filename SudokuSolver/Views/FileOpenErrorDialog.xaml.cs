@@ -1,7 +1,5 @@
 ﻿using SudokuSolver.Utilities;
 
-using Windows.UI.Text;
-
 namespace SudokuSolver.Views;
 
 internal sealed partial class FileOpenErrorDialog : ContentDialog
@@ -26,22 +24,7 @@ internal sealed partial class FileOpenErrorDialog : ContentDialog
         Loaded += (s, e) => Utils.PlayExclamation();
     }
 
-    public void AddError(string fileName, string details)
-    {
-        if (IsLoaded)
-        {
-            AddErrorInternal(fileName, details);
-        }
-        else
-        {
-            Loaded += (s, e) => AddErrorInternal(fileName, details);
-        }
-
-        void AddErrorInternal(string fileName, string details)
-        {
-            Errors.Add(new ErrorInfo(fileName, details));
-        }
-    }
+    public void AddError(string fileName, string details) => Errors.Add(new ErrorInfo(fileName, details));
 
     public static FileOpenErrorDialog Factory(FrameworkElement parent, string message, string details)
     {
@@ -68,10 +51,7 @@ internal sealed class ErrorInfo
 
     public static FontWeight GetFontWeight(int childCount)
     {
-        const int cNormal = 400;
-        const int cSemiBold = 600;
-
-        return childCount > 0 ? new FontWeight(cSemiBold) : new FontWeight(cNormal);
+        return childCount > 0 ? FontWeights.SemiBold : FontWeights.Normal;
     }
 }
 

@@ -2,11 +2,11 @@
 
 global using Microsoft.UI;
 global using Microsoft.UI.Input;
+global using Microsoft.UI.Text;
 global using Microsoft.UI.Windowing;
 global using Microsoft.UI.Xaml;
 global using Microsoft.UI.Xaml.Controls;
 global using Microsoft.UI.Xaml.Controls.Primitives;
-global using Microsoft.UI.Xaml.Documents;
 global using Microsoft.UI.Xaml.Input;
 global using Microsoft.UI.Xaml.Media;
 global using Microsoft.UI.Xaml.Media.Imaging;
@@ -39,6 +39,7 @@ global using Windows.Storage;
 global using Windows.Storage.Pickers;
 global using Windows.System;
 global using Windows.UI;
+global using Windows.UI.Text;
 global using Windows.Win32;
 global using Windows.Win32.Foundation;
 global using Windows.Win32.UI.Shell;
