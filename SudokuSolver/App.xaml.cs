@@ -58,7 +58,7 @@ public partial class App : Application
 
             await ProcessCommandLineAsync(commandLine);
 
-            if (currentWindow is null) // an error occured, at least open an empty tab
+            if (currentWindow is null) // no file was opened so create an empty tab
             {
                 currentWindow = new MainWindow(Settings.Instance.WindowState, Settings.Instance.RestoreBounds);
                 currentWindow.AddTab(new PuzzleTabViewItem(currentWindow));
@@ -90,10 +90,15 @@ public partial class App : Application
         Debug.Assert(success);
     }
 
-
     // can be called from both normal launch and redirection
     private void ProcessFileActivation(AppActivationArguments args)
     {
+        if (IsContentDialogOpen)
+        {
+            Utils.PlayExclamation();
+            return;
+        }
+
         if ((args.Data is IFileActivatedEventArgs fileData) && (fileData.Files.Count > 0) && !appClosing)
         {
             foreach (IStorageItem storageItem in fileData.Files)
@@ -109,7 +114,6 @@ public partial class App : Application
         }
     }
 
-
     private async Task ProcessRedirectedLaunchActivationAsync(AppActivationArguments args)
     {
         if (args.Data is ILaunchActivatedEventArgs launchData)
@@ -124,6 +128,12 @@ public partial class App : Application
 
     private async Task ProcessCommandLineAsync(IReadOnlyList<string> args)
     {
+        if (IsContentDialogOpen)
+        {
+            Utils.PlayExclamation();
+            return;
+        }
+
         // args[0] is typically the path to the executing assembly
         for (int index = 1; index < args.Count; index++)
         {
@@ -329,4 +339,6 @@ public partial class App : Application
         string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         return Path.Join(localAppData, "sudokusolver.davidhancock.net");
     }
+
+    private bool IsContentDialogOpen => currentWindow is not null && currentWindow.ContentDialogHelper.IsContentDialogOpen;
 }

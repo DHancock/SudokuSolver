@@ -89,15 +89,16 @@ internal sealed partial class MainWindow : Window, ISession
         }
         else
         {
-            // Closing tabs is reentrant when awaiting a content dialog.
+            // Closing the window is reentrant when awaiting a content dialog.
             // Unfortunately there doesn't seem to be a way to disable the caption close button
-            if (ContentDialogHelper.IsConfirmSaveDialogOpen)
+            if (ContentDialogHelper.IsContentDialogOpen)
             {
-                Tabs.TabItems.Clear();
-                return;
+                Utils.PlayExclamation();
             }
-
-            await AttemptToCloseTabsAsync(Tabs.TabItems);
+            else
+            {
+                await AttemptToCloseTabsAsync(Tabs.TabItems);
+            }
         }
     }
 

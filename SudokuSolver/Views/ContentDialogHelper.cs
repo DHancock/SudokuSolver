@@ -4,7 +4,6 @@ internal class ContentDialogHelper
 {
     private ContentDialog? currentDialog = null;
     private PuzzleTabViewItem? parentTab = null;
-    private ContentDialog? previousDialog = null;
 
     public async Task<ContentDialogResult> ShowFileOpenErrorDialogAsync(PuzzleTabViewItem parent, string message, string details)
     {
@@ -23,61 +22,42 @@ internal class ContentDialogHelper
 
     private async Task<ContentDialogResult> ShowDialogAsync(PuzzleTabViewItem parent, Func<FrameworkElement, string, string, ContentDialog> f, string message, string details)
     {
-        if (previousDialog is not null)
+        if (currentDialog is not null)
         {
-            // while this condition may not be currently possible, it shouldn't be a fatal error either.
-            Debug.Fail("Requesting too many content dialogs");
+            // while this may not be currently possible, it shouldn't be a fatal error either.
+            Debug.Fail("canceling request for a second content dialog");
             return ContentDialogResult.None;
         }
 
-        previousDialog = currentDialog;
-
-        currentDialog = f(parent, message, details); 
-        
-        AddOpenClosedEventHandlers(currentDialog);
-        previousDialog?.Hide();
-
-        while (previousDialog is not null)
-        {
-            // Hide() is also asynchronous
-            // Please don't try this at home kids. I'm a trained professional.
-            await Task.Delay(10);
-        }
-
         parentTab = parent;
+
+        currentDialog = f(parent, message, details);
+
+        currentDialog.Opened += ContentDialog_Opened;
+        currentDialog.Closing += ContentDialog_Closing;
+        currentDialog.Closed += ContentDialog_Closed;
+
         return await currentDialog.ShowAsync();
     }
 
-    private void AddOpenClosedEventHandlers(ContentDialog dialog)
+    private void ContentDialog_Opened(ContentDialog sender, ContentDialogOpenedEventArgs args)
     {
-        dialog.Opened += ContentDialog_Opened;
-        dialog.Closed += ContentDialog_Closed;
-
-        void ContentDialog_Opened(ContentDialog sender, ContentDialogOpenedEventArgs args)
-        {
-            // workaround for https://github.com/microsoft/microsoft-ui-xaml/issues/5739
-            // focus can escape a content dialog when access keys are shown via the alt key...
-            parentTab?.AdjustMenuAccessKeys(enable: false);
-        }
-
-        void ContentDialog_Closed(ContentDialog sender, ContentDialogClosedEventArgs args)
-        {
-            parentTab?.AdjustMenuAccessKeys(enable: true);
-
-            if (previousDialog is not null) // waiting for the previous to close first before opening a second
-            {
-                previousDialog = null;
-            }
-            else 
-            {
-                currentDialog = null;
-            }
-        }
+        // workaround for https://github.com/microsoft/microsoft-ui-xaml/issues/5739
+        // focus can escape a content dialog when access keys are shown via the alt key...
+        parentTab?.AdjustMenuAccessKeys(enable: false);
     }
 
-    public bool IsContentDialogOpen => currentDialog is not null;
+    private void ContentDialog_Closing(ContentDialog sender, ContentDialogClosingEventArgs args)
+    {
+        parentTab?.AdjustMenuAccessKeys(enable: true);
+    }
 
-    public bool IsConfirmSaveDialogOpen => currentDialog is ConfirmSaveDialog;
+    private void ContentDialog_Closed(ContentDialog sender, ContentDialogClosedEventArgs args)
+    {
+        currentDialog = null;
+    }
+                                                       
+    public bool IsContentDialogOpen => currentDialog is not null;
 
     public FileOpenErrorDialog? GetFileOpenErrorDialog() => currentDialog as FileOpenErrorDialog;
 }
