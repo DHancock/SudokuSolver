@@ -31,20 +31,27 @@ internal class ContentDialogHelper
 
         parentTab = parent;
 
-        currentDialog = f(parent, message, details);
+        try
+        {
+            currentDialog = f(parent, message, details);
 
-        currentDialog.Opened += ContentDialog_Opened;
-        currentDialog.Closing += ContentDialog_Closing;
-        currentDialog.Closed += ContentDialog_Closed;
+            currentDialog.Closing += ContentDialog_Closing;
+            currentDialog.Closed += ContentDialog_Closed;
 
-        return await currentDialog.ShowAsync();
-    }
+            // workaround for https://github.com/microsoft/microsoft-ui-xaml/issues/5739
+            // focus can escape a content dialog when access keys are shown via the alt key...
+            // (it makes no difference if the content dialog itself has any access keys)
+            parentTab.AdjustMenuAccessKeys(enable: false);
 
-    private void ContentDialog_Opened(ContentDialog sender, ContentDialogOpenedEventArgs args)
-    {
-        // workaround for https://github.com/microsoft/microsoft-ui-xaml/issues/5739
-        // focus can escape a content dialog when access keys are shown via the alt key...
-        parentTab?.AdjustMenuAccessKeys(enable: false);
+            return await currentDialog.ShowAsync();
+        }
+        catch (Exception ex) 
+        {
+            Debug.Fail(ex.ToString()); 
+
+            parentTab.AdjustMenuAccessKeys(enable: true);
+            return ContentDialogResult.None;
+        }
     }
 
     private void ContentDialog_Closing(ContentDialog sender, ContentDialogClosingEventArgs args)
