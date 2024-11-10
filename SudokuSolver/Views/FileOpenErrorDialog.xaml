@@ -9,8 +9,8 @@
 
     <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         <TextBlock x:Uid="FileOpenErrorHeader"/>
-        <TreeView SelectionMode="None" ItemsSource="{x:Bind Errors}">
-            <TreeView.ItemTemplate>
+        <TreeView SelectionMode="None" ItemsSource="{x:Bind Errors}" PreviewKeyDown="TreeView_PreviewKeyDown">
+            <TreeView.ItemTemplate> 
                 <DataTemplate x:DataType="local:ErrorInfo">
                     <TreeViewItem ItemsSource="{x:Bind Children}">
                         <TextBlock Text="{x:Bind Text}" TextWrapping="WrapWholeWords" FontWeight="{x:Bind local:ErrorInfo.GetFontWeight(Children.Count)}"/>
