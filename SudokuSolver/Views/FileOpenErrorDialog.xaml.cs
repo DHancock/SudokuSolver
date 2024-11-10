@@ -30,6 +30,16 @@ internal sealed partial class FileOpenErrorDialog : ContentDialog
     {
         return new FileOpenErrorDialog(parent, message, details);
     }
+
+    private void TreeView_PreviewKeyDown(object sender, KeyRoutedEventArgs e)
+    {
+        if (e.Key == VirtualKey.Enter)
+        {
+            // the tree view would take focus, defeating the default button key handling
+            e.Handled = true;
+            Hide();
+        }
+    }
 }
 
 internal sealed class ErrorInfo
