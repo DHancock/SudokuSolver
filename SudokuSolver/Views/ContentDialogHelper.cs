@@ -47,8 +47,9 @@ internal class ContentDialogHelper
         }
         catch (Exception ex) 
         {
-            Debug.Fail(ex.ToString()); 
+            Debug.Fail(ex.ToString());
 
+            currentDialog = null;
             parentTab.AdjustMenuAccessKeys(enable: true);
             return ContentDialogResult.None;
         }
