@@ -182,8 +182,8 @@ internal partial class MainWindow : Window
         sizeCommand = new RelayCommand(o => PostSysCommandMessage(SC.SIZE), CanSize);
         minimizeCommand = new RelayCommand(o => PostSysCommandMessage(SC.MINIMIZE), CanMinimize);
         maximizeCommand = new RelayCommand(o => PostSysCommandMessage(SC.MAXIMIZE), CanMaximize);
-        closeTabCommand = new RelayCommand(ExecuteCloseTabAsync, CanCloseTab);
-        closeWindowCommand = new RelayCommand(o => PostSysCommandMessage(SC.CLOSE));
+        closeTabCommand = new RelayCommand(ExecuteCloseTabAsync, CanClose);
+        closeWindowCommand = new RelayCommand(o => PostSysCommandMessage(SC.CLOSE), CanClose);
 
         MenuFlyout menuFlyout = new MenuFlyout()
         {
@@ -248,18 +248,16 @@ internal partial class MainWindow : Window
         return (AppWindow.Presenter is OverlappedPresenter op) && op.IsMaximizable && (op.State != OverlappedPresenterState.Maximized);
     }
 
-    private bool CanCloseTab(object? param)
+    private bool CanClose(object? param)
     {
         return !ContentDialogHelper.IsContentDialogOpen;
     }
 
     private async void ExecuteCloseTabAsync(object? param)
     {
-        if (CanCloseTab(param))
+        if (CanClose(param))
         {
-            List<object> tabs = new List<object>();
-            tabs.Add(Tabs.SelectedItem);
-            await AttemptToCloseTabsAsync(tabs);
+            await AttemptToCloseTabsAsync([Tabs.SelectedItem]);
         }
     }
 
