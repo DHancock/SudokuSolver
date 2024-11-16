@@ -713,4 +713,21 @@ internal sealed partial class MainWindow : Window, ISession
             Tabs.SelectedItem = ((FrameworkElement)sender).Tag;
         }
     }
+
+    public bool IsOpenInExistingTab(StorageFile file, TabViewItem openingTab)
+    {
+        foreach (object tab in Tabs.TabItems)
+        {
+            if (!ReferenceEquals(tab, openingTab) && 
+                tab is PuzzleTabViewItem puzzleTab && 
+                puzzleTab.SourceFile is not null && 
+                puzzleTab.SourceFile.IsEqual(file))
+            {
+                Tabs.SelectedItem = puzzleTab;
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
