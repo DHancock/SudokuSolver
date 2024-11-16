@@ -284,9 +284,30 @@ internal partial class MainWindow : Window
             {
                 switch (value)
                 {
-                    case WindowState.Minimized: op.Minimize(); break;
-                    case WindowState.Maximized: op.Maximize(); break;
-                    case WindowState.Normal: op.Restore(); break;
+                    case WindowState.Minimized:
+                    {
+                        if (op.State != OverlappedPresenterState.Minimized)
+                        {
+                            op.Minimize();
+                        }
+                        break;
+                    }
+                    case WindowState.Maximized:
+                    {
+                        if (op.State != OverlappedPresenterState.Maximized)
+                        {
+                            op.Maximize();
+                        }
+                        break;
+                    }
+                    case WindowState.Normal:
+                    {
+                        if (op.State != OverlappedPresenterState.Restored)
+                        {
+                            op.Restore();
+                        }
+                        break;
+                    }
                 }
             }
             else

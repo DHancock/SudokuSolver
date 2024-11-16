@@ -64,6 +64,7 @@ public partial class App : Application
                 currentWindow.AddTab(new PuzzleTabViewItem(currentWindow));
             }
 
+            currentWindow.Activate();
             currentWindow.AttemptSwitchToForeground();
         }
     }
@@ -109,9 +110,16 @@ public partial class App : Application
                     currentWindow.AddTab(new PuzzleTabViewItem(currentWindow, storageFile));
                 }
             }
-
-            currentWindow?.AttemptSwitchToForeground();
         }
+
+        if (currentWindow is null) // no file was opened so create an empty tab
+        {
+            currentWindow = new MainWindow(Settings.Instance.WindowState, Settings.Instance.RestoreBounds);
+            currentWindow.AddTab(new PuzzleTabViewItem(currentWindow));
+        }
+
+        currentWindow.Activate();
+        currentWindow.AttemptSwitchToForeground();
     }
 
     private async Task ProcessRedirectedLaunchActivationAsync(AppActivationArguments args)
@@ -122,6 +130,7 @@ public partial class App : Application
 
             await ProcessCommandLineAsync(commandLine);
 
+            currentWindow?.Activate();
             currentWindow?.AttemptSwitchToForeground();
         }
     }
