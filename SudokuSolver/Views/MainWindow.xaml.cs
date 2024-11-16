@@ -62,9 +62,10 @@ internal sealed partial class MainWindow : Window, ISession
 
         Activated += (s, e) =>
         {
-            if (e.WindowActivationState != WindowActivationState.Deactivated)
+            IsActive = e.WindowActivationState != WindowActivationState.Deactivated;
+
+            if (IsActive)
             {
-                IsActive = true;
                 WindowIcon.Opacity = 1;
 
                 if (Tabs.SelectedItem is PuzzleTabViewItem puzzleTab)
@@ -74,9 +75,14 @@ internal sealed partial class MainWindow : Window, ISession
             }
             else
             {
-                IsActive = false;
                 WindowIcon.Opacity = 0.25;
             }
+
+            // only the current active window's hotkeys should be active
+            if (Tabs.SelectedItem is not null)
+            {
+                ((ITabItem)Tabs.SelectedItem).AdjustKeyboardAccelerators(enable: IsActive);
+            };
         };
     }
 
@@ -267,6 +273,8 @@ internal sealed partial class MainWindow : Window, ISession
         PInvoke.GetCursorPos(out System.Drawing.Point p);
         RectInt32 bounds = new RectInt32(p.X, p.Y, RestoreBounds.Width, RestoreBounds.Height);
 
+        // cannot just move the tab to a new window because MenuFlyoutItemBase requires
+        // an XamlRoot which cannot be updated once set, have to replace the ui
         CloseTab(args.Tab);
 
         MainWindow window = new MainWindow(WindowState.Normal, bounds);
@@ -280,6 +288,7 @@ internal sealed partial class MainWindow : Window, ISession
             window.AddTab(new SettingsTabViewItem(window, settingsTab));
         }
 
+        window.Activate();
         window.AttemptSwitchToForeground();
     }
 
@@ -294,7 +303,7 @@ internal sealed partial class MainWindow : Window, ISession
 
     private void Tabs_TabStripDrop(object sender, DragEventArgs e)
     {
-        // This event is called when we're dragging from one window to another 
+        // called when dragging over TabViewItem headers
         if (e.DataView.Properties.TryGetValue(cDataIdentifier, out object? obj) && (obj is TabViewItem sourceTab))
         {
             // First we need to get the position in the List to drop to
@@ -314,6 +323,8 @@ internal sealed partial class MainWindow : Window, ISession
             }
 
             // single instanced so no need to dispatch
+            // if it's a different window the menu's XamlRoot cannot be updated 
+            // so have to replace the ui keeping the view model and model parts
             MainWindow? window = App.Instance.GetWindowForElement(sourceTab);
             window?.CloseTab(sourceTab);
 
@@ -323,7 +334,7 @@ internal sealed partial class MainWindow : Window, ISession
             }
             else if (sourceTab is SettingsTabViewItem existingSettingsTab)
             {
-                // replace the existing, it preserves the drop position
+                // preserve the drop position and existing expander state
                 if (Tabs.TabItems.FirstOrDefault(x => x is SettingsTabViewItem) is TabViewItem existing)
                 {
                     CloseTab(existing);
@@ -701,5 +712,22 @@ internal sealed partial class MainWindow : Window, ISession
         {
             Tabs.SelectedItem = ((FrameworkElement)sender).Tag;
         }
+    }
+
+    public bool IsOpenInExistingTab(StorageFile file, TabViewItem openingTab)
+    {
+        foreach (object tab in Tabs.TabItems)
+        {
+            if (!ReferenceEquals(tab, openingTab) && 
+                tab is PuzzleTabViewItem puzzleTab && 
+                puzzleTab.SourceFile is not null && 
+                puzzleTab.SourceFile.IsEqual(file))
+            {
+                Tabs.SelectedItem = puzzleTab;
+                return true;
+            }
+        }
+
+        return false;
     }
 }

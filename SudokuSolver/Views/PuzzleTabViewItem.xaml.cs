@@ -306,7 +306,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
             StorageFile file = await openPicker.PickSingleFileAsync();
 
-            if (file is not null)
+            if (file is not null && !parentWindow.IsOpenInExistingTab(file, this))
             {
                 Error error = await LoadFileAsync(file);
 
@@ -648,6 +648,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         XElement root = GetSessionData();
         SetElement(root, "path", string.Empty);
         SetElement(root, "modified", PuzzleHasData(root) ? "true" : "false");
+        // TODO  SetElement(root, "title", make unique title);
 
         TabViewItem tab = new PuzzleTabViewItem(parentWindow, root);
         parentWindow.AddTab(tab);
