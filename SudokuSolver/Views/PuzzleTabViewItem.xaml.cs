@@ -173,7 +173,14 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         {
             if (IsValidStorgeItem(item))
             {
-                parentWindow.AddTab(new PuzzleTabViewItem(parentWindow, (StorageFile)item));
+                if (parentWindow.IsOpenInExistingTab((StorageFile)item))
+                {
+                    parentWindow.SwitchToTab((StorageFile)item);
+                }
+                else
+                {
+                    parentWindow.AddTab(new PuzzleTabViewItem(parentWindow, (StorageFile)item));
+                }
             }
         }
     }
@@ -306,15 +313,22 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
             StorageFile file = await openPicker.PickSingleFileAsync();
 
-            if (file is not null && !parentWindow.IsOpenInExistingTab(file, this))
+            if (file is not null)
             {
-                Error error = await LoadFileAsync(file);
-
-                if (error == Error.Success)
+                if (parentWindow.IsOpenInExistingTab(file))
                 {
-                    sourceFile = file;
-                    UpdateTabHeader();
-                    AddToRecentFilesJumpList();
+                    parentWindow.SwitchToTab(file);
+                }
+                else
+                {
+                    Error error = await LoadFileAsync(file);
+
+                    if (error == Error.Success)
+                    {
+                        sourceFile = file;
+                        UpdateTabHeader();
+                        AddToRecentFilesJumpList();
+                    }
                 }
             }
         }
