@@ -714,20 +714,34 @@ internal sealed partial class MainWindow : Window, ISession
         }
     }
 
-    public bool IsOpenInExistingTab(StorageFile file, TabViewItem openingTab)
+    private TabViewItem? FindExistingTab(StorageFile file)
     {
         foreach (object tab in Tabs.TabItems)
         {
-            if (!ReferenceEquals(tab, openingTab) && 
-                tab is PuzzleTabViewItem puzzleTab && 
-                puzzleTab.SourceFile is not null && 
+            if (tab is PuzzleTabViewItem puzzleTab &&
+                puzzleTab.SourceFile is not null &&
                 puzzleTab.SourceFile.IsEqual(file))
             {
-                Tabs.SelectedItem = puzzleTab;
-                return true;
+                return puzzleTab;
             }
         }
 
-        return false;
+        return null;
+
+    }
+
+    public bool IsOpenInExistingTab(StorageFile file)
+    {
+        return FindExistingTab(file) is not null;
+    }
+
+    public void SwitchToTab(StorageFile file)
+    {
+        TabViewItem? existingTab = FindExistingTab(file);
+
+        if (existingTab is not null)
+        {
+            Tabs.SelectedItem = existingTab;
+        }
     }
 }

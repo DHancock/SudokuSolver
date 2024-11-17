@@ -152,8 +152,15 @@ public partial class App : Application
             {
                 StorageFile storageFile = await StorageFile.GetFileFromPathAsync(arg);
 
-                currentWindow ??= new MainWindow(Settings.Instance.WindowState, Settings.Instance.RestoreBounds);
-                currentWindow.AddTab(new PuzzleTabViewItem(currentWindow, storageFile));
+                if ((currentWindow is not null) && currentWindow.IsOpenInExistingTab(storageFile))
+                {
+                    currentWindow.SwitchToTab(storageFile);
+                }
+                else
+                {
+                    currentWindow ??= new MainWindow(Settings.Instance.WindowState, Settings.Instance.RestoreBounds);
+                    currentWindow.AddTab(new PuzzleTabViewItem(currentWindow, storageFile));
+                }
             }
         }
     }
