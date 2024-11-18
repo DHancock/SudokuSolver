@@ -714,7 +714,7 @@ internal sealed partial class MainWindow : Window, ISession
         }
     }
 
-    private TabViewItem? FindExistingTab(StorageFile file)
+    private PuzzleTabViewItem? FindExistingTab(StorageFile file)
     {
         foreach (object tab in Tabs.TabItems)
         {
@@ -727,7 +727,6 @@ internal sealed partial class MainWindow : Window, ISession
         }
 
         return null;
-
     }
 
     public bool IsOpenInExistingTab(StorageFile file)
@@ -743,5 +742,49 @@ internal sealed partial class MainWindow : Window, ISession
         {
             Tabs.SelectedItem = existingTab;
         }
+    }
+
+    private bool ContainsHeader(string newText)
+    {
+        foreach (object tab in Tabs.TabItems)
+        {
+            if (string.Equals(newText, ((ITabItem)tab).HeaderText))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public string MakeUniqueHeaderText()
+    {
+        string basePart = App.Instance.ResourceLoader.GetString("Untitled");
+
+        if (ContainsHeader(basePart))
+        {
+            string pattern;
+
+            if (((FrameworkElement)Content).FlowDirection == FlowDirection.LeftToRight)
+            {
+                pattern = "{0} ({1})";
+            }
+            else
+            {
+                pattern = "({1}) {0}";
+            }
+
+            for (int count = 1; count < 25; count++)
+            {
+                string title = string.Format(pattern, basePart, count.ToString());
+
+                if (!ContainsHeader(title))
+                {
+                    return title;
+                }
+            }
+        }
+       
+        return basePart;
     }
 }

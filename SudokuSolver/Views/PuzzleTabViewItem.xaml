@@ -122,7 +122,7 @@
     </Grid>
 
     <TabViewItem.Header>
-        <TextBlock x:Uid="Untitled"/>
+        <TextBlock/>
     </TabViewItem.Header>
 
     <TabViewItem.ContextFlyout>

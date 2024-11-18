@@ -357,7 +357,7 @@
   <data name="Undo.Text" xml:space="preserve">
     <value>Rückgängig machen</value>
   </data>
-  <data name="Untitled.Text" xml:space="preserve">
+  <data name="Untitled" xml:space="preserve">
     <value>Unbenannt</value>
   </data>
   <data name="UserValues.Text" xml:space="preserve">
