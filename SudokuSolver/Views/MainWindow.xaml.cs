@@ -684,30 +684,27 @@ internal sealed partial class MainWindow : Window, ISession
         // ensure the use of narrow padding
         Thickness narrow = (Thickness)((FrameworkElement)Content).Resources[cPaddingKey];
 
-        foreach (object tabItem in Tabs.TabItems)
+        foreach (object tab in Tabs.TabItems)
         {
-            if (tabItem is ITabItem iTab)
+            MenuFlyoutItem menuItem = new()
             {
-                MenuFlyoutItem menuItem = new() 
-                { 
-                    Text = iTab.HeaderText, 
-                    Tag = tabItem, 
-                    Padding = narrow,
-                    IsEnabled = !ReferenceEquals(Tabs.SelectedItem, tabItem),
-                };
+                Text = ((ITabItem)tab).HeaderText,
+                Tag = tab,
+                Padding = narrow,
+                IsEnabled = !ReferenceEquals(Tabs.SelectedItem, tab),
+            };
 
-                if (menuItem.IsEnabled)
-                {
-                    menuItem.Click += MenuItem_Click;
-                }
-
-                if ((tabItem is PuzzleTabViewItem puzzleTab) && puzzleTab.IsModified)
-                {
-                    menuItem.Icon = new SymbolIcon() { Symbol = Symbol.Edit, };
-                }
-
-                menuFlyout.Items.Add(menuItem);
+            if (menuItem.IsEnabled)
+            {
+                menuItem.Click += MenuItem_Click;
             }
+
+            if ((tab is PuzzleTabViewItem puzzleTab) && puzzleTab.IsModified)
+            {
+                menuItem.Icon = new SymbolIcon(Symbol.Edit);
+            }
+
+            menuFlyout.Items.Add(menuItem);
         }
 
         return menuFlyout;
