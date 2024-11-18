@@ -357,7 +357,7 @@
   <data name="Undo.Text" xml:space="preserve">
     <value>Undo</value>
   </data>
-  <data name="Untitled.Text" xml:space="preserve">
+  <data name="Untitled" xml:space="preserve">
     <value>Untitled</value>
   </data>
   <data name="UserValues.Text" xml:space="preserve">

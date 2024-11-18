@@ -46,6 +46,8 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
                 ToolTipService.SetToolTip(closeButton, text);
             }
 
+            UpdateTabHeader();
+
             initialisationPhase -= 1;
         };
 
@@ -548,6 +550,11 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
     {
         if (sourceFile is null)
         {
+            if (string.IsNullOrEmpty(HeaderText))
+            {
+                HeaderText = parentWindow.MakeUniqueHeaderText();
+            }
+
             ToolTipService.SetToolTip(this, null);
         }
         else
@@ -662,7 +669,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         XElement root = GetSessionData();
         SetElement(root, "path", string.Empty);
         SetElement(root, "modified", PuzzleHasData(root) ? "true" : "false");
-        // TODO  SetElement(root, "title", make unique title);
+        SetElement(root, "title", string.Empty);
 
         TabViewItem tab = new PuzzleTabViewItem(parentWindow, root);
         parentWindow.AddTab(tab);
