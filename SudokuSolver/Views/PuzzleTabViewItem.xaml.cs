@@ -672,7 +672,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         SetElement(root, "title", string.Empty);
 
         TabViewItem tab = new PuzzleTabViewItem(parentWindow, root);
-        parentWindow.AddTab(tab);
+        parentWindow.AddTab(tab, parentWindow.SelectedTabIndex + 1);
 
         static void SetElement(XElement root, string name, string value)
         {
