@@ -787,4 +787,6 @@ internal sealed partial class MainWindow : Window, ISession
        
         return basePart;
     }
+
+    public int SelectedTabIndex => Tabs.SelectedIndex;
 }
