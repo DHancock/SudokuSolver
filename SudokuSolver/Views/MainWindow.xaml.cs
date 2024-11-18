@@ -688,10 +688,23 @@ internal sealed partial class MainWindow : Window, ISession
         {
             if (tabItem is ITabItem iTab)
             {
-                MenuFlyoutItem menuItem = new() { Text = iTab.HeaderText, Tag = tabItem, Padding = narrow };
+                MenuFlyoutItem menuItem = new() 
+                { 
+                    Text = iTab.HeaderText, 
+                    Tag = tabItem, 
+                    Padding = narrow,
+                    IsEnabled = !ReferenceEquals(Tabs.SelectedItem, tabItem),
+                };
 
-                menuItem.Click += MenuItem_Click;
-                menuItem.IsEnabled = !ReferenceEquals(Tabs.SelectedItem, tabItem);
+                if (menuItem.IsEnabled)
+                {
+                    menuItem.Click += MenuItem_Click;
+                }
+
+                if ((tabItem is PuzzleTabViewItem puzzleTab) && puzzleTab.IsModified)
+                {
+                    menuItem.Icon = new SymbolIcon() { Symbol = Symbol.Edit, };
+                }
 
                 menuFlyout.Items.Add(menuItem);
             }
