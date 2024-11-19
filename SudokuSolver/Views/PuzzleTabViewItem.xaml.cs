@@ -275,7 +275,10 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
             }
         }
 
-        DuplicateMenuItem.IsEnabled = enable;
+        if (DuplicateMenuItem.KeyboardAccelerators.Count == 1)
+        {
+            DuplicateMenuItem.KeyboardAccelerators[0].IsEnabled = enable;
+        }
     }
 
     public void AdjustMenuAccessKeys(bool enable)
@@ -672,8 +675,8 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         SetElement(root, "title", string.Empty);
 
         TabViewItem tab = new PuzzleTabViewItem(parentWindow, root);
-        parentWindow.AddTab(tab, parentWindow.SelectedTabIndex + 1);
-
+        parentWindow.AddTab(tab, parentWindow.IndexOf(this) + 1);
+        
         static void SetElement(XElement root, string name, string value)
         {
             XElement? data = root.Element(name);
