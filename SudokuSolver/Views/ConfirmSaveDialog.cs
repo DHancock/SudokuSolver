@@ -2,7 +2,7 @@
 
 internal sealed partial class ConfirmSaveDialog : ContentDialog
 {
-    private ConfirmSaveDialog(FrameworkElement parent, string puzzleName) : base()
+    public ConfirmSaveDialog(FrameworkElement parent, string puzzleName) : base()
     {
         // for entrance transition animation
         Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style;
@@ -19,10 +19,5 @@ internal sealed partial class ConfirmSaveDialog : ContentDialog
         Content = string.Format(template, puzzleName);
 
         DefaultButton = ContentDialogButton.Primary;
-    }
-
-    public static ConfirmSaveDialog Factory(FrameworkElement parent, string message, string _)
-    {
-        return new ConfirmSaveDialog(parent, message);
     }
 }

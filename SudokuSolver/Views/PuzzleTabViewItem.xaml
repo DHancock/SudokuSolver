@@ -140,6 +140,14 @@
             </MenuFlyoutItem>
 
             <MenuFlyoutSeparator/>
+            
+            <MenuFlyoutItem Text="Rename Tab" Command="{x:Bind RenameTabCommand}" x:Name="RenameMenuItem">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="F2"/>
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+        
+            <MenuFlyoutSeparator/>
             <MenuFlyoutItem x:Uid="CloseTab" Click="CloseTabClickHandlerAsync" AccessKey="C">
                 <MenuFlyoutItem.KeyboardAccelerators>
                     <KeyboardAccelerator Modifiers="Control" Key="W" IsEnabled="False"/>

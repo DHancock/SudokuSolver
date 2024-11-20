@@ -8,6 +8,8 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 {
     private enum Error { Success, Failure }
     private enum Status { Cancelled, Continue }
+
+    private RelayCommand RenameTabCommand { get; }
     private RelayCommand CloseOtherTabsCommand { get; }
     private RelayCommand CloseLeftTabsCommand { get; }
     private RelayCommand CloseRightTabsCommand { get; }
@@ -58,6 +60,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
         AdjustKeyboardAccelerators(enable: false);
 
+        RenameTabCommand = new RelayCommand(ExecuteRenameTabCommand, CanRenameTab);
         CloseOtherTabsCommand = new RelayCommand(ExecuteCloseOtherTabsAsync, CanCloseOtherTabs);
         CloseLeftTabsCommand = new RelayCommand(ExecuteCloseLeftTabsAsync, CanCloseLeftTabs);
         CloseRightTabsCommand = new RelayCommand(ExecuteCloseRightTabsAsync, CanCloseRightTabs);
@@ -275,9 +278,14 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
             }
         }
 
-        if (DuplicateMenuItem.KeyboardAccelerators.Count == 1)
+        UIElement[] elements = [DuplicateMenuItem, RenameMenuItem];
+
+        foreach (UIElement element in elements)
         {
-            DuplicateMenuItem.KeyboardAccelerators[0].IsEnabled = enable;
+            foreach (KeyboardAccelerator ka in element.KeyboardAccelerators)
+            {
+                ka.IsEnabled = enable;
+            }
         }
     }
 
@@ -579,6 +587,25 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
     public void ResetOpacityTransitionForThemeChange()
     {
         Puzzle.ResetOpacityTransitionForThemeChange();
+    }
+
+
+    private bool CanRenameTab(object? param)
+    {
+        return !parentWindow.ContentDialogHelper.IsContentDialogOpen && (sourceFile is null);
+    }
+
+    private async void ExecuteRenameTabCommand(object? param)
+    {
+        if (CanRenameTab(null))
+        {
+            (ContentDialogResult Result, string NewName) = await parentWindow.ContentDialogHelper.ShowRenameTabDialogAsync(this, HeaderText);
+
+            if (Result == ContentDialogResult.Primary)
+            {
+                HeaderText = NewName;
+            }
+        }
     }
 
     private bool CanCloseOtherTabs(object? param)

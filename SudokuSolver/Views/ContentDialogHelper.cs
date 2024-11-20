@@ -7,20 +7,27 @@ internal class ContentDialogHelper
 
     public async Task<ContentDialogResult> ShowFileOpenErrorDialogAsync(PuzzleTabViewItem parent, string message, string details)
     {
-        return await ShowDialogAsync(parent, FileOpenErrorDialog.Factory, message, details);
+        return await ShowDialogAsync(parent, new FileOpenErrorDialog(parent, message, details));
     }
 
     public async Task<ContentDialogResult> ShowErrorDialogAsync(PuzzleTabViewItem parent, string message, string details)
     {
-        return await ShowDialogAsync(parent, ErrorDialog.Factory, message, details);
+        return await ShowDialogAsync(parent, new ErrorDialog(parent, message, details));
     }
 
     public async Task<ContentDialogResult> ShowConfirmSaveDialogAsync(PuzzleTabViewItem parent, string path)
     {
-        return await ShowDialogAsync(parent, ConfirmSaveDialog.Factory, path, string.Empty);
+        return await ShowDialogAsync(parent, new ConfirmSaveDialog(parent, path));
     }
 
-    private async Task<ContentDialogResult> ShowDialogAsync(PuzzleTabViewItem parent, Func<FrameworkElement, string, string, ContentDialog> f, string message, string details)
+    public async Task<(ContentDialogResult, string)> ShowRenameTabDialogAsync(PuzzleTabViewItem parent, string existingName)
+    {
+        RenameTabDialog dialog = new RenameTabDialog(parent, existingName);
+        ContentDialogResult result = await ShowDialogAsync(parent, dialog);
+        return (result, dialog.NewName);
+    }
+
+    public async Task<ContentDialogResult> ShowDialogAsync(PuzzleTabViewItem parent, ContentDialog dialog)
     {
         if (currentDialog is not null)
         {
@@ -33,7 +40,7 @@ internal class ContentDialogHelper
 
         try
         {
-            currentDialog = f(parent, message, details);
+            currentDialog = dialog;
 
             currentDialog.Closing += ContentDialog_Closing;
             currentDialog.Closed += ContentDialog_Closed;

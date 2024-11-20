@@ -6,7 +6,7 @@ internal sealed partial class FileOpenErrorDialog : ContentDialog
 {
     public ObservableCollection<ErrorInfo> Errors { get; } = new();
 
-    private FileOpenErrorDialog(FrameworkElement parent, string message, string details)
+    public FileOpenErrorDialog(FrameworkElement parent, string message, string details)
     {
         this.InitializeComponent();
 
@@ -25,11 +25,6 @@ internal sealed partial class FileOpenErrorDialog : ContentDialog
     }
 
     public void AddError(string fileName, string details) => Errors.Add(new ErrorInfo(fileName, details));
-
-    public static FileOpenErrorDialog Factory(FrameworkElement parent, string message, string details)
-    {
-        return new FileOpenErrorDialog(parent, message, details);
-    }
 
     private void TreeView_PreviewKeyDown(object sender, KeyRoutedEventArgs e)
     {
