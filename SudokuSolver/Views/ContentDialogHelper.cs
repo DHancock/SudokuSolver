@@ -57,14 +57,14 @@ internal class ContentDialogHelper
             Debug.Fail(ex.ToString());
 
             currentDialog = null;
-            parentTab.AdjustMenuAccessKeys(enable: parentTab.IsSelected);
+            parentTab.AdjustMenuAccessKeys(enable: true);
             return ContentDialogResult.None;
         }
     }
 
     private void ContentDialog_Closing(ContentDialog sender, ContentDialogClosingEventArgs args)
     {
-        parentTab?.AdjustMenuAccessKeys(enable: parentTab.IsSelected);
+        parentTab?.AdjustMenuAccessKeys(enable: true);
     }
 
     private void ContentDialog_Closed(ContentDialog sender, ContentDialogClosedEventArgs args)
