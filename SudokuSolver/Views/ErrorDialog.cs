@@ -4,15 +4,8 @@ namespace SudokuSolver.Views;
 
 internal sealed partial class ErrorDialog : ContentDialog
 {
-    public ErrorDialog(FrameworkElement parent, string message, string details) : base()
+    public ErrorDialog(string message, string details) : base()
     {
-        // for entrance transition animation
-        Style = (Style)Application.Current.Resources["DefaultContentDialogStyle"];
-
-        XamlRoot = parent.XamlRoot;
-        RequestedTheme = parent.ActualTheme;
-
-        Title = App.cAppDisplayName;
         PrimaryButtonText = App.Instance.ResourceLoader.GetString("OKButton");
 
         DefaultButton = ContentDialogButton.Primary;

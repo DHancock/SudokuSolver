@@ -389,7 +389,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         catch (Exception ex)
         {
             string heading = App.Instance.ResourceLoader.GetString("PrintErrorHeading");
-            await parentWindow.ContentDialogHelper.ShowErrorDialogAsync(this, heading, ex.Message);
+            await parentWindow.ContentDialogHelper.ShowErrorDialogAsync(heading, ex.Message);
         }
     }
 
@@ -448,7 +448,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
             }
             else
             {
-                await parentWindow.ContentDialogHelper.ShowFileOpenErrorDialogAsync(this, file.Name, ex.Message);
+                await parentWindow.ContentDialogHelper.ShowFileOpenErrorDialogAsync(file.Name, ex.Message);
             }
         }
 
@@ -460,7 +460,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         Status status = Status.Continue;
         string path = (sourceFile is null) ? HeaderText : sourceFile.Path;
 
-        ContentDialogResult result = await parentWindow.ContentDialogHelper.ShowConfirmSaveDialogAsync(this, path);
+        ContentDialogResult result = await parentWindow.ContentDialogHelper.ShowConfirmSaveDialogAsync(path);
 
         if (result == ContentDialogResult.Primary)
         {
@@ -505,7 +505,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
             {
                 string template = App.Instance.ResourceLoader.GetString("FileSaveErrorTemplate");
                 string heading = string.Format(template, sourceFile.Name);
-                await parentWindow.ContentDialogHelper.ShowErrorDialogAsync(this, heading, ex.Message);
+                await parentWindow.ContentDialogHelper.ShowErrorDialogAsync(heading, ex.Message);
             }
         }
         else
@@ -542,7 +542,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
             {
                 string template = App.Instance.ResourceLoader.GetString("FileSaveErrorTemplate");
                 string heading = string.Format(template, file.Name);
-                await parentWindow.ContentDialogHelper.ShowErrorDialogAsync(this, heading, ex.Message);
+                await parentWindow.ContentDialogHelper.ShowErrorDialogAsync(heading, ex.Message);
             }
         }
 
@@ -599,7 +599,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
     {
         if (CanRenameTab(null))
         {
-            (ContentDialogResult Result, string NewName) = await parentWindow.ContentDialogHelper.ShowRenameTabDialogAsync(this, HeaderText);
+            (ContentDialogResult Result, string NewName) = await parentWindow.ContentDialogHelper.ShowRenameTabDialogAsync(HeaderText);
 
             if (Result == ContentDialogResult.Primary)
             {

@@ -2,32 +2,39 @@
 
 internal class ContentDialogHelper
 {
+    private readonly MainWindow parentWindow;
+
     private ContentDialog? currentDialog = null;
-    private PuzzleTabViewItem? parentTab = null;
+    private ITabItem? selectedTab = null;
 
-    public async Task<ContentDialogResult> ShowFileOpenErrorDialogAsync(PuzzleTabViewItem parent, string message, string details)
+    public ContentDialogHelper(MainWindow window)
     {
-        return await ShowDialogAsync(parent, new FileOpenErrorDialog(parent, message, details));
+        parentWindow = window;
     }
 
-    public async Task<ContentDialogResult> ShowErrorDialogAsync(PuzzleTabViewItem parent, string message, string details)
+    public async Task<ContentDialogResult> ShowFileOpenErrorDialogAsync(string message, string details)
     {
-        return await ShowDialogAsync(parent, new ErrorDialog(parent, message, details));
+        return await ShowDialogAsync(new FileOpenErrorDialog(message, details));
     }
 
-    public async Task<ContentDialogResult> ShowConfirmSaveDialogAsync(PuzzleTabViewItem parent, string path)
+    public async Task<ContentDialogResult> ShowErrorDialogAsync(string message, string details)
     {
-        return await ShowDialogAsync(parent, new ConfirmSaveDialog(parent, path));
+        return await ShowDialogAsync(new ErrorDialog(message, details));
     }
 
-    public async Task<(ContentDialogResult, string)> ShowRenameTabDialogAsync(PuzzleTabViewItem parent, string existingName)
+    public async Task<ContentDialogResult> ShowConfirmSaveDialogAsync(string path)
     {
-        RenameTabDialog dialog = new RenameTabDialog(parent, existingName);
-        ContentDialogResult result = await ShowDialogAsync(parent, dialog);
+        return await ShowDialogAsync(new ConfirmSaveDialog(path));
+    }
+
+    public async Task<(ContentDialogResult, string)> ShowRenameTabDialogAsync(string existingName)
+    {
+        RenameTabDialog dialog = new RenameTabDialog(existingName);
+        ContentDialogResult result = await ShowDialogAsync(dialog);
         return (result, dialog.NewName);
     }
 
-    public async Task<ContentDialogResult> ShowDialogAsync(PuzzleTabViewItem parent, ContentDialog dialog)
+    public async Task<ContentDialogResult> ShowDialogAsync(ContentDialog dialog)
     {
         if (currentDialog is not null)
         {
@@ -35,12 +42,18 @@ internal class ContentDialogHelper
             Debug.Fail("canceling request for a second content dialog");
             return ContentDialogResult.None;
         }
-
-        parentTab = parent;
+          
+        // this may not be the same tab whose context menu action caused the content dialog to be shown 
+        selectedTab = (ITabItem)parentWindow.SelectedTab;
 
         try
         {
             currentDialog = dialog;
+
+            currentDialog.Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style;
+            currentDialog.Title = App.cAppDisplayName;
+            currentDialog.XamlRoot = parentWindow.Content.XamlRoot;
+            currentDialog.RequestedTheme = ((FrameworkElement)parentWindow.Content).ActualTheme;
 
             currentDialog.Closing += ContentDialog_Closing;
             currentDialog.Closed += ContentDialog_Closed;
@@ -48,7 +61,7 @@ internal class ContentDialogHelper
             // workaround for https://github.com/microsoft/microsoft-ui-xaml/issues/5739
             // focus can escape a content dialog when access keys are shown via the alt key...
             // (it makes no difference if the content dialog itself has any access keys)
-            parentTab.AdjustMenuAccessKeys(enable: false);
+            selectedTab.AdjustMenuAccessKeys(enable: false);
 
             return await currentDialog.ShowAsync();
         }
@@ -57,14 +70,14 @@ internal class ContentDialogHelper
             Debug.Fail(ex.ToString());
 
             currentDialog = null;
-            parentTab.AdjustMenuAccessKeys(enable: true);
+            selectedTab.AdjustMenuAccessKeys(enable: true);
             return ContentDialogResult.None;
         }
     }
 
     private void ContentDialog_Closing(ContentDialog sender, ContentDialogClosingEventArgs args)
     {
-        parentTab?.AdjustMenuAccessKeys(enable: true);
+        selectedTab?.AdjustMenuAccessKeys(enable: true);
     }
 
     private void ContentDialog_Closed(ContentDialog sender, ContentDialogClosedEventArgs args)
