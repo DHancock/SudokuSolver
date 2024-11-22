@@ -565,14 +565,13 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
             {
                 HeaderText = parentWindow.MakeUniqueHeaderText();
             }
-
-            ToolTipService.SetToolTip(this, null);
         }
         else
         {
             HeaderText = sourceFile.Name;
-            ToolTipService.SetToolTip(this, sourceFile.Path);
         }
+
+        ToolTipService.SetToolTip(this, HeaderText);
 
         if (IsModified && IconSource is null)
         {
