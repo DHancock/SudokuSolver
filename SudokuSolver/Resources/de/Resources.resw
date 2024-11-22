@@ -381,4 +381,10 @@
   <data name="DuplicateTab.Text" xml:space="preserve">
     <value>Registerkarte Duplizieren</value>
   </data>
+  <data name="NewTabName.Header" xml:space="preserve">
+    <value>Neuer Registerkartenname</value>
+  </data>
+  <data name="RenameTab.Text" xml:space="preserve">
+    <value>Registerkarte umbenennen</value>
+  </data>
 </root>

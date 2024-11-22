@@ -381,4 +381,10 @@
   <data name="DuplicateTab.Text" xml:space="preserve">
     <value>Pestaña duplicada</value>
   </data>
+  <data name="RenameTab.Text" xml:space="preserve">
+    <value>Renombrar pestaña</value>
+  </data>
+  <data name="NewTabName.Header" xml:space="preserve">
+    <value>Nuevo nombre de pestaña</value>
+  </data>
 </root>

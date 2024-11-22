@@ -381,4 +381,10 @@
   <data name="DuplicateTab.Text" xml:space="preserve">
     <value>Scheda duplicata</value>
   </data>
+  <data name="NewTabName.Header" xml:space="preserve">
+    <value>Nuovo nome della scheda</value>
+  </data>
+  <data name="RenameTab.Text" xml:space="preserve">
+    <value>Rinomina scheda</value>
+  </data>
 </root>
