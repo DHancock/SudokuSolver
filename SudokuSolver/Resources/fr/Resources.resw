@@ -381,4 +381,10 @@
   <data name="DuplicateTab.Text" xml:space="preserve">
     <value>Onglet dupliquer</value>
   </data>
+  <data name="RenameTab.Text" xml:space="preserve">
+    <value>Renommer l'onglet</value>
+  </data>
+  <data name="NewTabName.Header" xml:space="preserve">
+    <value>Nouveau nom d'onglet</value>
+  </data>
 </root>

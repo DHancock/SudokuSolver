@@ -381,4 +381,10 @@
   <data name="DuplicateTab.Text" xml:space="preserve">
     <value>Duplicate tab</value>
   </data>
+  <data name="NewTabName.Header" xml:space="preserve">
+    <value>New tab name</value>
+  </data>
+  <data name="RenameTab.Text" xml:space="preserve">
+    <value>Rename Tab</value>
+  </data>
 </root>

@@ -140,8 +140,8 @@
             </MenuFlyoutItem>
 
             <MenuFlyoutSeparator/>
-            
-            <MenuFlyoutItem Text="Rename Tab" Command="{x:Bind RenameTabCommand}" x:Name="RenameMenuItem">
+
+            <MenuFlyoutItem x:Uid="RenameTab" Command="{x:Bind RenameTabCommand}" x:Name="RenameMenuItem">
                 <MenuFlyoutItem.KeyboardAccelerators>
                     <KeyboardAccelerator Key="F2"/>
                 </MenuFlyoutItem.KeyboardAccelerators>

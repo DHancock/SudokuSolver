@@ -381,4 +381,10 @@
   <data name="DuplicateTab.Text" xml:space="preserve">
     <value>複製選項卡</value>
   </data>
+  <data name="NewTabName.Header" xml:space="preserve">
+    <value>新標籤名稱</value>
+  </data>
+  <data name="RenameTab.Text" xml:space="preserve">
+    <value>重新命名選項卡</value>
+  </data>
 </root>
