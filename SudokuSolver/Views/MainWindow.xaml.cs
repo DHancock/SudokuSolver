@@ -18,7 +18,6 @@ internal sealed partial class MainWindow : Window, ISession
 
     private PrintHelper? printHelper;
     private DateTime lastPointerTimeStamp;
-    public ContentDialogHelper ContentDialogHelper { get; } = new();
 
     public MainWindow(WindowState windowState, RectInt32 bounds) : this()
     {
@@ -799,4 +798,10 @@ internal sealed partial class MainWindow : Window, ISession
     }
 
     public int IndexOf(PuzzleTabViewItem tab) => Tabs.TabItems.IndexOf(tab);
+
+    public object SelectedTab
+    {
+        get => Tabs.SelectedItem;
+        set => Tabs.SelectedItem = value;
+    }
 }
