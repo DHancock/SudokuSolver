@@ -42,9 +42,7 @@ internal partial class MainWindow : Window
     private int scaledMinHeight;
     private double scaleFactor;
 
-    public ContentDialogHelper ContentDialogHelper { get; }
-
-    private MainWindow()
+    public MainWindow()
     {
         InitializeComponent();
 
@@ -58,8 +56,6 @@ internal partial class MainWindow : Window
         }
 
         inputNonClientPointerSource = InputNonClientPointerSource.GetForWindowId(AppWindow.Id);
-
-        ContentDialogHelper = new ContentDialogHelper(this);
 
         dispatcherTimer = InitialiseDragRegionTimer();
 

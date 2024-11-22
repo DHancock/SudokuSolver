@@ -237,9 +237,4 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
     }
 
     public string HeaderText => ((TextBlock)Header).Text;
-
-    public void AdjustMenuAccessKeys(bool enable)
-    {
-        // no access keys to disable
-    }
 }
