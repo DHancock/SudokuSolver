@@ -799,5 +799,9 @@ internal sealed partial class MainWindow : Window, ISession
 
     public int IndexOf(PuzzleTabViewItem tab) => Tabs.TabItems.IndexOf(tab);
 
-    public object SelectedTab => Tabs.SelectedItem;
+    public object SelectedTab
+    {
+        get => Tabs.SelectedItem;
+        set => Tabs.SelectedItem = value;
+    }
 }

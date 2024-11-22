@@ -4,10 +4,16 @@ internal sealed partial class RenameTabDialog : ContentDialog
 {
     private readonly char[] invalidFileNameChars;
 
-    public RenameTabDialog(string existingName)
+    public RenameTabDialog(FrameworkElement parent, string existingName)
     {
         this.InitializeComponent();
 
+        Style = (Style)Application.Current.Resources["DefaultContentDialogStyle"];
+
+        XamlRoot = parent.XamlRoot;
+        RequestedTheme = parent.ActualTheme;
+
+        Title = App.cAppDisplayName;
         PrimaryButtonText = App.Instance.ResourceLoader.GetString("OKButton");
         DefaultButton = ContentDialogButton.Primary;
 

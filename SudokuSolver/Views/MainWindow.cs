@@ -42,9 +42,9 @@ internal partial class MainWindow : Window
     private int scaledMinHeight;
     private double scaleFactor;
 
-    public ContentDialogHelper ContentDialogHelper { get; }
+    public ContentDialogHelper ContentDialogHelper;
 
-    private MainWindow()
+    public MainWindow()
     {
         InitializeComponent();
 

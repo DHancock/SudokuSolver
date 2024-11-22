@@ -12,29 +12,29 @@ internal class ContentDialogHelper
         parentWindow = window;
     }
 
-    public async Task<ContentDialogResult> ShowFileOpenErrorDialogAsync(string message, string details)
+    public async Task<ContentDialogResult> ShowFileOpenErrorDialogAsync(TabViewItem parent, string message, string details)
     {
-        return await ShowDialogAsync(new FileOpenErrorDialog(message, details));
+        return await ShowDialogAsync(parent, new FileOpenErrorDialog(parent, message, details));
     }
 
-    public async Task<ContentDialogResult> ShowErrorDialogAsync(string message, string details)
+    public async Task<ContentDialogResult> ShowErrorDialogAsync(TabViewItem parent, string message, string details)
     {
-        return await ShowDialogAsync(new ErrorDialog(message, details));
+        return await ShowDialogAsync(parent, new ErrorDialog(parent, message, details));
     }
 
-    public async Task<ContentDialogResult> ShowConfirmSaveDialogAsync(string path)
+    public async Task<ContentDialogResult> ShowConfirmSaveDialogAsync(TabViewItem parent, string path)
     {
-        return await ShowDialogAsync(new ConfirmSaveDialog(path));
+        return await ShowDialogAsync(parent, new ConfirmSaveDialog(parent, path));
     }
 
-    public async Task<(ContentDialogResult, string)> ShowRenameTabDialogAsync(string existingName)
+    public async Task<(ContentDialogResult, string)> ShowRenameTabDialogAsync(TabViewItem parent, string existingName)
     {
-        RenameTabDialog dialog = new RenameTabDialog(existingName);
-        ContentDialogResult result = await ShowDialogAsync(dialog);
+        RenameTabDialog dialog = new RenameTabDialog(parent, existingName);
+        ContentDialogResult result = await ShowDialogAsync(parent, dialog);
         return (result, dialog.NewName);
     }
 
-    public async Task<ContentDialogResult> ShowDialogAsync(ContentDialog dialog)
+    public async Task<ContentDialogResult> ShowDialogAsync(TabViewItem parentTab, ContentDialog dialog)
     {
         if (currentDialog is not null)
         {
@@ -42,18 +42,17 @@ internal class ContentDialogHelper
             Debug.Fail("canceling request for a second content dialog");
             return ContentDialogResult.None;
         }
-          
-        // this may not be the same tab whose context menu action caused the content dialog to be shown 
+
+        if (!ReferenceEquals(parentTab, parentWindow.SelectedTab))
+        {
+            parentWindow.SelectedTab = parentTab;
+        }
+
         selectedTab = (ITabItem)parentWindow.SelectedTab;
 
         try
         {
             currentDialog = dialog;
-
-            currentDialog.Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style;
-            currentDialog.Title = App.cAppDisplayName;
-            currentDialog.XamlRoot = parentWindow.Content.XamlRoot;
-            currentDialog.RequestedTheme = ((FrameworkElement)parentWindow.Content).ActualTheme;
 
             currentDialog.Closing += ContentDialog_Closing;
             currentDialog.Closed += ContentDialog_Closed;
