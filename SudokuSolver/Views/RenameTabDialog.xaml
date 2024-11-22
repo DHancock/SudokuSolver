@@ -8,7 +8,6 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">
 
     <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-
-        <TextBox Header="New tab name:" x:Name="NewTabNameTextBox" BeforeTextChanging="NewTabName_BeforeTextChanging" TextChanged="NewTabNameTextBox_TextChanged"></TextBox>
+        <TextBox Header="New tab name" x:Name="NewTabNameTextBox" BeforeTextChanging="NewTabName_BeforeTextChanging" TextChanged="NewTabNameTextBox_TextChanged" MaxLength="200"/>
     </StackPanel>
 </ContentDialog>
