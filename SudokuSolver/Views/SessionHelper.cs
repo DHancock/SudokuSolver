@@ -117,6 +117,8 @@ internal class SessionHelper
                     parentWindow.AddTab(new SettingsTabViewItem(parentWindow, child));
                 }
             }
+
+            parentWindow.Activate();
         }
     }
 }
