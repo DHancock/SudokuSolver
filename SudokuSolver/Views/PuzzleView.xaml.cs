@@ -93,8 +93,8 @@ internal partial class PuzzleView : UserControl
                 {
                     DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () =>
                     {
-                        bool success = lastSelectedCell is null || lastSelectedCell.Focus(FocusState.Programmatic);
-                        Debug.Assert(success);
+                        // because it's queued circumstances may have changed so there's little point asserting success
+                        lastSelectedCell?.Focus(FocusState.Programmatic);
                     });
                 });
             }

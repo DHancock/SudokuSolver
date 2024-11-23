@@ -368,6 +368,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
     {
         MainWindow window = new MainWindow(WindowState.Normal, parentWindow.RestoreBounds);
         window.AddTab(new PuzzleTabViewItem(window));
+        window.Activate();
     }
 
     private async void SaveClickHandlerAsync(object sender, RoutedEventArgs e)
