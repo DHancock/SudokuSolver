@@ -566,7 +566,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
                 HeaderText = parentWindow.MakeUniqueHeaderText();
             }
 
-            ToolTipService.SetToolTip(this, null);
+            ToolTipService.SetToolTip(this, HeaderText);
         }
         else
         {
