@@ -375,6 +375,10 @@ internal sealed partial class MainWindow : Window, ISession
             {
                 CloseTab(args.Tab);
             }
+            else // user cancelled
+            {
+                puzzleTab.FocusLastSelectedCell();
+            }
         }
         else
         {
