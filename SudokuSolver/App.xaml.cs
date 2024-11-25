@@ -54,19 +54,12 @@ public partial class App : Application
         }
         else if (args.Kind == ExtendedActivationKind.Launch)
         {
-            string[] commandLine = Environment.GetCommandLineArgs();
-
-            await ProcessCommandLineAsync(commandLine);
-
-            if (currentWindow is null) // no file was opened so create an empty tab
-            {
-                currentWindow = new MainWindow(Settings.Instance.WindowState, Settings.Instance.RestoreBounds);
-                currentWindow.AddTab(new PuzzleTabViewItem(currentWindow));
-            }
-
-            currentWindow.Activate();
-            currentWindow.AttemptSwitchToForeground();
+            await ProcessCommandLineAsync(Environment.GetCommandLineArgs());
         }
+
+        currentWindow ??= CreateDefaultWindow();
+        currentWindow.Activate();
+        currentWindow.AttemptSwitchToForeground();
     }
 
     // Invoked when a redirection request is received.
@@ -77,14 +70,24 @@ public partial class App : Application
         {
             if (!appClosing)
             {
+                if (IsContentDialogOpen)
+                {
+                    Utils.PlayExclamation();
+                    return;
+                }
+
                 if (e.Kind == ExtendedActivationKind.File)
                 {
                     ProcessFileActivation(e);
                 }
                 else if (e.Kind == ExtendedActivationKind.Launch)
                 {
-                    await ProcessRedirectedLaunchActivationAsync(e);
+                    await ProcessCommandLineAsync(SplitLaunchArguments(((ILaunchActivatedEventArgs)e.Data).Arguments));
                 }
+
+                currentWindow ??= CreateDefaultWindow();
+                currentWindow.Activate();
+                currentWindow.AttemptSwitchToForeground();
             }
         });
 
@@ -94,12 +97,6 @@ public partial class App : Application
     // can be called from both normal launch and redirection
     private void ProcessFileActivation(AppActivationArguments args)
     {
-        if (IsContentDialogOpen)
-        {
-            Utils.PlayExclamation();
-            return;
-        }
-
         if ((args.Data is IFileActivatedEventArgs fileData) && (fileData.Files.Count > 0) && !appClosing)
         {
             foreach (IStorageItem storageItem in fileData.Files)
@@ -111,38 +108,10 @@ public partial class App : Application
                 }
             }
         }
-
-        if (currentWindow is null) // no file was opened so create an empty tab
-        {
-            currentWindow = new MainWindow(Settings.Instance.WindowState, Settings.Instance.RestoreBounds);
-            currentWindow.AddTab(new PuzzleTabViewItem(currentWindow));
-        }
-
-        currentWindow.Activate();
-        currentWindow.AttemptSwitchToForeground();
-    }
-
-    private async Task ProcessRedirectedLaunchActivationAsync(AppActivationArguments args)
-    {
-        if (args.Data is ILaunchActivatedEventArgs launchData)
-        {
-            List<string> commandLine = SplitLaunchActivationCommandLine(launchData.Arguments);
-
-            await ProcessCommandLineAsync(commandLine);
-
-            currentWindow?.Activate();
-            currentWindow?.AttemptSwitchToForeground();
-        }
     }
 
     private async Task ProcessCommandLineAsync(IReadOnlyList<string> args)
     {
-        if (IsContentDialogOpen)
-        {
-            Utils.PlayExclamation();
-            return;
-        }
-
         // args[0] is typically the path to the executing assembly
         for (int index = 1; index < args.Count; index++)
         {
@@ -165,6 +134,13 @@ public partial class App : Application
         }
     }
 
+    private static MainWindow CreateDefaultWindow()
+    {
+        MainWindow window = new MainWindow(Settings.Instance.WindowState, Settings.Instance.RestoreBounds);
+        window.AddTab(new PuzzleTabViewItem(window));
+        return window;
+    }
+
     internal MainWindow? GetWindowForElement(UIElement element)
     {
         foreach (MainWindow window in windowList)
@@ -175,7 +151,7 @@ public partial class App : Application
             }
         }
 
-        Debug.Fail($"{nameof(GetWindowForElement)} returns null");
+        Debug.Fail($"failed to find window for: {element}");
         return null;
     }
 
@@ -308,7 +284,7 @@ public partial class App : Application
 
     // The command line is constructed by the os when a file is dragged 
     // and dropped onto the exe (or it's shortcut), so really should be well formed.
-    private static List<string> SplitLaunchActivationCommandLine(string commandLine)
+    private static List<string> SplitLaunchArguments(string commandLine)
     {
         List<string> arguments = new List<string>();
         StringBuilder sb = new StringBuilder();
