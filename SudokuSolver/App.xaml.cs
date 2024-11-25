@@ -101,10 +101,9 @@ public partial class App : Application
         {
             foreach (IStorageItem storageItem in fileData.Files)
             {
-                if (storageItem is StorageFile storageFile)
+                if (storageItem is StorageFile file)
                 {
-                    currentWindow ??= new MainWindow(Settings.Instance.WindowState, Settings.Instance.RestoreBounds);
-                    currentWindow.AddTab(new PuzzleTabViewItem(currentWindow, storageFile));
+                    ProcessStorageFile(file);
                 }
             }
         }
@@ -119,18 +118,22 @@ public partial class App : Application
 
             if (cFileExt.Equals(Path.GetExtension(arg), StringComparison.OrdinalIgnoreCase) && File.Exists(arg))
             {
-                StorageFile storageFile = await StorageFile.GetFileFromPathAsync(arg);
-
-                if ((currentWindow is not null) && currentWindow.IsOpenInExistingTab(storageFile))
-                {
-                    currentWindow.SwitchToTab(storageFile);
-                }
-                else
-                {
-                    currentWindow ??= new MainWindow(Settings.Instance.WindowState, Settings.Instance.RestoreBounds);
-                    currentWindow.AddTab(new PuzzleTabViewItem(currentWindow, storageFile));
-                }
+                StorageFile file = await StorageFile.GetFileFromPathAsync(arg);
+                ProcessStorageFile(file);
             }
+        }
+    }
+
+    private void ProcessStorageFile(StorageFile file)
+    {
+        if ((currentWindow is not null) && currentWindow.IsOpenInExistingTab(file))
+        {
+            currentWindow.SwitchToTab(file);
+        }
+        else
+        {
+            currentWindow ??= new MainWindow(Settings.Instance.WindowState, Settings.Instance.RestoreBounds);
+            currentWindow.AddTab(new PuzzleTabViewItem(currentWindow, file));
         }
     }
 
