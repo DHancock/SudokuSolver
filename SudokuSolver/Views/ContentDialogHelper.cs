@@ -36,7 +36,7 @@ internal class ContentDialogHelper
         return (result, dialog.NewName);
     }
 
-    public async Task<ContentDialogResult> ShowDialogAsync(TabViewItem parentTab, ContentDialog dialog)
+    private async Task<ContentDialogResult> ShowDialogAsync(TabViewItem parentTab, ContentDialog dialog)
     {
         if (currentDialog is not null)
         {
