@@ -126,6 +126,7 @@ public partial class App : Application
 
     private void ProcessStorageFile(StorageFile file)
     {
+        // Deliberately only check the current window, as does Notepad. Switching windows would be confusing.
         if ((currentWindow is not null) && currentWindow.IsOpenInExistingTab(file))
         {
             currentWindow.SwitchToTab(file);
