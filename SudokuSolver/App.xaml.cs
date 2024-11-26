@@ -73,6 +73,7 @@ public partial class App : Application
                 if (IsContentDialogOpen)
                 {
                     Utils.PlayExclamation();
+                    currentWindow?.AttemptSwitchToForeground();
                     return;
                 }
 
@@ -97,7 +98,7 @@ public partial class App : Application
     // can be called from both normal launch and redirection
     private void ProcessFileActivation(AppActivationArguments args)
     {
-        if ((args.Data is IFileActivatedEventArgs fileData) && (fileData.Files.Count > 0) && !appClosing)
+        if ((args.Data is IFileActivatedEventArgs fileData) && (fileData.Files.Count > 0))
         {
             foreach (IStorageItem storageItem in fileData.Files)
             {
@@ -116,7 +117,7 @@ public partial class App : Application
         {
             string arg = args[index];
 
-            if (cFileExt.Equals(Path.GetExtension(arg), StringComparison.OrdinalIgnoreCase) && File.Exists(arg))
+            if (IsValidFileExtension(arg) && File.Exists(arg))
             {
                 StorageFile file = await StorageFile.GetFileFromPathAsync(arg);
                 ProcessStorageFile(file);
@@ -147,16 +148,7 @@ public partial class App : Application
 
     internal MainWindow? GetWindowForElement(UIElement element)
     {
-        foreach (MainWindow window in windowList)
-        {
-            if (window.Content.XamlRoot == element.XamlRoot)
-            {
-                return window;
-            }
-        }
-
-        Debug.Fail($"failed to find window for: {element}");
-        return null;
+        return windowList.FirstOrDefault(window => window.Content.XamlRoot == element.XamlRoot);
     }
 
     internal void RegisterWindow(MainWindow window)
@@ -168,15 +160,18 @@ public partial class App : Application
 
     internal void UnRegisterWindow(MainWindow window)
     {
-        appClosing = windowList.Count == 1;
-
         bool found = windowList.Remove(window);
         Debug.Assert(found);
 
-        // If all the other windows are minimized then another window won't be
-        // automatically activated. Until it's known, use the last one opened.
-        if (ReferenceEquals(currentWindow, window))
+        if (windowList.Count == 0)
         {
+            appClosing = true;
+            currentWindow = null;
+        }
+        else if (ReferenceEquals(currentWindow, window))
+        {
+            // If all the other windows are minimized then another window won't be
+            // automatically activated. Until it's known, use the last one opened.
             currentWindow = windowList.LastOrDefault();
         }
     }
@@ -300,12 +295,10 @@ public partial class App : Application
             {
                 insideQuotes = !insideQuotes;
             }
-
             else if (insideQuotes || (letter != ' '))
             {
                 sb.Append(letter);
             }
-
             else if (sb.Length > 0)
             {
                 arguments.Add(sb.ToString());
@@ -337,4 +330,9 @@ public partial class App : Application
     }
 
     private bool IsContentDialogOpen => currentWindow is not null && currentWindow.ContentDialogHelper.IsContentDialogOpen;
+
+    private static bool IsValidFileExtension(string path)
+    {
+        return string.Equals(cFileExt, Path.GetExtension(path), StringComparison.OrdinalIgnoreCase);
+    }
 }
