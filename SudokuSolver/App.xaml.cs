@@ -86,9 +86,11 @@ public partial class App : Application
                     await ProcessCommandLineAsync(SplitLaunchArguments(((ILaunchActivatedEventArgs)e.Data).Arguments));
                 }
 
-                currentWindow ??= CreateDefaultWindow();
-                currentWindow.Activate();
-                currentWindow.AttemptSwitchToForeground();
+                if (!appClosing)
+                {
+                    currentWindow?.Activate();
+                    currentWindow?.AttemptSwitchToForeground();
+                }
             }
         });
 
@@ -113,14 +115,18 @@ public partial class App : Application
     private async Task ProcessCommandLineAsync(IReadOnlyList<string> args)
     {
         // args[0] is typically the path to the executing assembly
-        for (int index = 1; index < args.Count; index++)
+        for (int index = 1; (index < args.Count) && !appClosing; index++)
         {
             string arg = args[index];
 
             if (IsValidFileExtension(arg) && File.Exists(arg))
             {
                 StorageFile file = await StorageFile.GetFileFromPathAsync(arg);
-                ProcessStorageFile(file);
+
+                if (!appClosing)
+                {
+                    ProcessStorageFile(file);
+                }
             }
         }
     }
