@@ -605,6 +605,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
             if (Result == ContentDialogResult.Primary)
             {
                 HeaderText = NewName;
+                UpdateTabHeader();
             }
         }
     }
