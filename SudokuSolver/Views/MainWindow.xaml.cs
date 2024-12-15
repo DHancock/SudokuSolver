@@ -202,7 +202,7 @@ internal sealed partial class MainWindow : Window, ISession
             {
                 if (Settings.Instance.SaveSessionState)
                 {
-                    await Task.WhenAll([Settings.Instance.SaveAsync(), App.Instance.SessionHelper.SaveAsync()]);
+                    await Task.WhenAll(Settings.Instance.SaveAsync(), App.Instance.SessionHelper.SaveAsync());
                 }
                 else
                 {
