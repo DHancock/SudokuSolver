@@ -66,35 +66,38 @@ public partial class App : Application
     // Unlike OnLaunched(), this isn't called on the ui thread.
     private void MainInstance_Activated(object? sender, AppActivationArguments e)
     {
-        bool success = uiThreadDispatcher.TryEnqueue(async () =>
+        if (!appClosing)
         {
-            if (!appClosing)
+            bool success = uiThreadDispatcher.TryEnqueue(async () =>
             {
-                if (IsContentDialogOpen)
-                {
-                    Utils.PlayExclamation();
-                    currentWindow?.AttemptSwitchToForeground();
-                    return;
-                }
-
-                if (e.Kind == ExtendedActivationKind.File)
-                {
-                    ProcessFileActivation(e);
-                }
-                else if (e.Kind == ExtendedActivationKind.Launch)
-                {
-                    await ProcessCommandLineAsync(SplitLaunchArguments(((ILaunchActivatedEventArgs)e.Data).Arguments));
-                }
-
                 if (!appClosing)
                 {
-                    currentWindow?.Activate();
-                    currentWindow?.AttemptSwitchToForeground();
-                }
-            }
-        });
+                    if (IsContentDialogOpen)
+                    {
+                        Utils.PlayExclamation();
+                        currentWindow?.AttemptSwitchToForeground();
+                        return;
+                    }
 
-        Debug.Assert(success);
+                    if (e.Kind == ExtendedActivationKind.File)
+                    {
+                        ProcessFileActivation(e);
+                    }
+                    else if (e.Kind == ExtendedActivationKind.Launch)
+                    {
+                        await ProcessCommandLineAsync(SplitLaunchArguments(((ILaunchActivatedEventArgs)e.Data).Arguments));
+                    }
+
+                    if (!appClosing)
+                    {
+                        currentWindow?.Activate();
+                        currentWindow?.AttemptSwitchToForeground();
+                    }
+                }
+            });
+
+            Debug.Assert(success);
+        }
     }
 
     // can be called from both normal launch and redirection

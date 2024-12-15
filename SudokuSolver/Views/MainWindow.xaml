@@ -54,7 +54,7 @@
             <TabView.TabStripFooter>
                 <Grid ColumnDefinitions ="Auto,*">
                     <Border Padding="{ThemeResource TabViewItemAddButtonContainerPadding}" VerticalAlignment="Bottom">
-                        <Button HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource TabViewButtonStyle}" Click="TabJumpListMenuButton_Click" HighContrastAdjustment="None">
+                        <Button HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource TabViewButtonStyle}" Click="TabJumpListMenuButton_Click">
                             <FontIcon FontSize="{ThemeResource TabViewItemAddButtonFontSize}" FontFamily="{ThemeResource SymbolThemeFontFamily}" Foreground="{ThemeResource TabViewItemIconForeground}" Glyph="&#xE96E;"/>
                         </Button>
                     </Border>
