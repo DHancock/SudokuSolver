@@ -16,22 +16,22 @@ internal class ContentDialogHelper
 
     public async Task<ContentDialogResult> ShowFileOpenErrorDialogAsync(TabViewItem parent, string message, string details)
     {
-        return await ShowDialogAsync(parent, new FileOpenErrorDialog(parent, message, details));
+        return await ShowDialogAsync(parent, new FileOpenErrorDialog(message, details));
     }
 
     public async Task<ContentDialogResult> ShowErrorDialogAsync(TabViewItem parent, string message, string details)
     {
-        return await ShowDialogAsync(parent, new ErrorDialog(parent, message, details));
+        return await ShowDialogAsync(parent, new ErrorDialog(message, details));
     }
 
     public async Task<ContentDialogResult> ShowConfirmSaveDialogAsync(TabViewItem parent, string path)
     {
-        return await ShowDialogAsync(parent, new ConfirmSaveDialog(parent, path));
+        return await ShowDialogAsync(parent, new ConfirmSaveDialog(path));
     }
 
     public async Task<(ContentDialogResult, string)> ShowRenameTabDialogAsync(TabViewItem parent, string existingName)
     {
-        RenameTabDialog dialog = new RenameTabDialog(parent, existingName);
+        RenameTabDialog dialog = new RenameTabDialog(existingName);
         ContentDialogResult result = await ShowDialogAsync(parent, dialog);
         return (result, dialog.NewName);
     }

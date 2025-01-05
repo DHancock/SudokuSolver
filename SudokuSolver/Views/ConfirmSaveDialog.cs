@@ -2,7 +2,7 @@
 
 internal sealed partial class ConfirmSaveDialog : ContentDialog
 {
-    public ConfirmSaveDialog(FrameworkElement parent, string puzzleName) : base()
+    public ConfirmSaveDialog(string puzzleName) : base()
     {
         PrimaryButtonText = App.Instance.ResourceLoader.GetString("SaveButton");
         SecondaryButtonText = App.Instance.ResourceLoader.GetString("DontSaveButton");
