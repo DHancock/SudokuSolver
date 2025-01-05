@@ -4,7 +4,7 @@ internal sealed partial class RenameTabDialog : ContentDialog
 {
     private readonly char[] invalidFileNameChars;
 
-    public RenameTabDialog(FrameworkElement parent, string existingName)
+    public RenameTabDialog(string existingName)
     {
         this.InitializeComponent();
 
@@ -14,6 +14,7 @@ internal sealed partial class RenameTabDialog : ContentDialog
         SecondaryButtonText = App.Instance.ResourceLoader.GetString("CancelButton");
 
         invalidFileNameChars = Path.GetInvalidFileNameChars();
+        Array.Sort(invalidFileNameChars);
 
         Loaded += (s, e) =>
         {
@@ -26,7 +27,7 @@ internal sealed partial class RenameTabDialog : ContentDialog
     {
         if (args.NewText.Length > 0)
         {
-            args.Cancel = args.NewText.Any(c => invalidFileNameChars.Contains(c));
+            args.Cancel = args.NewText.Any(c => Array.BinarySearch(invalidFileNameChars, c) >= 0);
         }
     }
 

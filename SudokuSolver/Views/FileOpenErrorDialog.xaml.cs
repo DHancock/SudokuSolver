@@ -6,7 +6,7 @@ internal sealed partial class FileOpenErrorDialog : ContentDialog
 {
     public ObservableCollection<ErrorInfo> Errors { get; } = new();
 
-    public FileOpenErrorDialog(FrameworkElement parent, string message, string details)
+    public FileOpenErrorDialog(string message, string details)
     {
         this.InitializeComponent();
 
