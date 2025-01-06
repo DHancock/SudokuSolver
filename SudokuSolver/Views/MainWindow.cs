@@ -380,7 +380,7 @@ internal partial class MainWindow : Window
         {
             // accessing Window.Content can throw an object closed exception when
             // a menu unloaded event fires because the window is closing
-            Debug.WriteLine(ex);
+            Debug.WriteLine(ex.ToString());
         }
     }
 
