@@ -298,15 +298,17 @@ public partial class App : Application
         StringBuilder sb = new StringBuilder();
         bool insideQuotes = false;
 
-        foreach (char letter in commandLine)
+        for (int index = 0; index < commandLine.Length; index++)
         {
-            if (letter == '"')
+            char c = commandLine[index];
+
+            if (c == '"')
             {
                 insideQuotes = !insideQuotes;
             }
-            else if (insideQuotes || (letter != ' '))
+            else if (insideQuotes || (c != ' '))
             {
-                sb.Append(letter);
+                sb.Append(c);
             }
             else if (sb.Length > 0)
             {
