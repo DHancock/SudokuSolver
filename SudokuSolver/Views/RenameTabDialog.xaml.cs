@@ -29,9 +29,9 @@ internal sealed partial class RenameTabDialog : ContentDialog
         {
             ReadOnlySpan<char> invalidChars = invalidFileNameChars.AsSpan();
 
-            for (int index = 0; index < args.NewText.Length; index++)
+            foreach (char c in args.NewText)
             {
-                if (invalidChars.BinarySearch(args.NewText[index]) >= 0)
+                if (invalidChars.BinarySearch(c) >= 0)
                 {
                     args.Cancel = true;
                     break;
@@ -91,10 +91,8 @@ internal sealed partial class RenameTabDialog : ContentDialog
         StringBuilder sb = new StringBuilder(source.Length);
         ReadOnlySpan<char> invalidChars = invalidFileNameChars.AsSpan();
 
-        for (int index = 0; index < source.Length; index++)
+        foreach (char c in source)
         {
-            char c = source[index];
-
             if (invalidChars.BinarySearch(c) < 0)
             {
                 sb.Append(c);
