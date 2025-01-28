@@ -68,7 +68,19 @@ internal class ContentDialogHelper
         // (it makes no difference if the content dialog itself has any access keys)
         selectedTab.AdjustMenuAccessKeys(enable: false);
 
+        EnableCaptionButtons(false);
         return await currentDialog.ShowAsync();
+    }
+
+    private void EnableCaptionButtons(bool enable)
+    {
+        HWND hWnd = PInvoke.FindWindowEx((HWND)parentWindow.WindowPtr, HWND.Null, "InputNonClientPointerSource", null);
+        Debug.Assert(!hWnd.IsNull);
+
+        if (!hWnd.IsNull)
+        {
+            PInvoke.EnableWindow(hWnd, enable);
+        }
     }
 
     private static void CurrentDialog_Loaded(object sender, RoutedEventArgs e)
@@ -84,6 +96,7 @@ internal class ContentDialogHelper
 
     private void ContentDialog_Closing(ContentDialog sender, ContentDialogClosingEventArgs args)
     {
+        EnableCaptionButtons(true);
         selectedTab?.AdjustMenuAccessKeys(enable: true);
     }
 
