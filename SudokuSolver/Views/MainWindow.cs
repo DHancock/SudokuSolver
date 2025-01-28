@@ -96,7 +96,6 @@ internal partial class MainWindow : Window
 
     private LRESULT NewSubWindowProc(HWND hWnd, uint uMsg, WPARAM wParam, LPARAM lParam, nuint uIdSubclass, nuint dwRefData)
     {
-        const int VK_SPACE = 0x0020;
         const int HTCAPTION = 0x0002;
 
         switch (uMsg)
@@ -120,13 +119,34 @@ internal partial class MainWindow : Window
                 break;
             }
 
-            case PInvoke.WM_SYSCOMMAND when (lParam == VK_SPACE) && (AppWindow.Presenter.Kind != AppWindowPresenterKind.FullScreen):
+            case PInvoke.WM_SYSCOMMAND when (lParam == (int)VirtualKey.Space) && !ContentDialogHelper.IsContentDialogOpen:
             {
                 HideSystemMenu();
                 ShowSystemMenu(viaKeyboard: true);
                 return (LRESULT)0;
             }
 
+            case PInvoke.WM_SYSCOMMAND when ContentDialogHelper.IsContentDialogOpen:
+            {
+                return (LRESULT)0; 
+            }
+
+            case PInvoke.WM_NCHITTEST when ContentDialogHelper.IsContentDialogOpen:
+            {
+                LRESULT result = PInvoke.DefSubclassProc(hWnd, uMsg, wParam, lParam);
+
+                const int HTNOWHERE = 0;
+                const int HTLEFT = 10;
+                const int HTBOTTOMRIGHT = 17;
+
+                if ((result >= HTLEFT) && (result <= HTBOTTOMRIGHT))
+                {
+                    return (LRESULT)HTNOWHERE;   // disable resize border
+                }
+
+                return result;
+            }
+            
             case PInvoke.WM_NCRBUTTONUP when wParam == HTCAPTION:
             {
                 HideSystemMenu();
