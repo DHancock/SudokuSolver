@@ -21,7 +21,7 @@ internal partial class MainWindow : Window
     private const double cMinHeight = 480;
     public const double cInitialWidth = 563;
     public const double cInitialHeight = 614;
-    public IntPtr WindowPtr { get; }
+    public HWND WindowHandle { get; }
 
     private RelayCommand? restoreCommand;
     private RelayCommand? moveCommand;
@@ -48,11 +48,11 @@ internal partial class MainWindow : Window
     {
         InitializeComponent();
 
-        WindowPtr = WindowNative.GetWindowHandle(this);
+        WindowHandle = (HWND)WindowNative.GetWindowHandle(this);
 
         subClassDelegate = new SUBCLASSPROC(NewSubWindowProc);
 
-        if (!PInvoke.SetWindowSubclass((HWND)WindowPtr, subClassDelegate, 0, 0))
+        if (!PInvoke.SetWindowSubclass(WindowHandle, subClassDelegate, 0, 0))
         {
             throw new Win32Exception(Marshal.GetLastPInvokeError());
         }
@@ -166,7 +166,7 @@ internal partial class MainWindow : Window
 
     private void PostSysCommandMessage(SC command)
     {
-        bool success = PInvoke.PostMessage((HWND)WindowPtr, PInvoke.WM_SYSCOMMAND, (WPARAM)(nuint)command, 0);
+        bool success = PInvoke.PostMessage(WindowHandle, PInvoke.WM_SYSCOMMAND, (WPARAM)(nuint)command, 0);
         Debug.Assert(success);
     }
 
@@ -174,7 +174,7 @@ internal partial class MainWindow : Window
     {
         System.Drawing.Point p = default;
 
-        if (viaKeyboard || !PInvoke.GetCursorPos(out p) || !PInvoke.ScreenToClient((HWND)WindowPtr, ref p))
+        if (viaKeyboard || !PInvoke.GetCursorPos(out p) || !PInvoke.ScreenToClient(WindowHandle, ref p))
         {
             p.X = 3;
             p.Y = AppWindow.TitleBar.Height;
@@ -354,7 +354,7 @@ internal partial class MainWindow : Window
 
     private double InitialiseScaleFactor()
     {
-        double dpi = PInvoke.GetDpiForWindow((HWND)WindowPtr);
+        double dpi = PInvoke.GetDpiForWindow(WindowHandle);
         return dpi / 96.0;
     }
 

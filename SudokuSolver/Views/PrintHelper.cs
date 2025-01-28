@@ -27,7 +27,7 @@ internal sealed class PrintHelper
 
     public PrintHelper(MainWindow window)
     {
-        hWnd = window.WindowPtr;
+        hWnd = window.WindowHandle;
         dispatcherQueue = window.DispatcherQueue;
         
         printManager = PrintManagerInterop.GetForWindow(hWnd);

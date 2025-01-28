@@ -321,7 +321,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         if (status != Status.Cancelled)
         {
             FileOpenPicker openPicker = new FileOpenPicker();
-            InitializeWithWindow.Initialize(openPicker, parentWindow.WindowPtr);
+            InitializeWithWindow.Initialize(openPicker, parentWindow.WindowHandle);
             openPicker.FileTypeFilter.Add(App.cFileExt);
 
             StorageFile file = await openPicker.PickSingleFileAsync();
@@ -522,7 +522,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         Status status = Status.Cancelled;
 
         FileSavePicker savePicker = new FileSavePicker();
-        InitializeWithWindow.Initialize(savePicker, parentWindow.WindowPtr);
+        InitializeWithWindow.Initialize(savePicker, parentWindow.WindowHandle);
         string fileChoice = App.Instance.ResourceLoader.GetString("SavePickerFileChoice");
         savePicker.FileTypeChoices.Add(fileChoice, new List<string>() { App.cFileExt });
         savePicker.SuggestedFileName = (sourceFile is null) ? HeaderText : sourceFile.Name;
