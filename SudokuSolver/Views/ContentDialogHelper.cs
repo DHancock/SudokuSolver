@@ -67,14 +67,14 @@ internal class ContentDialogHelper
         // focus can escape a content dialog when access keys are shown via the alt key...
         // (it makes no difference if the content dialog itself has any access keys)
         selectedTab.AdjustMenuAccessKeys(enable: false);
+        EnableCaptionButtons(enable: false);
 
-        EnableCaptionButtons(false);
         return await currentDialog.ShowAsync();
     }
 
     private void EnableCaptionButtons(bool enable)
     {
-        HWND hWnd = PInvoke.FindWindowEx((HWND)parentWindow.WindowPtr, HWND.Null, "InputNonClientPointerSource", null);
+        HWND hWnd = PInvoke.FindWindowEx(parentWindow.WindowHandle, HWND.Null, "InputNonClientPointerSource", null);
         Debug.Assert(!hWnd.IsNull);
 
         if (!hWnd.IsNull)
@@ -96,7 +96,7 @@ internal class ContentDialogHelper
 
     private void ContentDialog_Closing(ContentDialog sender, ContentDialogClosingEventArgs args)
     {
-        EnableCaptionButtons(true);
+        EnableCaptionButtons(enable: true);
         selectedTab?.AdjustMenuAccessKeys(enable: true);
     }
 

@@ -545,12 +545,9 @@ internal sealed partial class MainWindow : Window, ISession
             WindowState = WindowState.Normal;
         }
 
-        HWND foreground = PInvoke.GetForegroundWindow();
-        HWND target = (HWND)WindowPtr;
-
-        if (target != foreground)
+        if (WindowHandle != PInvoke.GetForegroundWindow())
         {
-            return PInvoke.SetForegroundWindow(target);
+            return PInvoke.SetForegroundWindow(WindowHandle);
         }
 
         return true;
