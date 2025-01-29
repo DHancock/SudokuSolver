@@ -119,16 +119,16 @@ internal partial class MainWindow : Window
                 break;
             }
 
-            case PInvoke.WM_SYSCOMMAND when (lParam == (int)VirtualKey.Space) && !ContentDialogHelper.IsContentDialogOpen:
+            case PInvoke.WM_SYSCOMMAND when (lParam == (int)VirtualKey.Space) && (AppWindow.Presenter.Kind != AppWindowPresenterKind.FullScreen):
             {
                 HideSystemMenu();
                 ShowSystemMenu(viaKeyboard: true);
                 return (LRESULT)0;
             }
 
-            case PInvoke.WM_SYSCOMMAND when ContentDialogHelper.IsContentDialogOpen:
+            case PInvoke.WM_SYSCOMMAND when (wParam == (int)SC.CLOSE) && ContentDialogHelper.IsContentDialogOpen:
             {
-                return (LRESULT)0; 
+                return (LRESULT)0;     // disable Alt+F4
             }
 
             case PInvoke.WM_NCHITTEST when ContentDialogHelper.IsContentDialogOpen:
@@ -259,7 +259,7 @@ internal partial class MainWindow : Window
 
     private bool CanSize(object? param)
     {
-        return (AppWindow.Presenter is OverlappedPresenter op) && op.IsResizable && (op.State != OverlappedPresenterState.Maximized);
+        return (AppWindow.Presenter is OverlappedPresenter op) && op.IsResizable && (op.State != OverlappedPresenterState.Maximized) && !ContentDialogHelper.IsContentDialogOpen;
     }
 
     private bool CanMinimize(object? param)
