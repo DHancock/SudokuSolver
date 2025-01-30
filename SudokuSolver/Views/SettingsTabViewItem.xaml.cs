@@ -40,7 +40,7 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
         CloseLeftTabsCommand = new RelayCommand(ExecuteCloseLeftTabsAsync, CanCloseLeftTabs);
         CloseRightTabsCommand = new RelayCommand(ExecuteCloseRightTabsAsync, CanCloseRightTabs);
 
-        AdjustKeyboardAccelerators(enable: false);
+        EnableKeyboardAccelerators(enable: false);
     }
 
     public SettingsTabViewItem(MainWindow parent, SettingsTabViewItem source) : this(parent)
@@ -132,7 +132,7 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
         }
     }
 
-    public void AdjustKeyboardAccelerators(bool enable)
+    public void EnableKeyboardAccelerators(bool enable)
     {
         // accelerators on sub menus are only active when the menu is shown
         // which can only happen if this is the current selected tab
@@ -230,7 +230,7 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
 
     public string HeaderText => ((TextBlock)Header).Text;
 
-    public void AdjustMenuAccessKeys(bool enable)
+    public void EnableMenuAccessKeys(bool enable)
     {
         // no access keys to disable
     }
