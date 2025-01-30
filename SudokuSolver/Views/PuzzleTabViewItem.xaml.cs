@@ -58,7 +58,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
             await ViewModel.ClipboardContentChangedAsync();
         };
 
-        AdjustKeyboardAccelerators(enable: false);
+        EnableKeyboardAccelerators(enable: false);
 
         RenameTabCommand = new RelayCommand(ExecuteRenameTabCommand, CanRenameTab);
         CloseOtherTabsCommand = new RelayCommand(ExecuteCloseOtherTabsAsync, CanCloseOtherTabs);
@@ -263,7 +263,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         return await SaveExistingFirstAsync() != Status.Cancelled;
     }
 
-    public void AdjustKeyboardAccelerators(bool enable)
+    public void EnableKeyboardAccelerators(bool enable)
     {
         // accelerators on sub menus are only active when the menu is shown
         // which can only happen if this is the current selected tab
@@ -289,7 +289,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         }
     }
 
-    public void AdjustMenuAccessKeys(bool enable)
+    public void EnableMenuAccessKeys(bool enable)
     {
         foreach (MenuBarItem mbi in Menu.Items)
         {

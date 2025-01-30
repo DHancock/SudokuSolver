@@ -80,7 +80,7 @@ internal sealed partial class MainWindow : Window, ISession
             // only the current active window's hotkeys should be active
             if (Tabs.SelectedItem is not null)
             {
-                ((ITabItem)Tabs.SelectedItem).AdjustKeyboardAccelerators(enable: IsActive);
+                ((ITabItem)Tabs.SelectedItem).EnableKeyboardAccelerators(enable: IsActive);
             };
         };
     }
@@ -258,7 +258,7 @@ internal sealed partial class MainWindow : Window, ISession
 
         // the tab's keyboard accelerators would still
         // be active (until presumably it's garbage collected)
-        ((ITabItem)tab).AdjustKeyboardAccelerators(enable: false);
+        ((ITabItem)tab).EnableKeyboardAccelerators(enable: false);
     }
 
     private void Tabs_TabDroppedOutside(TabView sender, TabViewTabDroppedOutsideEventArgs args)
@@ -384,7 +384,7 @@ internal sealed partial class MainWindow : Window, ISession
     {
         if (e.RemovedItems.Count == 1)
         {
-            ((ITabItem)e.RemovedItems[0]).AdjustKeyboardAccelerators(enable: false);
+            ((ITabItem)e.RemovedItems[0]).EnableKeyboardAccelerators(enable: false);
 
             if (e.RemovedItems[0] is SettingsTabViewItem)
             {
@@ -394,7 +394,7 @@ internal sealed partial class MainWindow : Window, ISession
 
         if (e.AddedItems.Count == 1)
         {
-            ((ITabItem)e.AddedItems[0]).AdjustKeyboardAccelerators(enable: true);
+            ((ITabItem)e.AddedItems[0]).EnableKeyboardAccelerators(enable: true);
 
             if (e.AddedItems[0] is SettingsTabViewItem)
             {

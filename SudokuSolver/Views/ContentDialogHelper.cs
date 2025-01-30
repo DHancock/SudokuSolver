@@ -66,7 +66,7 @@ internal class ContentDialogHelper
         // workaround for https://github.com/microsoft/microsoft-ui-xaml/issues/5739
         // focus can escape a content dialog when access keys are shown via the alt key...
         // (it makes no difference if the content dialog itself has any access keys)
-        selectedTab.AdjustMenuAccessKeys(enable: false);
+        selectedTab.EnableMenuAccessKeys(enable: false);
         EnableCaptionButtons(enable: false);
 
         return await currentDialog.ShowAsync();
@@ -97,7 +97,7 @@ internal class ContentDialogHelper
     private void ContentDialog_Closing(ContentDialog sender, ContentDialogClosingEventArgs args)
     {
         EnableCaptionButtons(enable: true);
-        selectedTab?.AdjustMenuAccessKeys(enable: true);
+        selectedTab?.EnableMenuAccessKeys(enable: true);
     }
 
     private void ContentDialog_Closed(ContentDialog sender, ContentDialogClosedEventArgs args)
