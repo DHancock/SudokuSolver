@@ -94,10 +94,17 @@ internal sealed partial class MainWindow : Window, ISession
         }
         else
         {
-            // this would be reentrant if awaiting a content dialog and 
-            // the window was still closeable (caption close button or Alt+F4)
-            Debug.Assert(!ContentDialogHelper.IsContentDialogOpen);
-            await AttemptToCloseTabsAsync(Tabs.TabItems);
+            // Closing the window is reentrant if awaiting a content dialog and the caption close button is active.
+            // ContentDialogHelper.EnableCaptionButtons() uses an undocumented child window class name to disable
+            // the caption button window, so it seems safer to still have this guard code.
+            if (ContentDialogHelper.IsContentDialogOpen)
+            {
+                Utils.PlayExclamation();
+            }
+            else
+            {
+                await AttemptToCloseTabsAsync(Tabs.TabItems);
+            }
         }
     }
 
