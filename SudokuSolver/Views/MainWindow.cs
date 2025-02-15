@@ -3,7 +3,7 @@ using SudokuSolver.ViewModels;
 
 namespace SudokuSolver.Views;
 
-public enum WindowState { Normal, Minimized, Maximized }
+internal enum WindowState { Normal, Minimized, Maximized }
 
 internal partial class MainWindow : Window
 {
@@ -42,7 +42,7 @@ internal partial class MainWindow : Window
     private int scaledMinHeight;
     private double scaleFactor;
 
-    public ContentDialogHelper ContentDialogHelper;
+    public ContentDialogHelper ContentDialogHelper { get; }
 
     public MainWindow()
     {
@@ -60,6 +60,8 @@ internal partial class MainWindow : Window
         inputNonClientPointerSource = InputNonClientPointerSource.GetForWindowId(AppWindow.Id);
 
         ContentDialogHelper = new ContentDialogHelper(this);
+        ContentDialogHelper.DialogOpened += ContentDialogHelper_DialogOpened;
+        ContentDialogHelper.DialogClosed += ContentDialogHelper_DialogClosed;
 
         dispatcherTimer = InitialiseDragRegionTimer();
 
@@ -308,28 +310,19 @@ internal partial class MainWindow : Window
             {
                 switch (value)
                 {
-                    case WindowState.Minimized:
+                    case WindowState.Minimized when op.State != OverlappedPresenterState.Minimized:
                     {
-                        if (op.State != OverlappedPresenterState.Minimized)
-                        {
-                            op.Minimize();
-                        }
+                        op.Minimize();
                         break;
                     }
-                    case WindowState.Maximized:
+                    case WindowState.Maximized when op.State != OverlappedPresenterState.Maximized:
                     {
-                        if (op.State != OverlappedPresenterState.Maximized)
-                        {
-                            op.Maximize();
-                        }
+                        op.Maximize();
                         break;
                     }
-                    case WindowState.Normal:
+                    case WindowState.Normal when op.State != OverlappedPresenterState.Restored:
                     {
-                        if (op.State != OverlappedPresenterState.Restored)
-                        {
-                            op.Restore();
-                        }
+                        op.Restore();
                         break;
                     }
                 }
@@ -382,11 +375,17 @@ internal partial class MainWindow : Window
 
         try
         {
-            if ((Content is FrameworkElement layoutRoot) && layoutRoot.IsLoaded && AppWindowTitleBar.IsCustomizationSupported())
+            RectInt32 windowRect = new RectInt32(0, 0, AppWindow.ClientSize.Width, AppWindow.ClientSize.Height);
+
+            if (ContentDialogHelper.IsContentDialogOpen)
+            {
+                // this also effectively disables the caption buttons
+                inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Passthrough, [windowRect]);
+            }
+            else if ((Content is FrameworkElement layoutRoot) && layoutRoot.IsLoaded && AppWindowTitleBar.IsCustomizationSupported())
             {
                 // as there is no clear distinction any more between the title bar region and the client area,
                 // just treat the whole window as a title bar, click anywhere on the backdrop to drag the window.
-                RectInt32 windowRect = new RectInt32(0, 0, AppWindow.ClientSize.Width, AppWindow.ClientSize.Height);
                 inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Caption, [windowRect]);
 
                 List<RectInt32> rects = new List<RectInt32>(cInitialCapacity);
@@ -594,7 +593,7 @@ internal partial class MainWindow : Window
         // defer setting the drag regions while still resizing the window or scrolling
         // it's content. If the timer is already running, this resets the interval.
         dispatcherTimer.Start();
-    }
+    }  
 
     private void DispatcherTimer_Tick(object? sender, object e)
     {
@@ -604,5 +603,15 @@ internal partial class MainWindow : Window
         {
             SetWindowDragRegionsInternal();
         }
+    }
+
+    private void ContentDialogHelper_DialogClosed(ContentDialogHelper sender, ContentDialogHelper.EventArgs args)
+    {
+        SetWindowDragRegionsInternal();
+    }
+
+    private void ContentDialogHelper_DialogOpened(ContentDialogHelper sender, ContentDialogHelper.EventArgs args)
+    {
+        SetWindowDragRegionsInternal();
     }
 }

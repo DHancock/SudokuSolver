@@ -704,6 +704,10 @@ internal sealed partial class MainWindow : Window, ISession
             {
                 menuItem.Icon = new SymbolIcon(Symbol.Edit);
             }
+            else if (tab is SettingsTabViewItem)
+            {
+                menuItem.Icon = new SymbolIcon(Symbol.Setting);
+            }
 
             menuFlyout.Items.Add(menuItem);
         }
