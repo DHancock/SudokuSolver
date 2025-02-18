@@ -53,10 +53,8 @@ internal class ContentDialogHelper
         currentDialog.Opened += CurrentDialog_Opened;
         currentDialog.Closing += ContentDialog_Closing;
         currentDialog.Closed += ContentDialog_Closed;
-        currentDialog.Loaded += CurrentDialog_Loaded;
 
-        currentDialog.Style = (Style)Application.Current.Resources["DefaultContentDialogStyle"];
-        currentDialog.Title = App.cAppDisplayName;
+        currentDialog.Style = (Style)Application.Current.Resources["CustomContentDialogStyle"];
         currentDialog.XamlRoot = parentTab.XamlRoot;
         currentDialog.RequestedTheme = parentTab.ActualTheme;
         currentDialog.FlowDirection = parentTab.FlowDirection;
@@ -74,17 +72,6 @@ internal class ContentDialogHelper
         selectedTab.EnableMenuAccessKeys(enable: false);
 
         return await currentDialog.ShowAsync();
-    }
-
-    private static void CurrentDialog_Loaded(object sender, RoutedEventArgs e)
-    {
-        ContentControl? contentControl = ((ContentDialog)sender).FindChild<ContentControl>("Title");
-
-        if (contentControl is not null)
-        {                    
-            // no lightweight styling, and size 20 is a bit loud
-            contentControl.FontSize = 18;
-        }
     }
 
     private void ContentDialog_Closing(ContentDialog sender, ContentDialogClosingEventArgs args)
