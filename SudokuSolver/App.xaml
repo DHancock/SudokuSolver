@@ -11,6 +11,16 @@
 
             <x:Double x:Key="cell_size">50</x:Double>
 
+            <Style x:Key="CustomContentDialogStyle" TargetType="ContentDialog" BasedOn="{StaticResource DefaultContentDialogStyle}">
+                <Setter Property="TitleTemplate">
+                    <Setter.Value>
+                        <DataTemplate>
+                            <TextBlock FontSize="18" Text="Sudoku Solver"/>
+                        </DataTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
             <!-- although this is defined in WinUi's generic.xaml it doesn't have a x:Key attribute so isn't externally visible -->
             <Style x:Key="TabViewButtonStyle" TargetType="Button">
                 <Setter Property="Background" Value="{ThemeResource TabViewButtonBackground}" />

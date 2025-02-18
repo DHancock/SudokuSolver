@@ -2,7 +2,7 @@
 
 namespace SudokuSolver.Views;
 
-public sealed partial class AboutBox : UserControl
+internal sealed partial class AboutBox : UserControl
 {
     public AboutBox()
     {

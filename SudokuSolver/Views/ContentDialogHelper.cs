@@ -4,8 +4,12 @@ namespace SudokuSolver.Views;
 
 internal class ContentDialogHelper
 {
-    private readonly MainWindow parentWindow;
+    internal record EventArgs(ContentDialog Dialog);
 
+    public event TypedEventHandler<ContentDialogHelper, EventArgs>? DialogOpened;
+    public event TypedEventHandler<ContentDialogHelper, EventArgs>? DialogClosed;
+
+    private readonly MainWindow parentWindow;
     private ContentDialog? currentDialog = null;
     private ITabItem? selectedTab = null;
 
@@ -46,12 +50,11 @@ internal class ContentDialogHelper
         }
 
         currentDialog = dialog;
+        currentDialog.Opened += CurrentDialog_Opened;
         currentDialog.Closing += ContentDialog_Closing;
         currentDialog.Closed += ContentDialog_Closed;
-        currentDialog.Loaded += CurrentDialog_Loaded;
 
-        currentDialog.Style = (Style)Application.Current.Resources["DefaultContentDialogStyle"];
-        currentDialog.Title = App.cAppDisplayName;
+        currentDialog.Style = (Style)Application.Current.Resources["CustomContentDialogStyle"];
         currentDialog.XamlRoot = parentTab.XamlRoot;
         currentDialog.RequestedTheme = parentTab.ActualTheme;
         currentDialog.FlowDirection = parentTab.FlowDirection;
@@ -67,44 +70,26 @@ internal class ContentDialogHelper
         // focus can escape a content dialog when access keys are shown via the alt key...
         // (it makes no difference if the content dialog itself has any access keys)
         selectedTab.EnableMenuAccessKeys(enable: false);
-        EnableCaptionButtons(enable: false);
 
         return await currentDialog.ShowAsync();
     }
 
-    private void EnableCaptionButtons(bool enable)
-    {
-        HWND hWnd = PInvoke.FindWindowEx(parentWindow.WindowHandle, HWND.Null, "InputNonClientPointerSource", null);
-        Debug.Assert(!hWnd.IsNull);
-
-        if (!hWnd.IsNull)
-        {
-            PInvoke.EnableWindow(hWnd, enable);
-        }
-    }
-
-    private static void CurrentDialog_Loaded(object sender, RoutedEventArgs e)
-    {
-        ContentControl? contentControl = ((ContentDialog)sender).FindChild<ContentControl>("Title");
-
-        if (contentControl is not null)
-        {                    
-            // no lightweight styling, and size 20 is a bit loud
-            contentControl.FontSize = 18;
-        }
-    }
-
     private void ContentDialog_Closing(ContentDialog sender, ContentDialogClosingEventArgs args)
     {
-        EnableCaptionButtons(enable: true);
         selectedTab?.EnableMenuAccessKeys(enable: true);
     }
 
     private void ContentDialog_Closed(ContentDialog sender, ContentDialogClosedEventArgs args)
     {
         currentDialog = null;
+        DialogClosed?.Invoke(this, new EventArgs(sender));
     }
-                                                       
+
+    private void CurrentDialog_Opened(ContentDialog sender, ContentDialogOpenedEventArgs args)
+    {
+        DialogOpened?.Invoke(this, new EventArgs(sender));
+    }
+
     public bool IsContentDialogOpen => currentDialog is not null;
 
     public FileOpenErrorDialog? GetFileOpenErrorDialog() => currentDialog as FileOpenErrorDialog;

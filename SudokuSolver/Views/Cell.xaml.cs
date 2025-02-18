@@ -1,6 +1,4 @@
-﻿using Microsoft.UI.Xaml.Data;
-
-using SudokuSolver.Common;
+﻿using SudokuSolver.Common;
 using SudokuSolver.Utilities;
 
 namespace SudokuSolver.Views;
