@@ -94,17 +94,7 @@ internal sealed partial class MainWindow : Window, ISession
         }
         else
         {
-            // Closing the window is reentrant if awaiting a content dialog and the caption close button is active.
-            // ContentDialogHelper.EnableCaptionButtons() uses an undocumented child window class name to disable
-            // the caption button window, so it seems safer to still have this guard code.
-            if (ContentDialogHelper.IsContentDialogOpen)
-            {
-                Utils.PlayExclamation();
-            }
-            else
-            {
-                await AttemptToCloseTabsAsync(Tabs.TabItems);
-            }
+            await AttemptToCloseTabsAsync(Tabs.TabItems);
         }
     }
 
@@ -215,16 +205,10 @@ internal sealed partial class MainWindow : Window, ISession
         }
         else
         {
-            if ((sender.TabItems.Count == 1) || IntegrityLevel.IsElevated)
-            {
-                sender.CanReorderTabs = false;
-                sender.CanDragTabs = false;
-            }
-            else
-            {
-                sender.CanReorderTabs = true;
-                sender.CanDragTabs = true;
-            }
+            bool enable = (sender.TabItems.Count > 1) && !IntegrityLevel.IsElevated;
+
+            sender.CanReorderTabs = enable;
+            sender.CanDragTabs = enable;
         }
     }
 
