@@ -15,4 +15,3 @@ PostMessage
 WM_DPICHANGED
 SHAddToRecentDocs
 GetDoubleClickTime
-WM_NCHITTEST
