@@ -106,9 +106,9 @@ internal partial class MainWindow : Window
             {
                 unsafe
                 {
-                    MINMAXINFO* mptr = (MINMAXINFO*)lParam.Value;
-                    mptr->ptMinTrackSize.X = scaledMinWidth;
-                    mptr->ptMinTrackSize.Y = scaledMinHeight;
+                    MINMAXINFO* mPtr = (MINMAXINFO*)lParam.Value;
+                    mPtr->ptMinTrackSize.X = scaledMinWidth;
+                    mPtr->ptMinTrackSize.Y = scaledMinHeight;
                 }
                 break;
             }
@@ -131,22 +131,6 @@ internal partial class MainWindow : Window
             case PInvoke.WM_SYSCOMMAND when (wParam == (int)SC.CLOSE) && ContentDialogHelper.IsContentDialogOpen:
             {
                 return (LRESULT)0;     // disable Alt+F4
-            }
-
-            case PInvoke.WM_NCHITTEST when ContentDialogHelper.IsContentDialogOpen:
-            {
-                LRESULT result = PInvoke.DefSubclassProc(hWnd, uMsg, wParam, lParam);
-
-                const int HTNOWHERE = 0;
-                const int HTLEFT = 10;
-                const int HTBOTTOMRIGHT = 17;
-
-                if ((result >= HTLEFT) && (result <= HTBOTTOMRIGHT))
-                {
-                    return (LRESULT)HTNOWHERE;   // disable resize border
-                }
-
-                return result;
             }
             
             case PInvoke.WM_NCRBUTTONUP when wParam == HTCAPTION:
@@ -607,11 +591,13 @@ internal partial class MainWindow : Window
 
     private void ContentDialogHelper_DialogClosed(ContentDialogHelper sender, ContentDialogHelper.EventArgs args)
     {
+        ((OverlappedPresenter)AppWindow.Presenter).IsResizable = true;
         SetWindowDragRegionsInternal();
     }
 
     private void ContentDialogHelper_DialogOpened(ContentDialogHelper sender, ContentDialogHelper.EventArgs args)
     {
+        ((OverlappedPresenter)AppWindow.Presenter).IsResizable = false;
         SetWindowDragRegionsInternal();
     }
 }
