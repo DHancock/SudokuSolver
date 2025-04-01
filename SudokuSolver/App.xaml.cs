@@ -44,6 +44,12 @@ public partial class App : Application
         if (Settings.Instance.SaveSessionState)
         {
             await SessionHelper.LoadPreviousSessionAsync();
+
+            if (Settings.Instance.OneTimeSaveOnEndSession)
+            {
+                Settings.Instance.OneTimeSaveOnEndSession = false;
+                Settings.Instance.SaveSessionState = false;
+            }
         }
 
         AppActivationArguments args = appInstance.GetActivatedEventArgs();
