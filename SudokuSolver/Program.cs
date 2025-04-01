@@ -17,7 +17,6 @@ public static class Program
         else if ((args.Length == 1) && (args[0] == "/unregister"))
         {
             KillOtherProcessesSync();
-            DeleteAppData();
             UnregisterFileTypeActivation();
         }
         else
@@ -64,19 +63,6 @@ public static class Program
         try
         {
             ActivationRegistrationManager.UnregisterForFileTypeActivation(fileTypes, Environment.ProcessPath);
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine(ex.ToString());
-        }
-    }
-
-    private static void DeleteAppData() 
-    {
-        try
-        {
-            DirectoryInfo di = new DirectoryInfo(App.GetAppDataPath());
-            di.Delete(true);
         }
         catch (Exception ex)
         {
