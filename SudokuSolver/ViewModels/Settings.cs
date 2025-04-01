@@ -22,6 +22,8 @@ internal class Settings
     public List<Color> DefaultDarkThemeColors { get; set; }
 
     public bool SaveSessionState { get; set; } = true;
+                           
+    public bool OneTimeSaveOnEndSession { get; set; } = false;
 
     // while this breaks the singleton pattern, the code generator doesn't 
     // work with private nested classes. Worse things have happened at sea...
