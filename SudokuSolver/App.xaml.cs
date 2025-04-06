@@ -366,7 +366,7 @@ public partial class App : Application
 
             foreach (MainWindow window in windowList)
             {
-                App.Instance.SessionHelper.AddWindow(window);
+                SessionHelper.AddWindow(window);
             }
 
             // convert to synchronous, the window subclass proc cannot be async
@@ -374,7 +374,7 @@ public partial class App : Application
 
             Task.Run(async () => 
             {
-                await Task.WhenAll(Settings.Instance.SaveAsync(), App.Instance.SessionHelper.SaveAsync());
+                await Task.WhenAll(Settings.Instance.SaveAsync(), SessionHelper.SaveAsync());
                 mres.Set(); 
             });
 
