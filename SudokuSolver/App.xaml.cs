@@ -350,4 +350,35 @@ public partial class App : Application
     {
         return string.Equals(cFileExt, Path.GetExtension(path), StringComparison.OrdinalIgnoreCase);
     }
+
+    public void HandleEndSession()
+    {
+        if (!SessionHelper.IsExit)
+        {
+            SessionHelper.IsExit = true;
+
+            if (!Settings.Instance.SaveSessionState)
+            {
+                // temporarily switch on, avoids the need to interrupt the shut down or sign out 
+                Settings.Instance.SaveSessionState = true;
+                Settings.Instance.OneTimeSaveOnEndSession = true;
+            }
+
+            foreach (MainWindow window in windowList)
+            {
+                App.Instance.SessionHelper.AddWindow(window);
+            }
+
+            // convert to synchronous, the window subclass proc cannot be async
+            ManualResetEventSlim mres = new();
+
+            Task.Run(async () => 
+            {
+                await Task.WhenAll(Settings.Instance.SaveAsync(), App.Instance.SessionHelper.SaveAsync());
+                mres.Set(); 
+            });
+
+            mres.Wait();
+        }
+    }
 }
