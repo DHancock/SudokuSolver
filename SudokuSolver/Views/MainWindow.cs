@@ -148,16 +148,8 @@ internal partial class MainWindow : Window
 
             case PInvoke.WM_ENDSESSION:
             {
-                if (!Settings.Instance.SaveSessionState)
-                {
-                    // temporarily save the session state, it avoids losing unsaved data and the need to interrupt the shut down 
-                    Settings.Instance.SaveSessionState = true;
-                    Settings.Instance.OneTimeSaveOnEndSession = true;
-                }
-
-                App.Instance.SessionHelper.AddWindow(this);
-                Tabs.TabItems.Clear();
-                break;
+                App.Instance.HandleEndSession();
+                return (LRESULT)0;
             }
         }
 
