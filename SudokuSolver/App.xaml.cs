@@ -197,7 +197,7 @@ public partial class App : Application
     {
         SessionHelper.IsExit = true;
 
-        foreach (MainWindow window in windowList)
+        foreach (MainWindow window in GetWindowsInAscendingZOrder())
         {
             window.PostCloseMessage();
         }
@@ -364,7 +364,7 @@ public partial class App : Application
                 Settings.Instance.OneTimeSaveOnEndSession = true;
             }
 
-            foreach (MainWindow window in windowList)
+            foreach (MainWindow window in GetWindowsInAscendingZOrder())
             {
                 SessionHelper.AddWindow(window);
             }
@@ -372,13 +372,37 @@ public partial class App : Application
             // convert to synchronous, the window subclass proc cannot be async
             ManualResetEventSlim mres = new();
 
-            Task.Run(async () => 
+            Task.Run(async () =>
             {
                 await Task.WhenAll(Settings.Instance.SaveAsync(), SessionHelper.SaveAsync());
-                mres.Set(); 
+                mres.Set();
             });
 
             mres.Wait();
         }
+    }
+
+    private List<MainWindow> GetWindowsInAscendingZOrder()
+    {
+        List<MainWindow> list = new List<MainWindow>(windowList.Count);
+
+        PInvoke.EnumWindows((HWND hWnd, LPARAM param) =>
+        {
+            foreach (MainWindow window in windowList)
+            {
+                if (window.WindowHandle == hWnd)
+                {
+                    list.Add(window);
+                    break;
+                }
+            }
+            
+            return true;
+        }, 
+        (LPARAM)0);
+
+        Debug.Assert(list.Count == windowList.Count);
+        list.Reverse();
+        return list;
     }
 }
