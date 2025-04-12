@@ -195,9 +195,13 @@ public partial class App : Application
 
     public void AttemptCloseAllWindows()
     {
+        // Always set this flag. If the user chooses to sign out or shutdown while
+        // awaiting a content dialog prompting them to save, they are deliberately ignoring it.
         SessionHelper.IsExit = true;
 
-        foreach (MainWindow window in GetWindowsInAscendingZOrder())
+        List<MainWindow> windows = Settings.Instance.SaveSessionState ? GetWindowsInAscendingZOrder() : GetWindowsInDescendingZOrder();
+
+        foreach (MainWindow window in windows)
         {
             window.PostCloseMessage();
         }
@@ -384,6 +388,13 @@ public partial class App : Application
 
     private List<MainWindow> GetWindowsInAscendingZOrder()
     {
+        List<MainWindow> list = GetWindowsInDescendingZOrder();
+        list.Reverse();
+        return list;
+    }
+
+    private List<MainWindow> GetWindowsInDescendingZOrder()
+    {
         List<MainWindow> list = new List<MainWindow>(windowList.Count);
 
         PInvoke.EnumWindows((HWND hWnd, LPARAM param) =>
@@ -396,13 +407,12 @@ public partial class App : Application
                     break;
                 }
             }
-            
+
             return true;
-        }, 
+        },
         (LPARAM)0);
 
         Debug.Assert(list.Count == windowList.Count);
-        list.Reverse();
         return list;
     }
 }
