@@ -132,27 +132,35 @@ internal sealed partial class MainWindow : Window, ISession
             }
         }
 
-        modifiedTabs.Sort((a, b) =>
+        if (modifiedTabs.Count > 0)
         {
-            if (a.tab.IsSelected) return -1;
-            if (b.tab.IsSelected) return 1;
-
-            return a.index - b.index;
-        });
-
-        foreach ((TabViewItem tab, _) in modifiedTabs)
-        {
-            Tabs.SelectedItem = tab;
-            PuzzleTabViewItem puzzleTab = (PuzzleTabViewItem)tab;
-
-            if (await puzzleTab.SaveTabContentsAsync())
+            modifiedTabs.Sort((a, b) =>
             {
-                CloseTab(tab);
+                if (a.tab.IsSelected) return -1;
+                if (b.tab.IsSelected) return 1;
+
+                return a.index - b.index;
+            });
+
+            if (WindowState == WindowState.Minimized)
+            {
+                WindowState = WindowState.Normal;
             }
-            else
+
+            foreach ((TabViewItem tab, _) in modifiedTabs)
             {
-                puzzleTab.FocusLastSelectedCell();
-                return true;
+                Tabs.SelectedItem = tab;
+                PuzzleTabViewItem puzzleTab = (PuzzleTabViewItem)tab;
+
+                if (await puzzleTab.SaveTabContentsAsync())
+                {
+                    CloseTab(tab);
+                }
+                else
+                {
+                    puzzleTab.FocusLastSelectedCell();
+                    return true;
+                }
             }
         }
 
