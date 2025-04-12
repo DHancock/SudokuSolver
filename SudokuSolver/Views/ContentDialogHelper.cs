@@ -47,6 +47,8 @@ internal class ContentDialogHelper
             return ContentDialogResult.None;
         }
 
+        Debug.Assert(parentWindow.WindowState != WindowState.Minimized);
+
         currentDialog = dialog;
         currentDialog.Opened += CurrentDialog_Opened;
         currentDialog.Closing += ContentDialog_Closing;
