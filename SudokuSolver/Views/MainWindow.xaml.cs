@@ -142,11 +142,6 @@ internal sealed partial class MainWindow : Window, ISession
                 return a.index - b.index;
             });
 
-            if (WindowState == WindowState.Minimized)
-            {
-                WindowState = WindowState.Normal;
-            }
-
             foreach ((TabViewItem tab, _) in modifiedTabs)
             {
                 Tabs.SelectedItem = tab;
