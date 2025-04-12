@@ -47,8 +47,6 @@ internal class ContentDialogHelper
             return ContentDialogResult.None;
         }
 
-        Debug.Assert(parentWindow.WindowState != WindowState.Minimized);
-
         currentDialog = dialog;
         currentDialog.Opened += CurrentDialog_Opened;
         currentDialog.Closing += ContentDialog_Closing;
@@ -62,6 +60,11 @@ internal class ContentDialogHelper
         if (!ReferenceEquals(parentTab, parentWindow.SelectedTab))
         {
             parentWindow.SelectedTab = parentTab;
+        }
+
+        if (parentWindow.WindowState == WindowState.Minimized)
+        {
+            parentWindow.WindowState = WindowState.Normal;
         }
 
         selectedTab = (ITabItem)parentTab;
