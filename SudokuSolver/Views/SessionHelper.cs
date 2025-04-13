@@ -3,7 +3,8 @@ namespace SudokuSolver.Views;
 
 internal class SessionHelper
 {
-    public bool IsExit { get; set; } = false;   // saving all windows on exit may be required
+    public bool IsExit { get; set; } = false;   // save all windows when the Exit menu option is selected
+    public bool IsEndSession { get; set; } = false;   // save all windows on sign out or shut down
 
     private readonly XElement root;
 
@@ -101,9 +102,8 @@ internal class SessionHelper
                 }
             }
 
-            // Always set the window state is to Normal, similar to Notepad. It could be confusing if there are multiple
-            // windows and one is maximized. At least the windows z order would have to be saved and restored as well,  
-            // not impossible but probably best to keep it simple.
+            // Always open with window state Normal, as does Notepad.
+            // It could be confusing if there are multiple windows and one is maximized.
             MainWindow parentWindow = new MainWindow(WindowState.Normal, restoreBounds);
 
             foreach (XElement child in window.Descendants())

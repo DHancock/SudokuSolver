@@ -195,11 +195,19 @@ public partial class App : Application
 
     public void AttemptCloseAllWindows()
     {
-        // Always set this flag. If the user chooses to sign out or shutdown while
-        // awaiting a content dialog prompting them to save, they are deliberately ignoring it.
-        SessionHelper.IsExit = true;
+        List<MainWindow> windows;
 
-        List<MainWindow> windows = Settings.Instance.SaveSessionState ? GetWindowsInAscendingZOrder() : GetWindowsInDescendingZOrder();
+        if (Settings.Instance.SaveSessionState)
+        {
+            // indicates that all windows are to be saved by the session helper
+            SessionHelper.IsExit = true;
+            windows = GetWindowsInAscendingZOrder();
+        }
+        else
+        {
+            // the user will be prompted to save any unsaved changes
+            windows = GetWindowsInDescendingZOrder();
+        }
 
         foreach (MainWindow window in windows)
         {
@@ -357,9 +365,9 @@ public partial class App : Application
 
     public void HandleEndSession()
     {
-        if (!SessionHelper.IsExit)
+        if (!SessionHelper.IsEndSession)
         {
-            SessionHelper.IsExit = true;
+            SessionHelper.IsEndSession = true;
 
             if (!Settings.Instance.SaveSessionState)
             {
