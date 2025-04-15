@@ -416,11 +416,10 @@ public partial class App : Application
                 }
             }
 
-            return true;
+            return list.Count != windowList.Count;
         },
         (LPARAM)0);
 
-        Debug.Assert(list.Count == windowList.Count);
         return list;
     }
 }
