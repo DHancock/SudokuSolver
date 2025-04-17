@@ -363,7 +363,7 @@ public partial class App : Application
         return string.Equals(cFileExt, Path.GetExtension(path), StringComparison.OrdinalIgnoreCase);
     }
 
-    public void HandleEndSession()
+    public void SaveStateOnEndSession()
     {
         if (!SessionHelper.IsEndSession)
         {

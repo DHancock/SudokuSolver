@@ -148,7 +148,7 @@ internal partial class MainWindow : Window
 
             case PInvoke.WM_ENDSESSION:
             {
-                App.Instance.HandleEndSession();
+                App.Instance.SaveStateOnEndSession();
                 return (LRESULT)0;
             }
         }
