@@ -748,15 +748,7 @@ internal sealed partial class MainWindow : Window, ISession
 
     private bool ContainsHeader(string newText)
     {
-        foreach (object tab in Tabs.TabItems)
-        {
-            if (string.Equals(newText, ((ITabItem)tab).HeaderText))
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return Tabs.TabItems.Any(x => ((ITabItem)x).HeaderText.Equals(newText, StringComparison.OrdinalIgnoreCase));
     }
 
     public string MakeUniqueHeaderText()
