@@ -676,6 +676,7 @@ internal sealed partial class MainWindow : Window, ISession
         {
             MenuFlyoutItem menuItem = new()
             {
+                Icon = new IconSourceElement() { IconSource = ((TabViewItem)tab).IconSource },
                 Text = ((ITabItem)tab).HeaderText,
                 Tag = tab,
                 Padding = narrow,
@@ -685,19 +686,6 @@ internal sealed partial class MainWindow : Window, ISession
             if (menuItem.IsEnabled)
             {
                 menuItem.Click += MenuItem_Click;
-            }
-
-            if (tab is PuzzleTabViewItem puzzleTab)
-            {
-                if (puzzleTab.IsModified)
-                {
-                    menuItem.Icon = new SymbolIcon(Symbol.Edit);
-                }
-            }
-            else 
-            {
-                Debug.Assert(tab is SettingsTabViewItem);
-                menuItem.Icon = new SymbolIcon(Symbol.Setting);
             }
 
             menuFlyout.Items.Add(menuItem);
