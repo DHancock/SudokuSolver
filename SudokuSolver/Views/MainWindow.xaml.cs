@@ -687,12 +687,16 @@ internal sealed partial class MainWindow : Window, ISession
                 menuItem.Click += MenuItem_Click;
             }
 
-            if ((tab is PuzzleTabViewItem puzzleTab) && puzzleTab.IsModified)
+            if (tab is PuzzleTabViewItem puzzleTab)
             {
-                menuItem.Icon = new SymbolIcon(Symbol.Edit);
+                if (puzzleTab.IsModified)
+                {
+                    menuItem.Icon = new SymbolIcon(Symbol.Edit);
+                }
             }
-            else if (tab is SettingsTabViewItem)
+            else 
             {
+                Debug.Assert(tab is SettingsTabViewItem);
                 menuItem.Icon = new SymbolIcon(Symbol.Setting);
             }
 
