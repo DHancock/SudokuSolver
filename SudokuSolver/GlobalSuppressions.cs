@@ -15,5 +15,6 @@
 [assembly: SuppressMessage("Style", "IDE0290:Use primary constructor")]
 [assembly: SuppressMessage("Style", "IDE0305:Collection initialization can be simplified")]
 [assembly: SuppressMessage("Style", "IDE0306:Collection initialization can be simplified")]
+[assembly: SuppressMessage("Style", "IDE0350:Lambda expression can be simplified")]
 
 [assembly: SuppressMessage("Interoperability", "CA1416:Validate platform compatibility")]
