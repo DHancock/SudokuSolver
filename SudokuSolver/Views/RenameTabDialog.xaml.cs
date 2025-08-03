@@ -20,7 +20,30 @@ internal sealed partial class RenameTabDialog : ContentDialog
         {
             NewTabNameTextBox.Text = existingName;
             NewTabNameTextBox.SelectAll();
+
+            NewTabNameTextBox.ContextFlyout.Opening += ContextFlyout_Opening;
         };
+
+        Unloaded += (s, e) => 
+        {
+            NewTabNameTextBox.ContextFlyout.Opening -= ContextFlyout_Opening;
+        };
+    }
+
+    private static void ContextFlyout_Opening(object? sender, object e)
+    {
+        if ((sender is TextCommandBarFlyout tcbf) && (tcbf.Target is TextBox tb))
+        {
+            foreach (ICommandBarElement icbe in tcbf.SecondaryCommands)
+            {
+                if ((icbe is AppBarButton abb) && (abb.ActualTheme != tb.ActualTheme))
+                {
+                    // fix the menu item's text colour for theme changes after the context flyout was created
+                    // (this will also fix each menu item's tool tip colours)
+                    abb.RequestedTheme = tb.ActualTheme;
+                }
+            }
+        }
     }
 
     private void NewTabName_BeforeTextChanging(TextBox sender, TextBoxBeforeTextChangingEventArgs args)
