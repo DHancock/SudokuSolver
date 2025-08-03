@@ -14,6 +14,15 @@ internal class ContentDialogHelper
     public ContentDialogHelper(MainWindow window)
     {
         parentWindow = window;
+
+        ((FrameworkElement)window.Content).ActualThemeChanged += (s, e) =>
+        {
+            // the settings tab on another window can change the theme
+            if (currentDialog is not null)
+            {
+                currentDialog.RequestedTheme = s.ActualTheme;
+            }
+        };
     }
 
     public async Task<ContentDialogResult> ShowFileOpenErrorDialogAsync(TabViewItem parent, string message, string details)
