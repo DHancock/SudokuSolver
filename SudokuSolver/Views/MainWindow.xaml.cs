@@ -26,11 +26,11 @@ internal sealed partial class MainWindow : Window, ISession
             ExtendsContentIntoTitleBar = true;
             RightPaddingColumn.MinWidth = AppWindow.TitleBar.RightInset / scaleFactor;
 
-            UpdateCaptionButtonsTheme(LayoutRoot.ActualTheme);
+            UpdateCaptionButtonColours();
 
             LayoutRoot.ActualThemeChanged += (s, a) =>
             {
-                UpdateCaptionButtonsTheme(s.ActualTheme);
+                UpdateCaptionButtonColours();
                 ResetPuzzleTabsOpacity();
             };
         }
@@ -401,10 +401,8 @@ internal sealed partial class MainWindow : Window, ISession
         }
     }
 
-    private void UpdateCaptionButtonsTheme(ElementTheme theme)
+    private void UpdateCaptionButtonColours()
     {
-        Debug.Assert(theme is not ElementTheme.Default);
-
         if (AppWindow is not null)  // may occur if the window is closed immediately after requesting a theme change
         {
             AppWindow.TitleBar.BackgroundColor = Colors.Transparent;
@@ -412,9 +410,9 @@ internal sealed partial class MainWindow : Window, ISession
             AppWindow.TitleBar.ButtonPressedBackgroundColor = Colors.Transparent;
             AppWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
 
-            if (theme == ElementTheme.Light)
+            if (LayoutRoot.ActualTheme == ElementTheme.Light)
             {
-                AppWindow.TitleBar.ButtonForegroundColor = Colors.Black;
+                AppWindow.TitleBar.ButtonForegroundColor = ContentDialogHelper.IsContentDialogOpen ? Colors.Gray : Colors.Black;
                 AppWindow.TitleBar.ButtonPressedForegroundColor = Colors.Black;
                 AppWindow.TitleBar.ButtonHoverForegroundColor = Colors.Black;
                 AppWindow.TitleBar.ButtonHoverBackgroundColor = Colors.LightGray;
@@ -422,7 +420,7 @@ internal sealed partial class MainWindow : Window, ISession
             }
             else
             {
-                AppWindow.TitleBar.ButtonForegroundColor = Colors.White;
+                AppWindow.TitleBar.ButtonForegroundColor = ContentDialogHelper.IsContentDialogOpen ? Colors.Gray : Colors.White;
                 AppWindow.TitleBar.ButtonPressedForegroundColor = Colors.White;
                 AppWindow.TitleBar.ButtonHoverForegroundColor = Colors.White;
                 AppWindow.TitleBar.ButtonHoverBackgroundColor = Colors.DimGray;
