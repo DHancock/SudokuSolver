@@ -598,12 +598,14 @@ internal partial class MainWindow : Window
     private void ContentDialogHelper_DialogClosed(ContentDialogHelper sender, ContentDialogHelper.EventArgs args)
     {
         ((OverlappedPresenter)AppWindow.Presenter).IsResizable = true;
+        UpdateCaptionButtonColours();
         SetWindowDragRegionsInternal();
     }
 
     private void ContentDialogHelper_DialogOpened(ContentDialogHelper sender, ContentDialogHelper.EventArgs args)
     {
         ((OverlappedPresenter)AppWindow.Presenter).IsResizable = false;
+        UpdateCaptionButtonColours();
         SetWindowDragRegionsInternal();
     }
 }
