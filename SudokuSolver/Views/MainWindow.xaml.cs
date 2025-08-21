@@ -203,12 +203,15 @@ internal sealed partial class MainWindow : Window, ISession
 
             Close();
         }
+        else if (IntegrityLevel.IsElevated)
+        {
+            sender.CanReorderTabs = false;
+            sender.CanDragTabs = false;
+        }
         else
         {
-            bool enable = (sender.TabItems.Count > 1) && !IntegrityLevel.IsElevated;
-
-            sender.CanReorderTabs = enable;
-            sender.CanDragTabs = enable;
+            sender.CanReorderTabs = Tabs.TabItems.Count > 1;
+            sender.CanDragTabs = true;
         }
     }
 
@@ -254,26 +257,30 @@ internal sealed partial class MainWindow : Window, ISession
 
     private void Tabs_TabDroppedOutside(TabView sender, TabViewTabDroppedOutsideEventArgs args)
     {
-        PInvoke.GetCursorPos(out System.Drawing.Point p);
-        RectInt32 bounds = new RectInt32(p.X, p.Y, RestoreBounds.Width, RestoreBounds.Height);
-
-        // cannot just move the tab to a new window because MenuFlyoutItemBase requires
-        // an XamlRoot which cannot be updated once set, have to replace the ui
-        CloseTab(args.Tab);
-
-        MainWindow window = new MainWindow(WindowState.Normal, bounds);
-
-        if (args.Tab is PuzzleTabViewItem puzzleTab)
+        if (PInvoke.GetCursorPos(out System.Drawing.Point p))
         {
-            window.AddTab(new PuzzleTabViewItem(window, puzzleTab));
-        }
-        else if (args.Tab is SettingsTabViewItem settingsTab)
-        {
-            window.AddTab(new SettingsTabViewItem(window, settingsTab));
-        }
+            RectInt32 bounds = new RectInt32(p.X, p.Y, RestoreBounds.Width, RestoreBounds.Height);
 
-        window.Activate();
-        window.AttemptSwitchToForeground();
+            MainWindow window = new MainWindow(WindowState.Normal, bounds);
+
+            // cannot just move the tab to a new window because MenuFlyoutItemBase requires an XamlRoot
+            // which cannot be updated once set, have to replace the ui which binds to the original view model
+
+            if (args.Tab is PuzzleTabViewItem puzzleTab)
+            {
+                window.AddTab(new PuzzleTabViewItem(window, puzzleTab));
+            }
+            else if (args.Tab is SettingsTabViewItem settingsTab)
+            {
+                window.AddTab(new SettingsTabViewItem(window, settingsTab));
+            }
+
+            // close tab after creating the window otherwise the app could terminate with zero windows
+            CloseTab(args.Tab);
+
+            window.Activate();
+            window.AttemptSwitchToForeground();
+        }
     }
 
 #pragma warning disable CA1822 // Mark members as static
