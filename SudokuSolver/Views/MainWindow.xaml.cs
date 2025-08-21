@@ -21,19 +21,16 @@ internal sealed partial class MainWindow : Window, ISession
 
     public MainWindow(WindowState windowState, RectInt32 bounds) : this()
     {
-        if (AppWindowTitleBar.IsCustomizationSupported())
+        ExtendsContentIntoTitleBar = true;
+        RightPaddingColumn.MinWidth = AppWindow.TitleBar.RightInset / scaleFactor;
+        UpdateCaptionButtonColours();
+
+        LayoutRoot.ActualThemeChanged += (s, a) =>
         {
-            ExtendsContentIntoTitleBar = true;
-            RightPaddingColumn.MinWidth = AppWindow.TitleBar.RightInset / scaleFactor;
-
+            ContentDialogHelper.ThemeChanged(s.ActualTheme);
             UpdateCaptionButtonColours();
-
-            LayoutRoot.ActualThemeChanged += (s, a) =>
-            {
-                UpdateCaptionButtonColours();
-                ResetPuzzleTabsOpacity();
-            };
-        }
+            ResetPuzzleTabsOpacity();
+        };
 
         App.Instance.RegisterWindow(this);
 
@@ -49,7 +46,7 @@ internal sealed partial class MainWindow : Window, ISession
 
         AppWindow.MoveAndResize(App.Instance.GetNewWindowPosition(this, bounds));
 
-        // setting the presenter will also activate the window
+        // setting the presenter state may also activate the window if the state changes
         if (windowState == WindowState.Minimized)
         {
             WindowState = WindowState.Normal;
@@ -416,7 +413,7 @@ internal sealed partial class MainWindow : Window, ISession
                 AppWindow.TitleBar.ButtonPressedForegroundColor = Colors.Black;
                 AppWindow.TitleBar.ButtonHoverForegroundColor = Colors.Black;
                 AppWindow.TitleBar.ButtonHoverBackgroundColor = Colors.LightGray;
-                AppWindow.TitleBar.ButtonInactiveForegroundColor = Colors.DarkGray;
+                AppWindow.TitleBar.ButtonInactiveForegroundColor = Colors.Gray;
             }
             else
             {
@@ -424,7 +421,7 @@ internal sealed partial class MainWindow : Window, ISession
                 AppWindow.TitleBar.ButtonPressedForegroundColor = Colors.White;
                 AppWindow.TitleBar.ButtonHoverForegroundColor = Colors.White;
                 AppWindow.TitleBar.ButtonHoverBackgroundColor = Colors.DimGray;
-                AppWindow.TitleBar.ButtonInactiveForegroundColor = Colors.DimGray;
+                AppWindow.TitleBar.ButtonInactiveForegroundColor = Colors.Gray;
             }
         }
     }
@@ -437,7 +434,7 @@ internal sealed partial class MainWindow : Window, ISession
 
     private void NewTab_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
     {
-        Tabs_AddTabButtonClick(Tabs, new object());
+        Tabs_AddTabButtonClick(Tabs, EventArgs.Empty);
         args.Handled = true;
     }
 

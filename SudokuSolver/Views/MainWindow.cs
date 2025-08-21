@@ -60,8 +60,6 @@ internal partial class MainWindow : Window
         inputNonClientPointerSource = InputNonClientPointerSource.GetForWindowId(AppWindow.Id);
 
         ContentDialogHelper = new ContentDialogHelper(this);
-        ContentDialogHelper.DialogOpened += ContentDialogHelper_DialogOpened;
-        ContentDialogHelper.DialogClosed += ContentDialogHelper_DialogClosed;
 
         dispatcherTimer = InitialiseDragRegionTimer();
 
@@ -595,16 +593,27 @@ internal partial class MainWindow : Window
         }
     }
 
-    private void ContentDialogHelper_DialogClosed(ContentDialogHelper sender, ContentDialogHelper.EventArgs args)
+    public void ContentDialogOpened()
     {
-        ((OverlappedPresenter)AppWindow.Presenter).IsResizable = true;
+        // workaround for https://github.com/microsoft/microsoft-ui-xaml/issues/5739
+        // focus can escape a content dialog when access keys are shown via the alt key...
+        // (it makes no difference if the content dialog itself has any access keys)
+        ((ITabItem)Tabs.SelectedItem).EnableMenuAccessKeys(enable: false);
+        ((OverlappedPresenter)AppWindow.Presenter).IsResizable = false;
+
         UpdateCaptionButtonColours();
         SetWindowDragRegionsInternal();
     }
 
-    private void ContentDialogHelper_DialogOpened(ContentDialogHelper sender, ContentDialogHelper.EventArgs args)
+    public void ContentDialogClosing()
     {
-        ((OverlappedPresenter)AppWindow.Presenter).IsResizable = false;
+        ((ITabItem)Tabs.SelectedItem).EnableMenuAccessKeys(enable: true);
+        ((OverlappedPresenter)AppWindow.Presenter).IsResizable = true;
+        
+    }
+
+    public void ContentDialogClosed()
+    {
         UpdateCaptionButtonColours();
         SetWindowDragRegionsInternal();
     }

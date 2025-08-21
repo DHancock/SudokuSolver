@@ -1,28 +1,13 @@
 ﻿namespace SudokuSolver.Views;
 
-internal class ContentDialogHelper
+internal sealed class ContentDialogHelper
 {
-    internal record EventArgs(ContentDialog Dialog);
-
-    public event TypedEventHandler<ContentDialogHelper, EventArgs>? DialogOpened;
-    public event TypedEventHandler<ContentDialogHelper, EventArgs>? DialogClosed;
-
     private readonly MainWindow parentWindow;
     private ContentDialog? currentDialog = null;
-    private ITabItem? selectedTab = null;
 
     public ContentDialogHelper(MainWindow window)
     {
         parentWindow = window;
-
-        ((FrameworkElement)window.Content).ActualThemeChanged += (s, e) =>
-        {
-            // the settings tab on another window can change the theme
-            if (currentDialog is not null)
-            {
-                currentDialog.RequestedTheme = s.ActualTheme;
-            }
-        };
     }
 
     public async Task<ContentDialogResult> ShowFileOpenErrorDialogAsync(TabViewItem parent, string message, string details)
@@ -58,8 +43,8 @@ internal class ContentDialogHelper
 
         currentDialog = dialog;
         currentDialog.Opened += CurrentDialog_Opened;
-        currentDialog.Closing += ContentDialog_Closing;
-        currentDialog.Closed += ContentDialog_Closed;
+        currentDialog.Closing += CurrentDialog_Closing;
+        currentDialog.Closed += CurrentDialog_Closed;
 
         currentDialog.Style = (Style)Application.Current.Resources["CustomContentDialogStyle"];
         currentDialog.XamlRoot = parentTab.XamlRoot;
@@ -76,30 +61,35 @@ internal class ContentDialogHelper
             parentWindow.WindowState = WindowState.Normal;
         }
 
-        selectedTab = (ITabItem)parentTab;
-
-        // workaround for https://github.com/microsoft/microsoft-ui-xaml/issues/5739
-        // focus can escape a content dialog when access keys are shown via the alt key...
-        // (it makes no difference if the content dialog itself has any access keys)
-        selectedTab.EnableMenuAccessKeys(enable: false);
-
         return await currentDialog.ShowAsync();
-    }
-
-    private void ContentDialog_Closing(ContentDialog sender, ContentDialogClosingEventArgs args)
-    {
-        selectedTab?.EnableMenuAccessKeys(enable: true);
-    }
-
-    private void ContentDialog_Closed(ContentDialog sender, ContentDialogClosedEventArgs args)
-    {
-        currentDialog = null;
-        DialogClosed?.Invoke(this, new EventArgs(sender));
     }
 
     private void CurrentDialog_Opened(ContentDialog sender, ContentDialogOpenedEventArgs args)
     {
-        DialogOpened?.Invoke(this, new EventArgs(sender));
+        parentWindow.ContentDialogOpened();
+    }
+
+    private void CurrentDialog_Closing(ContentDialog sender, ContentDialogClosingEventArgs args)
+    {
+        parentWindow.ContentDialogClosing();
+    }
+
+    private void CurrentDialog_Closed(ContentDialog sender, ContentDialogClosedEventArgs args)
+    {
+        sender.Opened -= CurrentDialog_Opened;
+        sender.Closing -= CurrentDialog_Closing;
+        sender.Closed -= CurrentDialog_Closed;
+
+        currentDialog = null;
+        parentWindow.ContentDialogClosed();
+    }
+
+    public void ThemeChanged(ElementTheme theme)
+    {
+        if (currentDialog is not null)  // the settings tab on another window can change the theme
+        {
+            currentDialog.RequestedTheme = theme;
+        }
     }
 
     public bool IsContentDialogOpen => currentDialog is not null;
