@@ -319,19 +319,22 @@ internal sealed partial class MainWindow : Window, ISession
             MainWindow? window = App.Instance.GetWindowForElement(sourceTab);
             window?.CloseTab(sourceTab);
 
-            if (sourceTab is PuzzleTabViewItem existingPuzzleTab)
+            if (sourceTab is PuzzleTabViewItem draggedPuzzleTab)
             {
-                AddTab(new PuzzleTabViewItem(this, existingPuzzleTab), index);
+                AddTab(new PuzzleTabViewItem(this, draggedPuzzleTab), index);
             }
-            else if (sourceTab is SettingsTabViewItem existingSettingsTab)
+            else if (sourceTab is SettingsTabViewItem draggedSettingsTab)
             {
+                TabViewItem? existing = Tabs.TabItems.FirstOrDefault(x => x is SettingsTabViewItem) as TabViewItem;
+
                 // preserve the drop position and existing expander state
-                if (Tabs.TabItems.FirstOrDefault(x => x is SettingsTabViewItem) is TabViewItem existing)
+                // add first before closing an existing settings tab to avoid the window closing
+                AddTab(new SettingsTabViewItem(this, draggedSettingsTab), index);
+
+                if (existing is not null)
                 {
                     CloseTab(existing);
                 }
-
-                AddTab(new SettingsTabViewItem(this, existingSettingsTab), index);
             }
         }
     }
