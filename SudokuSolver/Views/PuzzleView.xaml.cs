@@ -51,7 +51,7 @@ internal partial class PuzzleView : UserControl
         set
         {
             Debug.Assert(value is not null);
-            DataContext = viewModel = value;
+            viewModel = value;
         }
     }
 
