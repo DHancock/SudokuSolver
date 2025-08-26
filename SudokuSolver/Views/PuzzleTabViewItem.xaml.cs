@@ -26,37 +26,17 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         parentWindow = parent;
         ViewModel = new PuzzleViewModel();
 
-        FileMenuItem.Unloaded += (s, a) => FocusLastSelectedCell();
-        ViewMenuItem.Unloaded += (s, a) => FocusLastSelectedCell();
-        EditMenuItem.Unloaded += (s, a) => FocusLastSelectedCell();
+        FileMenuItem.Unloaded += MenuItem_Unloaded;
+        ViewMenuItem.Unloaded += MenuItem_Unloaded;
+        EditMenuItem.Unloaded += MenuItem_Unloaded;
 
-        GotFocus += (s, a) => FocusLastSelectedCell();
+        GotFocus += PuzzleTabViewItem_GotFocus;
 
         initialisationPhase += 1;
 
-        Loaded += (s, e) =>
-        {
-            // set for the next theme transition
-            Puzzle.BackgroundBrushTransition.Duration = TimeSpan.FromMilliseconds(250);
+        Loaded += LoadedHandler;
 
-            Button? closeButton = this.FindChild<Button>("CloseButton");
-            Debug.Assert(closeButton is not null);
-
-            if (closeButton is not null)
-            {
-                string text = App.Instance.ResourceLoader.GetString("CloseTabToolTip");
-                ToolTipService.SetToolTip(closeButton, text);
-            }
-
-            UpdateTabHeader();
-
-            initialisationPhase -= 1;
-        };
-
-        Clipboard.ContentChanged += async (s, o) =>
-        {
-            await ViewModel.ClipboardContentChangedAsync();
-        };
+        Clipboard.ContentChanged += Clipboard_ContentChanged;
 
         EnableKeyboardAccelerators(enable: false);
 
@@ -70,6 +50,27 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
             Puzzle.AllowDrop = true;
             Puzzle.DragEnter += Puzzle_DragEnter;
             Puzzle.Drop += Puzzle_Drop;
+        }
+
+        static void LoadedHandler(object sender, RoutedEventArgs e)
+        {
+            PuzzleTabViewItem tab = (PuzzleTabViewItem)sender;
+            tab.Loaded -= LoadedHandler;
+
+            // set for the next theme transition
+            tab.Puzzle.BackgroundBrushTransition.Duration = TimeSpan.FromMilliseconds(250);
+            tab.UpdateTabHeader();
+
+            Button? closeButton = tab.FindChild<Button>("CloseButton");
+            Debug.Assert(closeButton is not null);
+
+            if (closeButton is not null)
+            {
+                string text = App.Instance.ResourceLoader.GetString("CloseTabToolTip");
+                ToolTipService.SetToolTip(closeButton, text);
+            }
+
+            tab.initialisationPhase -= 1;
         }
     }
 
@@ -170,6 +171,46 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         }
     }
 
+    public void Closed()
+    {
+        // the tab's keyboard accelerators would still
+        // be active (until presumably it's garbage collected)
+        EnableKeyboardAccelerators(enable: false);
+
+        FileMenuItem.Unloaded -= MenuItem_Unloaded;
+        ViewMenuItem.Unloaded -= MenuItem_Unloaded;
+        EditMenuItem.Unloaded -= MenuItem_Unloaded;
+        GotFocus -= PuzzleTabViewItem_GotFocus;
+        Puzzle.DragEnter -= Puzzle_DragEnter;
+        Puzzle.Drop -= Puzzle_Drop;
+
+        Clipboard.ContentChanged -= Clipboard_ContentChanged;
+
+        if (viewModel is not null)
+        {
+            viewModel.PropertyChanged -= ViewModel_PropertyChanged;
+            viewModel = null;
+        }
+
+        Puzzle.Closed();
+    }
+
+    private static void PuzzleTabViewItem_GotFocus(object sender, RoutedEventArgs e)
+    {
+        PuzzleTabViewItem tab = (PuzzleTabViewItem)sender;
+        tab.FocusLastSelectedCell();
+    }
+
+    private void MenuItem_Unloaded(object sender, RoutedEventArgs e)
+    {
+        FocusLastSelectedCell();
+    }
+
+    private async void Clipboard_ContentChanged(object? sender, object e)
+    {
+        await ViewModel.ClipboardContentChangedAsync();
+    }
+
     private async void Puzzle_Drop(object sender, DragEventArgs e)
     {
         IReadOnlyList<IStorageItem> items = await e.DataView.GetStorageItemsAsync();
@@ -226,13 +267,16 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
     public PuzzleViewModel ViewModel
     {
-        get => viewModel!;
+        get
+        {
+            Debug.Assert(viewModel is not null);
+            return viewModel;
+        }
         set
         {
             if (viewModel is not null)
             {
                 viewModel.PropertyChanged -= ViewModel_PropertyChanged;
-                Puzzle.SelectedIndexChanged -= ViewModel.Puzzle_SelectedIndexChanged;
             }
 
             viewModel = value;
@@ -301,7 +345,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
     public static bool IsFileDialogAvailable => !IntegrityLevel.IsElevated;
 
-    public bool IsModified => ViewModel!.IsModified;
+    public bool IsModified => ViewModel.IsModified;
 
     private void NewTabClickHandler(object sender, RoutedEventArgs e)
     {

@@ -21,12 +21,20 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
         LayoutRoot.SizeChanged += LayoutRoot_SizeChanged;
         Loaded += SettingsTabViewItem_Loaded;
 
-        void SettingsTabViewItem_Loaded(object sender, RoutedEventArgs e)
-        {
-            Loaded -= SettingsTabViewItem_Loaded;
-            AdjustLayout(ActualSize.X);
+        CloseOtherTabsCommand = new RelayCommand(ExecuteCloseOtherTabsAsync, CanCloseOtherTabs);
+        CloseLeftTabsCommand = new RelayCommand(ExecuteCloseLeftTabsAsync, CanCloseLeftTabs);
+        CloseRightTabsCommand = new RelayCommand(ExecuteCloseRightTabsAsync, CanCloseRightTabs);
 
-            Button? closeButton = this.FindChild<Button>("CloseButton");
+        EnableKeyboardAccelerators(enable: false);
+
+        static void SettingsTabViewItem_Loaded(object sender, RoutedEventArgs e)
+        {
+            SettingsTabViewItem tab = (SettingsTabViewItem)sender;
+
+            tab.Loaded -= SettingsTabViewItem_Loaded;
+            tab.AdjustLayout(tab.ActualSize.X);
+
+            Button? closeButton = tab.FindChild<Button>("CloseButton");
             Debug.Assert(closeButton is not null);
 
             if (closeButton is not null)
@@ -35,12 +43,6 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
                 ToolTipService.SetToolTip(closeButton, text);
             }
         }
-
-        CloseOtherTabsCommand = new RelayCommand(ExecuteCloseOtherTabsAsync, CanCloseOtherTabs);
-        CloseLeftTabsCommand = new RelayCommand(ExecuteCloseLeftTabsAsync, CanCloseLeftTabs);
-        CloseRightTabsCommand = new RelayCommand(ExecuteCloseRightTabsAsync, CanCloseRightTabs);
-
-        EnableKeyboardAccelerators(enable: false);
     }
 
     public SettingsTabViewItem(MainWindow parent, SettingsTabViewItem source) : this(parent)
@@ -82,6 +84,15 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
             data = root.Element("start");
             SessionExpander.IsExpanded = (data is not null) && (data.Value == "true");
         }
+    }
+
+    public void Closed()
+    {
+        // the tab's keyboard accelerators would still
+        // be active (until presumably it's garbage collected)
+        EnableKeyboardAccelerators(enable: false);
+
+        LayoutRoot.SizeChanged -= LayoutRoot_SizeChanged;
     }
 
     private void LayoutRoot_SizeChanged(object sender, SizeChangedEventArgs e)

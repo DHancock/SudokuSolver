@@ -87,7 +87,11 @@ internal sealed partial class MainWindow : Window, ISession
         if (Settings.Instance.SaveSessionState && (App.Instance.SessionHelper.IsExit || (App.Instance.WindowCount == 1)))
         {
             App.Instance.SessionHelper.AddWindow(this);
-            Tabs.TabItems.Clear();
+
+            foreach (object tab in Tabs.TabItems)
+            {
+                CloseTab((TabViewItem)tab);
+            }
         }
         else
         {
@@ -250,9 +254,7 @@ internal sealed partial class MainWindow : Window, ISession
         bool found = Tabs.TabItems.Remove(tab);
         Debug.Assert(found);
 
-        // the tab's keyboard accelerators would still
-        // be active (until presumably it's garbage collected)
-        ((ITabItem)tab).EnableKeyboardAccelerators(enable: false);
+        ((ITabItem)tab).Closed();
     }
 
     private void Tabs_TabDroppedOutside(TabView sender, TabViewTabDroppedOutsideEventArgs args)

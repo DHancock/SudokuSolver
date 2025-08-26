@@ -13,8 +13,6 @@ internal sealed partial class Cell : UserControl
 
     private readonly TextBlock[] possibleTBs;
 
-    public event TypedEventHandler<Cell, SelectionChangedEventArgs>? SelectionChanged;
-
     private bool isSelected = false;
 
     public Cell()
@@ -36,14 +34,17 @@ internal sealed partial class Cell : UserControl
             if (isSelected != value)  
             {
                 isSelected = value;
-                SelectionChanged?.Invoke(this, new SelectionChangedEventArgs(Data.Index, value));
+
+                ParentPuzzleView.CellSelectionChanged(this, Data.Index, value);
 
                 GoToVisualState(value ? VisualState.SelectedFocused : VisualState.Normal);
             }
         }
     }
 
-    internal record SelectionChangedEventArgs(int Index, bool IsSelected);
+
+    private PuzzleView ParentPuzzleView => (PuzzleView)((Viewbox)((SudokuGrid)this.Parent).Parent).Parent;
+
 
     protected override void OnPointerPressed(PointerRoutedEventArgs e)
     {
@@ -129,7 +130,7 @@ internal sealed partial class Cell : UserControl
             bool stateFound = VisualStateManager.GoToState(cell, origin.ToString(), false);
             Debug.Assert(stateFound);
 
-            if (((ViewModels.PuzzleViewModel)cell.DataContext).ShowSolution || (cellData.Origin == Origins.User) || (cellData.Origin == Origins.Provided))
+            if (cell.ParentPuzzleView.ViewModel.ShowSolution || (cellData.Origin == Origins.User) || (cellData.Origin == Origins.Provided))
             {
                 cell.CellValue.Opacity = 1;
                 cell.CellValue.Text = sLookUp[cellData.Value];
@@ -155,7 +156,7 @@ internal sealed partial class Cell : UserControl
 
             cell.CellValue.Opacity = 0;
 
-            if (((ViewModels.PuzzleViewModel)cell.DataContext).ShowPossibles)
+            if (cell.ParentPuzzleView.ViewModel.ShowPossibles)
             {
                 int writeIndex = 0;
 
@@ -266,7 +267,7 @@ internal sealed partial class Cell : UserControl
 
             if (newValue >= 0)
             {
-                ((ViewModels.PuzzleViewModel)this.DataContext).UpdateCellForKeyDown(Data.Index, newValue);
+                ParentPuzzleView.ViewModel.UpdateCellForKeyDown(Data.Index, newValue);
             }
         }
     }
