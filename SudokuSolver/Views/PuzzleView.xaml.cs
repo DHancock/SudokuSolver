@@ -18,30 +18,48 @@ internal partial class PuzzleView : UserControl
     {
         InitializeComponent();
 
-        // if the app theme is different from the systems an initial opacity of zero stops  
-        // excessive background flashing when creating new tabs, looks intentional...
-        Grid.Loaded += (s, e) =>
-        {
-            Grid.Opacity = 1;
-        };
-
-        Unloaded += (s, e) =>
-        {
-            themeWhenSelected = ActualTheme;
-        };
-
-        SizeChanged += (s, e) =>
-        {
-            // stop the grid lines being interpolated out when the view box scaling goes below 1.0
-            // WPF did this automatically. Printers will typically have much higher DPI resolutions.
-            if (!IsPrintView)
-            {
-                Grid.AdaptForScaleFactor(e.NewSize.Width);
-            }
-        };
+        Grid.Loaded += Grid_Loaded;
+        Unloaded += PuzzleView_Unloaded;
+        SizeChanged += PuzzleView_SizeChanged;
     }
 
-    public PuzzleViewModel ViewModel
+    private static void Grid_Loaded(object sender, RoutedEventArgs e)
+    {
+        // if the app theme is different from the systems an initial opacity of zero stops  
+        // excessive background flashing when creating new tabs, looks intentional...
+        SudokuGrid grid = (SudokuGrid)sender;
+        grid.Opacity = 1;
+    }
+
+    private static void PuzzleView_Unloaded(object sender, RoutedEventArgs e)
+    {
+        PuzzleView puzzleView = (PuzzleView)sender;
+        puzzleView.themeWhenSelected = puzzleView.ActualTheme;
+    }
+
+    private static void PuzzleView_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        // stop the grid lines being interpolated out when the view box scaling goes below 1.0
+        // WPF did this automatically. Printers will typically have much higher DPI resolutions.
+        PuzzleView puzzleView = (PuzzleView)sender;
+
+        if (!puzzleView.IsPrintView)
+        {
+            puzzleView.Grid.AdaptForScaleFactor(e.NewSize.Width);
+        }
+    }
+
+    public void Closed()
+    {
+        Grid.Loaded += Grid_Loaded;
+        Unloaded += PuzzleView_Unloaded;
+        SizeChanged += PuzzleView_SizeChanged;
+
+        viewModel = null;
+        lastSelectedCell = null;
+    }
+
+    public PuzzleViewModel ViewModel  
     {
         get
         {
