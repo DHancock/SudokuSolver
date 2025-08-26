@@ -24,87 +24,87 @@
                     <Setter Property="StrokeThickness" Value="2"/>
                 </Style>
             </local:SudokuGrid.Resources>
-            <local:Cell Data="{x:Bind ViewModel.Cells[0]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[1]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[2]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[3]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[4]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[5]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[6]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[7]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[8]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[9]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[10]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[11]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[12]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[13]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[14]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[15]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[16]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[17]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[18]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[19]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[20]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[21]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[22]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[23]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[24]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[25]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[26]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[27]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[28]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[29]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[30]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[31]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[32]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[33]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[34]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[35]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[36]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[37]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[38]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[39]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[40]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[41]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[42]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[43]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[44]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[45]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[46]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[47]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[48]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[49]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[50]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[51]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[52]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[53]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[54]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[55]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[56]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[57]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[58]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[59]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[60]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[61]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[62]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[63]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[64]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[65]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[66]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[67]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[68]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[69]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[70]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[71]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[72]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[73]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[74]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[75]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[76]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[77]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[78]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[79]}" SelectionChanged="Cell_SelectionChanged"/>
-            <local:Cell Data="{x:Bind ViewModel.Cells[80]}" SelectionChanged="Cell_SelectionChanged"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[0]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[1]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[2]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[3]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[4]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[5]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[6]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[7]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[8]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[9]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[10]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[11]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[12]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[13]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[14]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[15]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[16]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[17]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[18]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[19]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[20]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[21]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[22]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[23]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[24]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[25]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[26]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[27]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[28]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[29]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[30]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[31]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[32]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[33]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[34]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[35]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[36]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[37]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[38]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[39]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[40]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[41]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[42]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[43]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[44]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[45]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[46]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[47]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[48]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[49]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[50]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[51]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[52]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[53]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[54]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[55]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[56]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[57]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[58]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[59]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[60]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[61]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[62]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[63]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[64]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[65]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[66]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[67]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[68]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[69]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[70]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[71]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[72]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[73]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[74]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[75]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[76]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[77]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[78]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[79]}"/>
+            <local:Cell Data="{x:Bind ViewModel.Cells[80]}"/>
             <!-- minor grid lines -->
             <Line Style="{ThemeResource MinorGridStyle}"/>
             <Line Style="{ThemeResource MinorGridStyle}"/>

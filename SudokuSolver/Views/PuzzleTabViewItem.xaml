@@ -115,7 +115,7 @@
             </AppBarButton>
         </CommandBar>
 
-        <local:PuzzleView x:Name="Puzzle" Grid.Row="1" Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="8,0,8,8" SelectedIndexChanged="{x:Bind ViewModel.Puzzle_SelectedIndexChanged}"/>
+        <local:PuzzleView x:Name="Puzzle" Grid.Row="1" Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="8,0,8,8"/>
     </Grid>
 
     <TabViewItem.Header>

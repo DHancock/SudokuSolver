@@ -226,13 +226,16 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
     public PuzzleViewModel ViewModel
     {
-        get => viewModel!;
+        get
+        {
+            Debug.Assert(viewModel is not null);
+            return viewModel;
+        }
         set
         {
             if (viewModel is not null)
             {
                 viewModel.PropertyChanged -= ViewModel_PropertyChanged;
-                Puzzle.SelectedIndexChanged -= ViewModel.Puzzle_SelectedIndexChanged;
             }
 
             viewModel = value;
@@ -301,7 +304,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
     public static bool IsFileDialogAvailable => !IntegrityLevel.IsElevated;
 
-    public bool IsModified => ViewModel!.IsModified;
+    public bool IsModified => ViewModel.IsModified;
 
     private void NewTabClickHandler(object sender, RoutedEventArgs e)
     {

@@ -13,7 +13,6 @@ internal partial class PuzzleView : UserControl
     private ElementTheme themeWhenSelected;
     private PuzzleViewModel? viewModel;
     private Cell? lastSelectedCell;
-    public event TypedEventHandler<PuzzleView, Cell.SelectionChangedEventArgs>? SelectedIndexChanged;
 
     public PuzzleView()
     {
@@ -42,10 +41,13 @@ internal partial class PuzzleView : UserControl
         };
     }
 
-    public PuzzleViewModel? ViewModel
+    public PuzzleViewModel ViewModel
     {
-        get => viewModel;
-
+        get
+        {
+            Debug.Assert(viewModel is not null);
+            return viewModel;
+        }
         set
         {
             Debug.Assert(value is not null);
@@ -55,11 +57,11 @@ internal partial class PuzzleView : UserControl
 
     public BrushTransition BackgroundBrushTransition => PuzzleBrushTransition;
 
-    private void Cell_SelectionChanged(Cell sender, Cell.SelectionChangedEventArgs e)
+    public void CellSelectionChanged(Cell cell, int index, bool isSelected)
     {
-        SelectedIndexChanged?.Invoke(this, e);
+        ViewModel.SelectedIndexChanged(index, isSelected);
 
-        if (e.IsSelected)
+        if (isSelected)
         {
             // enforce single selection
             if (lastSelectedCell is not null)
@@ -67,9 +69,9 @@ internal partial class PuzzleView : UserControl
                 lastSelectedCell.IsSelected = false;
             }
 
-            lastSelectedCell = sender;
+            lastSelectedCell = cell;
         }
-        else if (ReferenceEquals(lastSelectedCell, sender))
+        else if (ReferenceEquals(lastSelectedCell, cell))
         {
             lastSelectedCell = null;
         }

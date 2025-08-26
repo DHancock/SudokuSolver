@@ -13,8 +13,6 @@ internal sealed partial class Cell : UserControl
 
     private readonly TextBlock[] possibleTBs;
 
-    public event TypedEventHandler<Cell, SelectionChangedEventArgs>? SelectionChanged;
-
     private bool isSelected = false;
 
     public Cell()
@@ -36,14 +34,17 @@ internal sealed partial class Cell : UserControl
             if (isSelected != value)  
             {
                 isSelected = value;
-                SelectionChanged?.Invoke(this, new SelectionChangedEventArgs(Data.Index, value));
+
+                ParentPuzzleView.CellSelectionChanged(this, Data.Index, value);
 
                 GoToVisualState(value ? VisualState.SelectedFocused : VisualState.Normal);
             }
         }
     }
 
-    internal record SelectionChangedEventArgs(int Index, bool IsSelected);
+
+    private PuzzleView ParentPuzzleView => (PuzzleView)((Viewbox)((SudokuGrid)this.Parent).Parent).Parent;
+
 
     protected override void OnPointerPressed(PointerRoutedEventArgs e)
     {
