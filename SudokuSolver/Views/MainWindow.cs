@@ -7,6 +7,8 @@ internal enum WindowState { Normal, Minimized, Maximized }
 
 internal partial class MainWindow : Window
 {
+    private const nuint cSubClassId = 0;
+
     private enum SC
     {
         RESTORE = 0xF120,
@@ -52,7 +54,7 @@ internal partial class MainWindow : Window
 
         subClassDelegate = new SUBCLASSPROC(NewSubWindowProc);
 
-        if (!PInvoke.SetWindowSubclass(WindowHandle, subClassDelegate, 0, 0))
+        if (!PInvoke.SetWindowSubclass(WindowHandle, subClassDelegate, cSubClassId, 0))
         {
             throw new Win32Exception(Marshal.GetLastPInvokeError());
         }
@@ -70,11 +72,23 @@ internal partial class MainWindow : Window
         scaledMinWidth = ConvertToDeviceSize(cMinWidth);
         scaledMinHeight = ConvertToDeviceSize(cMinHeight);
 
-        Closed += (s, e) =>
-        {
-            cancelDragRegionTimerEvent = true;
-            dispatcherTimer.Stop();
-        };
+        Closed += MainWindow_Closed;
+    }
+
+    private void MainWindow_Closed(object sender, WindowEventArgs args)
+    {
+        Closed -= MainWindow_Closed;
+
+        PInvoke.RemoveWindowSubclass(WindowHandle, subClassDelegate, cSubClassId);
+
+        AppWindow.Changed -= AppWindow_Changed;
+        Activated -= App.Instance.RecordWindowActivated;
+
+        cancelDragRegionTimerEvent = true;
+        dispatcherTimer.Stop();
+
+        systemMenu = null;
+        Content = null;
     }
 
     private void AppWindow_Changed(AppWindow sender, AppWindowChangedEventArgs args)
@@ -609,7 +623,6 @@ internal partial class MainWindow : Window
     {
         ((ITabItem)Tabs.SelectedItem).EnableMenuAccessKeys(enable: true);
         ((OverlappedPresenter)AppWindow.Presenter).IsResizable = true;
-        
     }
 
     public void ContentDialogClosed()

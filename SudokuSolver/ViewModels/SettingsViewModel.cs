@@ -227,7 +227,7 @@ internal sealed partial class SettingsViewModel : INotifyPropertyChanged
             }
 
             NotifyPropertyChanged();
-            NotifyPropertyChanged(nameof(Theme));
+            App.Instance.UpdateTheme();
         }
     }
 

@@ -3,14 +3,13 @@
     x:Class="SudokuSolver.Views.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:SudokuSolver.Views"
-    xmlns:vm="using:SudokuSolver.ViewModels">
+    xmlns:local="using:SudokuSolver.Views">
 
     <Window.SystemBackdrop>
         <MicaBackdrop Kind="BaseAlt"/>
     </Window.SystemBackdrop>
 
-    <Grid x:Name="LayoutRoot" RequestedTheme="{x:Bind vm:SettingsViewModel.Instance.Theme, Mode=OneWay}">
+    <Grid x:Name="LayoutRoot">
 
         <!-- used to add print preview pages to the visual tree -->
         <Canvas x:Name="PrintCanvas" Opacity="0"/>
