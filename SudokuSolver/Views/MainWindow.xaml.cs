@@ -22,23 +22,18 @@ internal sealed partial class MainWindow : Window, ISession
     public MainWindow(WindowState windowState, RectInt32 bounds) : this()
     {
         ExtendsContentIntoTitleBar = true;
+
         RightPaddingColumn.MinWidth = AppWindow.TitleBar.RightInset / scaleFactor;
+
+        UpdateTheme();
         UpdateCaptionButtonColours();
 
-        LayoutRoot.ActualThemeChanged += (s, a) =>
-        {
-            ContentDialogHelper.ThemeChanged(s.ActualTheme);
-            UpdateCaptionButtonColours();
-            ResetPuzzleTabsOpacity();
-        };
-
+        LayoutRoot.ActualThemeChanged += LayoutRoot_ActualThemeChanged;
+        
         App.Instance.RegisterWindow(this);
 
-        AppWindow.Closing += async (s, args) =>
-        {
-            args.Cancel = true;
-            await HandleWindowCloseRequestedAsync();
-        };
+        AppWindow.Closing += AppWindow_Closing;
+        AppWindow.Destroying += AppWindow_Destroying;
 
         // these two are used in the iconic window displayed when hovering over the app's icon in the task bar
         AppWindow.Title = App.cAppDisplayName;
@@ -56,30 +51,54 @@ internal sealed partial class MainWindow : Window, ISession
             WindowState = windowState;
         }
 
-        Activated += (s, e) =>
+        Activated += MainWindow_Activated;
+    }
+
+    private void AppWindow_Destroying(AppWindow sender, object args)
+    {
+        AppWindow.Destroying -= AppWindow_Destroying;
+
+        Activated -= MainWindow_Activated;
+        LayoutRoot.ActualThemeChanged -= LayoutRoot_ActualThemeChanged;
+        AppWindow.Closing -= AppWindow_Closing;
+    }
+
+    private void LayoutRoot_ActualThemeChanged(FrameworkElement sender, object args)
+    {
+        ContentDialogHelper.ThemeChanged(sender.ActualTheme);
+        UpdateCaptionButtonColours();
+        ResetPuzzleTabsOpacity();
+    }
+
+    private async void AppWindow_Closing(AppWindow sender, AppWindowClosingEventArgs args)
+    {
+        args.Cancel = true;
+        await HandleWindowCloseRequestedAsync();
+    }
+
+    private void MainWindow_Activated(object sender, WindowActivatedEventArgs args)
+    {
+        IsActive = args.WindowActivationState != WindowActivationState.Deactivated;
+
+        if (IsActive)
         {
-            IsActive = e.WindowActivationState != WindowActivationState.Deactivated;
+            WindowIcon.Opacity = 1;
 
-            if (IsActive)
+            if (Tabs.SelectedItem is PuzzleTabViewItem puzzleTab)
             {
-                WindowIcon.Opacity = 1;
-
-                if (Tabs.SelectedItem is PuzzleTabViewItem puzzleTab)
-                {
-                    puzzleTab.FocusLastSelectedCell();
-                }
+                puzzleTab.FocusLastSelectedCell();
             }
-            else
-            {
-                WindowIcon.Opacity = 0.25;
-            }
+        }
+        else
+        {
+            WindowIcon.Opacity = 0.25;
+        }
 
-            // only the current active window's hotkeys should be active
-            if (Tabs.SelectedItem is not null)
-            {
-                ((ITabItem)Tabs.SelectedItem).EnableKeyboardAccelerators(enable: IsActive);
-            };
-        };
+        // only the current active window's hotkeys should be active
+        if (Tabs.SelectedItem is not null)
+        {
+            ((ITabItem)Tabs.SelectedItem).EnableKeyboardAccelerators(enable: IsActive);
+        }
     }
 
     private async Task HandleWindowCloseRequestedAsync()
@@ -88,7 +107,9 @@ internal sealed partial class MainWindow : Window, ISession
         {
             App.Instance.SessionHelper.AddWindow(this);
 
-            foreach (object tab in Tabs.TabItems)
+            List<object> localCopy = new List<object>(Tabs.TabItems);
+
+            foreach (object tab in localCopy)
             {
                 CloseTab((TabViewItem)tab);
             }
@@ -108,6 +129,11 @@ internal sealed partial class MainWindow : Window, ISession
                 puzzleTab.ResetOpacityTransitionForThemeChange();
             }
         }
+    }
+                                                        
+    public void UpdateTheme()
+    {
+        LayoutRoot.RequestedTheme = Settings.Instance.Theme;
     }
 
     public async Task PrintPuzzleAsync(PuzzleTabViewItem tab)
@@ -227,7 +253,13 @@ internal sealed partial class MainWindow : Window, ISession
         }
         else
         {
-            Tabs.Loaded += (s, e) => AddTabInternal(tab, index);
+            Tabs.Loaded += Tabs_Loaded;
+        }
+
+        void Tabs_Loaded(object sender, RoutedEventArgs e)
+        {
+            Tabs.Loaded -= Tabs_Loaded;
+            AddTabInternal(tab, index);
         }
 
         void AddTabInternal(TabViewItem tab, int index)

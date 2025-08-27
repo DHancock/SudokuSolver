@@ -17,3 +17,4 @@ SHAddToRecentDocs
 GetDoubleClickTime
 WM_ENDSESSION
 EnumWindows
+RemoveWindowSubclass

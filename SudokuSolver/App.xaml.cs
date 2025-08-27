@@ -422,4 +422,15 @@ public partial class App : Application
 
         return list;
     }
+
+    public void UpdateTheme()
+    {
+        // avoid using x:Bind in the window xaml file due to memory leaks
+        // https://github.com/microsoft/microsoft-ui-xaml/issues/9960
+
+        foreach (MainWindow window in windowList)
+        {
+            window.UpdateTheme();
+        }
+    }
 }
