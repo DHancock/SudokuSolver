@@ -79,7 +79,8 @@ internal partial class MainWindow : Window
     {
         Closed -= MainWindow_Closed;
 
-        PInvoke.RemoveWindowSubclass(WindowHandle, subClassDelegate, cSubClassId);
+        bool success = PInvoke.RemoveWindowSubclass(WindowHandle, subClassDelegate, cSubClassId);
+        Debug.Assert(success);
 
         AppWindow.Changed -= AppWindow_Changed;
         Activated -= App.Instance.RecordWindowActivated;
@@ -522,10 +523,28 @@ internal partial class MainWindow : Window
 
     private void AddDragRegionEventHandlers(UIElement item)
     {
+        AddRemoveDragRegionEventHandlers(item, add: true);
+    }
+
+    private void RemoveDragRegionEventHandlers(UIElement item)
+    {
+        AddRemoveDragRegionEventHandlers(item, add: false);
+    }
+
+    private void AddRemoveDragRegionEventHandlers(UIElement item, bool add)
+    {
         if (item.ContextFlyout is MenuFlyout menuFlyout)  // menu flyouts are not UIElements
         {
-            menuFlyout.Opened += MenuFlyout_Opened;
-            menuFlyout.Closed += MenuFlyout_Closed;
+            if (add)
+            {
+                menuFlyout.Opened += MenuFlyout_Opened;
+                menuFlyout.Closed += MenuFlyout_Closed;
+            }
+            else
+            {
+                menuFlyout.Opened -= MenuFlyout_Opened;
+                menuFlyout.Closed -= MenuFlyout_Closed;
+            }
         }
 
         foreach (UIElement child in LogicalTreeHelper.GetChildren(item))
@@ -536,40 +555,77 @@ internal partial class MainWindow : Window
 
                 case MenuBarItem mb when mb.Items.Count > 0:
                 {
-                    mb.Items[0].Loaded += MenuItem_Loaded;
-                    mb.Items[0].Unloaded += MenuItem_Unloaded;
+                    if (add)
+                    {
+                        mb.Items[0].Loaded += MenuItem_Loaded;
+                        mb.Items[0].Unloaded += MenuItem_Unloaded;
+                    }
+                    else
+                    {
+                        mb.Items[0].Loaded -= MenuItem_Loaded;
+                        mb.Items[0].Unloaded -= MenuItem_Unloaded;
+                    }
                     continue;
                 }
 
                 case Expander expander:
                 {
-                    expander.SizeChanged += UIElement_SizeChanged;
+                    if (add)
+                    {
+                        expander.SizeChanged += UIElement_SizeChanged;
+                    }
+                    else
+                    {
+                        expander.SizeChanged -= UIElement_SizeChanged;
+                    }
                     break;
                 }
 
                 case SimpleColorPicker picker:
                 {
-                    picker.FlyoutOpened += Picker_FlyoutOpened;
-                    picker.FlyoutClosed += Picker_FlyoutClosed;
+                    if (add)
+                    {
+                        picker.FlyoutOpened += Picker_FlyoutOpened;
+                        picker.FlyoutClosed += Picker_FlyoutClosed;
+                    }
+                    else
+                    {
+                        picker.FlyoutOpened -= Picker_FlyoutOpened;
+                        picker.FlyoutClosed -= Picker_FlyoutClosed;
+                    }
                     continue;
                 }
 
                 case PuzzleView puzzleView:
                 {
-                    puzzleView.SizeChanged += UIElement_SizeChanged;
+                    if (add)
+                    {
+                        puzzleView.SizeChanged += UIElement_SizeChanged;
+                    }
+                    else
+                    {
+                        puzzleView.SizeChanged -= UIElement_SizeChanged;
+                    }
                     continue;
                 }
 
                 case ScrollViewer scrollViewer:
                 {
-                    scrollViewer.ViewChanged += ScrollViewer_ViewChanged;
+                    if (add)
+                    {
+                        scrollViewer.ViewChanged += ScrollViewer_ViewChanged;
+                    }
+                    else
+                    {
+                        scrollViewer.ViewChanged -= ScrollViewer_ViewChanged;
+                    }
                     break;
                 }
 
                 default: break;
             }
 
-            AddDragRegionEventHandlers(child);
+            AddRemoveDragRegionEventHandlers(child, add);
         }
 
         void MenuItem_Loaded(object sender, RoutedEventArgs e) => ClearWindowDragRegions();
