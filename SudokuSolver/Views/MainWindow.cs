@@ -269,7 +269,7 @@ internal partial class MainWindow : Window
 
     private bool CanMinimize(object? param)
     {
-        return (AppWindow.Presenter is OverlappedPresenter op) && op.IsMinimizable;
+        return (AppWindow.Presenter is OverlappedPresenter op) && op.IsMinimizable && !ContentDialogHelper.IsContentDialogOpen;
     }
 
     private bool CanMaximize(object? param)
