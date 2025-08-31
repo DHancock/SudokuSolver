@@ -262,12 +262,12 @@ internal partial class MainWindow : Window
 
     private bool CanSize(object? param)
     {
-        return (AppWindow.Presenter is OverlappedPresenter op) && op.IsResizable && (op.State != OverlappedPresenterState.Maximized) && !ContentDialogHelper.IsContentDialogOpen;
+        return (AppWindow.Presenter is OverlappedPresenter op) && op.IsResizable && (op.State != OverlappedPresenterState.Maximized);
     }
 
     private bool CanMinimize(object? param)
     {
-        return (AppWindow.Presenter is OverlappedPresenter op) && op.IsMinimizable && !ContentDialogHelper.IsContentDialogOpen;
+        return (AppWindow.Presenter is OverlappedPresenter op) && op.IsMinimizable;
     }
 
     private bool CanMaximize(object? param)
@@ -578,7 +578,10 @@ internal partial class MainWindow : Window
         // focus can escape a content dialog when access keys are shown via the alt key...
         // (it makes no difference if the content dialog itself has any access keys)
         ((ITabItem)Tabs.SelectedItem).EnableMenuAccessKeys(enable: false);
-        ((OverlappedPresenter)AppWindow.Presenter).IsResizable = false;
+
+        OverlappedPresenter op = (OverlappedPresenter)AppWindow.Presenter;
+        op.IsResizable = false;
+        op.IsMinimizable = false;
 
         UpdateCaptionButtonColours();
         SetWindowDragRegionsInternal();
@@ -587,7 +590,10 @@ internal partial class MainWindow : Window
     public void ContentDialogClosing()
     {
         ((ITabItem)Tabs.SelectedItem).EnableMenuAccessKeys(enable: true);
-        ((OverlappedPresenter)AppWindow.Presenter).IsResizable = true;
+
+        OverlappedPresenter op = (OverlappedPresenter)AppWindow.Presenter;
+        op.IsResizable = true;
+        op.IsMinimizable = true;
     }
 
     public void ContentDialogClosed()
