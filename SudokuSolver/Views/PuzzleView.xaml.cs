@@ -8,7 +8,7 @@ namespace SudokuSolver.Views;
 /// </summary>
 internal partial class PuzzleView : UserControl
 {
-    public bool IsPrintView { set; get; } = false;
+    public bool IsPrintView { set; private get; } = false;
 
     private ElementTheme themeWhenSelected;
     private PuzzleViewModel? viewModel;
@@ -51,9 +51,9 @@ internal partial class PuzzleView : UserControl
 
     public void Closed()
     {
-        Grid.Loaded += Grid_Loaded;
-        Unloaded += PuzzleView_Unloaded;
-        SizeChanged += PuzzleView_SizeChanged;
+        Grid.Loaded -= Grid_Loaded;
+        Unloaded -= PuzzleView_Unloaded;
+        SizeChanged -= PuzzleView_SizeChanged;
 
         viewModel = null;
         lastSelectedCell = null;
@@ -106,18 +106,16 @@ internal partial class PuzzleView : UserControl
             }
             else
             {
-                // When a TabSelectionChanged event is received the new tab's visual tree hasn't yet been restored
-                // and the selected cells parent will be null. It still is when the parent TabViewItem gets focus.
-                // That would cause an attempt to focus the selected cell to fail.
-                Task.Run(() =>
-                {
-                    DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () =>
-                    {
-                        // because it's queued circumstances may have changed so there's little point asserting success
-                        lastSelectedCell?.Focus(FocusState.Programmatic);
-                    });
-                });
+                // When a TabSelectionChanged event is received the new content won't have finished being added to
+                // the Tab's content presenter. Wait for a subsequent size changed event indicating that it's now valid.
+                SizeChanged += PuzzleView_SizeChanged;
             }
+        }
+
+        void PuzzleView_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            SizeChanged -= PuzzleView_SizeChanged;
+            lastSelectedCell?.Focus(FocusState.Programmatic);
         }
     }
 
