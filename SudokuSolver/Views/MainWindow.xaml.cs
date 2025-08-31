@@ -286,6 +286,7 @@ internal sealed partial class MainWindow : Window, ISession
         bool found = Tabs.TabItems.Remove(tab);
         Debug.Assert(found);
 
+        RemoveDragRegionEventHandlers(tab);
         ((ITabItem)tab).Closed();
     }
 
@@ -417,25 +418,16 @@ internal sealed partial class MainWindow : Window, ISession
 
     private void Tabs_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (e.RemovedItems.Count == 1)
+        if (e.RemovedItems.Count  == 1)
         {
             ((ITabItem)e.RemovedItems[0]).EnableKeyboardAccelerators(enable: false);
-
-            if (e.RemovedItems[0] is SettingsTabViewItem)
-            {
-                SetWindowDragRegionsInternal();
-            }
         }
 
         if (e.AddedItems.Count == 1)
         {
             ((ITabItem)e.AddedItems[0]).EnableKeyboardAccelerators(enable: true);
-
-            if (e.AddedItems[0] is SettingsTabViewItem)
-            {
-                SetWindowDragRegionsInternal();
-            }
-            else if (e.AddedItems[0] is PuzzleTabViewItem puzzle)
+            
+            if (e.AddedItems[0] is PuzzleTabViewItem puzzle)
             {
                 puzzle.FocusLastSelectedCell();
             }

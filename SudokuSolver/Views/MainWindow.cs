@@ -36,7 +36,6 @@ internal partial class MainWindow : Window
     private readonly InputNonClientPointerSource inputNonClientPointerSource;
     private readonly SUBCLASSPROC subClassDelegate;
     private readonly DispatcherTimer dispatcherTimer;
-    private bool cancelDragRegionTimerEvent = false;
     private PointInt32 restorePosition;
     private SizeInt32 restoreSize;
     private MenuFlyout? systemMenu;
@@ -79,12 +78,12 @@ internal partial class MainWindow : Window
     {
         Closed -= MainWindow_Closed;
 
-        PInvoke.RemoveWindowSubclass(WindowHandle, subClassDelegate, cSubClassId);
+        bool success = PInvoke.RemoveWindowSubclass(WindowHandle, subClassDelegate, cSubClassId);
+        Debug.Assert(success);
 
         AppWindow.Changed -= AppWindow_Changed;
         Activated -= App.Instance.RecordWindowActivated;
 
-        cancelDragRegionTimerEvent = true;
         dispatcherTimer.Stop();
 
         systemMenu = null;
@@ -268,7 +267,7 @@ internal partial class MainWindow : Window
 
     private bool CanMinimize(object? param)
     {
-        return (AppWindow.Presenter is OverlappedPresenter op) && op.IsMinimizable;
+        return (AppWindow.Presenter is OverlappedPresenter op) && op.IsMinimizable && !ContentDialogHelper.IsContentDialogOpen;
     }
 
     private bool CanMaximize(object? param)
@@ -353,27 +352,9 @@ internal partial class MainWindow : Window
         return dpi / 96.0;
     }
 
-    private void ClearWindowDragRegions()
-    {
-        // Guard against race hazards. If a tab is selected using right click a size changed event is generated
-        // and the timer started. The drag regions will be cleared when the context menu is opened, followed
-        // by the timer event which could then reset the drag regions while the menu was still open. Stopping
-        // the timer isn't enough because the tick event may have already been queued (on the same thread).
-        cancelDragRegionTimerEvent = true;
-
-        // allow mouse interaction with menu fly outs,  
-        // including clicks anywhere in the client area used to dismiss the menu
-        if (AppWindowTitleBar.IsCustomizationSupported())
-        {
-            inputNonClientPointerSource.ClearRegionRects(NonClientRegionKind.Caption);
-        }
-    }
-
     private void SetWindowDragRegionsInternal()
     {
         const int cInitialCapacity = 9;
-
-        cancelDragRegionTimerEvent = false;
 
         try
         {
@@ -384,14 +365,14 @@ internal partial class MainWindow : Window
                 // this also effectively disables the caption buttons
                 inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Passthrough, [windowRect]);
             }
-            else if ((Content is FrameworkElement layoutRoot) && layoutRoot.IsLoaded && AppWindowTitleBar.IsCustomizationSupported())
+            else
             {
                 // as there is no clear distinction any more between the title bar region and the client area,
                 // just treat the whole window as a title bar, click anywhere on the backdrop to drag the window.
                 inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Caption, [windowRect]);
 
                 List<RectInt32> rects = new List<RectInt32>(cInitialCapacity);
-                LocatePassThroughContent(rects, layoutRoot);
+                LocatePassThroughContent(rects, LayoutRoot);
                 Debug.Assert(rects.Count <= cInitialCapacity);
 
                 inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Passthrough, rects.ToArray());
@@ -399,8 +380,7 @@ internal partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            // accessing Window.Content can throw an object closed exception when
-            // a menu unloaded event fires because the window is closing
+            // can throw if the window is closing
             Debug.WriteLine(ex.ToString());
         }
     }
@@ -417,11 +397,6 @@ internal partial class MainWindow : Window
 
         foreach (UIElement child in LogicalTreeHelper.GetChildren(item))
         {
-            if (child.XamlRoot is null)
-            {
-                return;
-            }
-
             switch (child)
             {
                 case Panel: break;
@@ -522,63 +497,57 @@ internal partial class MainWindow : Window
 
     private void AddDragRegionEventHandlers(UIElement item)
     {
-        if (item.ContextFlyout is MenuFlyout menuFlyout)  // menu flyouts are not UIElements
-        {
-            menuFlyout.Opened += MenuFlyout_Opened;
-            menuFlyout.Closed += MenuFlyout_Closed;
-        }
+        AddRemoveDragRegionEventHandlers(item, add: true);
+    }
 
+    private void RemoveDragRegionEventHandlers(UIElement item)
+    {
+        AddRemoveDragRegionEventHandlers(item, add: false);
+    }
+
+    private void AddRemoveDragRegionEventHandlers(UIElement item, bool add)
+    {
         foreach (UIElement child in LogicalTreeHelper.GetChildren(item))
         {
             switch (child)
             {
                 case Panel: break;
 
-                case MenuBarItem mb when mb.Items.Count > 0:
+                case Expander expander:         // on the settings tab
+                case PuzzleView puzzleView:     // on the puzzle tab
                 {
-                    mb.Items[0].Loaded += MenuItem_Loaded;
-                    mb.Items[0].Unloaded += MenuItem_Unloaded;
-                    continue;
-                }
-
-                case Expander expander:
-                {
-                    expander.SizeChanged += UIElement_SizeChanged;
+                    if (add)
+                    {
+                        // this can also indicate that a new tab has been selected and that it's content is now valid 
+                        ((FrameworkElement)child).SizeChanged += FrameworkElement_SizeChanged;
+                    }
+                    else
+                    {
+                        ((FrameworkElement)child).SizeChanged -= FrameworkElement_SizeChanged;
+                    }
                     break;
-                }
-
-                case SimpleColorPicker picker:
-                {
-                    picker.FlyoutOpened += Picker_FlyoutOpened;
-                    picker.FlyoutClosed += Picker_FlyoutClosed;
-                    continue;
-                }
-
-                case PuzzleView puzzleView:
-                {
-                    puzzleView.SizeChanged += UIElement_SizeChanged;
-                    continue;
                 }
 
                 case ScrollViewer scrollViewer:
                 {
-                    scrollViewer.ViewChanged += ScrollViewer_ViewChanged;
+                    if (add)
+                    {
+                        scrollViewer.ViewChanged += ScrollViewer_ViewChanged;
+                    }
+                    else
+                    {
+                        scrollViewer.ViewChanged -= ScrollViewer_ViewChanged;
+                    }
                     break;
                 }
 
                 default: break;
             }
 
-            AddDragRegionEventHandlers(child);
+            AddRemoveDragRegionEventHandlers(child, add);
         }
 
-        void MenuItem_Loaded(object sender, RoutedEventArgs e) => ClearWindowDragRegions();
-        void MenuItem_Unloaded(object sender, RoutedEventArgs e) => SetWindowDragRegionsInternal();
-        void UIElement_SizeChanged(object sender, SizeChangedEventArgs e) => SetWindowDragRegionsInternal();
-        void Picker_FlyoutOpened(SimpleColorPicker sender, bool args) => ClearWindowDragRegions();
-        void Picker_FlyoutClosed(SimpleColorPicker sender, bool args) => SetWindowDragRegionsInternal();
-        void MenuFlyout_Opened(object? sender, object e) => ClearWindowDragRegions();
-        void MenuFlyout_Closed(object? sender, object e) => SetWindowDragRegionsInternal();
+        void FrameworkElement_SizeChanged(object sender, SizeChangedEventArgs e) => SetWindowDragRegions();
         void ScrollViewer_ViewChanged(object? sender, ScrollViewerViewChangedEventArgs e) => SetWindowDragRegions();
     }
 
@@ -600,11 +569,7 @@ internal partial class MainWindow : Window
     private void DispatcherTimer_Tick(object? sender, object e)
     {
         dispatcherTimer.Stop();
-
-        if (!cancelDragRegionTimerEvent)
-        {
-            SetWindowDragRegionsInternal();
-        }
+        SetWindowDragRegionsInternal();
     }
 
     public void ContentDialogOpened()
