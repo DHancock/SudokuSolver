@@ -92,18 +92,22 @@ internal partial class MainWindow : Window
 
     private void AppWindow_Changed(AppWindow sender, AppWindowChangedEventArgs args)
     {
-        if (args.DidPositionChange || args.DidSizeChange)
+        if (args.DidSizeChange)
         {
+            if (WindowState != WindowState.Minimized)
+            {
+                SetWindowDragRegions();
+            }
+
             if (WindowState == WindowState.Normal)
             {
-                if (args.DidSizeChange && (restoreSize.Height != AppWindow.Size.Height))
-                {
-                    SetWindowDragRegions();
-                }
-
-                restorePosition = AppWindow.Position;
                 restoreSize = AppWindow.Size;
             }
+        }
+
+        if (args.DidPositionChange && (WindowState == WindowState.Normal))
+        {
+            restorePosition = AppWindow.Position;
         }
     }
 
