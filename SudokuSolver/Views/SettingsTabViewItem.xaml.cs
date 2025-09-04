@@ -21,6 +21,15 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
         LayoutRoot.SizeChanged += LayoutRoot_SizeChanged;
         Loaded += SettingsTabViewItem_Loaded;
 
+        RootScrollViewer.ViewChanged += RootScrollViewer_ViewChanged;
+
+        // size changed can also indicate that this tab has been selected and that it's content is now valid 
+        ThemeExpander.SizeChanged += Expander_SizeChanged;
+        ViewExpander.SizeChanged += Expander_SizeChanged;
+        LightColorsExpander.SizeChanged += Expander_SizeChanged;
+        DarkColorsExpander.SizeChanged += Expander_SizeChanged;
+        SessionExpander.SizeChanged += Expander_SizeChanged;
+
         CloseOtherTabsCommand = new RelayCommand(ExecuteCloseOtherTabsAsync, CanCloseOtherTabs);
         CloseLeftTabsCommand = new RelayCommand(ExecuteCloseLeftTabsAsync, CanCloseLeftTabs);
         CloseRightTabsCommand = new RelayCommand(ExecuteCloseRightTabsAsync, CanCloseRightTabs);
@@ -43,6 +52,16 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
                 ToolTipService.SetToolTip(closeButton, text);
             }
         }
+    }
+
+    private void Expander_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        parentWindow.SetWindowDragRegions();
+    }
+
+    private void RootScrollViewer_ViewChanged(object? sender, ScrollViewerViewChangedEventArgs e)
+    {
+        parentWindow.SetWindowDragRegions();
     }
 
     public SettingsTabViewItem(MainWindow parent, SettingsTabViewItem source) : this(parent)
@@ -93,6 +112,13 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
         EnableKeyboardAccelerators(enable: false);
 
         LayoutRoot.SizeChanged -= LayoutRoot_SizeChanged;
+
+        RootScrollViewer.ViewChanged -= RootScrollViewer_ViewChanged;
+        ThemeExpander.SizeChanged -= Expander_SizeChanged;
+        ViewExpander.SizeChanged -= Expander_SizeChanged;
+        LightColorsExpander.SizeChanged -= Expander_SizeChanged;
+        DarkColorsExpander.SizeChanged -= Expander_SizeChanged;
+        SessionExpander.SizeChanged -= Expander_SizeChanged;
     }
 
     private void LayoutRoot_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -245,4 +271,33 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
     {
         // no access keys to disable
     }
+
+    public int PassthroughCount => 7;
+
+    public void AddPassthroughContent(in RectInt32[] rects)
+    {
+        Debug.Assert(rects.Length >= PassthroughCount);
+
+        double topClip = 0.0;
+
+        if (RootScrollViewer.ComputedVerticalScrollBarVisibility == Visibility.Visible)
+        {
+            topClip = Utils.GetOffsetFromXamlRoot(RootScrollViewer).Y;
+
+            ScrollBar? vScrollBar = RootScrollViewer.FindChild<ScrollBar>("VerticalScrollBar");
+            Debug.Assert(vScrollBar is not null);
+
+            if (vScrollBar is not null)
+            {
+                rects[0] = Utils.GetPassthroughRect(vScrollBar);
+            }
+        }
+
+        rects[1] = Utils.GetPassthroughRect(ThemeExpander, topClip);
+        rects[2] = Utils.GetPassthroughRect(ViewExpander, topClip);
+        rects[3] = Utils.GetPassthroughRect(LightColorsExpander, topClip);
+        rects[4] = Utils.GetPassthroughRect(DarkColorsExpander, topClip);
+        rects[5] = Utils.GetPassthroughRect(SessionExpander, topClip);
+        rects[6] = Utils.GetPassthroughRect(AboutInfo.HyperlinkElement, topClip);
+    }       
 }

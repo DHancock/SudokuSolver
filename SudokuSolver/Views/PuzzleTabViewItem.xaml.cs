@@ -22,6 +22,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
     public PuzzleTabViewItem(MainWindow parent)
     {
         this.InitializeComponent();
+        initialisationPhase += 1;
 
         parentWindow = parent;
         ViewModel = new PuzzleViewModel();
@@ -30,13 +31,12 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         ViewMenuItem.Unloaded += MenuItem_Unloaded;
         EditMenuItem.Unloaded += MenuItem_Unloaded;
 
+        Clipboard.ContentChanged += Clipboard_ContentChanged;
         GotFocus += PuzzleTabViewItem_GotFocus;
-
-        initialisationPhase += 1;
-
         Loaded += LoadedHandler;
 
-        Clipboard.ContentChanged += Clipboard_ContentChanged;
+        // size changed can also indicate that this tab has been selected and that it's content is now valid 
+        Puzzle.SizeChanged += Puzzle_SizeChanged;
 
         EnableKeyboardAccelerators(enable: false);
 
@@ -72,6 +72,11 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
             tab.initialisationPhase -= 1;
         }
+    }
+
+    private void Puzzle_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        parentWindow.SetWindowDragRegions();
     }
 
     public PuzzleTabViewItem(MainWindow parent, StorageFile storageFile) : this(parent)
@@ -181,6 +186,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         ViewMenuItem.Unloaded -= MenuItem_Unloaded;
         EditMenuItem.Unloaded -= MenuItem_Unloaded;
         GotFocus -= PuzzleTabViewItem_GotFocus;
+        Puzzle.SizeChanged -= Puzzle_SizeChanged;
         Puzzle.DragEnter -= Puzzle_DragEnter;
         Puzzle.Drop -= Puzzle_Drop;
 
@@ -766,5 +772,18 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
             XElement? c = s?.Element("Cell");
             return c is not null;
         }
+    }
+
+    public int PassthroughCount => 5;
+
+    public void AddPassthroughContent(in RectInt32[] rects)
+    {
+        Debug.Assert(rects.Length >= PassthroughCount);
+
+        rects[0] = Utils.GetPassthroughRect(FileMenu);
+        rects[1] = Utils.GetPassthroughRect(EditMenu);
+        rects[2] = Utils.GetPassthroughRect(ViewMenu);
+        rects[3] = Utils.GetPassthroughRect(SettingsButtton);
+        rects[4] = Utils.GetPassthroughRect(Puzzle);
     }
 }

@@ -16,10 +16,6 @@ internal sealed partial class AboutBox : UserControl
 
         VersionTextBlock.Text = string.Format(template, version);
         AppNameTextBlock.Text = App.cAppDisplayName;
-
-        // Use the Tag to identify that this text block contains a hyperlink. Work around for:
-        // https://github.com/microsoft/WindowsAppSDK/issues/4722
-        HyperlinkTextBlock.Tag = HyperlinkTextBlock;
     }
 
     private void AboutImage_ActualThemeChanged(FrameworkElement sender, object args)
@@ -43,4 +39,6 @@ internal sealed partial class AboutBox : UserControl
         string fileName = Utils.NormaliseTheme(theme) == ElementTheme.Light ? "about_light.png" : "about_dark.png";
         return new BitmapImage(new Uri("ms-appx:///Resources/" + fileName));
     }
+
+    public UIElement HyperlinkElement => HyperlinkTextBlock;
 }

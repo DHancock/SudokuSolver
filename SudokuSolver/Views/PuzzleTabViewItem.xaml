@@ -13,7 +13,7 @@
 
         <MenuBar x:Name="Menu" HorizontalAlignment="Left">
 
-            <MenuBarItem x:Uid="File" AccessKey="F">
+            <MenuBarItem x:Name="FileMenu" x:Uid="File" AccessKey="F">
 
                 <!-- new and close tabs key accelerators are disabled, they are handled by the tab context menu-->
                 <MenuFlyoutItem x:Uid="NewTab" Click="NewTabClickHandler" AccessKey="N" x:Name="FileMenuItem">
@@ -68,7 +68,7 @@
                 <MenuFlyoutItem x:Uid="Exit" Click="ExitClickHandler" AccessKey="X"/>
             </MenuBarItem>
 
-            <MenuBarItem x:Uid="Edit" AccessKey="E" >
+            <MenuBarItem x:Name="EditMenu" x:Uid="Edit" AccessKey="E" >
                 <MenuFlyoutItem x:Name="EditMenuItem" x:Uid="Undo" Command="{x:Bind ViewModel.UndoCommand}" AccessKey="U">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="Z" Modifiers="Control"/>
@@ -103,14 +103,14 @@
                 </MenuFlyoutSubItem>
             </MenuBarItem>
 
-            <MenuBarItem x:Uid="View" AccessKey="V">
+            <MenuBarItem x:Name="ViewMenu" x:Uid="View" AccessKey="V">
                 <ToggleMenuFlyoutItem x:Name="ViewMenuItem" x:Uid="Possibles" IsChecked="{x:Bind ViewModel.ShowPossibles, Mode=TwoWay}" AccessKey="P"/>
                 <ToggleMenuFlyoutItem x:Uid="Solution" IsChecked="{x:Bind ViewModel.ShowSolution, Mode=TwoWay}" AccessKey="S"/>
             </MenuBarItem>
         </MenuBar>
 
         <CommandBar Grid.Column="1" DefaultLabelPosition="Collapsed" OverflowButtonVisibility="Collapsed" Background="Transparent">
-            <AppBarButton MinWidth="40" MaxWidth="40" x:Uid="SettingsIcon" ToolTipService.Placement="Top" Click="SettingsButton_Click">
+            <AppBarButton x:Name="SettingsButtton" MinWidth="40" MaxWidth="40" x:Uid="SettingsIcon" ToolTipService.Placement="Top" Click="SettingsButton_Click">
                 <SymbolIcon Symbol="Setting"/>
             </AppBarButton>
         </CommandBar>

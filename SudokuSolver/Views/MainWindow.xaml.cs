@@ -277,7 +277,6 @@ internal sealed partial class MainWindow : Window, ISession
             }
 
             Tabs.SelectedItem = tab;
-            AddDragRegionEventHandlers(tab);
         }
     }
 
@@ -286,7 +285,6 @@ internal sealed partial class MainWindow : Window, ISession
         bool found = Tabs.TabItems.Remove(tab);
         Debug.Assert(found);
 
-        RemoveDragRegionEventHandlers(tab);
         ((ITabItem)tab).Closed();
     }
 
