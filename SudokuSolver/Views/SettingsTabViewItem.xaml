@@ -6,149 +6,147 @@
     xmlns:local="using:SudokuSolver.Views"
     xmlns:w3c="using:AssyntSoftware.WinUI3Controls">
 
-    <Grid Background="{ThemeResource LayerFillColorDefaultBrush}">
+    <!-- left, top, right, bottom -->
 
-        <!-- left, top, right, bottom -->
+    <ScrollViewer x:Name="RootScrollViewer" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto" Background="{ThemeResource LayerFillColorDefaultBrush}">
+        
+        <Grid x:Name="LayoutRoot" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" Margin="20,40,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" MaxWidth="700"/>
+            </Grid.ColumnDefinitions>
+            <Grid.Resources>
+                <Style TargetType="TextBlock" BasedOn="{StaticResource BodyTextBlockStyle}">
+                    <Setter Property="Margin" Value="10,0,0,0"/>
+                </Style>
+                <Style TargetType="Expander">
+                    <Setter Property="Margin" Value="0,0,0,15"/>
+                </Style>
+                <Style TargetType="w3c:SimpleColorPicker">
+                    <Setter Property="IsMiniPalette" Value="False"/>
+                    <Setter Property="Margin" Value="10,5,0,5"/>
+                    <Setter Property="HorizontalAlignment" Value="Right"/>
+                </Style>
+            </Grid.Resources>
 
-        <ScrollViewer Grid.Row="0" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
-            <Grid x:Name="LayoutRoot" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" Margin="20,40,0,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" MaxWidth="700"/>
-                </Grid.ColumnDefinitions>
-                <Grid.Resources>
-                    <Style TargetType="TextBlock" BasedOn="{StaticResource BodyTextBlockStyle}">
-                        <Setter Property="Margin" Value="10,0,0,0"/>
-                    </Style>
-                    <Style TargetType="Expander">
-                        <Setter Property="Margin" Value="0,0,0,15"/>
-                    </Style>
-                    <Style TargetType="w3c:SimpleColorPicker">
-                        <Setter Property="IsMiniPalette" Value="False"/>
-                        <Setter Property="Margin" Value="10,5,0,5"/>
-                        <Setter Property="HorizontalAlignment" Value="Right"/>
-                    </Style>
-                </Grid.Resources>
-
-                <Expander x:Name="ThemeExpander" Grid.Row="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-                    <Expander.Header>
-                        <StackPanel Orientation="Horizontal">
-                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xF08C;"/>
-                            <TextBlock x:Uid="AppTheme"/>
-                        </StackPanel>
-                    </Expander.Header>
-                    <RadioButtons SelectedIndex="{x:Bind ViewModel.ThemeRadioButtonsIndex, Mode=TwoWay}">
-                        <TextBlock x:Uid="AppThemeLight" Margin="0"/>
-                        <TextBlock x:Uid="AppThemeDark" Margin="0"/>
-                        <TextBlock x:Uid="AppThemeSystem" Margin="0"/>
-                    </RadioButtons>
-                </Expander>
-
-                <Expander x:Name="ViewExpander" Grid.Row="1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-                    <Expander.Header>
-                        <StackPanel Orientation="Horizontal">
-                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE80A;"/>
-                            <TextBlock x:Uid="ViewOptions"/>
-                        </StackPanel>
-                    </Expander.Header>
-                    <StackPanel>
-                        <CheckBox x:Uid="ShowPossibles" IsChecked="{x:Bind ViewModel.ShowPossibles, Mode=TwoWay}"/>
-                        <CheckBox x:Uid="ShowSolution" IsChecked="{x:Bind ViewModel.ShowSolution, Mode=TwoWay}"/>
+            <Expander x:Name="ThemeExpander" Grid.Row="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                <Expander.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xF08C;"/>
+                        <TextBlock x:Uid="AppTheme"/>
                     </StackPanel>
-                </Expander>
+                </Expander.Header>
+                <RadioButtons SelectedIndex="{x:Bind ViewModel.ThemeRadioButtonsIndex, Mode=TwoWay}">
+                    <TextBlock x:Uid="AppThemeLight" Margin="0"/>
+                    <TextBlock x:Uid="AppThemeDark" Margin="0"/>
+                    <TextBlock x:Uid="AppThemeSystem" Margin="0"/>
+                </RadioButtons>
+            </Expander>
 
-                <Expander x:Name="LightColorsExpander" Grid.Row="2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-                    <Expander.Header>
-                        <StackPanel Orientation="Horizontal">
-                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE790;"/>
-                            <TextBlock x:Uid="LightThemeColors"/>
-                        </StackPanel>
-                    </Expander.Header>
+            <Expander x:Name="ViewExpander" Grid.Row="1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                <Expander.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE80A;"/>
+                        <TextBlock x:Uid="ViewOptions"/>
+                    </StackPanel>
+                </Expander.Header>
+                <StackPanel>
+                    <CheckBox x:Uid="ShowPossibles" IsChecked="{x:Bind ViewModel.ShowPossibles, Mode=TwoWay}"/>
+                    <CheckBox x:Uid="ShowSolution" IsChecked="{x:Bind ViewModel.ShowSolution, Mode=TwoWay}"/>
+                </StackPanel>
+            </Expander>
 
-                    <Grid ColumnDefinitions ="Auto,Auto,*" RowDefinitions="*,*,*,*,*,*">
-                        <TextBlock Grid.Row="0" x:Uid="UserValues" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="1" x:Uid="ProvidedValues" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="2" x:Uid="CalculatdValues" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="3" x:Uid="PossibleValues" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="4" x:Uid="HorizontalPossibles" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="5" x:Uid="VerticalPossibles" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+            <Expander x:Name="LightColorsExpander" Grid.Row="2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                <Expander.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE790;"/>
+                        <TextBlock x:Uid="LightThemeColors"/>
+                    </StackPanel>
+                </Expander.Header>
 
-                        <w3c:SimpleColorPicker Grid.Row="0" Grid.Column="1" Color="{x:Bind ViewModel.UserLight, Mode=TwoWay}"/>
-                        <w3c:SimpleColorPicker Grid.Row="1" Grid.Column="1" Color="{x:Bind ViewModel.ProvidedLight, Mode=TwoWay}"/>
-                        <w3c:SimpleColorPicker Grid.Row="2" Grid.Column="1" Color="{x:Bind ViewModel.CalculatedLight, Mode=TwoWay}"/>
-                        <w3c:SimpleColorPicker Grid.Row="3" Grid.Column="1" Color="{x:Bind ViewModel.PossibleLight, Mode=TwoWay}"/>
-                        <w3c:SimpleColorPicker Grid.Row="4" Grid.Column="1" Color="{x:Bind ViewModel.HPossibleLight, Mode=TwoWay}"/>
-                        <w3c:SimpleColorPicker Grid.Row="5" Grid.Column="1" Color="{x:Bind ViewModel.VPossibleLight, Mode=TwoWay}"/>
+                <Grid ColumnDefinitions ="Auto,Auto,*" RowDefinitions="*,*,*,*,*,*">
+                    <TextBlock Grid.Row="0" x:Uid="UserValues" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="1" x:Uid="ProvidedValues" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="2" x:Uid="CalculatdValues" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="3" x:Uid="PossibleValues" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="4" x:Uid="HorizontalPossibles" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="5" x:Uid="VerticalPossibles" HorizontalAlignment="Right" VerticalAlignment="Center"/>
 
-                        <SplitButton Grid.Row="5" Grid.Column="2" Content="Reset" Command="{x:Bind ViewModel.ResetLightColors}" HorizontalAlignment="Right" Margin="10,0,0,0">
-                            <SplitButton.Flyout>
-                                <MenuFlyout Placement="Bottom">
-                                    <MenuFlyoutItem x:Uid="UserValues" Command="{x:Bind ViewModel.ResetLightUser}"/>
-                                    <MenuFlyoutItem x:Uid="ProvidedValues" Command="{x:Bind ViewModel.ResetLightProvided}"/>
-                                    <MenuFlyoutItem x:Uid="CalculatdValues" Command="{x:Bind ViewModel.ResetLightCalculated}"/>
-                                    <MenuFlyoutItem x:Uid="PossibleValues" Command="{x:Bind ViewModel.ResetLightPossible}"/>
-                                    <MenuFlyoutItem x:Uid="HorizontalPossibles" Command="{x:Bind ViewModel.ResetLightHPossible}"/>
-                                    <MenuFlyoutItem x:Uid="VerticalPossibles" Command="{x:Bind ViewModel.ResetLightVPossible}"/>
-                                </MenuFlyout>
-                            </SplitButton.Flyout>
-                        </SplitButton>
-                    </Grid>
-                </Expander>
+                    <w3c:SimpleColorPicker Grid.Row="0" Grid.Column="1" Color="{x:Bind ViewModel.UserLight, Mode=TwoWay}"/>
+                    <w3c:SimpleColorPicker Grid.Row="1" Grid.Column="1" Color="{x:Bind ViewModel.ProvidedLight, Mode=TwoWay}"/>
+                    <w3c:SimpleColorPicker Grid.Row="2" Grid.Column="1" Color="{x:Bind ViewModel.CalculatedLight, Mode=TwoWay}"/>
+                    <w3c:SimpleColorPicker Grid.Row="3" Grid.Column="1" Color="{x:Bind ViewModel.PossibleLight, Mode=TwoWay}"/>
+                    <w3c:SimpleColorPicker Grid.Row="4" Grid.Column="1" Color="{x:Bind ViewModel.HPossibleLight, Mode=TwoWay}"/>
+                    <w3c:SimpleColorPicker Grid.Row="5" Grid.Column="1" Color="{x:Bind ViewModel.VPossibleLight, Mode=TwoWay}"/>
 
-                <Expander x:Name="DarkColorsExpander" Grid.Row="3" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-                    <Expander.Header>
-                        <StackPanel Orientation="Horizontal">
-                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE790;"/>
-                            <TextBlock x:Uid="DarkThemeColors"/>
-                        </StackPanel>
-                    </Expander.Header>
+                    <SplitButton Grid.Row="5" Grid.Column="2" Content="Reset" Command="{x:Bind ViewModel.ResetLightColors}" HorizontalAlignment="Right" Margin="10,0,0,0">
+                        <SplitButton.Flyout>
+                            <MenuFlyout Placement="Bottom">
+                                <MenuFlyoutItem x:Uid="UserValues" Command="{x:Bind ViewModel.ResetLightUser}"/>
+                                <MenuFlyoutItem x:Uid="ProvidedValues" Command="{x:Bind ViewModel.ResetLightProvided}"/>
+                                <MenuFlyoutItem x:Uid="CalculatdValues" Command="{x:Bind ViewModel.ResetLightCalculated}"/>
+                                <MenuFlyoutItem x:Uid="PossibleValues" Command="{x:Bind ViewModel.ResetLightPossible}"/>
+                                <MenuFlyoutItem x:Uid="HorizontalPossibles" Command="{x:Bind ViewModel.ResetLightHPossible}"/>
+                                <MenuFlyoutItem x:Uid="VerticalPossibles" Command="{x:Bind ViewModel.ResetLightVPossible}"/>
+                            </MenuFlyout>
+                        </SplitButton.Flyout>
+                    </SplitButton>
+                </Grid>
+            </Expander>
 
-                    <Grid ColumnDefinitions ="Auto,Auto,*" RowDefinitions="*,*,*,*,*,*">
-                        <TextBlock Grid.Row="0" x:Uid="UserValues" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="1" x:Uid="ProvidedValues" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="2" x:Uid="CalculatdValues" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="3" x:Uid="PossibleValues" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="4" x:Uid="HorizontalPossibles" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="5" x:Uid="VerticalPossibles" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+            <Expander x:Name="DarkColorsExpander" Grid.Row="3" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                <Expander.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE790;"/>
+                        <TextBlock x:Uid="DarkThemeColors"/>
+                    </StackPanel>
+                </Expander.Header>
 
-                        <w3c:SimpleColorPicker Grid.Row="0" Grid.Column="1" Color="{x:Bind ViewModel.UserDark, Mode=TwoWay}"/>
-                        <w3c:SimpleColorPicker Grid.Row="1" Grid.Column="1" Color="{x:Bind ViewModel.ProvidedDark, Mode=TwoWay}"/>
-                        <w3c:SimpleColorPicker Grid.Row="2" Grid.Column="1" Color="{x:Bind ViewModel.CalculatedDark, Mode=TwoWay}"/>
-                        <w3c:SimpleColorPicker Grid.Row="3" Grid.Column="1" Color="{x:Bind ViewModel.PossibleDark, Mode=TwoWay}"/>
-                        <w3c:SimpleColorPicker Grid.Row="4" Grid.Column="1" Color="{x:Bind ViewModel.HPossibleDark, Mode=TwoWay}"/>
-                        <w3c:SimpleColorPicker Grid.Row="5" Grid.Column="1" Color="{x:Bind ViewModel.VPossibleDark, Mode=TwoWay}"/>
+                <Grid ColumnDefinitions ="Auto,Auto,*" RowDefinitions="*,*,*,*,*,*">
+                    <TextBlock Grid.Row="0" x:Uid="UserValues" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="1" x:Uid="ProvidedValues" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="2" x:Uid="CalculatdValues" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="3" x:Uid="PossibleValues" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="4" x:Uid="HorizontalPossibles" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="5" x:Uid="VerticalPossibles" HorizontalAlignment="Right" VerticalAlignment="Center"/>
 
-                        <SplitButton Grid.Row="5" Grid.Column="2" Content="Reset" Command="{x:Bind ViewModel.ResetDarkColors}" HorizontalAlignment="Right" Margin="10,0,0,0">
-                            <SplitButton.Flyout>
-                                <MenuFlyout Placement="Bottom">
-                                    <MenuFlyoutItem x:Uid="UserValues" Command="{x:Bind ViewModel.ResetDarkUser}"/>
-                                    <MenuFlyoutItem x:Uid="ProvidedValues" Command="{x:Bind ViewModel.ResetDarkProvided}"/>
-                                    <MenuFlyoutItem x:Uid="CalculatdValues" Command="{x:Bind ViewModel.ResetDarkCalculated}"/>
-                                    <MenuFlyoutItem x:Uid="PossibleValues" Command="{x:Bind ViewModel.ResetDarkPossible}"/>
-                                    <MenuFlyoutItem x:Uid="HorizontalPossibles" Command="{x:Bind ViewModel.ResetDarkHPossible}"/>
-                                    <MenuFlyoutItem x:Uid="VerticalPossibles" Command="{x:Bind ViewModel.ResetDarkVPossible}"/>
-                                </MenuFlyout>
-                            </SplitButton.Flyout>
-                        </SplitButton>
-                    </Grid>
-                </Expander>
-                
-                <Expander x:Name="SessionExpander" Grid.Row="4" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-                    <Expander.Header>
-                        <StackPanel Orientation="Horizontal">
-                            <SymbolIcon Symbol="NewWindow"/>
-                            <TextBlock x:Uid="WhenStarts"/>
-                        </StackPanel>
-                    </Expander.Header>
-                    <RadioButtons SelectedIndex="{x:Bind ViewModel.SessionRadioButtonsIndex, Mode=TwoWay}">
-                        <TextBlock x:Uid="PreviousSession" Margin="0"/>
-                        <TextBlock x:Uid="NewWindow" Margin="0"/>
-                    </RadioButtons>
-                </Expander>
+                    <w3c:SimpleColorPicker Grid.Row="0" Grid.Column="1" Color="{x:Bind ViewModel.UserDark, Mode=TwoWay}"/>
+                    <w3c:SimpleColorPicker Grid.Row="1" Grid.Column="1" Color="{x:Bind ViewModel.ProvidedDark, Mode=TwoWay}"/>
+                    <w3c:SimpleColorPicker Grid.Row="2" Grid.Column="1" Color="{x:Bind ViewModel.CalculatedDark, Mode=TwoWay}"/>
+                    <w3c:SimpleColorPicker Grid.Row="3" Grid.Column="1" Color="{x:Bind ViewModel.PossibleDark, Mode=TwoWay}"/>
+                    <w3c:SimpleColorPicker Grid.Row="4" Grid.Column="1" Color="{x:Bind ViewModel.HPossibleDark, Mode=TwoWay}"/>
+                    <w3c:SimpleColorPicker Grid.Row="5" Grid.Column="1" Color="{x:Bind ViewModel.VPossibleDark, Mode=TwoWay}"/>
 
-                <local:AboutBox x:Name="AboutInfo"/>
-            </Grid>
-        </ScrollViewer>
-    </Grid>
+                    <SplitButton Grid.Row="5" Grid.Column="2" Content="Reset" Command="{x:Bind ViewModel.ResetDarkColors}" HorizontalAlignment="Right" Margin="10,0,0,0">
+                        <SplitButton.Flyout>
+                            <MenuFlyout Placement="Bottom">
+                                <MenuFlyoutItem x:Uid="UserValues" Command="{x:Bind ViewModel.ResetDarkUser}"/>
+                                <MenuFlyoutItem x:Uid="ProvidedValues" Command="{x:Bind ViewModel.ResetDarkProvided}"/>
+                                <MenuFlyoutItem x:Uid="CalculatdValues" Command="{x:Bind ViewModel.ResetDarkCalculated}"/>
+                                <MenuFlyoutItem x:Uid="PossibleValues" Command="{x:Bind ViewModel.ResetDarkPossible}"/>
+                                <MenuFlyoutItem x:Uid="HorizontalPossibles" Command="{x:Bind ViewModel.ResetDarkHPossible}"/>
+                                <MenuFlyoutItem x:Uid="VerticalPossibles" Command="{x:Bind ViewModel.ResetDarkVPossible}"/>
+                            </MenuFlyout>
+                        </SplitButton.Flyout>
+                    </SplitButton>
+                </Grid>
+            </Expander>
+
+            <Expander x:Name="SessionExpander" Grid.Row="4" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                <Expander.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <SymbolIcon Symbol="NewWindow"/>
+                        <TextBlock x:Uid="WhenStarts"/>
+                    </StackPanel>
+                </Expander.Header>
+                <RadioButtons SelectedIndex="{x:Bind ViewModel.SessionRadioButtonsIndex, Mode=TwoWay}">
+                    <TextBlock x:Uid="PreviousSession" Margin="0"/>
+                    <TextBlock x:Uid="NewWindow" Margin="0"/>
+                </RadioButtons>
+            </Expander>
+
+            <local:AboutBox x:Name="AboutInfo"/>
+        </Grid>
+    </ScrollViewer>
 
     <TabViewItem.Header>
         <TextBlock x:Uid="Settings" Margin="0"/>

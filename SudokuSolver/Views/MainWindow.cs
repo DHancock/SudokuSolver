@@ -85,6 +85,7 @@ internal partial class MainWindow : Window
         Activated -= App.Instance.RecordWindowActivated;
 
         dispatcherTimer.Stop();
+        dispatcherTimer.Tick -= DispatcherTimer_Tick;
 
         systemMenu = null;
         Content = null;
@@ -92,18 +93,22 @@ internal partial class MainWindow : Window
 
     private void AppWindow_Changed(AppWindow sender, AppWindowChangedEventArgs args)
     {
-        if (args.DidPositionChange || args.DidSizeChange)
+        if (args.DidSizeChange)
         {
+            if (WindowState != WindowState.Minimized)
+            {
+                SetWindowDragRegions();
+            }
+
             if (WindowState == WindowState.Normal)
             {
-                if (args.DidSizeChange && (restoreSize.Height != AppWindow.Size.Height))
-                {
-                    SetWindowDragRegions();
-                }
-
-                restorePosition = AppWindow.Position;
                 restoreSize = AppWindow.Size;
             }
+        }
+
+        if (args.DidPositionChange && (WindowState == WindowState.Normal))
+        {
+            restorePosition = AppWindow.Position;
         }
     }
 
@@ -354,7 +359,7 @@ internal partial class MainWindow : Window
 
     private void SetWindowDragRegionsInternal()
     {
-        const int cInitialCapacity = 9;
+        const int cTabViewPassthroughCount = 3;
 
         try
         {
@@ -371,11 +376,13 @@ internal partial class MainWindow : Window
                 // just treat the whole window as a title bar, click anywhere on the backdrop to drag the window.
                 inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Caption, [windowRect]);
 
-                List<RectInt32> rects = new List<RectInt32>(cInitialCapacity);
-                LocatePassThroughContent(rects, LayoutRoot);
-                Debug.Assert(rects.Count <= cInitialCapacity);
+                int size = ((ITabItem)Tabs.SelectedItem).PassthroughCount + cTabViewPassthroughCount;
+                RectInt32[] rects = new RectInt32[size];
 
-                inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Passthrough, rects.ToArray());
+                ((ITabItem)Tabs.SelectedItem).AddPassthroughContent(rects);
+                AddTabViewPassthroughContent(rects);
+
+                inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Passthrough, rects);
             }
         }
         catch (Exception ex)
@@ -385,170 +392,22 @@ internal partial class MainWindow : Window
         }
     }
 
-    private record class ScrollViewerBounds(in Point Offset, in Vector2 Size)
+    private void AddTabViewPassthroughContent(in RectInt32[] rects)
     {
-        public double Top => Offset.Y;
-    }
+        FrameworkElement left = (FrameworkElement)Tabs.TabStripHeader;
+        FrameworkElement right = (FrameworkElement)Tabs.TabStripFooter;
 
+        // the passthrough region for the tab header strip is the space between the header and footer
+        Point leftOffset = Utils.GetOffsetFromXamlRoot(left);
+        Point rightOffset = Utils.GetOffsetFromXamlRoot(right);
 
-    private void LocatePassThroughContent(List<RectInt32> rects, UIElement item, ScrollViewerBounds? bounds = null)
-    {
-        ScrollViewerBounds? parentBounds = bounds;
+        Point topLeft = new Point(leftOffset.X + left.Margin.Left + left.ActualSize.X + left.Margin.Right, rightOffset.Y + Tabs.Padding.Top);
+        Vector2 size = new Vector2((float)(rightOffset.X - topLeft.X), right.ActualSize.Y);
 
-        foreach (UIElement child in LogicalTreeHelper.GetChildren(item))
-        {
-            switch (child)
-            {
-                case Panel: break;
-
-                case PuzzleView:
-                case MenuBar:
-                case Expander:
-                case Button:
-                case CommandBar:
-                case ScrollBar:
-                case TextBlock tb when ReferenceEquals(tb, tb.Tag): // it contains a hyperlink
-                {
-                    Point offset = GetOffsetFromXamlRoot(child);
-                    Vector2 actualSize = child.ActualSize;
-
-                    if ((parentBounds is not null) && (offset.Y < parentBounds.Top)) // top clip (for vertical scroll bars) 
-                    {
-                        actualSize.Y -= (float)(parentBounds.Top - offset.Y);
-
-                        if (actualSize.Y < 0.1)
-                            continue;
-
-                        offset.Y = parentBounds.Top;
-                    }
-
-                    rects.Add(ScaledRect(offset, actualSize, scaleFactor));
-                    continue;
-                }
-
-                case TabView tabView:
-                {
-                    // the passthrough region for the tabs is the space between the header and footer
-                    if ((tabView.TabStripHeader is FrameworkElement left) && (tabView.TabStripFooter is UIElement right))
-                    {
-                        Point leftOffset = GetOffsetFromXamlRoot(left);
-                        Point rightOffset = GetOffsetFromXamlRoot(right);
-
-                        Point topLeft = new Point(leftOffset.X + left.Margin.Left + left.ActualSize.X + left.Margin.Right, rightOffset.Y + tabView.Padding.Top);
-                        Vector2 size = new Vector2((float)(rightOffset.X - topLeft.X), right.ActualSize.Y);
-
-                        rects.Add(ScaledRect(topLeft, size, scaleFactor));
-
-                        // the header is also the window icon area
-                        rects.Add(ScaledRect(leftOffset, left.ActualSize, scaleFactor));
-
-                        // add the drop down button at the left edge of the footer
-                        LocatePassThroughContent(rects, right);
-                    }
-
-                    if (tabView.SelectedItem is TabViewItem tabViewItem)
-                    {
-                        LocatePassThroughContent(rects, tabViewItem);
-                    }
-
-                    continue;
-                }
-
-                case ScrollViewer:
-                {
-                    // nested scroll viewers is not supported
-                    bounds = new ScrollViewerBounds(GetOffsetFromXamlRoot(child), child.ActualSize);
-
-                    if (((ScrollViewer)child).ComputedVerticalScrollBarVisibility == Visibility.Visible)
-                    {
-                        ScrollBar? vScrollBar = child.FindChild<ScrollBar>("VerticalScrollBar");
-                        Debug.Assert(vScrollBar is not null);
-
-                        if (vScrollBar is not null)
-                        {
-                            rects.Add(ScaledRect(GetOffsetFromXamlRoot(vScrollBar), vScrollBar.ActualSize, scaleFactor));
-                        }
-                    }
-
-                    break;
-                }
-
-
-                default: break;
-            }
-
-            LocatePassThroughContent(rects, child, bounds);
-        }
-
-        static Point GetOffsetFromXamlRoot(UIElement e)
-        {
-            GeneralTransform gt = e.TransformToVisual(null);
-            return gt.TransformPoint(new Point(0, 0));
-        }
-    }
-
-    private static RectInt32 ScaledRect(in Point location, in Vector2 size, double scale)
-    {
-        return new RectInt32(Convert.ToInt32(location.X * scale),
-                             Convert.ToInt32(location.Y * scale),
-                             Convert.ToInt32(size.X * scale),
-                             Convert.ToInt32(size.Y * scale));
-    }
-
-    private void AddDragRegionEventHandlers(UIElement item)
-    {
-        AddRemoveDragRegionEventHandlers(item, add: true);
-    }
-
-    private void RemoveDragRegionEventHandlers(UIElement item)
-    {
-        AddRemoveDragRegionEventHandlers(item, add: false);
-    }
-
-    private void AddRemoveDragRegionEventHandlers(UIElement item, bool add)
-    {
-        foreach (UIElement child in LogicalTreeHelper.GetChildren(item))
-        {
-            switch (child)
-            {
-                case Panel: break;
-
-                case Expander expander:         // on the settings tab
-                case PuzzleView puzzleView:     // on the puzzle tab
-                {
-                    if (add)
-                    {
-                        // this can also indicate that a new tab has been selected and that it's content is now valid 
-                        ((FrameworkElement)child).SizeChanged += FrameworkElement_SizeChanged;
-                    }
-                    else
-                    {
-                        ((FrameworkElement)child).SizeChanged -= FrameworkElement_SizeChanged;
-                    }
-                    break;
-                }
-
-                case ScrollViewer scrollViewer:
-                {
-                    if (add)
-                    {
-                        scrollViewer.ViewChanged += ScrollViewer_ViewChanged;
-                    }
-                    else
-                    {
-                        scrollViewer.ViewChanged -= ScrollViewer_ViewChanged;
-                    }
-                    break;
-                }
-
-                default: break;
-            }
-
-            AddRemoveDragRegionEventHandlers(child, add);
-        }
-
-        void FrameworkElement_SizeChanged(object sender, SizeChangedEventArgs e) => SetWindowDragRegions();
-        void ScrollViewer_ViewChanged(object? sender, ScrollViewerViewChangedEventArgs e) => SetWindowDragRegions();
+        rects[rects.Length - 1] = Utils.ScaledRect(topLeft, size, scaleFactor);
+        // the header is also the window icon area
+        rects[rects.Length - 2] = Utils.ScaledRect(leftOffset, left.ActualSize, scaleFactor);
+        rects[rects.Length - 3] = Utils.GetPassthroughRect(JumpToTabButton);
     }
 
     private DispatcherTimer InitialiseDragRegionTimer()
@@ -559,7 +418,7 @@ internal partial class MainWindow : Window
         return dt;
     }
 
-    private void SetWindowDragRegions()
+    public void SetWindowDragRegions()
     {
         // defer setting the drag regions while still resizing the window or scrolling
         // it's content. If the timer is already running, this resets the interval.
