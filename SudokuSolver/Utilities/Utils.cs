@@ -56,7 +56,7 @@ internal static class Utils
     public static Point GetOffsetFromXamlRoot(UIElement e)
     {
         GeneralTransform gt = e.TransformToVisual(e.XamlRoot.Content);
-        return gt.TransformPoint(new Point(0.0f, 0.0f));
+        return gt.TransformPoint(new Point(0f, 0f));
     }
 
     public static RectInt32 ScaledRect(in Point location, in Vector2 size, double scale)
@@ -77,7 +77,9 @@ internal static class Utils
             actualSize.Y -= (float)(topBounds - offset.Y);
 
             if (actualSize.Y < 0.1)
+            {
                 return default;
+            }
 
             offset.Y = topBounds;
         }

@@ -1,7 +1,4 @@
-﻿using System.Drawing;
-using System.Drawing.Drawing2D;
-
-namespace SudokuSolver.Utilities;
+﻿namespace SudokuSolver.Utilities;
 
 internal static class Extensions
 {
