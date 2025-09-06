@@ -95,9 +95,9 @@ internal sealed partial class MainWindow : Window, ISession
         }
 
         // only the current active window's hotkeys should be active
-        if (Tabs.SelectedItem is not null)
+        if (Tabs.SelectedItem is ITabItem tab)
         {
-            ((ITabItem)Tabs.SelectedItem).EnableKeyboardAccelerators(enable: IsActive);
+            tab.EnableKeyboardAccelerators(enable: IsActive);
         }
     }
 
