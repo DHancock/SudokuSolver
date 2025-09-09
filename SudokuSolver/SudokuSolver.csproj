@@ -25,7 +25,7 @@
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
 
-		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.250814004-preview" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.250907003" />
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.4948" />
 
 		<Manifest Include="$(ApplicationManifest)" />
