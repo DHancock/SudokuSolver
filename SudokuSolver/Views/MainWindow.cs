@@ -347,7 +347,9 @@ internal partial class MainWindow : Window
 
     public int ConvertToPixels(double value)
     {
-        Debug.Assert(scaleFactor > 0);
+        Debug.Assert(value >= 0.0);
+        Debug.Assert(scaleFactor > 0.0);
+
         return (int)Math.FusedMultiplyAdd(value, scaleFactor, 0.5);
     }
 

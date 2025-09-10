@@ -61,6 +61,11 @@ internal static class Utils
 
     public static RectInt32 ScaledRect(in Point location, in Vector2 size, double scale)
     {
+        Debug.Assert(location.X >= 0.0);
+        Debug.Assert(location.Y >= 0.0);
+        Debug.Assert(size.X >= 0f);
+        Debug.Assert(size.Y >= 0f);
+
         return new RectInt32((int)Math.FusedMultiplyAdd(location.X, scale, 0.5),
                              (int)Math.FusedMultiplyAdd(location.Y, scale, 0.5),
                              (int)Math.FusedMultiplyAdd(size.X, scale, 0.5),
