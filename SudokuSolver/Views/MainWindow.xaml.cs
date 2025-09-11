@@ -297,15 +297,15 @@ internal sealed partial class MainWindow : Window, ISession
             MainWindow window = new MainWindow(WindowState.Normal, bounds);
 
             // cannot just move the tab to a new window because MenuFlyoutItemBase requires an XamlRoot
-            // which cannot be updated once set, have to replace the ui which binds to the original view model
+            // which cannot be updated once set, have to replace the ui
 
             if (args.Tab is PuzzleTabViewItem puzzleTab)
             {
-                window.AddTab(new PuzzleTabViewItem(window, puzzleTab));
+                window.AddTab(new PuzzleTabViewItem(window, puzzleTab.GetSessionData()));
             }
             else if (args.Tab is SettingsTabViewItem settingsTab)
             {
-                window.AddTab(new SettingsTabViewItem(window, settingsTab));
+                window.AddTab(new SettingsTabViewItem(window, settingsTab.GetSessionData()));
             }
 
             // close tab after creating the window otherwise the app could terminate with zero windows
@@ -346,15 +346,13 @@ internal sealed partial class MainWindow : Window, ISession
                 }
             }
 
-            // single instanced so no need to dispatch
-            // if it's a different window the menu's XamlRoot cannot be updated 
-            // so have to replace the ui keeping the view model and model parts
-            MainWindow? window = App.Instance.GetWindowForElement(sourceTab);
-            window?.CloseTab(sourceTab);
-
+            // if it's from a different window the tab has to be replaced as a menu's XamlRoot cannot be updated
+            // to keep it the code paths simpler always assume it's from a different window
+            MainWindow? window = App.Instance.GetWindowForElement(sourceTab);            
+                      
             if (sourceTab is PuzzleTabViewItem draggedPuzzleTab)
             {
-                AddTab(new PuzzleTabViewItem(this, draggedPuzzleTab), index);
+                AddTab(new PuzzleTabViewItem(this, draggedPuzzleTab.GetSessionData()), index);
             }
             else if (sourceTab is SettingsTabViewItem draggedSettingsTab)
             {
@@ -362,13 +360,15 @@ internal sealed partial class MainWindow : Window, ISession
 
                 // preserve the drop position and existing expander state
                 // add first before closing an existing settings tab to avoid the window closing
-                AddTab(new SettingsTabViewItem(this, draggedSettingsTab), index);
+                AddTab(new SettingsTabViewItem(this, draggedSettingsTab.GetSessionData()), index);
 
                 if (existing is not null)
                 {
                     CloseTab(existing);
                 }
             }
+
+            window?.CloseTab(sourceTab);
         }
     }
 

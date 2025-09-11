@@ -101,25 +101,6 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         }
     }
 
-    public PuzzleTabViewItem(MainWindow parent, PuzzleTabViewItem source) : this(parent)
-    {
-        initialisationPhase += 1;
-
-        ViewModel = source.ViewModel;
-        sourceFile = source.sourceFile;
-        HeaderText = source.HeaderText;
-        Loaded += LoadedHandler;
-
-        static void LoadedHandler(object sender, RoutedEventArgs e)
-        {
-            PuzzleTabViewItem tab = (PuzzleTabViewItem)sender;
-            tab.Loaded -= LoadedHandler;
-            tab.UpdateTabHeader();
-
-            tab.initialisationPhase -= 1;
-        }
-    }
-
     public PuzzleTabViewItem(MainWindow parent, XElement root) : this(parent)
     {
         initialisationPhase += 1;
@@ -167,14 +148,14 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
             if (data is not null)
             {
-                ViewModel.ShowPossibles = data.Value == "true";
+                tab.ViewModel.ShowPossibles = data.Value == "true";
             }
 
             data = root.Element("showSolution");
 
             if (data is not null)
             {
-                ViewModel.ShowSolution = data.Value == "true";
+                tab.ViewModel.ShowSolution = data.Value == "true";
             }
 
             data = root.Element("Sudoku");
@@ -292,13 +273,8 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
             Debug.Assert(viewModel is not null);
             return viewModel;
         }
-        set
+        private set
         {
-            if (viewModel is not null)
-            {
-                viewModel.PropertyChanged -= ViewModel_PropertyChanged;
-            }
-
             viewModel = value;
             viewModel.PropertyChanged += ViewModel_PropertyChanged;
             Puzzle.ViewModel = value;
