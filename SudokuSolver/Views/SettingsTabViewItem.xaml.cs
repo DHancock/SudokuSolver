@@ -64,22 +64,6 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
         parentWindow.SetWindowDragRegions();
     }
 
-    public SettingsTabViewItem(MainWindow parent, SettingsTabViewItem source) : this(parent)
-    {
-        Loaded += SettingsTabViewItem_Loaded;
-
-        void SettingsTabViewItem_Loaded(object sender, RoutedEventArgs e)
-        {
-            Loaded -= SettingsTabViewItem_Loaded;
-
-            ThemeExpander.IsExpanded = source.ThemeExpander.IsExpanded;
-            ViewExpander.IsExpanded = source.ViewExpander.IsExpanded;
-            LightColorsExpander.IsExpanded = source.LightColorsExpander.IsExpanded;
-            DarkColorsExpander.IsExpanded = source.DarkColorsExpander.IsExpanded;
-            SessionExpander.IsExpanded = source.SessionExpander.IsExpanded;
-        }
-    }
-
     public SettingsTabViewItem(MainWindow parent, XElement root) : this(parent)
     {
         Loaded += SettingsTabViewItem_Loaded;
