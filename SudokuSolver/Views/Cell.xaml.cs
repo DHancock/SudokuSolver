@@ -119,7 +119,7 @@ internal sealed partial class Cell : UserControl
 #if DEBUG
             Origins origin = vmCell.Origin;
 #else
-            Origins origin = (cellData.Origin == Origins.Trial) ? Origins.Calculated : cellData.Origin;
+            Origins origin = (vmCell.Origin == Origins.Trial) ? Origins.Calculated : vmCell.Origin;
 #endif
             bool stateFound = VisualStateManager.GoToState(cell, origin.ToString(), false);
             Debug.Assert(stateFound);
