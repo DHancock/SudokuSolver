@@ -163,6 +163,20 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
                 isModified = data.Value == "true";
             }
 
+            data = root.Element("showPossibles");
+
+            if (data is not null)
+            {
+                ViewModel.ShowPossibles = data.Value == "true";
+            }
+
+            data = root.Element("showSolution");
+
+            if (data is not null)
+            {
+                ViewModel.ShowSolution = data.Value == "true";
+            }
+
             data = root.Element("Sudoku");
 
             if (data is not null)
@@ -692,11 +706,15 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
     public XElement GetSessionData()
     {
-        XElement root = new XElement("puzzle", new XAttribute("version", 1));
+        XElement root = new XElement("puzzle", new XAttribute("version", 2));
 
         root.Add(new XElement("title", HeaderText));
         root.Add(new XElement("path", SourceFile?.Path));
         root.Add(new XElement("modified", IsModified));
+
+        // version 2 adds the "per view" settings 
+        root.Add(new XElement("showPossibles", ViewModel.ShowPossibles));
+        root.Add(new XElement("showSolution", ViewModel.ShowSolution));
 
         root.Add(ViewModel.GetPuzzleXml());
 
@@ -709,7 +727,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         {
             if ((root.Name == "puzzle") && (root.Attribute("version") is XAttribute vp) && int.TryParse(vp.Value, out int version))
             {
-                if (version == 1)
+                if ((version == 1) || (version == 2))
                 {
                     XElement? data = root.Element("title");
 
@@ -723,11 +741,28 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
                             if ((data is not null) && bool.TryParse(data.Value, out _))
                             {
-                                data = root.Element("Sudoku");
+                                bool valid = true;
 
-                                if ((data is not null) && (data.Attribute("version") is XAttribute vs) && int.TryParse(vs.Value, out int sv))
+                                if (version == 2)
                                 {
-                                    return sv == 2;
+                                    valid = false;
+                                    data = root.Element("showPossibles");
+
+                                    if ((data is not null) && bool.TryParse(data.Value, out _))
+                                    {
+                                        data = root.Element("showSolution");
+                                        valid = (data is not null) && bool.TryParse(data.Value, out _);
+                                    }
+                                }
+
+                                if (valid)
+                                {
+                                    data = root.Element("Sudoku");
+
+                                    if ((data is not null) && (data.Attribute("version") is XAttribute vs) && int.TryParse(vs.Value, out int sv))
+                                    {
+                                        return sv == 2;
+                                    }
                                 }
                             }
                         }
