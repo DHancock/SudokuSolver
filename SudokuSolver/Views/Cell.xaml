@@ -24,15 +24,10 @@
                         <Setter Target="CellValue.Foreground" Value="{ThemeResource ProvidedCellBrush}"/>
                     </VisualState.Setters>
                 </VisualState>
-                <VisualState x:Name="User">
-                    <VisualState.Setters>
-                        <Setter Target="CellValue.Foreground" Value="{ThemeResource UserCellBrush}"/>
-                    </VisualState.Setters>
-                </VisualState>
+                <VisualState x:Name="User"/>
             </VisualStateGroup>
 
             <VisualStateGroup x:Name="CommonStates">
-                <VisualState x:Name="Normal" />
                 <VisualState x:Name="SelectedFocused">
                     <VisualState.Setters>
                         <Setter Target="CellCanvas.Background" Value="{ThemeResource SystemControlHighlightAccentBrush}"/>
@@ -43,19 +38,146 @@
                         <Setter Target="CellCanvas.Background" Value="{ThemeResource SystemControlBackgroundListLowBrush}"/>
                     </VisualState.Setters>
                 </VisualState>
+                <VisualState x:Name="Normal"/>
+            </VisualStateGroup>
+
+            <VisualStateGroup x:Name="PossibleStates1">
+                <VisualState x:Name="Horizontal1">
+                    <VisualState.Setters>
+                        <Setter Target="PossibleValue1.Foreground" Value="{ThemeResource PossiblesHorizontalBrush}"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Vertical1">
+                    <VisualState.Setters>
+                        <Setter Target="PossibleValue1.Foreground" Value="{ThemeResource PossiblesVerticalBrush}"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Normal1"/>
+            </VisualStateGroup>
+
+            <VisualStateGroup x:Name="PossibleStates2">
+                <VisualState x:Name="Horizontal2">
+                    <VisualState.Setters>
+                        <Setter Target="PossibleValue2.Foreground" Value="{ThemeResource PossiblesHorizontalBrush}"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Vertical2">
+                    <VisualState.Setters>
+                        <Setter Target="PossibleValue2.Foreground" Value="{ThemeResource PossiblesVerticalBrush}"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Normal2"/>
+            </VisualStateGroup>
+
+            <VisualStateGroup x:Name="PossibleStates3">
+                <VisualState x:Name="Horizontal3">
+                    <VisualState.Setters>
+                        <Setter Target="PossibleValue3.Foreground" Value="{ThemeResource PossiblesHorizontalBrush}"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Vertical3">
+                    <VisualState.Setters>
+                        <Setter Target="PossibleValue3.Foreground" Value="{ThemeResource PossiblesVerticalBrush}"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Normal3"/>
+            </VisualStateGroup>
+
+            <VisualStateGroup x:Name="PossibleStates4">
+                <VisualState x:Name="Horizontal4">
+                    <VisualState.Setters>
+                        <Setter Target="PossibleValue4.Foreground" Value="{ThemeResource PossiblesHorizontalBrush}"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Vertical4">
+                    <VisualState.Setters>
+                        <Setter Target="PossibleValue4.Foreground" Value="{ThemeResource PossiblesVerticalBrush}"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Normal4"/>
+            </VisualStateGroup>
+            
+            <VisualStateGroup x:Name="PossibleStates5">
+                <VisualState x:Name="Horizontal5">
+                    <VisualState.Setters>
+                        <Setter Target="PossibleValue5.Foreground" Value="{ThemeResource PossiblesHorizontalBrush}"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Vertical5">
+                    <VisualState.Setters>
+                        <Setter Target="PossibleValue5.Foreground" Value="{ThemeResource PossiblesVerticalBrush}"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Normal5"/>
+            </VisualStateGroup>
+
+            <VisualStateGroup x:Name="PossibleStates6">
+                <VisualState x:Name="Horizontal6">
+                    <VisualState.Setters>
+                        <Setter Target="PossibleValue6.Foreground" Value="{ThemeResource PossiblesHorizontalBrush}"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Vertical6">
+                    <VisualState.Setters>
+                        <Setter Target="PossibleValue6.Foreground" Value="{ThemeResource PossiblesVerticalBrush}"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Normal6"/>
+            </VisualStateGroup>
+            
+            <VisualStateGroup x:Name="PossibleStates7">
+                <VisualState x:Name="Horizontal7">
+                    <VisualState.Setters>
+                        <Setter Target="PossibleValue7.Foreground" Value="{ThemeResource PossiblesHorizontalBrush}"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Vertical7">
+                    <VisualState.Setters>
+                        <Setter Target="PossibleValue7.Foreground" Value="{ThemeResource PossiblesVerticalBrush}"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Normal7"/>
+            </VisualStateGroup>
+
+            <VisualStateGroup x:Name="PossibleStates8">
+                <VisualState x:Name="Horizontal8">
+                    <VisualState.Setters>
+                        <Setter Target="PossibleValue8.Foreground" Value="{ThemeResource PossiblesHorizontalBrush}"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Vertical8">
+                    <VisualState.Setters>
+                        <Setter Target="PossibleValue8.Foreground" Value="{ThemeResource PossiblesVerticalBrush}"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Normal8"/>
+            </VisualStateGroup>
+            
+            <VisualStateGroup x:Name="PossibleStates9">
+                <VisualState x:Name="Horizontal9">
+                    <VisualState.Setters>
+                        <Setter Target="PossibleValue9.Foreground" Value="{ThemeResource PossiblesHorizontalBrush}"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Vertical9">
+                    <VisualState.Setters>
+                        <Setter Target="PossibleValue9.Foreground" Value="{ThemeResource PossiblesVerticalBrush}"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Normal9"/>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
-        <TextBlock x:Name="CellValue" FontSize="34"  Canvas.Top="0" Canvas.Left="0" TextAlignment="Center" Width="{StaticResource cell_size}" Height="{StaticResource cell_size}"/>
+        <TextBlock x:Name="CellValue" FontSize="34" Foreground="{ThemeResource UserCellBrush}" TextAlignment="Center" Width="{StaticResource cell_size}" Height="{StaticResource cell_size}"/>
 
-        <local:PossibleTextBlock x:Name="PossibleValue1" Text="1" Canvas.Top="-2" Canvas.Left="4"/>
-        <local:PossibleTextBlock x:Name="PossibleValue2" Text="2" Canvas.Top="-2" Canvas.Left="22"/>
-        <local:PossibleTextBlock x:Name="PossibleValue3" Text="3" Canvas.Top="-2" Canvas.Left="39"/>
-        <local:PossibleTextBlock x:Name="PossibleValue4" Text="4" Canvas.Top="15" Canvas.Left="4"/>
-        <local:PossibleTextBlock x:Name="PossibleValue5" Text="5" Canvas.Top="15" Canvas.Left="22"/>
-        <local:PossibleTextBlock x:Name="PossibleValue6" Text="6" Canvas.Top="15" Canvas.Left="39"/>
-        <local:PossibleTextBlock x:Name="PossibleValue7" Text="7" Canvas.Top="31" Canvas.Left="4"/>
-        <local:PossibleTextBlock x:Name="PossibleValue8" Text="8" Canvas.Top="31" Canvas.Left="22"/>
-        <local:PossibleTextBlock x:Name="PossibleValue9" Text="9" Canvas.Top="31" Canvas.Left="39"/>
+        <TextBlock x:Name="PossibleValue1" Text="1" Foreground="{ThemeResource CellPossiblesBrush}" Canvas.Top="-2" Canvas.Left="4"/>
+        <TextBlock x:Name="PossibleValue2" Text="2" Foreground="{ThemeResource CellPossiblesBrush}" Canvas.Top="-2" Canvas.Left="22"/>
+        <TextBlock x:Name="PossibleValue3" Text="3" Foreground="{ThemeResource CellPossiblesBrush}" Canvas.Top="-2" Canvas.Left="39"/>
+        <TextBlock x:Name="PossibleValue4" Text="4" Foreground="{ThemeResource CellPossiblesBrush}" Canvas.Top="15" Canvas.Left="4"/>
+        <TextBlock x:Name="PossibleValue5" Text="5" Foreground="{ThemeResource CellPossiblesBrush}" Canvas.Top="15" Canvas.Left="22"/>
+        <TextBlock x:Name="PossibleValue6" Text="6" Foreground="{ThemeResource CellPossiblesBrush}" Canvas.Top="15" Canvas.Left="39"/>
+        <TextBlock x:Name="PossibleValue7" Text="7" Foreground="{ThemeResource CellPossiblesBrush}" Canvas.Top="31" Canvas.Left="4"/>
+        <TextBlock x:Name="PossibleValue8" Text="8" Foreground="{ThemeResource CellPossiblesBrush}" Canvas.Top="31" Canvas.Left="22"/>
+        <TextBlock x:Name="PossibleValue9" Text="9" Foreground="{ThemeResource CellPossiblesBrush}" Canvas.Top="31" Canvas.Left="39"/>
     </Canvas>
 </UserControl>
