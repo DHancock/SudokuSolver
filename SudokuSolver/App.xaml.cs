@@ -227,8 +227,8 @@ public partial class App : Application
 
     private static RectInt32 CenterInPrimaryDisplay(MainWindow window)
     {
-        int width = window.ConvertToDeviceSize(MainWindow.cInitialWidth);
-        int height = window.ConvertToDeviceSize(MainWindow.cInitialHeight);
+        int width = window.ConvertToPixels(MainWindow.cInitialWidth);
+        int height = window.ConvertToPixels(MainWindow.cInitialHeight);
 
         RectInt32 windowArea;
         RectInt32 workArea = DisplayArea.Primary.WorkArea;
@@ -250,7 +250,6 @@ public partial class App : Application
             return aRect.Intersects(bRect);
         }
 
-        const int cTitleBarHeight = 32;
         int index = 0;
         int resetCount = 0;
         PointInt32 newPos = bounds.TopLeft();
@@ -260,13 +259,13 @@ public partial class App : Application
             MainWindow window = windowList[index++];
 
             PointInt32 existingPos = window.RestoreBounds.TopLeft();
-            int clientTitleBarHeight = window.ConvertToDeviceSize(cTitleBarHeight);
+            int titleBarHeight = window.AppWindow.TitleBar.Height;
 
             newPos = AdjustWindowBoundsForDisplay(new RectInt32(newPos.X, newPos.Y, bounds.Width, bounds.Height)).TopLeft();
 
-            if (TitleBarOverlaps(existingPos, newPos, clientTitleBarHeight))
+            if (TitleBarOverlaps(existingPos, newPos, titleBarHeight))
             {
-                newPos = existingPos.Offset(clientTitleBarHeight + 1);
+                newPos = existingPos.Offset(titleBarHeight + 1);
                 index = 0;
                 ++resetCount;  // avoid an infinite loop if the position cannot be adjusted due to display limits
             }
