@@ -1,0 +1,29 @@
+﻿<UserControl x:Class="SudokuSolver.Views.PossibleTextBlock"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="using:SudokuSolver.Views">
+
+    <!-- wrap the TextBlock in a panel so the visual states can be set -->
+    <Canvas>
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="PossiblesStates">
+                <VisualState x:Name="Horizontal">
+                    <VisualState.Setters>
+                        <Setter Target="PossibleValue.Foreground" Value="{ThemeResource PossiblesHorizontalBrush}"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Vertical">
+                    <VisualState.Setters>
+                        <Setter Target="PossibleValue.Foreground" Value="{ThemeResource PossiblesVerticalBrush}"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Normal"/>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
+        <TextBlock x:Name="PossibleValue" Foreground="{ThemeResource CellPossiblesBrush}"/>
+    </Canvas>
+</UserControl>
+    

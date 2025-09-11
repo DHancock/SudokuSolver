@@ -11,8 +11,6 @@ internal sealed partial class Cell : UserControl
     private static readonly string[] sLookUp = [string.Empty, "1", "2", "3", "4", "5", "6", "7", "8", "9"];
     private enum VisualState { Normal, SelectedFocused, SelectedUnfocused, PointerOver }
 
-    private readonly TextBlock[] possibleTBs;
-
     private bool isSelected = false;
 
     public Cell()
@@ -22,8 +20,6 @@ internal sealed partial class Cell : UserControl
         IsTabStop = true;
         IsHitTestVisible = true;
         LosingFocus += Cell_LosingFocus;
-
-        possibleTBs = [PossibleValue0, PossibleValue1, PossibleValue2, PossibleValue3, PossibleValue4, PossibleValue5, PossibleValue6, PossibleValue7, PossibleValue8];
     }
 
     public bool IsSelected
@@ -42,9 +38,7 @@ internal sealed partial class Cell : UserControl
         }
     }
 
-
     private PuzzleView ParentPuzzleView => (PuzzleView)((Viewbox)((SudokuGrid)this.Parent).Parent).Parent;
-
 
     protected override void OnPointerPressed(PointerRoutedEventArgs e)
     {
@@ -114,108 +108,56 @@ internal sealed partial class Cell : UserControl
         get { return (ViewModels.Cell)GetValue(DataProperty); }
         set { base.SetValue(DataProperty, value); }
     }
-    
+
     private static void CellDataChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         Cell cell = (Cell)d;
-        ViewModels.Cell cellData = (ViewModels.Cell)e.NewValue;
+        ViewModels.Cell vmCell = (ViewModels.Cell)e.NewValue;
 
-        if (cellData.HasValue)
+        if (vmCell.HasValue)
         {
 #if DEBUG
-            Origins origin = cellData.Origin;
+            Origins origin = vmCell.Origin;
 #else
             Origins origin = (cellData.Origin == Origins.Trial) ? Origins.Calculated : cellData.Origin;
 #endif
             bool stateFound = VisualStateManager.GoToState(cell, origin.ToString(), false);
             Debug.Assert(stateFound);
 
-            if (cell.ParentPuzzleView.ViewModel.ShowSolution || (cellData.Origin == Origins.User) || (cellData.Origin == Origins.Provided))
+            cell.CollapseAllPossibleTextBlocks();
+
+            if (cell.ParentPuzzleView.ViewModel.ShowSolution || (vmCell.Origin == Origins.User) || (vmCell.Origin == Origins.Provided))
             {
                 cell.CellValue.Opacity = 1;
-                cell.CellValue.Text = sLookUp[cellData.Value];
+                cell.CellValue.Text = sLookUp[vmCell.Value];
             }
             else
             {
                 cell.CellValue.Opacity = 0;  // allows for hit testing
             }
-
-            if (cell.PossibleValue0.Visibility != Visibility.Collapsed)
-            {
-                foreach (TextBlock tb in cell.possibleTBs)
-                {
-                    tb.Visibility = Visibility.Collapsed;
-                }
-            }
         }
         else
         {
-            SolidColorBrush? verticalBrush = null;
-            SolidColorBrush? horizontalBrush = null;
-            SolidColorBrush? normalBrush = null;
-
             cell.CellValue.Opacity = 0;
 
-            if (cell.ParentPuzzleView.ViewModel.ShowPossibles)
+            if (!cell.ParentPuzzleView.ViewModel.ShowPossibles)
             {
-                int writeIndex = 0;
-
-                for (int i = 1; i < 10; i++)
-                {
-                    if (cellData.Possibles[i])
-                    {
-                        TextBlock tb = cell.possibleTBs[writeIndex++];
-                        tb.Visibility = Visibility.Visible;
-                        tb.Text = sLookUp[i];
-
-                        if (cellData.VerticalDirections[i])
-                        {
-                            verticalBrush ??= GetBrush(tb.ActualTheme, "PossiblesVerticalBrush");
-                            tb.Foreground = verticalBrush;
-                        }
-                        else if (cellData.HorizontalDirections[i])
-                        {
-                            horizontalBrush ??= GetBrush(tb.ActualTheme, "PossiblesHorizontalBrush");
-                            tb.Foreground = horizontalBrush;
-                        }
-                        else
-                        {
-                            normalBrush ??= GetBrush(tb.ActualTheme, "CellPossiblesBrush");
-                            tb.Foreground = normalBrush;
-                        }
-                    }
-                }
-
-                while (writeIndex < 9)
-                {
-                    cell.possibleTBs[writeIndex++].Visibility = Visibility.Collapsed;
-                }
+                cell.CollapseAllPossibleTextBlocks();
             }
             else
             {
-                foreach (TextBlock tb in cell.possibleTBs)
-                {
-                    tb.Visibility = Visibility.Collapsed;
-                }
+                UpdatePossibleTextBlock(cell.PossibleValue1, 1, vmCell);
+                UpdatePossibleTextBlock(cell.PossibleValue2, 2, vmCell);
+                UpdatePossibleTextBlock(cell.PossibleValue3, 3, vmCell);
+                UpdatePossibleTextBlock(cell.PossibleValue4, 4, vmCell);
+                UpdatePossibleTextBlock(cell.PossibleValue5, 5, vmCell);
+                UpdatePossibleTextBlock(cell.PossibleValue6, 6, vmCell);
+                UpdatePossibleTextBlock(cell.PossibleValue7, 7, vmCell);
+                UpdatePossibleTextBlock(cell.PossibleValue8, 8, vmCell);
+                UpdatePossibleTextBlock(cell.PossibleValue9, 9, vmCell);
             }
         }
     }
-
-    private static SolidColorBrush GetBrush(ElementTheme theme, string key)
-    {
-        ResourceDictionary? rd = Utils.GetThemeDictionary(theme.ToString());
-
-        if (rd is not null)
-        {
-            Debug.Assert(rd.ContainsKey(key));
-            Debug.Assert(rd[key] is SolidColorBrush);
-
-            return (SolidColorBrush)rd[key];
-        }
-
-        return new SolidColorBrush(Colors.Black);
-    }
-
 
     // The new value for the cell is forwarded by the view model to the model 
     // which recalculates the puzzle. After that each model cell is compared to
@@ -269,6 +211,50 @@ internal sealed partial class Cell : UserControl
             {
                 ParentPuzzleView.ViewModel.UpdateCellForKeyDown(Data.Index, newValue);
             }
+        }
+    }
+
+    private void CollapseAllPossibleTextBlocks()
+    {
+        PossibleValue1.Visibility = Visibility.Collapsed;
+        PossibleValue2.Visibility = Visibility.Collapsed;
+        PossibleValue3.Visibility = Visibility.Collapsed;
+        PossibleValue4.Visibility = Visibility.Collapsed;
+        PossibleValue5.Visibility = Visibility.Collapsed;
+        PossibleValue6.Visibility = Visibility.Collapsed;
+        PossibleValue7.Visibility = Visibility.Collapsed;
+        PossibleValue8.Visibility = Visibility.Collapsed;
+        PossibleValue9.Visibility = Visibility.Collapsed;
+    }
+
+    private static void UpdatePossibleTextBlock(PossibleTextBlock ptb, int index, ViewModels.Cell vmCell)
+    {
+        if (vmCell.Possibles[index])
+        {
+            ptb.Visibility = Visibility.Visible;
+
+            if (vmCell.VerticalDirections[index])
+            {
+                GoToVisualState(ptb, "Vertical");
+            }
+            else if (vmCell.HorizontalDirections[index])
+            {
+                GoToVisualState(ptb, "Horizontal");
+            }
+            else
+            {
+                GoToVisualState(ptb, "Normal");
+            }
+        }
+        else
+        {
+            ptb.Visibility = Visibility.Collapsed;
+        }
+
+        static void GoToVisualState(Control control, string state)
+        {
+            bool stateFound = VisualStateManager.GoToState(control, state, false);
+            Debug.Assert(stateFound);
         }
     }
 }
