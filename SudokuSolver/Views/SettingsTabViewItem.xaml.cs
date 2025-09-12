@@ -174,34 +174,34 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
         parentWindow.CloseTab(this);
     }
 
-    private bool CanCloseOtherTabs(object? param = null)
+    private bool CanCloseOtherTabs(object? param)
     {
         return parentWindow.CanCloseOtherTabs();
     }
 
     private async void ExecuteCloseOtherTabsAsync(object? param)
     {
-        await parentWindow.ExecuteCloseOtherTabsAsync();
+        await parentWindow.ExecuteCloseOtherTabsAsync(this);
     }
 
-    private bool CanCloseLeftTabs(object? param = null)
+    private bool CanCloseLeftTabs(object? param)
     {
-        return parentWindow.CanCloseLeftTabs();
+        return parentWindow.CanCloseLeftTabs(this);
     }
 
     private async void ExecuteCloseLeftTabsAsync(object? param)
     {
-        await parentWindow.ExecuteCloseLeftTabsAsync();
+        await parentWindow.ExecuteCloseLeftTabsAsync(this);
     }
 
-    private bool CanCloseRightTabs(object? param = null)
+    private bool CanCloseRightTabs(object? param)
     {
-        return parentWindow.CanCloseRightTabs();
+        return parentWindow.CanCloseRightTabs(this);
     }
 
     private async void ExecuteCloseRightTabsAsync(object? param)
     {
-        await parentWindow.ExecuteCloseRightTabsAsync();
+        await parentWindow.ExecuteCloseRightTabsAsync(this);
     }
 
     public XElement GetSessionData()
