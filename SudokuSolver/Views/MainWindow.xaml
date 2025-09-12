@@ -21,12 +21,13 @@
             TabCloseRequested="Tabs_TabCloseRequestedAsync"
             TabItemsChanged="Tabs_TabItemsChangedAsync"
             TabDroppedOutside="Tabs_TabDroppedOutside"
-            TabStripDragOver="Tabs_TabStripDragOver"
+            TabStripDragOver="{x:Bind local:MainWindow.Tabs_TabStripDragOver}"
             TabStripDrop="Tabs_TabStripDrop"
-            TabDragStarting="Tabs_TabDragStarting"
-            SelectionChanged="Tabs_SelectionChanged"
+            TabDragStarting="{x:Bind local:MainWindow.Tabs_TabDragStarting}"
+            TabDragCompleted="{x:Bind local:MainWindow.Tabs_TabDragCompleted}"
+            SelectionChanged="{x:Bind local:MainWindow.Tabs_SelectionChanged}"
             TabWidthMode="SizeToContent"
-            Loaded="Tabs_Loaded">
+            Loaded="{x:Bind local:MainWindow.Tabs_Loaded}">
 
             <TabView.KeyboardAccelerators>
                 <KeyboardAccelerator Key="T" Modifiers="Control" Invoked="NewTab_Invoked" />

@@ -316,18 +316,18 @@ internal sealed partial class MainWindow : Window, ISession
         }
     }
 
-#pragma warning disable CA1822 // Mark members as static
-    private void Tabs_TabDragStarting(TabView sender, TabViewTabDragStartingEventArgs args)
+    public static void Tabs_TabDragStarting(TabView sender, TabViewTabDragStartingEventArgs args)
     {
         args.Data.Properties.Add(cDataIdentifier, args.Tab);
         args.Data.Properties.Add(cProcessId, Environment.ProcessId);
         args.Data.RequestedOperation = DataPackageOperation.Move;
     }
-#pragma warning restore CA1822 // Mark members as static
 
     private void Tabs_TabStripDrop(object sender, DragEventArgs e)
     {
-        // called when dragging over TabViewItem headers on another window
+        // called when:
+        // a) dropping on to another window
+        // b) dragging the only tab off and then dropping it back on to the same window
         if (e.DataView.Properties.TryGetValue(cDataIdentifier, out object? obj) && (obj is TabViewItem sourceTab))
         {
             // First we need to get the position in the List to drop to
@@ -346,8 +346,14 @@ internal sealed partial class MainWindow : Window, ISession
                 }
             }
 
-            // It's from a different window, the tab has to be replaced as a menu's XamlRoot cannot be updated
-            MainWindow? window = App.Instance.GetWindowForElement(sourceTab);            
+            MainWindow? window = App.Instance.GetWindowForElement(sourceTab);
+
+            if (ReferenceEquals(window, this) && (Tabs.TabItems.Count == 1))
+            {
+                return;   // nothing to do
+            }
+
+            // It's from a different window, the tab has to be duplicated because a flyout's XamlRoot cannot be updated
             Debug.Assert(!ReferenceEquals(window, this));
 
             if (sourceTab is PuzzleTabViewItem puzzleTab)
@@ -358,7 +364,6 @@ internal sealed partial class MainWindow : Window, ISession
             {
                 TabViewItem? existing = Tabs.TabItems.FirstOrDefault(x => x is SettingsTabViewItem) as TabViewItem;
 
-                // preserve the drop position and existing expander state
                 // add first before closing an existing settings tab to avoid the window closing
                 AddTab(new SettingsTabViewItem(this, settingsTab.GetSessionData()), index);
 
@@ -372,7 +377,7 @@ internal sealed partial class MainWindow : Window, ISession
         }
     }
 
-    private void Tabs_TabStripDragOver(object sender, DragEventArgs e)
+    public static void Tabs_TabStripDragOver(object sender, DragEventArgs e)
     {
         try
         {
@@ -386,6 +391,25 @@ internal sealed partial class MainWindow : Window, ISession
         catch (Exception ex)
         {
             Debug.WriteLine(ex.ToString());
+        }
+    }
+
+    public static void Tabs_TabDragCompleted(TabView sender, TabViewTabDragCompletedEventArgs args)
+    {
+        if (args.Tab is not null) // it wasn't dragged off on to a different window
+        {
+            if (ReferenceEquals(sender.SelectedItem, args.Tab))
+            {
+                if (args.Tab is PuzzleTabViewItem puzzle)
+                {
+                    // there won't be a selection changed event if dragging the selected tab
+                    puzzle.FocusLastSelectedCell();
+                }
+            }
+            else   
+            {
+                sender.SelectedItem = args.Tab;
+            }
         }
     }
 
@@ -414,7 +438,7 @@ internal sealed partial class MainWindow : Window, ISession
         }
     }
 
-    private void Tabs_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    public static void Tabs_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (e.RemovedItems.Count  == 1)
         {
@@ -550,7 +574,7 @@ internal sealed partial class MainWindow : Window, ISession
         }
     }
 
-    private void Tabs_Loaded(object sender, RoutedEventArgs e)
+    public static void Tabs_Loaded(object sender, RoutedEventArgs e)
     {
         TabView tv = (TabView)sender;
 
