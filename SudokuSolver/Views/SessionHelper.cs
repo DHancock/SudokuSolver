@@ -61,7 +61,7 @@ internal class SessionHelper
                             {
                                 if (!MainWindow.ValidateSessionData(window))
                                 {
-                                    // In this first version this should only happen if the user has been editing the 
+                                    // This should only happen if the user has been editing the 
                                     // session file, in which case all bets are off...
                                     return;
                                 }
