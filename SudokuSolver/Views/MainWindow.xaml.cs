@@ -327,7 +327,7 @@ internal sealed partial class MainWindow : Window, ISession
 
     private void Tabs_TabStripDrop(object sender, DragEventArgs e)
     {
-        // called when dragging over TabViewItem headers
+        // called when dragging over TabViewItem headers on another window
         if (e.DataView.Properties.TryGetValue(cDataIdentifier, out object? obj) && (obj is TabViewItem sourceTab))
         {
             // First we need to get the position in the List to drop to
@@ -346,21 +346,21 @@ internal sealed partial class MainWindow : Window, ISession
                 }
             }
 
-            // if it's from a different window the tab has to be replaced as a menu's XamlRoot cannot be updated
-            // to keep it the code paths simpler always assume it's from a different window
+            // It's from a different window, the tab has to be replaced as a menu's XamlRoot cannot be updated
             MainWindow? window = App.Instance.GetWindowForElement(sourceTab);            
-                      
-            if (sourceTab is PuzzleTabViewItem draggedPuzzleTab)
+            Debug.Assert(!ReferenceEquals(window, this));
+
+            if (sourceTab is PuzzleTabViewItem puzzleTab)
             {
-                AddTab(new PuzzleTabViewItem(this, draggedPuzzleTab.GetSessionData()), index);
+                AddTab(new PuzzleTabViewItem(this, puzzleTab.GetSessionData()), index);
             }
-            else if (sourceTab is SettingsTabViewItem draggedSettingsTab)
+            else if (sourceTab is SettingsTabViewItem settingsTab)
             {
                 TabViewItem? existing = Tabs.TabItems.FirstOrDefault(x => x is SettingsTabViewItem) as TabViewItem;
 
                 // preserve the drop position and existing expander state
                 // add first before closing an existing settings tab to avoid the window closing
-                AddTab(new SettingsTabViewItem(this, draggedSettingsTab.GetSessionData()), index);
+                AddTab(new SettingsTabViewItem(this, settingsTab.GetSessionData()), index);
 
                 if (existing is not null)
                 {
@@ -492,30 +492,30 @@ internal sealed partial class MainWindow : Window, ISession
         return Tabs.TabItems.Count > 1;
     }
 
-    public async Task ExecuteCloseOtherTabsAsync()
+    public async Task ExecuteCloseOtherTabsAsync(TabViewItem sourceTab)
     {
         if (CanCloseOtherTabs())
         {
             List<object> otherTabs = new List<object>(Tabs.TabItems.Count - 1);
-            otherTabs.AddRange(Tabs.TabItems.Where(x => !ReferenceEquals(x, Tabs.SelectedItem)));
+            otherTabs.AddRange(Tabs.TabItems.Where(x => !ReferenceEquals(x, sourceTab)));
 
             await AttemptToCloseTabsAsync(otherTabs);
         }
     }
 
-    public bool CanCloseLeftTabs()
+    public bool CanCloseLeftTabs(TabViewItem sourceTab)
     {
-        return (Tabs.TabItems.Count > 1) && (Tabs.TabItems[0] != Tabs.SelectedItem);
+        return (Tabs.TabItems.Count > 1) && !ReferenceEquals(Tabs.TabItems[0], sourceTab);
     }
 
-    public async Task ExecuteCloseLeftTabsAsync()
+    public async Task ExecuteCloseLeftTabsAsync(TabViewItem sourceTab)
     {
-        if (CanCloseLeftTabs())
+        if (CanCloseLeftTabs(sourceTab))
         {
             List<object> leftTabs = new List<object>();
-            int selectedIndex = Tabs.TabItems.IndexOf(Tabs.SelectedItem);
+            int sourceIndex = Tabs.TabItems.IndexOf(sourceTab);
 
-            for (int index = 0; index < selectedIndex; index++)
+            for (int index = 0; index < sourceIndex; index++)
             {
                 leftTabs.Add(Tabs.TabItems[index]);
             }
@@ -524,20 +524,20 @@ internal sealed partial class MainWindow : Window, ISession
         }
     }
 
-    public bool CanCloseRightTabs()
+    public bool CanCloseRightTabs(TabViewItem sourceTab)
     {
-        return (Tabs.TabItems.Count > 1) && (Tabs.TabItems[Tabs.TabItems.Count - 1] != Tabs.SelectedItem);
+        return (Tabs.TabItems.Count > 1) && !ReferenceEquals(Tabs.TabItems[Tabs.TabItems.Count - 1], sourceTab);
     }
 
-    public async Task ExecuteCloseRightTabsAsync()
+    public async Task ExecuteCloseRightTabsAsync(TabViewItem sourceTab)
     {
-        if (CanCloseRightTabs())
+        if (CanCloseRightTabs(sourceTab))
         {
-            int selectedIndex = Tabs.TabItems.IndexOf(Tabs.SelectedItem);
+            int sourceIndex = Tabs.TabItems.IndexOf(sourceTab);
 
-            if (selectedIndex >= 0)
+            if (sourceIndex >= 0)
             {
-                int startIndex = selectedIndex + 1;
+                int startIndex = sourceIndex + 1;
                 List<object> rightTabs = new List<object>(Tabs.TabItems.Count - startIndex);
 
                 for (int index = startIndex; index < Tabs.TabItems.Count; index++)
