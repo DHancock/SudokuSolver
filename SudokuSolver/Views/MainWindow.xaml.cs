@@ -331,69 +331,66 @@ internal sealed partial class MainWindow : Window, ISession
         args.Data.RequestedOperation = DataPackageOperation.Move;
     }
 
-    private void Tabs_TabStripDrop(object sender, DragEventArgs e)
+    private void Tabs_TabStripDrop(object sender, DragEventArgs args)
     {
         // called when:
         // a) dropping on to another window
         // b) dragging the only tab off and then dropping it back on to the same window
         // c) a duplicate of the above
 
-        if (e.Handled)
+        if (!args.Handled)
         {
-            return; // guard against multiple calls with the same DragEventArgs
-        }
+            // guard against multiple calls with the same DragEventArgs, setting args.Handled won't stop them in itself
+            args.Handled = true;
 
-        if (e.DataView.Properties.TryGetValue(cDataIdentifier, out object? obj) && (obj is TabViewItem sourceTab))
-        {
-            // First we need to get the position in the List to drop to
-            int index = -1;
-
-            // Determine which items in the list our pointer is between.
-            for (int i = 0; i < Tabs.TabItems.Count; i++)
+            if (args.DataView.Properties.TryGetValue(cDataIdentifier, out object? obj) && (obj is TabViewItem sourceTab))
             {
-                if (Tabs.ContainerFromIndex(i) is TabViewItem item)
+                // First we need to get the position in the List to drop to
+                int index = -1;
+
+                // Determine which items in the list our pointer is between.
+                for (int i = 0; i < Tabs.TabItems.Count; i++)
                 {
-                    if (e.GetPosition(item).X - item.ActualWidth < 0)
+                    if (Tabs.ContainerFromIndex(i) is TabViewItem item)
                     {
-                        index = i;
-                        break;
+                        if (args.GetPosition(item).X - item.ActualWidth < 0)
+                        {
+                            index = i;
+                            break;
+                        }
                     }
                 }
-            }
 
-            MainWindow? window = App.Instance.GetWindowForElement(sourceTab);
+                MainWindow? window = App.Instance.GetWindowForElement(sourceTab);
 
-            if (ReferenceEquals(window, this) && (Tabs.TabItems.Count == 1))
-            {
-                return; // nothing to do
-            }
-
-            // It's from a different window, the tab has to be duplicated because a flyout's XamlRoot cannot be updated
-            Debug.Assert(!ReferenceEquals(window, this));
-
-            if (sourceTab is PuzzleTabViewItem puzzleTab)
-            {
-                AddTab(new PuzzleTabViewItem(this, puzzleTab.GetSessionData()), index);
-            }
-            else if (sourceTab is SettingsTabViewItem settingsTab)
-            {
-                TabViewItem? existing = Tabs.TabItems.FirstOrDefault(x => x is SettingsTabViewItem) as TabViewItem;
-
-                // add first before closing an existing settings tab to avoid the window closing
-                AddTab(new SettingsTabViewItem(this, settingsTab.GetSessionData()), index);
-
-                if (existing is not null)
+                if (ReferenceEquals(window, this) && (Tabs.TabItems.Count == 1))
                 {
-                    CloseTab(existing);
+                    return; // nothing to do
                 }
+
+                // It's from a different window, the tab has to be duplicated because a flyout's XamlRoot cannot be updated
+                Debug.Assert(!ReferenceEquals(window, this));
+
+                if (sourceTab is PuzzleTabViewItem puzzleTab)
+                {
+                    AddTab(new PuzzleTabViewItem(this, puzzleTab.GetSessionData()), index);
+                }
+                else if (sourceTab is SettingsTabViewItem settingsTab)
+                {
+                    TabViewItem? existing = Tabs.TabItems.FirstOrDefault(x => x is SettingsTabViewItem) as TabViewItem;
+
+                    // add first before closing an existing settings tab to avoid the window closing
+                    AddTab(new SettingsTabViewItem(this, settingsTab.GetSessionData()), index);
+
+                    if (existing is not null)
+                    {
+                        CloseTab(existing);
+                    }
+                }
+
+                window?.CloseTab(sourceTab);
             }
-
-            window?.CloseTab(sourceTab);
         }
-
-        // setting e.Handled doesn't stop multiple calls, but is used by this code to ignore them
-        // the second call would try to access the closed source tab, with bad results
-        e.Handled = true;
     }
 
     private static void Tabs_TabStripDragOver(object sender, DragEventArgs e)
