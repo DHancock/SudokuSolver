@@ -316,7 +316,7 @@ internal sealed partial class MainWindow : Window, ISession
         }
     }
 
-    public static void Tabs_TabDragStarting(TabView sender, TabViewTabDragStartingEventArgs args)
+    private static void Tabs_TabDragStarting(TabView sender, TabViewTabDragStartingEventArgs args)
     {
         args.Data.Properties.Add(cDataIdentifier, args.Tab);
         args.Data.Properties.Add(cProcessId, Environment.ProcessId);
@@ -377,7 +377,7 @@ internal sealed partial class MainWindow : Window, ISession
         }
     }
 
-    public static void Tabs_TabStripDragOver(object sender, DragEventArgs e)
+    private static void Tabs_TabStripDragOver(object sender, DragEventArgs e)
     {
         try
         {
@@ -394,7 +394,7 @@ internal sealed partial class MainWindow : Window, ISession
         }
     }
 
-    public static void Tabs_TabDragCompleted(TabView sender, TabViewTabDragCompletedEventArgs args)
+    private static void Tabs_TabDragCompleted(TabView sender, TabViewTabDragCompletedEventArgs args)
     {
         if (args.Tab is not null) // it wasn't dragged off on to a different window
         {
@@ -438,7 +438,7 @@ internal sealed partial class MainWindow : Window, ISession
         }
     }
 
-    public static void Tabs_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private static void Tabs_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (e.RemovedItems.Count  == 1)
         {
@@ -574,7 +574,7 @@ internal sealed partial class MainWindow : Window, ISession
         }
     }
 
-    public static void Tabs_Loaded(object sender, RoutedEventArgs e)
+    private static void Tabs_Loaded(object sender, RoutedEventArgs e)
     {
         TabView tv = (TabView)sender;
 
