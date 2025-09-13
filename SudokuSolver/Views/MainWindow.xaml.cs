@@ -336,6 +336,13 @@ internal sealed partial class MainWindow : Window, ISession
         // called when:
         // a) dropping on to another window
         // b) dragging the only tab off and then dropping it back on to the same window
+        // c) a duplicate of the above
+
+        if (e.Handled)
+        {
+            return; // guard against multiple calls with the same DragEventArgs
+        }
+
         if (e.DataView.Properties.TryGetValue(cDataIdentifier, out object? obj) && (obj is TabViewItem sourceTab))
         {
             // First we need to get the position in the List to drop to
@@ -358,7 +365,7 @@ internal sealed partial class MainWindow : Window, ISession
 
             if (ReferenceEquals(window, this) && (Tabs.TabItems.Count == 1))
             {
-                return;   // nothing to do
+                return; // nothing to do
             }
 
             // It's from a different window, the tab has to be duplicated because a flyout's XamlRoot cannot be updated
@@ -383,6 +390,10 @@ internal sealed partial class MainWindow : Window, ISession
 
             window?.CloseTab(sourceTab);
         }
+
+        // setting e.Handled doesn't stop multiple calls, but is used by this code to ignore them
+        // the second call would try to access the closed source tab, with bad results
+        e.Handled = true;
     }
 
     private static void Tabs_TabStripDragOver(object sender, DragEventArgs e)
