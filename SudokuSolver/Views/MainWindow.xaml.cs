@@ -52,6 +52,14 @@ internal sealed partial class MainWindow : Window, ISession
         }
 
         Activated += MainWindow_Activated;
+
+        // work around bogus XLS0519 errors caused by using x:Bind to a private static event handler
+        Tabs.TabStripDragOver += Tabs_TabStripDragOver;
+        Tabs.TabStripDrop += Tabs_TabStripDrop;
+        Tabs.TabDragStarting += Tabs_TabDragStarting;
+        Tabs.TabDragCompleted += Tabs_TabDragCompleted;
+        Tabs.SelectionChanged += Tabs_SelectionChanged;
+        Tabs.Loaded += Tabs_Loaded;
     }
 
     private void AppWindow_Destroying(AppWindow sender, object args)
