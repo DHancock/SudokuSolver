@@ -679,13 +679,15 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
     public XElement GetSessionData()
     {
-        XElement root = new XElement("puzzle", new XAttribute("version", 2));
+        XElement root = new XElement("puzzle", new XAttribute("version", 1));
 
         root.Add(new XElement("title", HeaderText));
         root.Add(new XElement("path", SourceFile?.Path));
         root.Add(new XElement("modified", IsModified));
 
-        // version 2 adds the "per view" settings 
+        // add the optional "per view" settings in release 1.13.0
+        // the version hasn't been incremented for backwards compatibility
+        // they don't confict with any other puzzle tab session data
         root.Add(new XElement("showPossibles", ViewModel.ShowPossibles));
         root.Add(new XElement("showSolution", ViewModel.ShowSolution));
 
@@ -700,7 +702,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         {
             if ((root.Name == "puzzle") && (root.Attribute("version") is XAttribute vp) && int.TryParse(vp.Value, out int version))
             {
-                if ((version == 1) || (version == 2))
+                if (version == 1)
                 {
                     XElement? data = root.Element("title");
 
@@ -714,28 +716,26 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
                             if ((data is not null) && bool.TryParse(data.Value, out _))
                             {
-                                bool valid = true;
+                                // the follwing two are new but optional
+                                data = root.Element("showPossibles");
 
-                                if (version == 2)
+                                if ((data is not null) && !bool.TryParse(data.Value, out _))
                                 {
-                                    valid = false;
-                                    data = root.Element("showPossibles");
-
-                                    if ((data is not null) && bool.TryParse(data.Value, out _))
-                                    {
-                                        data = root.Element("showSolution");
-                                        valid = (data is not null) && bool.TryParse(data.Value, out _);
-                                    }
+                                    return false;
                                 }
 
-                                if (valid)
-                                {
-                                    data = root.Element("Sudoku");
+                                data = root.Element("showSolution");
 
-                                    if ((data is not null) && (data.Attribute("version") is XAttribute vs) && int.TryParse(vs.Value, out int sv))
-                                    {
-                                        return sv == 2;
-                                    }
+                                if ((data is not null) && !bool.TryParse(data.Value, out _))
+                                {
+                                    return false;
+                                }
+
+                                data = root.Element("Sudoku");
+
+                                if ((data is not null) && (data.Attribute("version") is XAttribute vs) && int.TryParse(vs.Value, out int sv))
+                                {
+                                    return sv == 2;
                                 }
                             }
                         }
