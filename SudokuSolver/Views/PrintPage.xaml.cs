@@ -9,10 +9,47 @@ internal sealed partial class PrintPage : UserControl
         this.InitializeComponent();
     }
 
-    public PrintPage(PuzzleViewModel viewModel) : this()
+    public PrintPage(XElement root) : this()
     {
         RequestedTheme = ElementTheme.Light;
-        Puzzle.ViewModel = viewModel;
+        Puzzle.ViewModel = new PuzzleViewModel();
+
+        XElement? data = root.Element("title");
+
+        if (data is not null)
+        {
+            Header.Text = data.Value;
+        }
+
+        bool isModified = false;
+
+        data = root.Element("modified");
+
+        if (data is not null)
+        {
+            isModified = data.Value == "true";
+        }
+
+        data = root.Element("showPossibles");
+
+        if (data is not null)
+        {
+            Puzzle.ViewModel.ShowPossibles = data.Value == "true";
+        }
+
+        data = root.Element("showSolution");
+
+        if (data is not null)
+        {
+            Puzzle.ViewModel.ShowSolution = data.Value == "true";
+        }
+
+        data = root.Element("Sudoku");
+
+        if (data is not null)
+        {
+            Puzzle.ViewModel.LoadXml(data, isModified);
+        }
     }
 
     private static bool SetLocation(UIElement element, Point location)
@@ -70,8 +107,6 @@ internal sealed partial class PrintPage : UserControl
     
         return false;
     }
-
-    public void SetHeaderText(string? text) => Header.Text = text ?? string.Empty;
 
     public double GetHeaderHeight() => Header.Height;
 }

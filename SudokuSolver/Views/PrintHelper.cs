@@ -59,7 +59,7 @@ internal sealed class PrintHelper
         settings = Settings.Instance.PrintSettings.Clone();
 
         // a user control containing a puzzle view
-        printPage = new PrintPage(tab.ViewModel);
+        printPage = new PrintPage(tab.GetSessionData());
 
         // the printed object must be part of the visual tree
         rootVisual = printCanvas;
@@ -263,7 +263,6 @@ internal sealed class PrintHelper
 
             if (settings.ShowHeader)
             {
-                printPage.SetHeaderText(headerText);
                 headerHeight = printPage.GetHeaderHeight();
                 layoutInvalid |= printPage.SetHeadingLocation(new Point(leftMargin, topMargin));
                 layoutInvalid |= printPage.SetHeadingWidth(pd.PageSize.Width - (leftMargin + rightMargin));
