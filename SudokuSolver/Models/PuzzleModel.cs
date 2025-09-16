@@ -19,13 +19,11 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
     public CellList Cells { get; }
     private int CompletedCellsCount { get; set; }
 
-
     public PuzzleModel()
     {
         Cells = new CellList();
         CompletedCellsCount = 0;
     }
-
 
     public PuzzleModel(PuzzleModel source)
     {
@@ -771,8 +769,45 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
             {
                 return false;
             }
+
+            if (!ValidatePossibles(Cells.Cube(cube % 3, cube / 3)))
+            {
+                return false;
+            }
         }
         
+        return true;
+    }
+
+    private static bool ValidatePossibles(IEnumerable<Cell> cells)
+    {
+        Dictionary<BitField, (BitField possibles, int count)> info = new();
+
+        foreach (Cell cell in cells)
+        {
+            if (!cell.HasValue)
+            {
+                if (info.TryGetValue(cell.Possibles, out (BitField possibles, int count) data))
+                {
+                    info[data.possibles] = (data.possibles, data.count + 1);
+                }
+                else
+                {
+                    info.Add(cell.Possibles, (cell.Possibles, 1));
+                }
+            }
+        }
+
+        foreach ((BitField possibles, int count) in info.Values)
+        {
+            if (possibles.Count < count)
+            {
+                // For example, if three cells each only have the same two possibles then it must be invalid.
+                // It indicates that the puzzle wouldn't then be solvable after the new cell value was entered.
+                return false;
+            }
+        }
+
         return true;
     }
 
