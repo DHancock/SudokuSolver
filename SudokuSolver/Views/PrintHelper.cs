@@ -21,9 +21,7 @@ internal sealed class PrintHelper
     private PrintTask? printTask;
     private Panel? rootVisual;
     private PrintPage? printPage;
-    private bool currentlyPrinting;
-    private string? headerText;
-    
+    private bool currentlyPrinting;    
 
     public PrintHelper(MainWindow window)
     {
@@ -43,7 +41,7 @@ internal sealed class PrintHelper
         printDocumentSource = printDocument.DocumentSource;
     }
 
-    public async Task PrintViewAsync(Canvas printCanvas, PuzzleTabViewItem tab)
+    public async Task PrintViewAsync(Canvas printCanvas, XElement sessionData)
     {
         Debug.Assert(PrintManager.IsSupported());
 
@@ -55,11 +53,10 @@ internal sealed class PrintHelper
         // printing isn't reentrant
         currentlyPrinting = true;
 
-        headerText = tab.SourceFile is null ? tab.HeaderText : tab.SourceFile.Path;
         settings = Settings.Instance.PrintSettings.Clone();
 
         // a user control containing a puzzle view
-        printPage = new PrintPage(tab.GetSessionData());
+        printPage = new PrintPage(sessionData);
 
         // the printed object must be part of the visual tree
         rootVisual = printCanvas;
