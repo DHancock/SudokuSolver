@@ -144,10 +144,10 @@ internal sealed partial class MainWindow : Window, ISession
         LayoutRoot.RequestedTheme = Settings.Instance.Theme;
     }
 
-    public async Task PrintPuzzleAsync(PuzzleTabViewItem tab)
+    public async Task PrintPuzzleAsync(XElement sessionData)
     {
         printHelper ??= new PrintHelper(this);
-        await printHelper.PrintViewAsync(PrintCanvas, tab);
+        await printHelper.PrintViewAsync(PrintCanvas, sessionData);
     }
 
     private async Task<bool> AttemptToCloseTabsAsync(IList<object> tabs)

@@ -21,15 +21,6 @@ internal sealed partial class PrintPage : UserControl
             Header.Text = data.Value;
         }
 
-        bool isModified = false;
-
-        data = root.Element("modified");
-
-        if (data is not null)
-        {
-            isModified = data.Value == "true";
-        }
-
         data = root.Element("showPossibles");
 
         if (data is not null)
@@ -48,7 +39,7 @@ internal sealed partial class PrintPage : UserControl
 
         if (data is not null)
         {
-            Puzzle.ViewModel.LoadXml(data, isModified);
+            Puzzle.ViewModel.LoadXml(data, isModified: false);  // isModified isn't relevant to printed puzzles
         }
     }
 

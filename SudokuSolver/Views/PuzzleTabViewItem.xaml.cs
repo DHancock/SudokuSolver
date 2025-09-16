@@ -422,7 +422,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
     {
         try
         {
-            await parentWindow.PrintPuzzleAsync(this);
+            await parentWindow.PrintPuzzleAsync(GetSessionData());
         }
         catch (Exception ex)
         {
