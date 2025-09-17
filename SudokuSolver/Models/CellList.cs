@@ -42,7 +42,7 @@ internal sealed partial class CellList : IReadOnlyList<Cell>
         {
             if (Rotated)
             {
-                return cells[Convert(y, x)];
+                return cells[Convert(8 - y, x)];
             }
 
             return cells[Convert(x, y)];

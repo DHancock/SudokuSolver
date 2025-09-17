@@ -83,7 +83,7 @@ internal struct BitField
         return false;
     }
 
-    public override readonly int GetHashCode() => throw new NotImplementedException();
+    public override readonly int GetHashCode() => (int)data;
 
 
     private sealed class BitFieldDebugProxy
