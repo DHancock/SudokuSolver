@@ -781,28 +781,28 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
 
     private static bool ValidatePossibles(IEnumerable<Cell> cells)
     {
-        Dictionary<BitField, (BitField possibles, int count)> info = new();
+        Dictionary<BitField, int> info = new();
 
         foreach (Cell cell in cells)
         {
             if (!cell.HasValue)
             {
-                if (info.TryGetValue(cell.Possibles, out (BitField possibles, int count) data))
+                if (info.TryGetValue(cell.Possibles, out int count))
                 {
-                    info[data.possibles] = (data.possibles, data.count + 1);
+                    info[cell.Possibles] = count + 1;
                 }
                 else
                 {
-                    info.Add(cell.Possibles, (cell.Possibles, 1));
+                    info.Add(cell.Possibles, 1);
                 }
             }
         }
 
-        foreach ((BitField possibles, int count) in info.Values)
+        foreach (KeyValuePair<BitField, int> kvp in info)
         {
-            if (possibles.Count < count)
+            if (kvp.Key.Count < kvp.Value)
             {
-                // For example, if three cells each only have the same two possibles then it must be invalid.
+                // For example, if three cells each have only the same two possibles then it must be invalid.
                 // It indicates that the puzzle wouldn't then be solvable after the new cell value was entered.
                 return false;
             }
