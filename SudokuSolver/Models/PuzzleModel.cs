@@ -507,11 +507,85 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
 
         CheckForBothRowColumnDirections(cellsToUpdate);
 
+        modelUpdated |= CheckForExclusiveDirectionsInCubeRows();
+        modelUpdated |= CheckForExclusiveDirectionsInCubeColumns();
+
         return modelUpdated;
     }
 
+    private bool CheckForExclusiveDirectionsInCubeRows()
+    {
+        bool modelChanged = false;
+        List<Cell> rowCells = new(3);
 
+        for (int cube = 0; cube < 9; cube++)
+        {
+            for (int row = 0; row < 3; row++)
+            {
+                rowCells.Clear();
+                rowCells.AddRange(Cells.CubeRow(cube % 3, cube / 3, row));
 
+                bool valid = !rowCells[0].HasValue && (rowCells[0].HorizontalDirections.Count == 3) &&
+                             !rowCells[1].HasValue && (rowCells[1].HorizontalDirections.Count == 3) &&
+                             !rowCells[2].HasValue && (rowCells[2].HorizontalDirections.Count == 3);
+
+                if (valid && 
+                   (rowCells[0].HorizontalDirections == rowCells[1].HorizontalDirections) &&
+                   (rowCells[0].HorizontalDirections == rowCells[2].HorizontalDirections))
+                {
+                    // if all three cells in a row all have the same three horizontal possibles, the other
+                    // possibles in those cells can be discounted 
+                    foreach (Cell cell in rowCells)
+                    {
+                        if (cell.Possibles != cell.HorizontalDirections)
+                        {
+                            cell.Possibles = cell.HorizontalDirections;
+                            modelChanged = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        return modelChanged;
+    }
+
+    private bool CheckForExclusiveDirectionsInCubeColumns()
+    {
+        bool modelChanged = false;
+        List<Cell> columnCells = new(3);
+
+        for (int cube = 0; cube < 9; cube++)
+        {
+            for (int column = 0; column < 3; column++)
+            {
+                columnCells.Clear();
+                columnCells.AddRange(Cells.CubeColumn(cube % 3, cube / 3, column));
+
+                bool valid = !columnCells[0].HasValue && (columnCells[0].VerticalDirections.Count == 3) &&
+                             !columnCells[1].HasValue && (columnCells[1].VerticalDirections.Count == 3) &&
+                             !columnCells[2].HasValue && (columnCells[2].VerticalDirections.Count == 3);
+
+                if (valid &&
+                   (columnCells[0].VerticalDirections == columnCells[1].VerticalDirections) &&
+                   (columnCells[0].VerticalDirections == columnCells[2].VerticalDirections))
+                {
+                    // if all three cells in a column all have the same three vertical possibles, the other
+                    // possibles in those cells can be discounted 
+                    foreach (Cell cell in columnCells)
+                    {
+                        if (cell.Possibles != cell.VerticalDirections)
+                        {
+                            cell.Possibles = cell.VerticalDirections;
+                            modelChanged = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        return modelChanged;
+    }
 
     private void CheckForSinglePossibleRow(Stack<Cell> cellsToUpdate)
     {
@@ -779,11 +853,11 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
         return true;
     }
 
-    private static bool ValidatePossibles(IEnumerable<Cell> cells)
+    private static bool ValidatePossibles(IEnumerable<Cell> cellsInCube)
     {
         Dictionary<BitField, int> info = new();
 
-        foreach (Cell cell in cells)
+        foreach (Cell cell in cellsInCube)
         {
             if (!cell.HasValue)
             {
