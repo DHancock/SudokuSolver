@@ -525,13 +525,12 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
                 rowCells.Clear();
                 rowCells.AddRange(Cells.CubeRow(cube % 3, cube / 3, row));
 
-                bool valid = !rowCells[0].HasValue && (rowCells[0].HorizontalDirections.Count == 3) &&
-                             !rowCells[1].HasValue && (rowCells[1].HorizontalDirections.Count == 3) &&
-                             !rowCells[2].HasValue && (rowCells[2].HorizontalDirections.Count == 3);
-
-                if (valid && 
-                   (rowCells[0].HorizontalDirections == rowCells[1].HorizontalDirections) &&
-                   (rowCells[0].HorizontalDirections == rowCells[2].HorizontalDirections))
+                if (!rowCells[0].HasValue &&
+                    !rowCells[1].HasValue &&
+                    !rowCells[2].HasValue &&
+                    (rowCells[0].HorizontalDirections.Count == 3) &&
+                    (rowCells[0].HorizontalDirections == rowCells[1].HorizontalDirections) &&
+                    (rowCells[0].HorizontalDirections == rowCells[2].HorizontalDirections))
                 {
                     // if all three cells in a row all have the same three horizontal possibles, the other
                     // possibles in those cells can be discounted 
@@ -562,13 +561,12 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
                 columnCells.Clear();
                 columnCells.AddRange(Cells.CubeColumn(cube % 3, cube / 3, column));
 
-                bool valid = !columnCells[0].HasValue && (columnCells[0].VerticalDirections.Count == 3) &&
-                             !columnCells[1].HasValue && (columnCells[1].VerticalDirections.Count == 3) &&
-                             !columnCells[2].HasValue && (columnCells[2].VerticalDirections.Count == 3);
-
-                if (valid &&
-                   (columnCells[0].VerticalDirections == columnCells[1].VerticalDirections) &&
-                   (columnCells[0].VerticalDirections == columnCells[2].VerticalDirections))
+                if (!columnCells[0].HasValue && 
+                    !columnCells[1].HasValue &&
+                    !columnCells[2].HasValue &&
+                    (columnCells[0].VerticalDirections.Count == 3) &&
+                    (columnCells[0].VerticalDirections == columnCells[1].VerticalDirections) &&
+                    (columnCells[0].VerticalDirections == columnCells[2].VerticalDirections))
                 {
                     // if all three cells in a column all have the same three vertical possibles, the other
                     // possibles in those cells can be discounted 
