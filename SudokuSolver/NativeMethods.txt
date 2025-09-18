@@ -18,3 +18,4 @@ GetDoubleClickTime
 WM_ENDSESSION
 EnumWindows
 RemoveWindowSubclass
+SHARD
