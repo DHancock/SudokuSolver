@@ -392,11 +392,9 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
         if (sourceFile is not null)
         {
-            const uint SHARD_PathW = 0x03;
-
             fixed (char* lpStringLocal = sourceFile.Path)
             {
-                PInvoke.SHAddToRecentDocs(SHARD_PathW, lpStringLocal);
+                PInvoke.SHAddToRecentDocs((uint)SHARD.SHARD_PATHW, lpStringLocal);
             }
         }
     }
