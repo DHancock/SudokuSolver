@@ -841,42 +841,48 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
             {
                 return false;
             }
+        }
 
-            if (!ValidatePossibles(Cells.Cube(cube % 3, cube / 3)))
+        if (CompletedCellsCount < 81)
+        {
+            Dictionary<BitField, int> store = new(9);
+
+            for (int cube = 0; cube < 9; cube++)
             {
-                return false;
+                if (!ValidatePossibles(Cells.Cube(cube % 3, cube / 3), store))
+                {
+                    return false;
+                }
             }
         }
         
         return true;
     }
 
-    private static bool ValidatePossibles(IEnumerable<Cell> cellsInCube)
+    private static bool ValidatePossibles(IEnumerable<Cell> cellsInCube, Dictionary<BitField, int> info)
     {
-        Dictionary<BitField, int> info = new();
+        info.Clear();
 
         foreach (Cell cell in cellsInCube)
         {
             if (!cell.HasValue)
             {
-                if (info.TryGetValue(cell.Possibles, out int count))
+                if (info.TryGetValue(cell.Possibles, out int cellCount))
                 {
-                    info[cell.Possibles] = count + 1;
+                    if (cellCount == cell.Possibles.Count)
+                    {
+                        // For example, if three cells each have the same two possibles then it must be invalid,
+                        // indicating that the puzzle wouldn't then be solvable after the new cell value was entered.
+                        // Unfortunately post entry, so the original possibles suggested it was a valid value.
+                        return false;
+                    }
+
+                    info[cell.Possibles] = cellCount + 1;
                 }
                 else
                 {
                     info.Add(cell.Possibles, 1);
                 }
-            }
-        }
-
-        foreach (KeyValuePair<BitField, int> kvp in info)
-        {
-            if (kvp.Key.Count < kvp.Value)
-            {
-                // For example, if three cells each have only the same two possibles then it must be invalid.
-                // It indicates that the puzzle wouldn't then be solvable after the new cell value was entered.
-                return false;
             }
         }
 
@@ -1031,8 +1037,9 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
                         return;
                     }
 
-                    // revert puzzle and clear the possible value
+                    // revert puzzle
                     CopyFrom(originalModel);
+                    // try the next possible
                     temp[value] = false;
                 }
             }
