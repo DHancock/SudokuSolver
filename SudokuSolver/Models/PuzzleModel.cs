@@ -801,24 +801,10 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
         return modelUpdated;
     }
 
-
     private bool PuzzleIsErrorFree()
     {
-        if (CheckRowsAreErrorFree())
-        {
-            Cells.Rotated = true;
-            bool errorFree = CheckRowsAreErrorFree();
-            Cells.Rotated = false;
-
-            if (errorFree)
-            {
-                return CheckCubesAreErrorFree();
-            }
-        }
-
-        return false;
+        return CheckRowsAreErrorFree() && CheckColumnsAreErrorFree() && CheckCubesAreErrorFree();
     }
-
 
     private bool CheckRowsAreErrorFree()
     {
@@ -833,56 +819,69 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
         return true;
     }
 
+    private bool CheckColumnsAreErrorFree()
+    {
+        for (int column = 0; column < 9; column++)
+        {
+            if (!CellValuesAreUnique(Cells.Column(column)))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     private bool CheckCubesAreErrorFree()
+    {
+        return CubeValuesAreUnique() && PossiblesAreValid();
+    }
+
+    private bool PossiblesAreValid()
+    {
+        if (!PuzzleIsComplete)
+        {
+            Dictionary<BitField, int> info = new(9);
+
+            for (int cube = 0; cube < 9; cube++)
+            {
+                info.Clear();
+
+                foreach (Cell cell in Cells.Cube(cube % 3, cube / 3))
+                {
+                    if (!cell.HasValue)
+                    {
+                        if (info.TryGetValue(cell.Possibles, out int cellCount))
+                        {
+                            if (cellCount == cell.Possibles.Count)
+                            {
+                                // For example, if three cells each have the same two possibles then it must be invalid,
+                                // indicating that the puzzle wouldn't then be solvable after the new cell value was entered.
+                                // Unfortunately post entry, so the original possibles suggested it was a valid value.
+                                return false;
+                            }
+
+                            info[cell.Possibles] = cellCount + 1;
+                        }
+                        else
+                        {
+                            info.Add(cell.Possibles, 1);
+                        }
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private bool CubeValuesAreUnique()
     {
         for (int cube = 0; cube < 9; cube++)
         {
             if (!CellValuesAreUnique(Cells.Cube(cube % 3, cube / 3)))
             {
                 return false;
-            }
-        }
-
-        if (CompletedCellsCount < 81)
-        {
-            Dictionary<BitField, int> store = new(9);
-
-            for (int cube = 0; cube < 9; cube++)
-            {
-                if (!ValidatePossibles(Cells.Cube(cube % 3, cube / 3), store))
-                {
-                    return false;
-                }
-            }
-        }
-        
-        return true;
-    }
-
-    private static bool ValidatePossibles(IEnumerable<Cell> cellsInCube, Dictionary<BitField, int> info)
-    {
-        info.Clear();
-
-        foreach (Cell cell in cellsInCube)
-        {
-            if (!cell.HasValue)
-            {
-                if (info.TryGetValue(cell.Possibles, out int cellCount))
-                {
-                    if (cellCount == cell.Possibles.Count)
-                    {
-                        // For example, if three cells each have the same two possibles then it must be invalid,
-                        // indicating that the puzzle wouldn't then be solvable after the new cell value was entered.
-                        // Unfortunately post entry, so the original possibles suggested it was a valid value.
-                        return false;
-                    }
-
-                    info[cell.Possibles] = cellCount + 1;
-                }
-                else
-                {
-                    info.Add(cell.Possibles, 1);
-                }
             }
         }
 
@@ -893,7 +892,7 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
     {
         BitField temp = new BitField();
 
-        foreach (Cell cell in cells)
+        foreach (Cell cell in cells) // cells could be a row, column or cube
         {
             if (cell.HasValue)
             {
@@ -1107,7 +1106,7 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
 
     public override string? ToString()
     {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(90);
 
         for (int index = 0; index < Cells.Count; index++)
         {
