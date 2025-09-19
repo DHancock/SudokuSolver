@@ -1107,24 +1107,13 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
 
     public override string? ToString()
     {
-        if (CompletedCellsCount == 0)
-        {
-            return "empty";
-        }
-
         StringBuilder sb = new StringBuilder();
-        int count = CompletedCellsCount;
 
         for (int index = 0; index < Cells.Count; index++)
         {
             if (Cells[index].HasValue)
             {
                 sb.Append(Cells[index].Value);
-
-                if (--count == 0)
-                {
-                    break;
-                }
             }
             else
             {
@@ -1133,7 +1122,7 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
 
             if (((index + 1) % 9) == 0)
             {
-                sb.Append(Environment.NewLine);
+                sb.Append(' ');
             }
         }
 
