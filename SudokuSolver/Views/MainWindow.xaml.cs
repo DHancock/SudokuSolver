@@ -29,7 +29,8 @@ internal sealed partial class MainWindow : Window, ISession
         UpdateCaptionButtonColours();
 
         LayoutRoot.ActualThemeChanged += LayoutRoot_ActualThemeChanged;
-        
+        LayoutRoot.ProcessKeyboardAccelerators += LayoutRoot_ProcessKeyboardAccelerators;
+
         App.Instance.RegisterWindow(this);
 
         AppWindow.Closing += AppWindow_Closing;
@@ -62,12 +63,21 @@ internal sealed partial class MainWindow : Window, ISession
         Tabs.Loaded += Tabs_Loaded;
     }
 
+    private void LayoutRoot_ProcessKeyboardAccelerators(UIElement sender, ProcessKeyboardAcceleratorEventArgs args)
+    {
+        // The sdk's search for global keyboard accelerators is a bit challenged in WAS 1.8.0
+        // Do it here instead, the accelerators are in known positions in the visual tree
+        args.Handled = true;
+        ((ITabItem)Tabs.SelectedItem).InvokeKeyboardAccelerator(args);
+    }
+
     private void AppWindow_Destroying(AppWindow sender, object args)
     {
         AppWindow.Destroying -= AppWindow_Destroying;
 
         Activated -= MainWindow_Activated;
         LayoutRoot.ActualThemeChanged -= LayoutRoot_ActualThemeChanged;
+        LayoutRoot.ProcessKeyboardAccelerators -= LayoutRoot_ProcessKeyboardAccelerators;
         AppWindow.Closing -= AppWindow_Closing;
     }
 

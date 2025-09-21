@@ -3,6 +3,7 @@ global using Microsoft.UI.Input;
 global using Microsoft.UI.Text;
 global using Microsoft.UI.Windowing;
 global using Microsoft.UI.Xaml;
+global using Microsoft.UI.Xaml.Automation.Peers;
 global using Microsoft.UI.Xaml.Controls;
 global using Microsoft.UI.Xaml.Controls.Primitives;
 global using Microsoft.UI.Xaml.Input;

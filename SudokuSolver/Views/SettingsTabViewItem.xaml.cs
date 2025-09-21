@@ -20,6 +20,7 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
 
         LayoutRoot.SizeChanged += LayoutRoot_SizeChanged;
         Loaded += SettingsTabViewItem_Loaded;
+        ProcessKeyboardAccelerators += SettingsTabViewItem_ProcessKeyboardAccelerators;
 
         RootScrollViewer.ViewChanged += RootScrollViewer_ViewChanged;
 
@@ -95,6 +96,7 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
         // be active (until presumably it's garbage collected)
         EnableKeyboardAccelerators(enable: false);
 
+        ProcessKeyboardAccelerators -= SettingsTabViewItem_ProcessKeyboardAccelerators;
         LayoutRoot.SizeChanged -= LayoutRoot_SizeChanged;
 
         RootScrollViewer.ViewChanged -= RootScrollViewer_ViewChanged;
@@ -254,6 +256,17 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
     public void EnableMenuAccessKeys(bool enable)
     {
         // no access keys to disable
+    }
+
+    private void SettingsTabViewItem_ProcessKeyboardAccelerators(UIElement sender, ProcessKeyboardAcceleratorEventArgs args)
+    {
+        args.Handled = true;
+        InvokeKeyboardAccelerator(args);
+    }
+
+    public void InvokeKeyboardAccelerator(ProcessKeyboardAcceleratorEventArgs args)
+    {
+        Utils.InvokeMenuItemForKeyboardAccelerator(((MenuFlyout)ContextFlyout).Items, args);
     }
 
     public int PassthroughCount => 7;

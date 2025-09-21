@@ -93,4 +93,48 @@ internal static class Utils
 
         return ScaledRect(offset, visibleSize, e.XamlRoot.RasterizationScale);
     }
+
+    public static bool InvokeMenuItemForKeyboardAccelerator(IList<MenuFlyoutItemBase> menuItems, ProcessKeyboardAcceleratorEventArgs args)
+    {
+        foreach (MenuFlyoutItemBase mfib in menuItems)
+        {
+            if (mfib is MenuFlyoutSubItem subItem)
+            {
+                if (InvokeMenuItemForKeyboardAccelerator(subItem.Items, args))
+                {
+                    return true;
+                }
+            }
+            else if (mfib is MenuFlyoutItem mfi)
+            {
+                foreach (KeyboardAccelerator ka in mfib.KeyboardAccelerators)
+                {
+                    if (ka.IsEnabled && (ka.Modifiers == args.Modifiers) && (ka.Key == args.Key))
+                    {
+                        Debug.Assert(ka.ScopeOwner is null);
+
+                        if (mfi.Command is ICommand ic)
+                        {
+                            if (ic.CanExecute(mfi.CommandParameter))
+                            {
+                                ic.Execute(mfi.CommandParameter);
+                            }
+                        }
+                        else
+                        {
+                            AutomationPeer? ap = FrameworkElementAutomationPeer.FromElement(mfi);
+                            MenuFlyoutItemAutomationPeer? ip = ap?.GetPattern(PatternInterface.Invoke) as MenuFlyoutItemAutomationPeer;
+
+                            ip?.Invoke();
+                        }
+
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
 }
