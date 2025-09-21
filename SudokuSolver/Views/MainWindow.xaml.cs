@@ -111,12 +111,6 @@ internal sealed partial class MainWindow : Window, ISession
         {
             WindowIcon.Opacity = 0.25;
         }
-
-        // only the current active window's hotkeys should be active
-        if (Tabs.SelectedItem is ITabItem tab)
-        {
-            tab.EnableKeyboardAccelerators(enable: IsActive);
-        }
     }
 
     private async Task HandleWindowCloseRequestedAsync()
@@ -466,19 +460,9 @@ internal sealed partial class MainWindow : Window, ISession
 
     private static void Tabs_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (e.RemovedItems.Count  == 1)
+        if ((e.AddedItems.Count == 1) &&  (e.AddedItems[0] is PuzzleTabViewItem puzzle))
         {
-            ((ITabItem)e.RemovedItems[0]).EnableKeyboardAccelerators(enable: false);
-        }
-
-        if (e.AddedItems.Count == 1)
-        {
-            ((ITabItem)e.AddedItems[0]).EnableKeyboardAccelerators(enable: true);
-            
-            if (e.AddedItems[0] is PuzzleTabViewItem puzzle)
-            {
-                puzzle.FocusLastSelectedCell();
-            }
+            puzzle.FocusLastSelectedCell();
         }
     }
 
