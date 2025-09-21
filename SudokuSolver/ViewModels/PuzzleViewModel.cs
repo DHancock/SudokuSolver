@@ -107,7 +107,6 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
                 UpdateView();
                 undoHelper.Push(model);
                 IsModified = model != initialState;
-                UpdateMenuItemsDisabledState();
             }
             else
             {
@@ -145,7 +144,6 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
         undoHelper.Push(model);
 
         UpdateView();
-        UpdateMenuItemsDisabledState();
     }
 
     private void UpdateView()
@@ -237,7 +235,6 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
             model = undoHelper.PopUndo();
             UpdateView();
             IsModified = model != initialState;
-            UpdateMenuItemsDisabledState();
         }
     }
 
@@ -250,7 +247,6 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
             model = undoHelper.PopRedo();
             UpdateView();
             IsModified = model != initialState;
-            UpdateMenuItemsDisabledState();
         }
     }
 
@@ -264,23 +260,6 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
         {
             selectedIndex = -1;
         }
-
-        UpdateMenuItemsDisabledState();
-    }
-
-    private void UpdateMenuItemsDisabledState()
-    {
-        // an unfortunate work around for https://github.com/microsoft/microsoft-ui-xaml/issues/8894
-        // While the CanExecute method is automatically called when the menu is shown, the menu item
-        // enabled state needs updating for the accelerator key to work while the menu is closed.
-        Task.Run(() =>
-        {
-            UndoCommand.RaiseCanExecuteChanged();
-            RedoCommand.RaiseCanExecuteChanged();
-            CutCommand.RaiseCanExecuteChanged();
-            CopyCommand.RaiseCanExecuteChanged();
-            PasteCommand.RaiseCanExecuteChanged();
-        });
     }
 
     private bool CanCutCopyDelete(object? param = null) => (selectedIndex >= 0) && Cells[selectedIndex].HasValue;
@@ -361,6 +340,7 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
         {
             model.SetOriginToProvided();
             UpdateView();
+            undoHelper.Push(model);
             IsModified = model != initialState;
         }
     }
@@ -373,6 +353,7 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
         {
             model.SetOriginToUser();
             UpdateView();
+            undoHelper.Push(model);
             IsModified = model != initialState;
         }
     }

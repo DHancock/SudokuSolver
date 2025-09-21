@@ -1104,6 +1104,7 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
         while (cellsToUpdate.Count > 0);
     }
 
+#if DEBUG
     public override string? ToString()
     {
         StringBuilder sb = new StringBuilder(90);
@@ -1127,7 +1128,8 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
 
         return sb.ToString();
     }
-
+#endif
+    
     public static bool operator ==(PuzzleModel? left, PuzzleModel? right)
     {
         if (ReferenceEquals(left, right))

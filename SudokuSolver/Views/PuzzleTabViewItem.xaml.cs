@@ -37,6 +37,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         Clipboard.ContentChanged += Clipboard_ContentChanged;
         GotFocus += PuzzleTabViewItem_GotFocus;
         Loaded += LoadedHandler;
+        ProcessKeyboardAccelerators += PuzzleTabViewItem_ProcessKeyboardAccelerators;
 
         // size changed can also indicate that this tab has been selected and that it's content is now valid 
         Puzzle.SizeChanged += Puzzle_SizeChanged;
@@ -184,6 +185,8 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         ViewMenuItem.Unloaded -= MenuItem_Unloaded;
         EditMenuItem.Unloaded -= MenuItem_Unloaded;
         GotFocus -= PuzzleTabViewItem_GotFocus;
+        ProcessKeyboardAccelerators -= PuzzleTabViewItem_ProcessKeyboardAccelerators;
+
         Puzzle.SizeChanged -= Puzzle_SizeChanged;
         Puzzle.DragEnter -= Puzzle_DragEnter;
         Puzzle.Drop -= Puzzle_Drop;
@@ -302,26 +305,28 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
     public void EnableKeyboardAccelerators(bool enable)
     {
-        // accelerators on sub menus are only active when the menu is shown
-        // which can only happen if this is the current selected tab
         foreach (MenuBarItem mbi in Menu.Items)
         {
-            foreach (MenuFlyoutItemBase mfib in mbi.Items)
-            {
-                foreach (KeyboardAccelerator ka in mfib.KeyboardAccelerators)
-                {
-                    ka.IsEnabled = enable;
-                }
-            }
+            AdjustMenuItems(mbi.Items, enable);
         }
 
-        UIElement[] elements = [DuplicateMenuItem, RenameMenuItem];
+        AdjustMenuItems(((MenuFlyout)ContextFlyout).Items, enable);
 
-        foreach (UIElement element in elements)
+        static void AdjustMenuItems(IList<MenuFlyoutItemBase> menuItems, bool enable)
         {
-            foreach (KeyboardAccelerator ka in element.KeyboardAccelerators)
+            foreach (MenuFlyoutItemBase mfib in menuItems)
             {
-                ka.IsEnabled = enable;
+                if (mfib is MenuFlyoutSubItem subItem)
+                {
+                    AdjustMenuItems(subItem.Items, enable);
+                }
+                else if (mfib is MenuFlyoutItem mfi)
+                {
+                    foreach (KeyboardAccelerator ka in mfib.KeyboardAccelerators)
+                    {
+                        ka.IsEnabled = enable;
+                    }
+                }
             }
         }
     }
@@ -791,5 +796,24 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         rects[2] = Utils.GetPassthroughRect(ViewMenu);
         rects[3] = Utils.GetPassthroughRect(SettingsButtton);
         rects[4] = Utils.GetPassthroughRect(Puzzle);
+    }
+
+    private void PuzzleTabViewItem_ProcessKeyboardAccelerators(UIElement sender, ProcessKeyboardAcceleratorEventArgs args)
+    {
+        args.Handled = true;
+        InvokeKeyboardAccelerator(args);
+    }
+
+    public void InvokeKeyboardAccelerator(ProcessKeyboardAcceleratorEventArgs args)
+    {
+        foreach (MenuBarItem mbi in Menu.Items)
+        {
+            if (Utils.InvokeMenuItemForKeyboardAccelerator(mbi.Items, args))
+            {
+                return;
+            }
+        }
+
+        Utils.InvokeMenuItemForKeyboardAccelerator(((MenuFlyout)ContextFlyout).Items, args);
     }
 }

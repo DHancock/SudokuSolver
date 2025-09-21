@@ -130,7 +130,7 @@
                 </MenuFlyoutItem.KeyboardAccelerators>
             </MenuFlyoutItem>
 
-            <MenuFlyoutItem x:Uid="DuplicateTab" Click="DuplicateTabClickHandler" AccessKey="D" x:Name="DuplicateMenuItem">
+            <MenuFlyoutItem x:Uid="DuplicateTab" Click="DuplicateTabClickHandler" AccessKey="D">
                 <MenuFlyoutItem.KeyboardAccelerators>
                     <KeyboardAccelerator Modifiers="Control" Key="D"/>
                 </MenuFlyoutItem.KeyboardAccelerators>
@@ -138,7 +138,7 @@
 
             <MenuFlyoutSeparator/>
 
-            <MenuFlyoutItem x:Uid="RenameTab" Command="{x:Bind RenameTabCommand}" x:Name="RenameMenuItem">
+            <MenuFlyoutItem x:Uid="RenameTab" Command="{x:Bind RenameTabCommand}">
                 <MenuFlyoutItem.KeyboardAccelerators>
                     <KeyboardAccelerator Key="F2"/>
                 </MenuFlyoutItem.KeyboardAccelerators>

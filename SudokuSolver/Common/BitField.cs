@@ -1,6 +1,5 @@
 ﻿namespace SudokuSolver.Common;
 
-[DebuggerTypeProxy(typeof(BitFieldDebugProxy))]
 internal struct BitField
 {
     private const nuint cSpan = 0b_0000_0011_1111_1110;
@@ -85,46 +84,24 @@ internal struct BitField
 
     public override readonly int GetHashCode() => (int)data;
 
-
-    private sealed class BitFieldDebugProxy
+#if DEBUG
+    public override readonly string? ToString() 
     {
-        private readonly BitField a;
+        StringBuilder sb = new StringBuilder();
 
-        public BitFieldDebugProxy(BitField bitField)
+        for(int index = 9; index >= 1; index--)
         {
-            a = bitField;
-        }
-
-        public string DebugView
-        {
-            get
+            if (this[index])
             {
-                List<char> chars = new();
-                nuint bits = cSpan;
-
-                while (bits > 0)
-                {
-                    if ((bits & 1) > 0)
-                    {
-                        chars.Add(a[chars.Count] ? (char)((chars.Count % 10) + '0') : '-');
-                    }
-                    else
-                    {
-                        chars.Add('.');   // it's not in cSpan
-                    }
-
-                    bits >>= 1;
-                }
-
-                return string.Create(chars.Count, chars, (Span<char> charSpan, List<char> state) =>
-                {
-                    int readIndex = 0;
-                    int writeIndex = state.Count;
-
-                    while (writeIndex > 0)
-                        charSpan[--writeIndex] = state[readIndex++];
-                });
+                sb.Append(index);
+            }
+            else
+            {
+                sb.Append('-');
             }
         }
+
+        return sb.ToString();
     }
+#endif
 }
