@@ -361,6 +361,7 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
         {
             model.SetOriginToProvided();
             UpdateView();
+            undoHelper.Push(model);
             IsModified = model != initialState;
         }
     }
@@ -373,6 +374,7 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
         {
             model.SetOriginToUser();
             UpdateView();
+            undoHelper.Push(model);
             IsModified = model != initialState;
         }
     }
