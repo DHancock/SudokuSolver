@@ -1,14 +1,16 @@
-﻿namespace SudokuSolver.ViewModels;
+﻿using SudokuSolver.Utilities;
 
-internal sealed partial class CellList : ObservableCollection<Cell>
+namespace SudokuSolver.ViewModels;
+
+internal sealed partial class CellList : ObservableArray<Cell>
 {
     private const int cLength = 81;
 
-    public CellList() : base()
+    public CellList() : base(cLength)
     {
         for (int index = 0; index < cLength; index++)
         {
-            this.Add(new Cell(index));
+            this[index] = new Cell(index);
         }
     }
 }
