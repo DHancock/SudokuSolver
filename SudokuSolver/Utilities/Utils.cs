@@ -120,6 +120,7 @@ internal static class Utils
                             if (mfi.Command.CanExecute(mfi.CommandParameter))   
                             {
                                 mfi.Command.Execute(mfi.CommandParameter);
+                                return true;
                             }
                         }
                         else if (mfi.IsEnabled)
@@ -129,9 +130,8 @@ internal static class Utils
                             MenuFlyoutItemAutomationPeer? ip = ap?.GetPattern(PatternInterface.Invoke) as MenuFlyoutItemAutomationPeer;
 
                             ip?.Invoke();
+                            return true;
                         }
-
-                        return true;
                     }
                 }
             }
