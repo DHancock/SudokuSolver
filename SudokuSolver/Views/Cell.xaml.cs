@@ -121,7 +121,7 @@ internal sealed partial class Cell : UserControl
             cell.GoToVisualState(origin.ToString());
             cell.CollapseAllPossibles();
 
-            if (cell.ParentPuzzleView.ViewModel.ShowSolution || (vmCell.Origin == Origins.User) || (vmCell.Origin == Origins.Provided))
+            if (vmCell.ViewModel.ShowSolution || (vmCell.Origin == Origins.User) || (vmCell.Origin == Origins.Provided))
             {
                 cell.CellValue.Opacity = 1;
                 cell.CellValue.Text = vmCell.Value.ToString();
@@ -135,7 +135,7 @@ internal sealed partial class Cell : UserControl
         {
             cell.CellValue.Opacity = 0;
 
-            if (!cell.ParentPuzzleView.ViewModel.ShowPossibles)
+            if (!vmCell.ViewModel.ShowPossibles)
             {
                 cell.CollapseAllPossibles();
             }
@@ -204,7 +204,7 @@ internal sealed partial class Cell : UserControl
 
             if (newValue >= 0)
             {
-                ParentPuzzleView.ViewModel.UpdateCellForKeyDown(Data.Index, newValue);
+                Data.ViewModel.UpdateCellForKeyDown(Data.Index, newValue);
             }
         }
     }
