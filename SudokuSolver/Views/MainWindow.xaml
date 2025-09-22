@@ -25,17 +25,18 @@
             TabWidthMode="SizeToContent">
 
             <TabView.KeyboardAccelerators>
-                <KeyboardAccelerator Key="T" Modifiers="Control" Invoked="NewTab_Invoked" />
-                <!-- close tab "control + W" is implemented via the tab item context menu -->
-                <KeyboardAccelerator Key="Number1" Modifiers="Control" Invoked="NavigateToNumberedTab_Invoked" />
-                <KeyboardAccelerator Key="Number2" Modifiers="Control" Invoked="NavigateToNumberedTab_Invoked" />
-                <KeyboardAccelerator Key="Number3" Modifiers="Control" Invoked="NavigateToNumberedTab_Invoked" />
-                <KeyboardAccelerator Key="Number4" Modifiers="Control" Invoked="NavigateToNumberedTab_Invoked" />
-                <KeyboardAccelerator Key="Number5" Modifiers="Control" Invoked="NavigateToNumberedTab_Invoked" />
-                <KeyboardAccelerator Key="Number6" Modifiers="Control" Invoked="NavigateToNumberedTab_Invoked" />
-                <KeyboardAccelerator Key="Number7" Modifiers="Control" Invoked="NavigateToNumberedTab_Invoked" />
-                <KeyboardAccelerator Key="Number8" Modifiers="Control" Invoked="NavigateToNumberedTab_Invoked" />
-                <KeyboardAccelerator Key="Number9" Modifiers="Control" Invoked="NavigateToNumberedTab_Invoked" />
+                <!-- new tab -->
+                <KeyboardAccelerator Key="T" Modifiers="Control"/> 
+                <!-- navigate to numbered tab -->
+                <KeyboardAccelerator Key="Number1" Modifiers="Control"/>
+                <KeyboardAccelerator Key="Number2" Modifiers="Control"/>
+                <KeyboardAccelerator Key="Number3" Modifiers="Control"/>
+                <KeyboardAccelerator Key="Number4" Modifiers="Control"/>
+                <KeyboardAccelerator Key="Number5" Modifiers="Control"/>
+                <KeyboardAccelerator Key="Number6" Modifiers="Control"/>
+                <KeyboardAccelerator Key="Number7" Modifiers="Control"/>
+                <KeyboardAccelerator Key="Number8" Modifiers="Control"/>
+                <KeyboardAccelerator Key="Number9" Modifiers="Control" />
             </TabView.KeyboardAccelerators>
 
             <TabView.TabStripHeader>

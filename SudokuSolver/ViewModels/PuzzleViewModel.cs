@@ -33,7 +33,7 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
 
         model = new PuzzleModel();
         initialState = new PuzzleModel();
-        Cells = new CellList();
+        Cells = new CellList(this);
 
         undoHelper = new UndoHelper();
         undoHelper.Push(model);
@@ -155,7 +155,7 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
 
             if (!modelCell.Equals(Cells[index]))
             {
-                Cells[index] = new Cell(modelCell);
+                Cells[index] = new Cell(modelCell, this);
             }
         }
 

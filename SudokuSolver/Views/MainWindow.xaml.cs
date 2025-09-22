@@ -68,6 +68,23 @@ internal sealed partial class MainWindow : Window, ISession
         // The sdk's search for global keyboard accelerators is a bit challenged in WAS 1.8.0
         // Do it here instead, the accelerators are in known positions in the visual tree
         args.Handled = true;
+
+        foreach (KeyboardAccelerator ka in Tabs.KeyboardAccelerators)
+        {
+            if (ka.IsEnabled && (ka.Modifiers == args.Modifiers) && (ka.Key == args.Key))
+            {
+                if (ka.Key == VirtualKey.T)
+                {
+                    Tabs_AddTabButtonClick(Tabs, EventArgs.Empty);
+                }
+                else
+                {
+                    NavigateToNumberedTab(ka.Key);
+                }
+                return;
+            }
+        }
+
         ((ITabItem)Tabs.SelectedItem).InvokeKeyboardAccelerator(args);
     }
 
@@ -110,12 +127,6 @@ internal sealed partial class MainWindow : Window, ISession
         else
         {
             WindowIcon.Opacity = 0.25;
-        }
-
-        // only the current active window's hotkeys should be active
-        if (Tabs.SelectedItem is ITabItem tab)
-        {
-            tab.EnableKeyboardAccelerators(enable: IsActive);
         }
     }
 
@@ -466,19 +477,9 @@ internal sealed partial class MainWindow : Window, ISession
 
     private static void Tabs_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (e.RemovedItems.Count  == 1)
+        if ((e.AddedItems.Count == 1) &&  (e.AddedItems[0] is PuzzleTabViewItem puzzle))
         {
-            ((ITabItem)e.RemovedItems[0]).EnableKeyboardAccelerators(enable: false);
-        }
-
-        if (e.AddedItems.Count == 1)
-        {
-            ((ITabItem)e.AddedItems[0]).EnableKeyboardAccelerators(enable: true);
-            
-            if (e.AddedItems[0] is PuzzleTabViewItem puzzle)
-            {
-                puzzle.FocusLastSelectedCell();
-            }
+            puzzle.FocusLastSelectedCell();
         }
     }
 
@@ -516,15 +517,9 @@ internal sealed partial class MainWindow : Window, ISession
         SetWindowDragRegions();
     }
 
-    private void NewTab_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    private void NavigateToNumberedTab(VirtualKey key)
     {
-        Tabs_AddTabButtonClick(Tabs, EventArgs.Empty);
-        args.Handled = true;
-    }
-
-    private void NavigateToNumberedTab_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
-    {
-        int index = sender.Key - VirtualKey.Number1;
+        int index = key - VirtualKey.Number1;
 
         if (index == 8) // control 9 - always selects the last tab
         {

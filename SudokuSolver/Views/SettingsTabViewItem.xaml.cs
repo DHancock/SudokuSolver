@@ -20,7 +20,6 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
 
         LayoutRoot.SizeChanged += LayoutRoot_SizeChanged;
         Loaded += SettingsTabViewItem_Loaded;
-        ProcessKeyboardAccelerators += SettingsTabViewItem_ProcessKeyboardAccelerators;
 
         RootScrollViewer.ViewChanged += RootScrollViewer_ViewChanged;
 
@@ -34,8 +33,6 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
         CloseOtherTabsCommand = new RelayCommand(ExecuteCloseOtherTabsAsync, CanCloseOtherTabs);
         CloseLeftTabsCommand = new RelayCommand(ExecuteCloseLeftTabsAsync, CanCloseLeftTabs);
         CloseRightTabsCommand = new RelayCommand(ExecuteCloseRightTabsAsync, CanCloseRightTabs);
-
-        EnableKeyboardAccelerators(enable: false);
 
         static void SettingsTabViewItem_Loaded(object sender, RoutedEventArgs e)
         {
@@ -92,11 +89,6 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
 
     public void Closed()
     {
-        // the tab's keyboard accelerators would still
-        // be active (until presumably it's garbage collected)
-        EnableKeyboardAccelerators(enable: false);
-
-        ProcessKeyboardAccelerators -= SettingsTabViewItem_ProcessKeyboardAccelerators;
         LayoutRoot.SizeChanged -= LayoutRoot_SizeChanged;
 
         RootScrollViewer.ViewChanged -= RootScrollViewer_ViewChanged;
@@ -151,22 +143,6 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
             if (LayoutRoot.ColumnDefinitions.Count == 1)
             {
                 LayoutRoot.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
-            }
-        }
-    }
-
-    public void EnableKeyboardAccelerators(bool enable)
-    {
-        // accelerators on sub menus are only active when the menu is shown
-        // which can only happen if this is the current selected tab
-        if (ContextFlyout is MenuFlyout contextMenu)
-        {
-            foreach (MenuFlyoutItemBase mfib in contextMenu.Items)
-            {
-                foreach (KeyboardAccelerator ka in mfib.KeyboardAccelerators)
-                {
-                    ka.IsEnabled = enable;
-                }
             }
         }
     }
@@ -256,12 +232,6 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
     public void EnableMenuAccessKeys(bool enable)
     {
         // no access keys to disable
-    }
-
-    private void SettingsTabViewItem_ProcessKeyboardAccelerators(UIElement sender, ProcessKeyboardAcceleratorEventArgs args)
-    {
-        args.Handled = true;
-        InvokeKeyboardAccelerator(args);
     }
 
     public void InvokeKeyboardAccelerator(ProcessKeyboardAcceleratorEventArgs args)
