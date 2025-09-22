@@ -73,7 +73,14 @@ internal sealed partial class MainWindow : Window, ISession
         {
             if (ka.IsEnabled && (ka.Modifiers == args.Modifiers) && (ka.Key == args.Key))
             {
-                NavigateToNumberedTab_Invoked(ka, default);
+                if (ka.Key == VirtualKey.T)
+                {
+                    Tabs_AddTabButtonClick(Tabs, EventArgs.Empty);
+                }
+                else
+                {
+                    NavigateToNumberedTab(ka.Key);
+                }
                 return;
             }
         }
@@ -510,15 +517,9 @@ internal sealed partial class MainWindow : Window, ISession
         SetWindowDragRegions();
     }
 
-    private void NewTab_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    private void NavigateToNumberedTab(VirtualKey key)
     {
-        Tabs_AddTabButtonClick(Tabs, EventArgs.Empty);
-        args.Handled = true;
-    }
-
-    private void NavigateToNumberedTab_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs? args)
-    {
-        int index = sender.Key - VirtualKey.Number1;
+        int index = key - VirtualKey.Number1;
 
         if (index == 8) // control 9 - always selects the last tab
         {
