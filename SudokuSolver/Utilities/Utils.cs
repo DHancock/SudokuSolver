@@ -98,40 +98,40 @@ internal static class Utils
     {
         foreach (MenuFlyoutItemBase mfib in menuItems)
         {
-            if (mfib.IsEnabled)
+            if (mfib is MenuFlyoutSubItem subItem)
             {
-                if (mfib is MenuFlyoutSubItem subItem)
+                if (InvokeMenuItemForKeyboardAccelerator(subItem.Items, args))
                 {
-                    if (InvokeMenuItemForKeyboardAccelerator(subItem.Items, args))
-                    {
-                        return true;
-                    }
+                    return true;
                 }
-                else if (mfib is MenuFlyoutItem mfi)
+            }
+            else if (mfib is MenuFlyoutItem mfi)
+            {
+                foreach (KeyboardAccelerator ka in mfib.KeyboardAccelerators)
                 {
-                    foreach (KeyboardAccelerator ka in mfib.KeyboardAccelerators)
+                    if (ka.IsEnabled && (ka.Modifiers == args.Modifiers) && (ka.Key == args.Key))
                     {
-                        if (ka.IsEnabled && (ka.Modifiers == args.Modifiers) && (ka.Key == args.Key))
+                        Debug.Assert(ka.ScopeOwner is null);
+
+                        if (mfi.Command is not null)
                         {
-                            Debug.Assert(ka.ScopeOwner is null);
-
-                            if (mfi.Command is not null)
+                            // CanExecute() defines if the action is performed, not the menu's enabled/disabled state
+                            // The enabled/disabled state is only updated when the menu is shown 
+                            if (mfi.Command.CanExecute(mfi.CommandParameter))   
                             {
-                                if (mfi.Command.CanExecute(mfi.CommandParameter))
-                                {
-                                    mfi.Command.Execute(mfi.CommandParameter);
-                                }
+                                mfi.Command.Execute(mfi.CommandParameter);
                             }
-                            else
-                            {
-                                AutomationPeer? ap = FrameworkElementAutomationPeer.FromElement(mfi);
-                                MenuFlyoutItemAutomationPeer? ip = ap?.GetPattern(PatternInterface.Invoke) as MenuFlyoutItemAutomationPeer;
-
-                                ip?.Invoke();
-                            }
-
-                            return true;
                         }
+                        else if (mfi.IsEnabled)
+                        {
+                            // the menu has a click event handler, it's enable state would adjusted in code when required
+                            AutomationPeer? ap = FrameworkElementAutomationPeer.FromElement(mfi);
+                            MenuFlyoutItemAutomationPeer? ip = ap?.GetPattern(PatternInterface.Invoke) as MenuFlyoutItemAutomationPeer;
+
+                            ip?.Invoke();
+                        }
+
+                        return true;
                     }
                 }
             }
