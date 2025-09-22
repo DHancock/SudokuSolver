@@ -766,7 +766,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
     {
         foreach (MenuBarItem mbi in Menu.Items)
         {
-            if (Utils.InvokeMenuItemForKeyboardAccelerator(mbi.Items, args))
+            if (mbi.IsEnabled && Utils.InvokeMenuItemForKeyboardAccelerator(mbi.Items, args))
             {
                 return;
             }

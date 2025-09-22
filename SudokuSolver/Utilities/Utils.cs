@@ -98,37 +98,40 @@ internal static class Utils
     {
         foreach (MenuFlyoutItemBase mfib in menuItems)
         {
-            if (mfib is MenuFlyoutSubItem subItem)
+            if (mfib.IsEnabled)
             {
-                if (InvokeMenuItemForKeyboardAccelerator(subItem.Items, args))
+                if (mfib is MenuFlyoutSubItem subItem)
                 {
-                    return true;
-                }
-            }
-            else if (mfib is MenuFlyoutItem mfi)
-            {
-                foreach (KeyboardAccelerator ka in mfib.KeyboardAccelerators)
-                {
-                    if (ka.IsEnabled && (ka.Modifiers == args.Modifiers) && (ka.Key == args.Key))
+                    if (InvokeMenuItemForKeyboardAccelerator(subItem.Items, args))
                     {
-                        Debug.Assert(ka.ScopeOwner is null);
-
-                        if (mfi.Command is not null)
-                        {
-                            if (mfi.Command.CanExecute(mfi.CommandParameter))
-                            {
-                                mfi.Command.Execute(mfi.CommandParameter);
-                            }
-                        }
-                        else
-                        {
-                            AutomationPeer? ap = FrameworkElementAutomationPeer.FromElement(mfi);
-                            MenuFlyoutItemAutomationPeer? ip = ap?.GetPattern(PatternInterface.Invoke) as MenuFlyoutItemAutomationPeer;
-
-                            ip?.Invoke();
-                        }
-
                         return true;
+                    }
+                }
+                else if (mfib is MenuFlyoutItem mfi)
+                {
+                    foreach (KeyboardAccelerator ka in mfib.KeyboardAccelerators)
+                    {
+                        if (ka.IsEnabled && (ka.Modifiers == args.Modifiers) && (ka.Key == args.Key))
+                        {
+                            Debug.Assert(ka.ScopeOwner is null);
+
+                            if (mfi.Command is not null)
+                            {
+                                if (mfi.Command.CanExecute(mfi.CommandParameter))
+                                {
+                                    mfi.Command.Execute(mfi.CommandParameter);
+                                }
+                            }
+                            else
+                            {
+                                AutomationPeer? ap = FrameworkElementAutomationPeer.FromElement(mfi);
+                                MenuFlyoutItemAutomationPeer? ip = ap?.GetPattern(PatternInterface.Invoke) as MenuFlyoutItemAutomationPeer;
+
+                                ip?.Invoke();
+                            }
+
+                            return true;
+                        }
                     }
                 }
             }
