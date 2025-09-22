@@ -113,11 +113,11 @@ internal static class Utils
                     {
                         Debug.Assert(ka.ScopeOwner is null);
 
-                        if (mfi.Command is ICommand ic)
+                        if (mfi.Command is not null)
                         {
-                            if (ic.CanExecute(mfi.CommandParameter))
+                            if (mfi.Command.CanExecute(mfi.CommandParameter))
                             {
-                                ic.Execute(mfi.CommandParameter);
+                                mfi.Command.Execute(mfi.CommandParameter);
                             }
                         }
                         else
@@ -136,5 +136,4 @@ internal static class Utils
 
         return false;
     }
-
 }
