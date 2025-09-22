@@ -68,6 +68,16 @@ internal sealed partial class MainWindow : Window, ISession
         // The sdk's search for global keyboard accelerators is a bit challenged in WAS 1.8.0
         // Do it here instead, the accelerators are in known positions in the visual tree
         args.Handled = true;
+
+        foreach (KeyboardAccelerator ka in Tabs.KeyboardAccelerators)
+        {
+            if (ka.IsEnabled && (ka.Modifiers == args.Modifiers) && (ka.Key == args.Key))
+            {
+                NavigateToNumberedTab_Invoked(ka, default);
+                return;
+            }
+        }
+
         ((ITabItem)Tabs.SelectedItem).InvokeKeyboardAccelerator(args);
     }
 
@@ -506,7 +516,7 @@ internal sealed partial class MainWindow : Window, ISession
         args.Handled = true;
     }
 
-    private void NavigateToNumberedTab_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    private void NavigateToNumberedTab_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs? args)
     {
         int index = sender.Key - VirtualKey.Number1;
 

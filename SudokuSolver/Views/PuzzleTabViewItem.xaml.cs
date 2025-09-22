@@ -37,7 +37,6 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         Clipboard.ContentChanged += Clipboard_ContentChanged;
         GotFocus += PuzzleTabViewItem_GotFocus;
         Loaded += LoadedHandler;
-        ProcessKeyboardAccelerators += PuzzleTabViewItem_ProcessKeyboardAccelerators;
 
         // size changed can also indicate that this tab has been selected and that it's content is now valid 
         Puzzle.SizeChanged += Puzzle_SizeChanged;
@@ -179,7 +178,6 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         ViewMenuItem.Unloaded -= MenuItem_Unloaded;
         EditMenuItem.Unloaded -= MenuItem_Unloaded;
         GotFocus -= PuzzleTabViewItem_GotFocus;
-        ProcessKeyboardAccelerators -= PuzzleTabViewItem_ProcessKeyboardAccelerators;
 
         Puzzle.SizeChanged -= Puzzle_SizeChanged;
         Puzzle.DragEnter -= Puzzle_DragEnter;
@@ -762,12 +760,6 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         rects[2] = Utils.GetPassthroughRect(ViewMenu);
         rects[3] = Utils.GetPassthroughRect(SettingsButtton);
         rects[4] = Utils.GetPassthroughRect(Puzzle);
-    }
-
-    private void PuzzleTabViewItem_ProcessKeyboardAccelerators(UIElement sender, ProcessKeyboardAcceleratorEventArgs args)
-    {
-        args.Handled = true;
-        InvokeKeyboardAccelerator(args);
     }
 
     public void InvokeKeyboardAccelerator(ProcessKeyboardAcceleratorEventArgs args)
