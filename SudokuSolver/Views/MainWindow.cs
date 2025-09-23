@@ -42,6 +42,9 @@ internal partial class MainWindow : Window
     private int pixelMinWidth;
     private int pixelMinHeight;
     private double scaleFactor;
+    private readonly HOOKPROC hookProc;
+    private UnhookWindowsHookExSafeHandle? hookSafeHandle;
+
 
     public ContentDialogHelper ContentDialogHelper { get; }
 
@@ -71,6 +74,8 @@ internal partial class MainWindow : Window
         pixelMinWidth = ConvertToPixels(cMinWidth);
         pixelMinHeight = ConvertToPixels(cMinHeight);
 
+        hookProc = new HOOKPROC(KeyboardHookProc);
+
         Closed += MainWindow_Closed;
     }
 
@@ -89,6 +94,8 @@ internal partial class MainWindow : Window
 
         systemMenu = null;
         Content = null;
+
+        hookSafeHandle?.Dispose();
     }
 
     private void AppWindow_Changed(AppWindow sender, AppWindowChangedEventArgs args)
@@ -245,7 +252,59 @@ internal partial class MainWindow : Window
         closeWindowItem.KeyboardAccelerators.Add(new() { Modifiers = VirtualKeyModifiers.Menu, Key = VirtualKey.F4, IsEnabled = false });
         menuFlyout.Items.Add(closeWindowItem);
 
+        menuFlyout.Opening += MenuFlyout_Opening;
+        menuFlyout.Closing += MenuFlyout_Closing;
+
         return menuFlyout;
+    }
+
+    private void MenuFlyout_Closing(FlyoutBase sender, FlyoutBaseClosingEventArgs args)
+    {
+        AccessKeyManager.ExitDisplayMode();
+
+        hookSafeHandle?.Dispose(); // dispose calls UnhookWindowsHookEx() 
+        hookSafeHandle = null;
+    }
+
+    private void MenuFlyout_Opening(object? sender, object e)
+    {
+        Debug.Assert(hookSafeHandle is null);
+        hookSafeHandle = PInvoke.SetWindowsHookEx(WINDOWS_HOOK_ID.WH_KEYBOARD, hookProc, null, PInvoke.GetCurrentThreadId()); 
+    }
+
+    private LRESULT KeyboardHookProc(int code, WPARAM wParam, LPARAM lParam)
+    {
+        if ((code >= 0) && (systemMenu is not null) && systemMenu.IsOpen)
+        {
+            VirtualKey key = (VirtualKey)(nuint)wParam;
+            bool isKeyDown = (lParam >>> 31) == 0;
+            
+            if (isKeyDown)
+            {
+                if (key == VirtualKey.Menu)
+                {
+                    HideSystemMenu();
+                }
+                else
+                {
+                    foreach (MenuFlyoutItemBase mfib in systemMenu.Items)
+                    {
+                        if (mfib.IsEnabled && (mfib is MenuFlyoutItem item) && (item.AccessKey == key.ToString()))
+                        {
+                            HideSystemMenu();
+                            item.Command.Execute(item.CommandParameter);
+                            break;
+                        }
+                    }
+                }
+            }
+            else if (key == VirtualKey.Menu) // the menu is being opened via Alt+Space
+            {
+                AccessKeyManager.EnterDisplayMode(Content.XamlRoot);
+            }
+        }
+
+        return PInvoke.CallNextHookEx(null, code, wParam, lParam);
     }
 
     public void PostCloseMessage() => PostSysCommandMessage(SC.CLOSE);

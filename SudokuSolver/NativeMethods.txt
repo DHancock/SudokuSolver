@@ -19,3 +19,6 @@ WM_ENDSESSION
 EnumWindows
 RemoveWindowSubclass
 SHARD
+SetWindowsHookEx
+CallNextHookEx
+GetCurrentThreadId
