@@ -295,12 +295,15 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         return await SaveExistingFirstAsync() != Status.Cancelled;
     }
 
-    public void EnableMenuAccessKeys(bool enable)
+    public void EnableAccessKeys(bool enable)
     {
+        // disable when a content dialog is shown
         foreach (MenuBarItem mbi in Menu.Items)
         {
             mbi.IsEnabled = enable;
         }
+
+        SettingsButtton.IsEnabled = enable;
     }
 
     public static bool IsPrintingAvailable => !IntegrityLevel.IsElevated && PrintManager.IsSupported();
@@ -579,11 +582,11 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
             ToolTipService.SetToolTip(this, sourceFile.Path);
         }
 
-        if (IsModified && IconSource is null)
+        if (IsModified)
         {
-            IconSource = new SymbolIconSource() { Symbol = Symbol.Edit, };
+            IconSource ??= new SymbolIconSource() { Symbol = Symbol.Edit, };
         }
-        else if (!IsModified && IconSource is not null)
+        else
         {
             IconSource = null;
         }
@@ -594,23 +597,16 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         Puzzle.ResetOpacityTransitionForThemeChange();
     }
 
-
-    private bool CanRenameTab(object? param)
-    {
-        return !parentWindow.ContentDialogHelper.IsContentDialogOpen && (sourceFile is null);
-    }
+    private bool CanRenameTab(object? param) => sourceFile is null;
 
     private async void ExecuteRenameTabCommand(object? param)
     {
-        if (CanRenameTab(null))
-        {
-            (ContentDialogResult Result, string NewName) = await parentWindow.ContentDialogHelper.ShowRenameTabDialogAsync(this, HeaderText);
+        (ContentDialogResult Result, string NewName) = await parentWindow.ContentDialogHelper.ShowRenameTabDialogAsync(this, HeaderText);
 
-            if (Result == ContentDialogResult.Primary)
-            {
-                HeaderText = NewName;
-                UpdateTabHeader();
-            }
+        if (Result == ContentDialogResult.Primary)
+        {
+            HeaderText = NewName;
+            UpdateTabHeader();
         }
     }
 
@@ -654,7 +650,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
         // add the optional "per view" settings in release 1.13.0
         // the version hasn't been incremented for backwards compatibility
-        // they don't confict with any other puzzle tab session data
+        // they don't conflict with any other puzzle tab session data
         root.Add(new XElement("showPossibles", ViewModel.ShowPossibles));
         root.Add(new XElement("showSolution", ViewModel.ShowSolution));
 
@@ -683,7 +679,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
                             if ((data is not null) && bool.TryParse(data.Value, out _))
                             {
-                                // the follwing two are new but optional
+                                // the following two are new but optional
                                 data = root.Element("showPossibles");
 
                                 if ((data is not null) && !bool.TryParse(data.Value, out _))
@@ -762,16 +758,16 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         rects[4] = Utils.GetPassthroughRect(Puzzle);
     }
 
-    public void InvokeKeyboardAccelerator(ProcessKeyboardAcceleratorEventArgs args)
+    public void InvokeKeyboardAccelerator(VirtualKeyModifiers modifiers, VirtualKey key)
     {
         foreach (MenuBarItem mbi in Menu.Items)
         {
-            if (mbi.IsEnabled && Utils.InvokeMenuItemForKeyboardAccelerator(mbi.Items, args))
+            if (mbi.IsEnabled && Utils.InvokeMenuItemForKeyboardAccelerator(mbi.Items, modifiers, key))
             {
                 return;
             }
         }
 
-        Utils.InvokeMenuItemForKeyboardAccelerator(((MenuFlyout)ContextFlyout).Items, args);
+        Utils.InvokeMenuItemForKeyboardAccelerator(((MenuFlyout)ContextFlyout).Items, modifiers, key);
     }
 }

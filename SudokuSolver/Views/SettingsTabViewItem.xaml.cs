@@ -229,14 +229,14 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
 
     public string HeaderText => ((TextBlock)Header).Text;
 
-    public void EnableMenuAccessKeys(bool enable)
+    public void EnableAccessKeys(bool enable)
     {
-        // no access keys to disable
+        // no access keys to disable when a content dialog is shown
     }
 
-    public void InvokeKeyboardAccelerator(ProcessKeyboardAcceleratorEventArgs args)
+    public void InvokeKeyboardAccelerator(VirtualKeyModifiers modifiers, VirtualKey key)
     {
-        Utils.InvokeMenuItemForKeyboardAccelerator(((MenuFlyout)ContextFlyout).Items, args);
+        Utils.InvokeMenuItemForKeyboardAccelerator(((MenuFlyout)ContextFlyout).Items, modifiers, key);
     }
 
     public int PassthroughCount => 7;

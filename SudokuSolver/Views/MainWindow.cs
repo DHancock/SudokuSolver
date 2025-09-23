@@ -438,7 +438,7 @@ internal partial class MainWindow : Window
         // workaround for https://github.com/microsoft/microsoft-ui-xaml/issues/5739
         // focus can escape a content dialog when access keys are shown via the alt key...
         // (it makes no difference if the content dialog itself has any access keys)
-        ((ITabItem)Tabs.SelectedItem).EnableMenuAccessKeys(enable: false);
+        ((ITabItem)Tabs.SelectedItem).EnableAccessKeys(enable: false);
 
         OverlappedPresenter op = (OverlappedPresenter)AppWindow.Presenter;
         op.IsResizable = false;
@@ -450,7 +450,7 @@ internal partial class MainWindow : Window
 
     public void ContentDialogClosing()
     {
-        ((ITabItem)Tabs.SelectedItem).EnableMenuAccessKeys(enable: true);
+        ((ITabItem)Tabs.SelectedItem).EnableAccessKeys(enable: true);
 
         OverlappedPresenter op = (OverlappedPresenter)AppWindow.Presenter;
         op.IsResizable = true;

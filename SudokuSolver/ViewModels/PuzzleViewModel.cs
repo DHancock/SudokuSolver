@@ -216,7 +216,8 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
     public bool IsModified
     {
         get => isModified;
-        set
+
+        private set
         {
             if (isModified != value)
             {
@@ -226,28 +227,22 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
         }
     }
 
-    public bool CanUndo(object? param = null) => undoHelper.CanUndo;
+    private bool CanUndo(object? param) => undoHelper.CanUndo;
 
-    public void ExecuteUndo(object? param) 
+    private void ExecuteUndo(object? param) 
     {
-        if (CanUndo())
-        {
-            model = undoHelper.PopUndo();
-            UpdateView();
-            IsModified = model != initialState;
-        }
+        model = undoHelper.PopUndo();
+        UpdateView();
+        IsModified = model != initialState;
     }
 
-    public bool CanRedo(object? param = null) => undoHelper.CanRedo;
+    private bool CanRedo(object? param) => undoHelper.CanRedo;
 
-    public void ExecuteRedo(object? param) 
+    private void ExecuteRedo(object? param) 
     {
-        if (CanRedo())
-        {
-            model = undoHelper.PopRedo();
-            UpdateView();
-            IsModified = model != initialState;
-        }
+        model = undoHelper.PopRedo();
+        UpdateView();
+        IsModified = model != initialState;
     }
 
     public void SelectedIndexChanged(int index, bool isSelected)
@@ -262,9 +257,9 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
         }
     }
 
-    private bool CanCutCopyDelete(object? param = null) => (selectedIndex >= 0) && Cells[selectedIndex].HasValue;
+    private bool CanCutCopyDelete(object? param) => (selectedIndex >= 0) && Cells[selectedIndex].HasValue;
 
-    private bool CanPaste(object? param = null) => (selectedIndex >= 0) && (clipboardValue > 0);
+    private bool CanPaste(object? param) => (selectedIndex >= 0) && (clipboardValue > 0);
 
     public async Task ClipboardContentChangedAsync()
     {
@@ -297,65 +292,42 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
     }
 
 
-    public void ExecuteCut(object? param) 
+    private void ExecuteCut(object? param) 
     {
-        if (CanCutCopyDelete())
-        {
-            ExecuteCopy();
-            ExecuteDelete();
-        }
+        ExecuteCopy(null);
+        UpdateCellForKeyDown(selectedIndex, 0); // delete
     }
 
-    public void ExecuteCopy(object? param = null) 
+    private void ExecuteCopy(object? param) 
     {
-        if (CanCutCopyDelete())
-        {
-            DataPackage dp = new DataPackage();
-            dp.SetText(Cells[selectedIndex].Value.ToString());
-            Clipboard.SetContent(dp);
-        }
+        DataPackage dp = new DataPackage();
+        dp.SetText(Cells[selectedIndex].Value.ToString());
+        Clipboard.SetContent(dp);
     }
 
-    public void ExecutePaste(object? param)
+    private void ExecutePaste(object? param)
     {
-        if (CanPaste())
-        {
-            UpdateCellForKeyDown(selectedIndex, clipboardValue);
-        }
-    }
-    
-    public void ExecuteDelete()
-    {
-        if (CanCutCopyDelete())
-        {
-            UpdateCellForKeyDown(selectedIndex, 0);
-        }
+        UpdateCellForKeyDown(selectedIndex, clipboardValue);
     }
 
-    public bool CanMarkProvided(object? param = null) => Cells.Any(c => c.Origin == Origins.User);
+    private bool CanMarkProvided(object? param) => Cells.Any(c => c.Origin == Origins.User);
 
-    public void ExecuteMarkProvided(object? param) 
+    private void ExecuteMarkProvided(object? param) 
     {
-        if (CanMarkProvided())
-        {
-            model.SetOriginToProvided();
-            UpdateView();
-            undoHelper.Push(model);
-            IsModified = model != initialState;
-        }
+        model.SetOriginToProvided();
+        UpdateView();
+        undoHelper.Push(model);
+        IsModified = model != initialState;
     }
 
-    public bool CanClearProvided(object? param = null) => Cells.Any(c => c.Origin == Origins.Provided);
+    private bool CanClearProvided(object? param) => Cells.Any(c => c.Origin == Origins.Provided);
 
-    public void ExecuteClearProvided(object? param)
+    private void ExecuteClearProvided(object? param)
     {
-        if (CanClearProvided())
-        {
-            model.SetOriginToUser();
-            UpdateView();
-            undoHelper.Push(model);
-            IsModified = model != initialState;
-        }
+        model.SetOriginToUser();
+        UpdateView();
+        undoHelper.Push(model);
+        IsModified = model != initialState;
     }
 
 
