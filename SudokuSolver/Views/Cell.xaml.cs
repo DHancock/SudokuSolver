@@ -28,14 +28,18 @@ internal sealed partial class Cell : UserControl
             {
                 isSelected = value;
 
-                ParentPuzzleView.CellSelectionChanged(this, Data.Index, value);
+                GetParentPuzzleView().CellSelectionChanged(this, Data.Index, value);
 
                 GoToVisualState(value ? "SelectedFocused" : "Normal");
             }
+
+            PuzzleView GetParentPuzzleView()
+            {
+                Debug.Assert(IsLoaded);
+                return (PuzzleView)((Viewbox)((SudokuGrid)Parent).Parent).Parent;
+            }
         }
     }
-
-    private PuzzleView ParentPuzzleView => (PuzzleView)((Viewbox)((SudokuGrid)this.Parent).Parent).Parent;
 
     protected override void OnPointerPressed(PointerRoutedEventArgs e)
     {

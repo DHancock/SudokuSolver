@@ -85,7 +85,7 @@ internal sealed partial class MainWindow : Window, ISession
             }
         }
 
-        ((ITabItem)Tabs.SelectedItem).InvokeKeyboardAccelerator(args);
+        ((ITabItem)Tabs.SelectedItem).InvokeKeyboardAccelerator(args.Modifiers, args.Key);
     }
 
     private void AppWindow_Destroying(AppWindow sender, object args)
@@ -539,13 +539,10 @@ internal sealed partial class MainWindow : Window, ISession
 
     public async Task ExecuteCloseOtherTabsAsync(TabViewItem sourceTab)
     {
-        if (CanCloseOtherTabs())
-        {
-            List<object> otherTabs = new List<object>(Tabs.TabItems.Count - 1);
-            otherTabs.AddRange(Tabs.TabItems.Where(x => !ReferenceEquals(x, sourceTab)));
+        List<object> otherTabs = new List<object>(Tabs.TabItems.Count - 1);
+        otherTabs.AddRange(Tabs.TabItems.Where(x => !ReferenceEquals(x, sourceTab)));
 
-            await AttemptToCloseTabsAsync(otherTabs);
-        }
+        await AttemptToCloseTabsAsync(otherTabs);
     }
 
     public bool CanCloseLeftTabs(TabViewItem sourceTab)
@@ -555,18 +552,15 @@ internal sealed partial class MainWindow : Window, ISession
 
     public async Task ExecuteCloseLeftTabsAsync(TabViewItem sourceTab)
     {
-        if (CanCloseLeftTabs(sourceTab))
+        List<object> leftTabs = new List<object>();
+        int sourceIndex = Tabs.TabItems.IndexOf(sourceTab);
+
+        for (int index = 0; index < sourceIndex; index++)
         {
-            List<object> leftTabs = new List<object>();
-            int sourceIndex = Tabs.TabItems.IndexOf(sourceTab);
-
-            for (int index = 0; index < sourceIndex; index++)
-            {
-                leftTabs.Add(Tabs.TabItems[index]);
-            }
-
-            await AttemptToCloseTabsAsync(leftTabs);
+            leftTabs.Add(Tabs.TabItems[index]);
         }
+
+        await AttemptToCloseTabsAsync(leftTabs);
     }
 
     public bool CanCloseRightTabs(TabViewItem sourceTab)
@@ -576,22 +570,19 @@ internal sealed partial class MainWindow : Window, ISession
 
     public async Task ExecuteCloseRightTabsAsync(TabViewItem sourceTab)
     {
-        if (CanCloseRightTabs(sourceTab))
+        int sourceIndex = Tabs.TabItems.IndexOf(sourceTab);
+
+        if (sourceIndex >= 0)
         {
-            int sourceIndex = Tabs.TabItems.IndexOf(sourceTab);
+            int startIndex = sourceIndex + 1;
+            List<object> rightTabs = new List<object>(Tabs.TabItems.Count - startIndex);
 
-            if (sourceIndex >= 0)
+            for (int index = startIndex; index < Tabs.TabItems.Count; index++)
             {
-                int startIndex = sourceIndex + 1;
-                List<object> rightTabs = new List<object>(Tabs.TabItems.Count - startIndex);
-
-                for (int index = startIndex; index < Tabs.TabItems.Count; index++)
-                {
-                    rightTabs.Add(Tabs.TabItems[index]);
-                }
-
-                await AttemptToCloseTabsAsync(rightTabs);
+                rightTabs.Add(Tabs.TabItems[index]);
             }
+
+            await AttemptToCloseTabsAsync(rightTabs);
         }
     }
 
