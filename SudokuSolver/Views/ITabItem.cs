@@ -7,5 +7,5 @@ internal interface ITabItem
     void Closed();
     int PassthroughCount { get; }
     void AddPassthroughContent(in RectInt32[] rects);
-    void InvokeKeyboardAccelerator(VirtualKeyModifiers modifier, VirtualKey key);
+    void InvokeKeyboardAccelerator(VirtualKeyModifiers modifiers, VirtualKey key);
 }
