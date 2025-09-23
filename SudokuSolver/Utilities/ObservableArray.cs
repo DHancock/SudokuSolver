@@ -1,6 +1,6 @@
 ﻿namespace SudokuSolver.Utilities;
 
-internal partial class ObservableArray<T> : IList<T>, INotifyCollectionChanged 
+internal partial class ObservableArray<T> : ICollection<T>, INotifyCollectionChanged 
 {
     private readonly T[] items;
 
@@ -29,17 +29,12 @@ internal partial class ObservableArray<T> : IList<T>, INotifyCollectionChanged
     IEnumerator IEnumerable.GetEnumerator() => items.GetEnumerator();
 
 
-    // implementing IList<T> is required for x:Bind indexer access
-    // in xaml but it's apparent that it is also the only method required
-
+    // implementing ICollection<T> and having an indexer property is required for x:Bind
     bool ICollection<T>.IsReadOnly => throw new NotImplementedException();
-    int IList<T>.IndexOf(T item) => throw new NotImplementedException();
     bool ICollection<T>.Contains(T item) => throw new NotImplementedException();
     void ICollection<T>.CopyTo(T[] array, int arrayIndex) => throw new NotImplementedException();
-    void IList<T>.RemoveAt(int index) => throw new NotImplementedException();
     void ICollection<T>.Clear() => throw new NotImplementedException();
     bool ICollection<T>.Remove(T item) => throw new NotImplementedException();
-    void IList<T>.Insert(int index, T item) => throw new NotImplementedException();
     void ICollection<T>.Add(T item) => throw new NotImplementedException();
 
 
