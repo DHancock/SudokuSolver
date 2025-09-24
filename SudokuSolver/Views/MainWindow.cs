@@ -231,6 +231,9 @@ internal partial class MainWindow : Window
             OverlayInputPassThroughElement = Content,
         };
 
+        // auto isn't appropriate for vertical lists where items may be disabled
+        menuFlyout.MenuFlyoutPresenterStyle.Setters.Add(new Setter(MenuFlyoutPresenter.KeyTipPlacementModeProperty, "Right"));
+
         // always use narrow padding (the first time the menu is opened it may use normal padding, other times narrow)
         Thickness narrow = (Thickness)((FrameworkElement)Content).Resources[cPaddingKey];
         ResourceLoader rl = App.Instance.ResourceLoader;
@@ -281,7 +284,7 @@ internal partial class MainWindow : Window
             
             if (isKeyDown)
             {
-                if (key == VirtualKey.Menu)
+                if ((key == VirtualKey.Menu) || (key == VirtualKey.Escape))
                 {
                     HideSystemMenu();
                 }
