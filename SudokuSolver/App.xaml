@@ -21,6 +21,11 @@
                 </Setter>
             </Style>
 
+            <Style TargetType="MenuFlyoutItem" BasedOn="{StaticResource DefaultMenuFlyoutItemStyle}">
+                <!-- auto isn't appropriate for vertical lists that may have disabled entries -->
+                <Setter Property="KeyTipPlacementMode" Value="Right"/>
+            </Style>
+
             <!-- although this is defined in WinUi's generic.xaml it doesn't have a x:Key attribute so isn't externally visible -->
             <Style x:Key="TabViewButtonStyle" TargetType="Button">
                 <Setter Property="Background" Value="{ThemeResource TabViewButtonBackground}" />
