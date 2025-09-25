@@ -35,7 +35,6 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         EditMenuItem.Unloaded += MenuItem_Unloaded;
 
         Clipboard.ContentChanged += Clipboard_ContentChanged;
-        GotFocus += PuzzleTabViewItem_GotFocus;
         Loaded += LoadedHandler;
 
         // size changed can also indicate that this tab has been selected and that it's content is now valid 
@@ -177,7 +176,6 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         FileMenuItem.Unloaded -= MenuItem_Unloaded;
         ViewMenuItem.Unloaded -= MenuItem_Unloaded;
         EditMenuItem.Unloaded -= MenuItem_Unloaded;
-        GotFocus -= PuzzleTabViewItem_GotFocus;
 
         Puzzle.SizeChanged -= Puzzle_SizeChanged;
         Puzzle.DragEnter -= Puzzle_DragEnter;
@@ -192,12 +190,6 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         }
 
         Puzzle.Closed();
-    }
-
-    private static void PuzzleTabViewItem_GotFocus(object sender, RoutedEventArgs e)
-    {
-        PuzzleTabViewItem tab = (PuzzleTabViewItem)sender;
-        tab.FocusLastSelectedCell();
     }
 
     private void MenuItem_Unloaded(object sender, RoutedEventArgs e)
