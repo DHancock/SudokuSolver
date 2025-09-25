@@ -8,6 +8,7 @@ namespace SudokuSolver.Views;
 /// </summary>
 internal sealed partial class Cell : UserControl
 {
+    private bool isFocused = false;
     private bool isSelected = false;
 
     public Cell()
@@ -43,26 +44,44 @@ internal sealed partial class Cell : UserControl
 
     protected override void OnPointerPressed(PointerRoutedEventArgs e)
     {
-        IsSelected = !IsSelected;
+        PointerPoint pointerInfo = e.GetCurrentPoint(this);
 
-        if (IsSelected)
+        if (pointerInfo.Properties.IsLeftButtonPressed)            
         {
-            bool success = Focus(FocusState.Programmatic);
-            Debug.Assert(success);
-
-            if (success)
+            if (!IsSelected)
             {
-                GoToVisualState("SelectedFocused");
+                IsSelected = true;   
             }
-        }
-        else
-        {
-            GoToVisualState("Normal");
+            else if (isFocused) 
+            {
+                IsSelected = false;
+            }
+
+            if (IsSelected)
+            {
+                bool success = isFocused || Focus(FocusState.Programmatic);
+                Debug.Assert(success);
+
+                if (success)
+                {
+                    GoToVisualState("SelectedFocused");
+                }
+                else
+                {
+                    GoToVisualState("SelectedUnfocused");
+                }
+            }
+            else
+            {
+                GoToVisualState("Normal");
+            }
         }
     }
 
     protected override void OnLostFocus(RoutedEventArgs e)
     {
+        isFocused = false;
+
         if (IsSelected)
         {
             GoToVisualState("SelectedUnfocused");
@@ -84,6 +103,8 @@ internal sealed partial class Cell : UserControl
 
     protected override void OnGotFocus(RoutedEventArgs e)
     {
+        isFocused = true;
+
         if (!IsSelected) 
         {
             IsSelected = true; // user tabbed to cell, or window switched to foreground
