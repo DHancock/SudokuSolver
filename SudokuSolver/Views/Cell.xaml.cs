@@ -8,6 +8,7 @@ namespace SudokuSolver.Views;
 /// </summary>
 internal sealed partial class Cell : UserControl
 {
+    private bool isFocused = false;
     private bool isSelected = false;
 
     public Cell()
@@ -24,7 +25,7 @@ internal sealed partial class Cell : UserControl
         get => isSelected;
         set
         {
-            if (isSelected != value)  
+            if (isSelected != value)
             {
                 isSelected = value;
 
@@ -43,26 +44,44 @@ internal sealed partial class Cell : UserControl
 
     protected override void OnPointerPressed(PointerRoutedEventArgs e)
     {
-        IsSelected = !IsSelected;
+        PointerPoint pointerInfo = e.GetCurrentPoint(this);
 
-        if (IsSelected)
+        if (pointerInfo.Properties.IsLeftButtonPressed)
         {
-            bool success = Focus(FocusState.Programmatic);
-            Debug.Assert(success);
-
-            if (success)
+            if (!IsSelected)
             {
-                GoToVisualState("SelectedFocused");
+                IsSelected = true;
             }
-        }
-        else
-        {
-            GoToVisualState("Normal");
+            else if (isFocused)
+            {
+                IsSelected = false;
+            }
+
+            if (IsSelected)
+            {
+                bool success = isFocused || Focus(FocusState.Programmatic);
+                Debug.Assert(success);
+
+                if (success)
+                {
+                    GoToVisualState("SelectedFocused");
+                }
+                else
+                {
+                    GoToVisualState("SelectedUnfocused");
+                }
+            }
+            else
+            {
+                GoToVisualState("Normal");
+            }
         }
     }
 
     protected override void OnLostFocus(RoutedEventArgs e)
     {
+        isFocused = false;
+
         if (IsSelected)
         {
             GoToVisualState("SelectedUnfocused");
@@ -84,7 +103,9 @@ internal sealed partial class Cell : UserControl
 
     protected override void OnGotFocus(RoutedEventArgs e)
     {
-        if (!IsSelected) 
+        isFocused = true;
+
+        if (!IsSelected)
         {
             IsSelected = true; // user tabbed to cell, or window switched to foreground
         }
@@ -249,5 +270,36 @@ internal sealed partial class Cell : UserControl
         {
             tb.Visibility = Visibility.Collapsed;
         }
+    }
+
+    private void MenuFlyout_Opening(object sender, object e)
+    {
+        Debug.Assert(ContextFlyout is MenuFlyout);
+        Debug.Assert(((MenuFlyout)ContextFlyout).Items.Count == 3);
+
+        ViewModels.Cell vmCell = Data;
+        MenuFlyout menu = (MenuFlyout)ContextFlyout;
+
+        menu.OverlayInputPassThroughElement ??= App.Instance.GetWindowForElement(this)?.Content;
+
+        // cut, copy, paste
+        menu.Items[0].IsEnabled = vmCell.HasValue;
+        menu.Items[1].IsEnabled = vmCell.HasValue;
+        menu.Items[2].IsEnabled = vmCell.ViewModel.CanPaste(null);
+    }
+
+    private void MenuFlyoutItem_Cut(object sender, RoutedEventArgs e)
+    {
+        Data.ViewModel.ExecuteCut(null);
+    }
+
+    private void MenuFlyoutItem_Copy(object sender, RoutedEventArgs e)
+    {
+        Data.ViewModel.ExecuteCopy(null);
+    }
+
+    private void MenuFlyoutItem_Paste(object sender, RoutedEventArgs e)
+    {
+        Data.ViewModel.ExecutePaste(null);
     }
 }

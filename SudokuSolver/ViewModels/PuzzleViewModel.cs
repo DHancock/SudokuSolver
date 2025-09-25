@@ -259,7 +259,7 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
 
     private bool CanCutCopyDelete(object? param) => (selectedIndex >= 0) && Cells[selectedIndex].HasValue;
 
-    private bool CanPaste(object? param) => (selectedIndex >= 0) && (clipboardValue > 0);
+    public bool CanPaste(object? param) => (selectedIndex >= 0) && (clipboardValue > 0);
 
     public async Task ClipboardContentChangedAsync()
     {
@@ -292,20 +292,20 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
     }
 
 
-    private void ExecuteCut(object? param) 
+    public void ExecuteCut(object? param) 
     {
         ExecuteCopy(null);
         UpdateCellForKeyDown(selectedIndex, 0); // delete
     }
 
-    private void ExecuteCopy(object? param) 
+    public void ExecuteCopy(object? param) 
     {
         DataPackage dp = new DataPackage();
         dp.SetText(Cells[selectedIndex].Value.ToString());
         Clipboard.SetContent(dp);
     }
 
-    private void ExecutePaste(object? param)
+    public void ExecutePaste(object? param)
     {
         UpdateCellForKeyDown(selectedIndex, clipboardValue);
     }

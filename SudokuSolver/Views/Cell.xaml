@@ -180,4 +180,24 @@
         <TextBlock x:Name="PossibleValue8" Text="8" Foreground="{ThemeResource CellPossiblesBrush}" Canvas.Top="31" Canvas.Left="22"/>
         <TextBlock x:Name="PossibleValue9" Text="9" Foreground="{ThemeResource CellPossiblesBrush}" Canvas.Top="31" Canvas.Left="39"/>
     </Canvas>
+
+    <UserControl.ContextFlyout>
+        <MenuFlyout Opening="MenuFlyout_Opening" >
+            <MenuFlyoutItem x:Uid="Cut" Click="MenuFlyoutItem_Cut" AccessKey="T">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="X" Modifiers="Control"/>
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem x:Uid="Copy" Click="MenuFlyoutItem_Copy" AccessKey="C">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="C" Modifiers="Control"/>
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem x:Uid="Paste" Click="MenuFlyoutItem_Paste" AccessKey="P">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="V" Modifiers="Control"/>
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+        </MenuFlyout>
+    </UserControl.ContextFlyout>
 </UserControl>
