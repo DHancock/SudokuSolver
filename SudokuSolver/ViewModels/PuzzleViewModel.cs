@@ -272,9 +272,9 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
         {
             if (cell.HasValue)
             {
-                // This allows a provided value to be reset to a user value.
-                // If the user wants to override a calculated value they have to explicitly type it in.
-                return cell.Value == App.Instance.ClipboardHelper.Value;
+                // This allows a provided or calculated value to be changed to a user value
+                // If the user wants to change the value of a calculated value they have to explicitly type it in.
+                return ((cell.Origin == Origins.Calculated) && (cell.Value == App.Instance.ClipboardHelper.Value)) || (cell.Origin == Origins.User) || (cell.Origin == Origins.Provided);
             }
             else
             {
