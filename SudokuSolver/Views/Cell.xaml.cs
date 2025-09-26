@@ -1,5 +1,6 @@
 ﻿using SudokuSolver.Common;
 using SudokuSolver.Utilities;
+using SudokuSolver.ViewModels;
 
 namespace SudokuSolver.Views;
 
@@ -28,11 +29,16 @@ internal sealed partial class Cell : UserControl
             if (isSelected != value)
             {
                 isSelected = value;
-
                 GetParentPuzzleView().CellSelectionChanged(this, Data.Index, value);
-
-                GoToVisualState(value ? "SelectedFocused" : "Normal");
             }
+
+            if (isSelected && !isFocused)
+            {
+                bool success = Focus(FocusState.Programmatic);
+                Debug.Assert(success);
+            }
+
+            AdjustCellVisualState();
 
             PuzzleView GetParentPuzzleView()
             {
@@ -48,32 +54,21 @@ internal sealed partial class Cell : UserControl
 
         if (pointerInfo.Properties.IsLeftButtonPressed)
         {
-            if (!IsSelected)
-            {
-                IsSelected = true;
-            }
-            else if (isFocused)
-            {
-                IsSelected = false;
-            }
-
             if (IsSelected)
             {
-                bool success = isFocused || Focus(FocusState.Programmatic);
-                Debug.Assert(success);
-
-                if (success)
+                if (isFocused)
                 {
-                    GoToVisualState("SelectedFocused");
+                    IsSelected = false;
                 }
                 else
                 {
-                    GoToVisualState("SelectedUnfocused");
+                    bool success = Focus(FocusState.Programmatic);
+                    Debug.Assert(success);
                 }
             }
             else
             {
-                GoToVisualState("Normal");
+                IsSelected = true;
             }
         }
     }
@@ -81,15 +76,7 @@ internal sealed partial class Cell : UserControl
     protected override void OnLostFocus(RoutedEventArgs e)
     {
         isFocused = false;
-
-        if (IsSelected)
-        {
-            GoToVisualState("SelectedUnfocused");
-        }
-        else
-        {
-            GoToVisualState("Normal");
-        }
+        AdjustCellVisualState();
     }
 
     private void Cell_LosingFocus(UIElement sender, LosingFocusEventArgs args)
@@ -107,10 +94,33 @@ internal sealed partial class Cell : UserControl
 
         if (!IsSelected)
         {
-            IsSelected = true; // user tabbed to cell, or window switched to foreground
+            // User tabbed to this cell, or the window has been switched to the foreground.
+            // Select because there is no current visual indication of a focused but unselected cell.
+            IsSelected = true;
         }
+        else
+        {
+            AdjustCellVisualState();
+        }
+    }
 
-        GoToVisualState("SelectedFocused");
+    private void AdjustCellVisualState()
+    {
+        if (isSelected)
+        {
+            if (isFocused)
+            {
+                GoToVisualState("SelectedFocused");
+            }
+            else
+            {
+                GoToVisualState("SelectedUnfocused");
+            }
+        }
+        else
+        {
+            GoToVisualState("Normal");
+        }
     }
 
     private void GoToVisualState(string state)
@@ -207,6 +217,7 @@ internal sealed partial class Cell : UserControl
             }
 
             ((SudokuGrid)Parent).Children[newIndex].Focus(FocusState.Programmatic);
+            e.Handled = true;
         }
         else if (IsSelected)  // keyboard focus != selected
         {
@@ -230,6 +241,7 @@ internal sealed partial class Cell : UserControl
             if (newValue >= 0)
             {
                 Data.ViewModel.UpdateCellForKeyDown(Data.Index, newValue);
+                e.Handled = true;
             }
         }
     }
@@ -283,23 +295,45 @@ internal sealed partial class Cell : UserControl
         menu.OverlayInputPassThroughElement ??= App.Instance.GetWindowForElement(this)?.Content;
 
         // cut, copy, paste
-        menu.Items[0].IsEnabled = vmCell.HasValue;
-        menu.Items[1].IsEnabled = vmCell.HasValue;
-        menu.Items[2].IsEnabled = vmCell.ViewModel.CanPaste(null);
+        menu.Items[0].IsEnabled = PuzzleViewModel.CanCut(vmCell);
+        menu.Items[1].IsEnabled = PuzzleViewModel.CanCopy(vmCell);
+        menu.Items[2].IsEnabled = PuzzleViewModel.CanPaste(vmCell);
     }
 
     private void MenuFlyoutItem_Cut(object sender, RoutedEventArgs e)
     {
-        Data.ViewModel.ExecuteCut(null);
+        ViewModels.Cell vmCell = Data;
+
+        if (PuzzleViewModel.CanCut(vmCell))
+        {
+            ClipboardHelper.Copy(vmCell.Value);
+            vmCell.ViewModel.UpdateCellForKeyDown(vmCell.Index, 0); // delete
+        }
     }
 
     private void MenuFlyoutItem_Copy(object sender, RoutedEventArgs e)
     {
-        Data.ViewModel.ExecuteCopy(null);
-    }
+        ViewModels.Cell vmCell = Data;
 
+        if (PuzzleViewModel.CanCopy(vmCell))
+        {
+            ClipboardHelper.Copy(vmCell.Value);
+        }
+    }
+    
     private void MenuFlyoutItem_Paste(object sender, RoutedEventArgs e)
     {
-        Data.ViewModel.ExecutePaste(null);
+        ViewModels.Cell vmCell = Data;
+
+        if (PuzzleViewModel.CanPaste(vmCell))
+        {
+            vmCell.ViewModel.UpdateCellForKeyDown(vmCell.Index, App.Instance.ClipboardHelper.Value);
+
+            if (!IsSelected && isFocused)
+            {
+                // there is no current visual indication of a focused but unselected cell
+                IsSelected = true;
+            }
+        }
     }
 }

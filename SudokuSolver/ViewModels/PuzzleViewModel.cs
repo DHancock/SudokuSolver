@@ -13,7 +13,6 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
     private PuzzleModel model;
     private PuzzleModel initialState;
     private bool isModified = false;
-    private int clipboardValue = 0;
     private int selectedIndex = -1;
 
     public RelayCommand UndoCommand { get; }
@@ -41,8 +40,8 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
         UndoCommand = new RelayCommand(ExecuteUndo, CanUndo);
         RedoCommand = new RelayCommand(ExecuteRedo, CanRedo);
 
-        CutCommand = new RelayCommand(ExecuteCut, CanCutCopyDelete);
-        CopyCommand = new RelayCommand(ExecuteCopy, CanCutCopyDelete);
+        CutCommand = new RelayCommand(ExecuteCut, CanCut);
+        CopyCommand = new RelayCommand(ExecuteCopy, CanCopy);
         PasteCommand = new RelayCommand(ExecutePaste, CanPaste);
 
         MarkProvidedCommand = new RelayCommand(ExecuteMarkProvided, CanMarkProvided);
@@ -257,57 +256,54 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
         }
     }
 
-    private bool CanCutCopyDelete(object? param) => (selectedIndex >= 0) && Cells[selectedIndex].HasValue;
-
-    public bool CanPaste(object? param) => (selectedIndex >= 0) && (clipboardValue > 0);
-
-    public async Task ClipboardContentChangedAsync()
+    public static bool CanCut(Cell cell)
     {
-        clipboardValue = await ReadClipboardNumberAsync();
-        PasteCommand.RaiseCanExecuteChanged();
+        return cell.HasValue && (cell.Origin == Origins.User) || (cell.Origin == Origins.Provided);
+    }
+    public static bool CanCopy(Cell cell)
+    {
+        return cell.HasValue && cell.ViewModel.ShowSolution;
     }
 
-    private static async Task<int> ReadClipboardNumberAsync()
+    public static bool CanPaste(Cell cell)
     {
-        try
+        if (App.Instance.ClipboardHelper.HasValue)
         {
-            DataPackageView dpv = Clipboard.GetContent();
-
-            if (dpv.AvailableFormats.Contains(StandardDataFormats.Text))
+            if (cell.HasValue)
             {
-                string data = await dpv.GetTextAsync();
-
-                if (int.TryParse(data, out int number) && number > 0 && number < 10)
-                {
-                    return number;
-                }
+                return cell.Value == App.Instance.ClipboardHelper.Value;
+            }
+            else
+            {
+                return cell.Possibles[App.Instance.ClipboardHelper.Value];
             }
         }
-        catch (Exception ex)
-        {
-            Debug.WriteLine(ex.ToString());
-        }
 
-        return 0;
+        return false;
     }
 
+    private bool IsValidIndex => (selectedIndex >= 0) && (selectedIndex < Cells.Count);
 
-    public void ExecuteCut(object? param) 
+    private bool CanCut(object? param) => IsValidIndex && CanCut(Cells[selectedIndex]);
+
+    private bool CanCopy(object? param) => IsValidIndex && CanCopy(Cells[selectedIndex]);
+
+    private bool CanPaste(object? param) => IsValidIndex && CanPaste(Cells[selectedIndex]);
+
+    private void ExecuteCut(object? param) 
     {
         ExecuteCopy(null);
         UpdateCellForKeyDown(selectedIndex, 0); // delete
     }
 
-    public void ExecuteCopy(object? param) 
+    private void ExecuteCopy(object? param) 
     {
-        DataPackage dp = new DataPackage();
-        dp.SetText(Cells[selectedIndex].Value.ToString());
-        Clipboard.SetContent(dp);
+        ClipboardHelper.Copy(Cells[selectedIndex].Value);
     }
 
-    public void ExecutePaste(object? param)
+    private void ExecutePaste(object? param)
     {
-        UpdateCellForKeyDown(selectedIndex, clipboardValue);
+        UpdateCellForKeyDown(selectedIndex, App.Instance.ClipboardHelper.Value);
     }
 
     private bool CanMarkProvided(object? param) => Cells.Any(c => c.Origin == Origins.User);
