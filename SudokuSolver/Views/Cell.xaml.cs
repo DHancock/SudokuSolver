@@ -297,7 +297,7 @@ internal sealed partial class Cell : UserControl
         // cut, copy, paste
         menu.Items[0].IsEnabled = PuzzleViewModel.CanCut(vmCell);
         menu.Items[1].IsEnabled = PuzzleViewModel.CanCopy(vmCell);
-        menu.Items[2].IsEnabled = PuzzleViewModel.CanPaste(vmCell);
+        menu.Items[2].IsEnabled = PuzzleViewModel.CanPaste();
     }
 
     private void MenuFlyoutItem_Cut(object sender, RoutedEventArgs e)
@@ -325,7 +325,7 @@ internal sealed partial class Cell : UserControl
     {
         ViewModels.Cell vmCell = Data;
 
-        if (PuzzleViewModel.CanPaste(vmCell))
+        if (PuzzleViewModel.CanPaste())
         {
             vmCell.ViewModel.UpdateCellForKeyDown(vmCell.Index, App.Instance.ClipboardHelper.Value);
 
