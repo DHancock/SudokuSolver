@@ -23,7 +23,7 @@ internal sealed partial class ClipboardHelper
             {
                 string data = await dpv.GetTextAsync();
 
-                if ((data.Length == 1) && int.TryParse(data, out int number) && number > 0 && number < 10)
+                if (int.TryParse(data, out int number) && (number > 0) && (number < 10))
                 {
                     currentValue = number;
                 }

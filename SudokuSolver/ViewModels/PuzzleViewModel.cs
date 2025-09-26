@@ -258,11 +258,12 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
 
     public static bool CanCut(Cell cell)
     {
-        return cell.HasValue && (cell.Origin == Origins.User) || (cell.Origin == Origins.Provided);
+        return cell.HasValue && ((cell.Origin == Origins.User) || (cell.Origin == Origins.Provided));
     }
+
     public static bool CanCopy(Cell cell)
     {
-        return cell.HasValue && cell.ViewModel.ShowSolution;
+        return cell.HasValue && (cell.ViewModel.ShowSolution || (cell.Origin == Origins.User) || (cell.Origin == Origins.Provided));
     }
 
     public static bool CanPaste(Cell cell)
@@ -271,6 +272,8 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
         {
             if (cell.HasValue)
             {
+                // This allows a provided value to be reset to a user value.
+                // If the user wants to override a calculated value they have to explicitly type it in.
                 return cell.Value == App.Instance.ClipboardHelper.Value;
             }
             else
