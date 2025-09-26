@@ -287,14 +287,28 @@ internal partial class MainWindow : Window
                 }
                 else
                 {
-                    foreach (MenuFlyoutItemBase mfib in systemMenu.Items)
+                    bool found = false;
+
+                    foreach (MenuFlyoutItemBase itemBase in systemMenu.Items)
                     {
-                        if (mfib.IsEnabled && (mfib is MenuFlyoutItem item) && (item.AccessKey == key.ToString()))
+                        if (itemBase.AccessKey == key.ToString())
                         {
                             HideSystemMenu();
-                            item.Command.Execute(item.CommandParameter);
+                            found = true;
+
+                            if (itemBase.IsEnabled)
+                            {
+                                MenuFlyoutItem item = (MenuFlyoutItem)itemBase;
+                                item.Command.Execute(item.CommandParameter);
+                            }
+
                             break;
                         }
+                    }
+
+                    if (!found)
+                    {
+                        Utils.PlayExclamation();
                     }
                 }
             }
