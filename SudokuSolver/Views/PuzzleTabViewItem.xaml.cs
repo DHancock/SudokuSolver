@@ -34,7 +34,6 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         ViewMenuItem.Unloaded += MenuItem_Unloaded;
         EditMenuItem.Unloaded += MenuItem_Unloaded;
 
-        Clipboard.ContentChanged += Clipboard_ContentChanged;
         Loaded += LoadedHandler;
 
         // size changed can also indicate that this tab has been selected and that it's content is now valid 
@@ -181,8 +180,6 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         Puzzle.DragEnter -= Puzzle_DragEnter;
         Puzzle.Drop -= Puzzle_Drop;
 
-        Clipboard.ContentChanged -= Clipboard_ContentChanged;
-
         if (viewModel is not null)
         {
             viewModel.PropertyChanged -= ViewModel_PropertyChanged;
@@ -195,11 +192,6 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
     private void MenuItem_Unloaded(object sender, RoutedEventArgs e)
     {
         FocusLastSelectedCell();
-    }
-
-    private async void Clipboard_ContentChanged(object? sender, object e)
-    {
-        await ViewModel.ClipboardContentChangedAsync();
     }
 
     private async void Puzzle_Drop(object sender, DragEventArgs e)

@@ -22,6 +22,7 @@ public partial class App : Application
     internal ResourceLoader ResourceLoader { get; } = new ResourceLoader();
     internal SessionHelper SessionHelper { get; } = new SessionHelper();
     private bool appClosing = false;
+    internal ClipboardHelper ClipboardHelper { get; }
 
     /// <summary>
     /// Initializes the singleton application object. This will be the single current
@@ -32,6 +33,8 @@ public partial class App : Application
         InitializeComponent();
 
         uiThreadDispatcher = DispatcherQueue.GetForCurrentThread();
+
+        ClipboardHelper = new ClipboardHelper(uiThreadDispatcher);
 
         Debug.Assert(instance.IsCurrent);
         appInstance = instance;
