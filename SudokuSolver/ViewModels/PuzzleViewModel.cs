@@ -266,24 +266,7 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
         return cell.HasValue && (cell.ViewModel.ShowSolution || (cell.Origin == Origins.User) || (cell.Origin == Origins.Provided));
     }
 
-    public static bool CanPaste(Cell cell)
-    {
-        if (App.Instance.ClipboardHelper.HasValue)
-        {
-            if (cell.HasValue)
-            {
-                // This allows a provided or calculated value to be changed to a user value
-                // If the user wants to change the value of a calculated value they have to explicitly type it in.
-                return ((cell.Origin == Origins.Calculated) && (cell.Value == App.Instance.ClipboardHelper.Value)) || (cell.Origin == Origins.User) || (cell.Origin == Origins.Provided);
-            }
-            else
-            {
-                return cell.Possibles[App.Instance.ClipboardHelper.Value];
-            }
-        }
-
-        return false;
-    }
+    public static bool CanPaste() => App.Instance.ClipboardHelper.HasValue;
 
     private bool IsValidIndex => (selectedIndex >= 0) && (selectedIndex < Cells.Count);
 
@@ -291,7 +274,7 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
 
     private bool CanCopy(object? param) => IsValidIndex && CanCopy(Cells[selectedIndex]);
 
-    private bool CanPaste(object? param) => IsValidIndex && CanPaste(Cells[selectedIndex]);
+    private bool CanPaste(object? param) => IsValidIndex && CanPaste();
 
     private void ExecuteCut(object? param) 
     {
