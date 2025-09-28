@@ -744,11 +744,24 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
     public void InvokeKeyboardAccelerator(VirtualKeyModifiers modifiers, VirtualKey key)
     {
-        foreach (MenuBarItem mbi in Menu.Items)
+        if ((modifiers == VirtualKeyModifiers.Shift) && (key == VirtualKey.F10))
         {
-            if (mbi.IsEnabled && Utils.InvokeMenuItemForKeyboardAccelerator(mbi.Items, modifiers, key))
+            Puzzle.ShowCellContextMenu();
+        }
+        else
+        {
+            if ((modifiers == VirtualKeyModifiers.Shift) && (key == VirtualKey.Insert))
             {
-                return;
+                modifiers = VirtualKeyModifiers.Control;
+                key = VirtualKey.V;
+            }
+
+            foreach (MenuBarItem mbi in Menu.Items)
+            {
+                if (mbi.IsEnabled && Utils.InvokeMenuItemForKeyboardAccelerator(mbi.Items, modifiers, key))
+                {
+                    return;
+                }
             }
         }
 

@@ -6,6 +6,9 @@
              Width="{StaticResource cell_size}">
 
     <Canvas x:Name="CellCanvas" Height="{StaticResource cell_size}" Width="{StaticResource cell_size}">
+        <Canvas.BackgroundTransition>
+            <BrushTransition Duration="00:00:00.1"/>
+        </Canvas.BackgroundTransition>
 
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="CellValueStates">
@@ -30,12 +33,12 @@
             <VisualStateGroup x:Name="CommonStates">
                 <VisualState x:Name="SelectedFocused">
                     <VisualState.Setters>
-                        <Setter Target="CellCanvas.Background" Value="{ThemeResource SystemControlHighlightAccentBrush}"/>
+                        <Setter Target="CellCanvas.Background" Value="{ThemeResource CellSelectedFocusedBrush}"/>
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="SelectedUnfocused">
                     <VisualState.Setters>
-                        <Setter Target="CellCanvas.Background" Value="{ThemeResource SystemControlBackgroundListLowBrush}"/>
+                        <Setter Target="CellCanvas.Background" Value="{ThemeResource CellSelectedUnfocusedBrush}"/>
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="Normal"/>
@@ -96,7 +99,7 @@
                 </VisualState>
                 <VisualState x:Name="Normal4"/>
             </VisualStateGroup>
-            
+
             <VisualStateGroup x:Name="PossibleStates5">
                 <VisualState x:Name="Horizontal5">
                     <VisualState.Setters>
@@ -124,7 +127,7 @@
                 </VisualState>
                 <VisualState x:Name="Normal6"/>
             </VisualStateGroup>
-            
+
             <VisualStateGroup x:Name="PossibleStates7">
                 <VisualState x:Name="Horizontal7">
                     <VisualState.Setters>
@@ -152,7 +155,7 @@
                 </VisualState>
                 <VisualState x:Name="Normal8"/>
             </VisualStateGroup>
-            
+
             <VisualStateGroup x:Name="PossibleStates9">
                 <VisualState x:Name="Horizontal9">
                     <VisualState.Setters>
@@ -180,24 +183,4 @@
         <TextBlock x:Name="PossibleValue8" Text="8" Foreground="{ThemeResource CellPossiblesBrush}" Canvas.Top="31" Canvas.Left="22"/>
         <TextBlock x:Name="PossibleValue9" Text="9" Foreground="{ThemeResource CellPossiblesBrush}" Canvas.Top="31" Canvas.Left="39"/>
     </Canvas>
-
-    <UserControl.ContextFlyout>
-        <MenuFlyout Opening="MenuFlyout_Opening" >
-            <MenuFlyoutItem x:Uid="Cut" Click="MenuFlyoutItem_Cut" AccessKey="T">
-                <MenuFlyoutItem.KeyboardAccelerators>
-                    <KeyboardAccelerator Key="X" Modifiers="Control"/>
-                </MenuFlyoutItem.KeyboardAccelerators>
-            </MenuFlyoutItem>
-            <MenuFlyoutItem x:Uid="Copy" Click="MenuFlyoutItem_Copy" AccessKey="C">
-                <MenuFlyoutItem.KeyboardAccelerators>
-                    <KeyboardAccelerator Key="C" Modifiers="Control"/>
-                </MenuFlyoutItem.KeyboardAccelerators>
-            </MenuFlyoutItem>
-            <MenuFlyoutItem x:Uid="Paste" Click="MenuFlyoutItem_Paste" AccessKey="P">
-                <MenuFlyoutItem.KeyboardAccelerators>
-                    <KeyboardAccelerator Key="V" Modifiers="Control"/>
-                </MenuFlyoutItem.KeyboardAccelerators>
-            </MenuFlyoutItem>
-        </MenuFlyout>
-    </UserControl.ContextFlyout>
 </UserControl>

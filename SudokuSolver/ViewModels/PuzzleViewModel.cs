@@ -284,7 +284,7 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
 
     private void ExecuteCopy(object? param) 
     {
-        ClipboardHelper.Copy(Cells[selectedIndex].Value);
+        App.Instance.ClipboardHelper.Copy(Cells[selectedIndex].Value);
     }
 
     private void ExecutePaste(object? param)
