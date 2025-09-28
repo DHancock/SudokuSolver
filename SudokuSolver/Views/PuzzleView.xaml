@@ -4,6 +4,25 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
     xmlns:local="using:SudokuSolver.Views">
 
+    <UserControl.Resources>
+        <MenuFlyout x:Key="CellContextMenu">
+            <MenuFlyoutItem x:Uid="Cut" Click="MenuFlyoutItem_Cut" AccessKey="T">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="X" Modifiers="Control"/>
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem x:Uid="Copy" Click="MenuFlyoutItem_Copy" AccessKey="C">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="C" Modifiers="Control"/>
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem x:Uid="Paste" Click="MenuFlyoutItem_Paste" AccessKey="P">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="V" Modifiers="Control"/>
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+        </MenuFlyout>
+    </UserControl.Resources>
     <Viewbox>
         <local:SudokuGrid x:Name="Grid" x:DefaultBindMode="OneWay" Background="{ThemeResource CellFillBrush}" Opacity="0">
             <local:SudokuGrid.BackgroundTransition>

@@ -12,7 +12,7 @@ internal partial class PuzzleView : UserControl
 
     private ElementTheme themeWhenSelected;
     private PuzzleViewModel? viewModel;
-    private Cell? lastSelectedCell;
+    private Cell? selectedCell;
 
     public PuzzleView()
     {
@@ -21,7 +21,104 @@ internal partial class PuzzleView : UserControl
         Grid.Loaded += Grid_Loaded;
         Unloaded += PuzzleView_Unloaded;
         SizeChanged += PuzzleView_SizeChanged;
+        PointerPressed += PuzzleView_PointerPressed;
     }
+
+    private void PuzzleView_PointerPressed(object sender, PointerRoutedEventArgs e)
+    {
+        PointerPoint pointerInfo = e.GetCurrentPoint(this);
+
+        if (pointerInfo.Properties.IsRightButtonPressed)
+        {
+            Point offset = Utils.GetOffsetFromXamlRoot(this);
+
+            offset.X += pointerInfo.Position.X;
+            offset.Y += pointerInfo.Position.Y;
+
+            foreach (UIElement element in VisualTreeHelper.FindElementsInHostCoordinates(offset, this))
+            {
+                if (element is Cell cell)
+                {
+                    ShowCellContextMenu(viaKeyboard: false, cell, offset);
+                    e.Handled = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    public void ShowCellContextMenu()
+    {
+        if (selectedCell is not null)
+        {
+            ShowCellContextMenu(viaKeyboard: true, selectedCell, default);
+        }
+    }
+
+    private void ShowCellContextMenu(bool viaKeyboard, Cell cell, Point offset)
+    {
+        // Use a custom cell context menu. If the cell itself had a context menu it would be
+        // shown for the focused cell not necessarily the selected one on keyboard accelerator
+        // activation. Hence a paste or cut could be made to a apparently random cell because  
+        // there isn't any indication of a focused but not selected call.
+
+        MenuFlyout menu = (MenuFlyout)Resources["CellContextMenu"];
+
+        menu.OverlayInputPassThroughElement = this;
+
+        ViewModels.Cell vmCell = cell.Data;
+
+        // cut, copy, paste
+        menu.Items[0].Tag = vmCell;
+        menu.Items[1].Tag = vmCell;
+        menu.Items[2].Tag = vmCell;
+
+        menu.Items[0].IsEnabled = PuzzleViewModel.CanCut(vmCell);
+        menu.Items[1].IsEnabled = PuzzleViewModel.CanCopy(vmCell);
+        menu.Items[2].IsEnabled = PuzzleViewModel.CanPaste();
+
+        if (viaKeyboard) 
+        {
+            menu.ShowAt(cell);
+        }
+        else
+        {
+            menu.ShowAt(null, offset);
+        }
+    }
+
+    private void MenuFlyoutItem_Cut(object sender, RoutedEventArgs e)
+    {
+        ViewModels.Cell vmCell = (ViewModels.Cell)((FrameworkElement)sender).Tag;
+
+        if (PuzzleViewModel.CanCut(vmCell))
+        {
+            App.Instance.ClipboardHelper.Copy(vmCell.Value);
+            vmCell.ViewModel.UpdateCellForKeyDown(vmCell.Index, 0); // delete
+        }
+    }
+
+    private void MenuFlyoutItem_Copy(object sender, RoutedEventArgs e)
+    {
+        ViewModels.Cell vmCell = (ViewModels.Cell)((FrameworkElement)sender).Tag;
+
+        if (PuzzleViewModel.CanCopy(vmCell))
+        {
+            App.Instance.ClipboardHelper.Copy(vmCell.Value);
+        }
+    }
+
+    private void MenuFlyoutItem_Paste(object sender, RoutedEventArgs e)
+    {
+        ViewModels.Cell vmCell = (ViewModels.Cell)((FrameworkElement)sender).Tag;
+
+        if (PuzzleViewModel.CanPaste())
+        {
+            vmCell.ViewModel.UpdateCellForKeyDown(vmCell.Index, App.Instance.ClipboardHelper.Value);
+        }
+    }
+
+    public bool IsCellSelected => selectedCell is not null;
 
     private static void Grid_Loaded(object sender, RoutedEventArgs e)
     {
@@ -56,7 +153,7 @@ internal partial class PuzzleView : UserControl
         SizeChanged -= PuzzleView_SizeChanged;
 
         viewModel = null;
-        lastSelectedCell = null;
+        selectedCell = null;
     }
 
     public PuzzleViewModel ViewModel  
@@ -82,26 +179,26 @@ internal partial class PuzzleView : UserControl
         if (isSelected)
         {
             // enforce single selection
-            if (lastSelectedCell is not null)
+            if (selectedCell is not null)
             {
-                lastSelectedCell.IsSelected = false;
+                selectedCell.IsSelected = false;
             }
 
-            lastSelectedCell = cell;
+            selectedCell = cell;
         }
-        else if (ReferenceEquals(lastSelectedCell, cell))
+        else if (ReferenceEquals(selectedCell, cell))
         {
-            lastSelectedCell = null;
+            selectedCell = null;
         }
     }
 
     public void FocusLastSelectedCell()
     {
-        if (lastSelectedCell is not null)
+        if (selectedCell is not null)
         {
-            if (lastSelectedCell.Parent is not null)
+            if (selectedCell.Parent is not null)
             {
-                bool success = lastSelectedCell.Focus(FocusState.Programmatic);
+                bool success = selectedCell.Focus(FocusState.Programmatic);
                 Debug.Assert(success);
             }
             else
@@ -115,7 +212,7 @@ internal partial class PuzzleView : UserControl
         void PuzzleView_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             SizeChanged -= PuzzleView_SizeChanged;
-            lastSelectedCell?.Focus(FocusState.Programmatic);
+            selectedCell?.Focus(FocusState.Programmatic);
         }
     }
 

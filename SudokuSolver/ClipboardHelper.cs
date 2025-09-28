@@ -35,11 +35,13 @@ internal sealed partial class ClipboardHelper
         }
     }
 
-    public static void Copy(int value)
+    public void Copy(int value)
     {
         DataPackage dp = new DataPackage();
         dp.SetText(value.ToString());
         Clipboard.SetContent(dp);
+
+        currentValue = value;
     }
 
     public bool HasValue => currentValue > 0;

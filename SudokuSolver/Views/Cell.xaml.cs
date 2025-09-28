@@ -1,6 +1,5 @@
 ﻿using SudokuSolver.Common;
 using SudokuSolver.Utilities;
-using SudokuSolver.ViewModels;
 
 namespace SudokuSolver.Views;
 
@@ -39,12 +38,6 @@ internal sealed partial class Cell : UserControl
             }
 
             AdjustCellVisualState();
-
-            PuzzleView GetParentPuzzleView()
-            {
-                Debug.Assert(IsLoaded);
-                return (PuzzleView)((Viewbox)((SudokuGrid)Parent).Parent).Parent;
-            }
         }
     }
 
@@ -70,21 +63,27 @@ internal sealed partial class Cell : UserControl
             {
                 IsSelected = true;
             }
-        }
-    }
 
-    protected override void OnLostFocus(RoutedEventArgs e)
-    {
-        isFocused = false;
-        AdjustCellVisualState();
+            e.Handled = true;
+        }
     }
 
     private void Cell_LosingFocus(UIElement sender, LosingFocusEventArgs args)
     {
+        bool cancelled = false;
+
         if ((args.NewFocusedElement is TabViewItem) || (args.NewFocusedElement is ScrollViewer))
         {
-            bool cancelled = args.TryCancel();
+            cancelled = args.TryCancel();
             Debug.Assert(cancelled);
+        }
+
+        if (!cancelled)
+        {
+            isFocused = false;
+            args.Handled = true;
+
+            AdjustCellVisualState();
         }
     }
 
@@ -92,16 +91,18 @@ internal sealed partial class Cell : UserControl
     {
         isFocused = true;
 
-        if (!IsSelected)
+        if (!IsSelected && GetParentPuzzleView().IsCellSelected)
         {
-            // User tabbed to this cell, or the window has been switched to the foreground.
-            // Select because there is no current visual indication of a focused but unselected cell.
             IsSelected = true;
         }
-        else
-        {
-            AdjustCellVisualState();
-        }
+
+        AdjustCellVisualState();
+    }
+
+    private PuzzleView GetParentPuzzleView()
+    {
+        Debug.Assert(IsLoaded);
+        return (PuzzleView)((Viewbox)((SudokuGrid)Parent).Parent).Parent;
     }
 
     private void AdjustCellVisualState()
@@ -281,59 +282,6 @@ internal sealed partial class Cell : UserControl
         else
         {
             tb.Visibility = Visibility.Collapsed;
-        }
-    }
-
-    private void MenuFlyout_Opening(object sender, object e)
-    {
-        Debug.Assert(ContextFlyout is MenuFlyout);
-        Debug.Assert(((MenuFlyout)ContextFlyout).Items.Count == 3);
-
-        ViewModels.Cell vmCell = Data;
-        MenuFlyout menu = (MenuFlyout)ContextFlyout;
-
-        menu.OverlayInputPassThroughElement ??= App.Instance.GetWindowForElement(this)?.Content;
-
-        // cut, copy, paste
-        menu.Items[0].IsEnabled = PuzzleViewModel.CanCut(vmCell);
-        menu.Items[1].IsEnabled = PuzzleViewModel.CanCopy(vmCell);
-        menu.Items[2].IsEnabled = PuzzleViewModel.CanPaste();
-    }
-
-    private void MenuFlyoutItem_Cut(object sender, RoutedEventArgs e)
-    {
-        ViewModels.Cell vmCell = Data;
-
-        if (PuzzleViewModel.CanCut(vmCell))
-        {
-            ClipboardHelper.Copy(vmCell.Value);
-            vmCell.ViewModel.UpdateCellForKeyDown(vmCell.Index, 0); // delete
-        }
-    }
-
-    private void MenuFlyoutItem_Copy(object sender, RoutedEventArgs e)
-    {
-        ViewModels.Cell vmCell = Data;
-
-        if (PuzzleViewModel.CanCopy(vmCell))
-        {
-            ClipboardHelper.Copy(vmCell.Value);
-        }
-    }
-    
-    private void MenuFlyoutItem_Paste(object sender, RoutedEventArgs e)
-    {
-        ViewModels.Cell vmCell = Data;
-
-        if (PuzzleViewModel.CanPaste())
-        {
-            vmCell.ViewModel.UpdateCellForKeyDown(vmCell.Index, App.Instance.ClipboardHelper.Value);
-
-            if (!IsSelected && isFocused)
-            {
-                // there is no current visual indication of a focused but unselected cell
-                IsSelected = true;
-            }
         }
     }
 }
