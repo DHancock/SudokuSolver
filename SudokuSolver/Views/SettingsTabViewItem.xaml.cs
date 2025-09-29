@@ -236,7 +236,14 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
 
     public void InvokeKeyboardAccelerator(VirtualKeyModifiers modifiers, VirtualKey key)
     {
-        Utils.InvokeMenuItemForKeyboardAccelerator(((MenuFlyout)ContextFlyout).Items, modifiers, key);
+        if ((modifiers == VirtualKeyModifiers.Shift) && (key == VirtualKey.F10))
+        {
+            ((MenuFlyout)ContextFlyout).ShowAt((FrameworkElement)Header);
+        }
+        else
+        {
+            Utils.InvokeMenuItemForKeyboardAccelerator(((MenuFlyout)ContextFlyout).Items, modifiers, key);
+        }
     }
 
     public int PassthroughCount => 7;
