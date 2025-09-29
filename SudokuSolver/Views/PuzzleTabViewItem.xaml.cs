@@ -746,7 +746,14 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
     {
         if ((modifiers == VirtualKeyModifiers.Shift) && (key == VirtualKey.F10))
         {
-            Puzzle.ShowCellContextMenu();
+            if (FocusManager.GetFocusedElement(XamlRoot) is TabViewItem)
+            {
+                ((MenuFlyout)ContextFlyout).ShowAt((FrameworkElement)Header);
+            }                                                
+            else
+            {
+                Puzzle.ShowCellContextMenu();
+            }
         }
         else
         {
