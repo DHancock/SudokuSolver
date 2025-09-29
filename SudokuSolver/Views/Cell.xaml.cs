@@ -18,6 +18,7 @@ internal sealed partial class Cell : UserControl
         IsTabStop = true;
         IsHitTestVisible = true;
         LosingFocus += Cell_LosingFocus;
+        GettingFocus += Cell_GettingFocus;
     }
 
     public bool IsSelected
@@ -38,6 +39,12 @@ internal sealed partial class Cell : UserControl
             }
 
             AdjustCellVisualState();
+
+            PuzzleView GetParentPuzzleView()
+            {
+                Debug.Assert(IsLoaded);
+                return (PuzzleView)((Viewbox)((SudokuGrid)Parent).Parent).Parent;
+            }
         }
     }
 
@@ -87,22 +94,17 @@ internal sealed partial class Cell : UserControl
         }
     }
 
-    protected override void OnGotFocus(RoutedEventArgs e)
+    private void Cell_GettingFocus(UIElement sender, GettingFocusEventArgs args)
     {
         isFocused = true;
 
-        if (!IsSelected && GetParentPuzzleView().IsCellSelected)
+        if (!IsSelected && !((args.OldFocusedElement is Popup) || (args.OldFocusedElement is MenuBarItem)))
         {
+            // Unless a menu has just closed, set as selected. It's the default state for a focused cell
             IsSelected = true;
         }
 
         AdjustCellVisualState();
-    }
-
-    private PuzzleView GetParentPuzzleView()
-    {
-        Debug.Assert(IsLoaded);
-        return (PuzzleView)((Viewbox)((SudokuGrid)Parent).Parent).Parent;
     }
 
     private void AdjustCellVisualState()

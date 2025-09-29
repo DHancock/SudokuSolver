@@ -191,7 +191,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
     private void MenuItem_Unloaded(object sender, RoutedEventArgs e)
     {
-        FocusLastSelectedCell();
+        FocusSelectedCell();
     }
 
     private async void Puzzle_Drop(object sender, DragEventArgs e)
@@ -265,11 +265,11 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
     public StorageFile? SourceFile => sourceFile;
 
-    public void FocusLastSelectedCell()
+    public void FocusSelectedCell()
     {
         if (IsLoaded && IsSelected && parentWindow.IsActive && !parentWindow.ContentDialogHelper.IsContentDialogOpen)
         {
-            Puzzle.FocusLastSelectedCell();
+            Puzzle.FocusSelectedCell();
         }
     }
 
@@ -339,7 +339,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
             }
         }
         
-        FocusLastSelectedCell();
+        FocusSelectedCell();
     }
 
     private unsafe void AddToRecentFilesJumpList()

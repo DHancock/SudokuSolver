@@ -121,7 +121,7 @@ internal sealed partial class MainWindow : Window, ISession
 
             if (Tabs.SelectedItem is PuzzleTabViewItem puzzleTab)
             {
-                puzzleTab.FocusLastSelectedCell();
+                puzzleTab.FocusSelectedCell();
             }
         }
         else
@@ -209,7 +209,7 @@ internal sealed partial class MainWindow : Window, ISession
                 }
                 else
                 {
-                    puzzleTab.FocusLastSelectedCell();
+                    puzzleTab.FocusSelectedCell();
                     return true;
                 }
             }
@@ -440,7 +440,7 @@ internal sealed partial class MainWindow : Window, ISession
                 if (args.Tab is PuzzleTabViewItem puzzle)
                 {
                     // there won't be a selection changed event if dragging the selected tab
-                    puzzle.FocusLastSelectedCell();
+                    puzzle.FocusSelectedCell();
                 }
             }
             else   
@@ -466,7 +466,7 @@ internal sealed partial class MainWindow : Window, ISession
             }
             else // user cancelled
             {
-                puzzleTab.FocusLastSelectedCell();
+                puzzleTab.FocusSelectedCell();
             }
         }
         else
@@ -479,7 +479,7 @@ internal sealed partial class MainWindow : Window, ISession
     {
         if ((e.AddedItems.Count == 1) &&  (e.AddedItems[0] is PuzzleTabViewItem puzzle))
         {
-            puzzle.FocusLastSelectedCell();
+            puzzle.FocusSelectedCell();
         }
     }
 
@@ -763,7 +763,7 @@ internal sealed partial class MainWindow : Window, ISession
         {
             if (Tabs.SelectedItem is PuzzleTabViewItem puzzleTabViewItem)
             {
-                puzzleTabViewItem.FocusLastSelectedCell();
+                puzzleTabViewItem.FocusSelectedCell();
             }
         }
 
