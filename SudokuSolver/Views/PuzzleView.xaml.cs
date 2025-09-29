@@ -118,8 +118,6 @@ internal partial class PuzzleView : UserControl
         }
     }
 
-    public bool IsCellSelected => selectedCell is not null;
-
     private static void Grid_Loaded(object sender, RoutedEventArgs e)
     {
         // if the app theme is different from the systems an initial opacity of zero stops  
