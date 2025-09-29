@@ -192,7 +192,7 @@ internal partial class PuzzleView : UserControl
         }
     }
 
-    public void FocusLastSelectedCell()
+    public void FocusSelectedCell()
     {
         if (selectedCell is not null)
         {
