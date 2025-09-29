@@ -47,12 +47,15 @@ internal partial class PuzzleView : UserControl
         }
     }
 
-    public void ShowCellContextMenu()
+    public bool ShowCellContextMenu()
     {
         if (selectedCell is not null)
         {
             ShowCellContextMenu(viaKeyboard: true, selectedCell, default);
+            return true;
         }
+
+        return false;
     }
 
     private void ShowCellContextMenu(bool viaKeyboard, Cell cell, Point offset)
