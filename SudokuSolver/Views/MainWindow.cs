@@ -230,7 +230,7 @@ internal partial class MainWindow : Window
 
             if (isKeyDown)
             {
-                if ((key == VirtualKey.Menu) || (key == VirtualKey.Control))  // accelerator key modifiers
+                if (IsAcceleratorKeyModifier(key))
                 {
                     systemMenu.Hide();
                 }
@@ -266,6 +266,11 @@ internal partial class MainWindow : Window
         }
 
         return PInvoke.CallNextHookEx(null, code, wParam, lParam);
+    }
+
+    private static bool IsAcceleratorKeyModifier(VirtualKey key)
+    {
+        return (key == VirtualKey.Menu) || (key == VirtualKey.Control) || (key == VirtualKey.Shift) || (key == VirtualKey.LeftWindows) || (key == VirtualKey.RightWindows);
     }
 
     public void PostCloseMessage() => PostSysCommandMessage(SC.CLOSE);
