@@ -333,25 +333,25 @@
   <data name="Solution.Text" xml:space="preserve">
     <value>Lösung</value>
   </data>
-  <data name="SystemMenuCloseTab" xml:space="preserve">
+  <data name="SystemMenuCloseTab.Text" xml:space="preserve">
     <value>Registerkarte schließen</value>
   </data>
-  <data name="SystemMenuCloseWindow" xml:space="preserve">
+  <data name="SystemMenuCloseWindow.Text" xml:space="preserve">
     <value>Fenster schließen</value>
   </data>
-  <data name="SystemMenuMaximize" xml:space="preserve">
+  <data name="SystemMenuMaximize.Text" xml:space="preserve">
     <value>Maximieren Sie</value>
   </data>
-  <data name="SystemMenuMinimize" xml:space="preserve">
+  <data name="SystemMenuMinimize.Text" xml:space="preserve">
     <value>minimieren.</value>
   </data>
-  <data name="SystemMenuMove" xml:space="preserve">
+  <data name="SystemMenuMove.Text" xml:space="preserve">
     <value>Verschieben</value>
   </data>
-  <data name="SystemMenuRestore" xml:space="preserve">
+  <data name="SystemMenuRestore.Text" xml:space="preserve">
     <value>Wiederherstellen</value>
   </data>
-  <data name="SystemMenuSize" xml:space="preserve">
+  <data name="SystemMenuSize.Text" xml:space="preserve">
     <value>Größe</value>
   </data>
   <data name="Undo.Text" xml:space="preserve">

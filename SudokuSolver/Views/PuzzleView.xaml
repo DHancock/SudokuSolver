@@ -5,7 +5,7 @@
     xmlns:local="using:SudokuSolver.Views">
 
     <UserControl.Resources>
-        <MenuFlyout x:Key="CellContextMenu">
+        <MenuFlyout x:Key="CellContextMenu" OverlayInputPassThroughElement="{x:Bind Grid}">
             <MenuFlyoutItem x:Uid="Cut" Click="MenuFlyoutItem_Cut" AccessKey="T">
                 <MenuFlyoutItem.KeyboardAccelerators>
                     <KeyboardAccelerator Key="X" Modifiers="Control"/>

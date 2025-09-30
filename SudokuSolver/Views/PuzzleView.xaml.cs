@@ -67,8 +67,6 @@ internal partial class PuzzleView : UserControl
 
         MenuFlyout menu = (MenuFlyout)Resources["CellContextMenu"];
 
-        menu.OverlayInputPassThroughElement = this;
-
         ViewModels.Cell vmCell = cell.Data;
 
         // cut, copy, paste
