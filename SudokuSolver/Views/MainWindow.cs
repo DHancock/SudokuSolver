@@ -230,11 +230,11 @@ internal partial class MainWindow : Window
 
             if (isKeyDown)
             {
-                if ((key == VirtualKey.Menu) || (key == VirtualKey.Escape))
+                if (key == VirtualKey.Menu)
                 {
                     systemMenu.Hide();
                 }
-                else
+                else if ((key != VirtualKey.Escape) && (key != VirtualKey.Enter) && (key != VirtualKey.Up) && (key != VirtualKey.Down))
                 {
                     bool found = false;
 
@@ -250,12 +250,8 @@ internal partial class MainWindow : Window
                                 MenuFlyoutItem item = (MenuFlyoutItem)itemBase;
                                 item.Command.Execute(item.CommandParameter);
                             }
-
-                            break;
                         }
                     }
-
-                    found |= (key == VirtualKey.Up) || (key == VirtualKey.Down) || (key == VirtualKey.Escape) || (key == VirtualKey.Enter);
 
                     if (!found)
                     {
@@ -281,12 +277,7 @@ internal partial class MainWindow : Window
 
     private bool CanMove(object? param)
     {
-        if (AppWindow.Presenter is OverlappedPresenter op)
-        {
-            return op.State != OverlappedPresenterState.Maximized;
-        }
-
-        return AppWindow.Presenter.Kind == AppWindowPresenterKind.CompactOverlay;
+        return WindowState != WindowState.Maximized;
     }
 
     private bool CanSize(object? param)

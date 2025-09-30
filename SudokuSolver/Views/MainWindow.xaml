@@ -70,12 +70,13 @@
 
                 <MenuFlyoutItem x:Uid="SystemMenuCloseTab" Command="{x:Bind closeTabCommand}" AccessKey="W">
                     <MenuFlyoutItem.KeyboardAccelerators>
+                        <!-- disabled because it's a duplicate -->
                         <KeyboardAccelerator Modifiers="Control" Key="W" IsEnabled="False"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
-
                 <MenuFlyoutItem x:Uid="SystemMenuCloseWindow" Command="{x:Bind closeWindowCommand}" AccessKey="C">
                     <MenuFlyoutItem.KeyboardAccelerators>
+                        <!-- disabled because it's a duplicate -->
                         <KeyboardAccelerator Modifiers="Menu" Key="F4" IsEnabled="False"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
