@@ -138,10 +138,10 @@
   <data name="PrintTopCenter" xml:space="preserve">
     <value>top centre</value>
   </data>
-  <data name="SystemMenuMaximize" xml:space="preserve">
+  <data name="SystemMenuMaximize.Text" xml:space="preserve">
     <value>Maximise</value>
   </data>
-  <data name="SystemMenuMinimize" xml:space="preserve">
+  <data name="SystemMenuMinimize.Text" xml:space="preserve">
     <value>Minimise</value>
   </data>
 </root>

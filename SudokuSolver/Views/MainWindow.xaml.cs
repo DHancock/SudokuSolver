@@ -696,7 +696,6 @@ internal sealed partial class MainWindow : Window, ISession
 
     private void TabStripHeader_PointerPressed(object sender, PointerRoutedEventArgs e)
     {
-        HideSystemMenu();
         ShowSystemMenu(viaKeyboard: true); // open at keyboard location as not to obscure double clicks
 
         TimeSpan doubleClickTime = TimeSpan.FromMilliseconds(PInvoke.GetDoubleClickTime());

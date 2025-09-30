@@ -13,7 +13,7 @@
 
         <!-- used to add print preview pages to the visual tree -->
         <Canvas x:Name="PrintCanvas" Opacity="0"/>
-        
+
         <TabView x:Name="Tabs" 
             VerticalAlignment="Stretch"
             HorizontalAlignment="Stretch"
@@ -26,7 +26,7 @@
 
             <TabView.KeyboardAccelerators>
                 <!-- new tab -->
-                <KeyboardAccelerator Key="T" Modifiers="Control"/> 
+                <KeyboardAccelerator Key="T" Modifiers="Control"/>
                 <!-- navigate to numbered tab -->
                 <KeyboardAccelerator Key="Number1" Modifiers="Control"/>
                 <KeyboardAccelerator Key="Number2" Modifiers="Control"/>
@@ -56,5 +56,30 @@
                 </Grid>
             </TabView.TabStripFooter>
         </TabView>
+
+        <Grid.Resources>
+            <MenuFlyout x:Key="SystemMenu" Opening="MenuFlyout_Opening" Closing="MenuFlyout_Closing" OverlayInputPassThroughElement="{x:Bind LayoutRoot}">
+                
+                <MenuFlyoutItem x:Uid="SystemMenuRestore" Command="{x:Bind restoreCommand}" AccessKey="R"/>
+                <MenuFlyoutItem x:Uid="SystemMenuMove" Command="{x:Bind moveCommand}" AccessKey="M"/>
+                <MenuFlyoutItem x:Uid="SystemMenuSize" Command="{x:Bind sizeCommand}" AccessKey="S"/>
+                <MenuFlyoutItem x:Uid="SystemMenuMinimize" Command="{x:Bind minimizeCommand}" AccessKey="N"/>
+                <MenuFlyoutItem x:Uid="SystemMenuMaximize" Command="{x:Bind maximizeCommand}" AccessKey="X"/>
+
+                <MenuFlyoutSeparator/>
+
+                <MenuFlyoutItem x:Uid="SystemMenuCloseTab" Command="{x:Bind closeTabCommand}" AccessKey="W">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Modifiers="Control" Key="W" IsEnabled="False"/>
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+
+                <MenuFlyoutItem x:Uid="SystemMenuCloseWindow" Command="{x:Bind closeWindowCommand}" AccessKey="C">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Modifiers="Menu" Key="F4" IsEnabled="False"/>
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+            </MenuFlyout>
+        </Grid.Resources>
     </Grid>
 </Window>

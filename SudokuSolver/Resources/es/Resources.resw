@@ -333,25 +333,25 @@
   <data name="Solution.Text" xml:space="preserve">
     <value>Solución</value>
   </data>
-  <data name="SystemMenuCloseTab" xml:space="preserve">
+  <data name="SystemMenuCloseTab.Text" xml:space="preserve">
     <value>Cerrar pestaña</value>
   </data>
-  <data name="SystemMenuCloseWindow" xml:space="preserve">
+  <data name="SystemMenuCloseWindow.Text" xml:space="preserve">
     <value>Cerrar ventana</value>
   </data>
-  <data name="SystemMenuMaximize" xml:space="preserve">
+  <data name="SystemMenuMaximize.Text" xml:space="preserve">
     <value>Maximice</value>
   </data>
-  <data name="SystemMenuMinimize" xml:space="preserve">
+  <data name="SystemMenuMinimize.Text" xml:space="preserve">
     <value>Minimice</value>
   </data>
-  <data name="SystemMenuMove" xml:space="preserve">
+  <data name="SystemMenuMove.Text" xml:space="preserve">
     <value>Mover</value>
   </data>
-  <data name="SystemMenuRestore" xml:space="preserve">
+  <data name="SystemMenuRestore.Text" xml:space="preserve">
     <value>Restaurar</value>
   </data>
-  <data name="SystemMenuSize" xml:space="preserve">
+  <data name="SystemMenuSize.Text" xml:space="preserve">
     <value>Talla</value>
   </data>
   <data name="Undo.Text" xml:space="preserve">
@@ -381,10 +381,10 @@
   <data name="DuplicateTab.Text" xml:space="preserve">
     <value>Pestaña duplicada</value>
   </data>
-  <data name="RenameTab.Text" xml:space="preserve">
-    <value>Renombrar pestaña</value>
-  </data>
   <data name="NewTabName.Header" xml:space="preserve">
     <value>Nuevo nombre de pestaña</value>
+  </data>
+  <data name="RenameTab.Text" xml:space="preserve">
+    <value>Renombrar pestaña</value>
   </data>
 </root>
