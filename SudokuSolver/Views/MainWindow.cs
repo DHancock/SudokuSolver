@@ -230,7 +230,7 @@ internal partial class MainWindow : Window
 
             if (isKeyDown)
             {
-                if (key == VirtualKey.Menu)
+                if ((key == VirtualKey.Menu) || (key == VirtualKey.Control))  // accelerator key modifiers
                 {
                     systemMenu.Hide();
                 }
