@@ -10,6 +10,7 @@ internal sealed partial class Cell : UserControl
 {
     private bool isFocused = false;
     private bool isSelected = false;
+    private ViewModels.Cell? viewModelCell;
 
     public Cell()
     {
@@ -29,7 +30,7 @@ internal sealed partial class Cell : UserControl
             if (isSelected != value)
             {
                 isSelected = value;
-                GetParentPuzzleView().CellSelectionChanged(this, Data.Index, value);
+                GetParentPuzzleView().CellSelectionChanged(this, ViewModelCell.Index, value);
             }
 
             if (isSelected && !isFocused)
@@ -126,68 +127,112 @@ internal sealed partial class Cell : UserControl
         }
     }
 
+    public ViewModels.Cell ViewModelCell
+    {
+        get
+        {
+            Debug.Assert(viewModelCell is not null);
+            return viewModelCell;
+        }
+        set
+        {
+            Debug.Assert(value is not null);
+
+            if (!ReferenceEquals(viewModelCell, value))
+            {
+                viewModelCell = value;
+                ViewModelCellChangedCallback();
+            }
+        }
+    }
+
     private void GoToVisualState(string state)
     {
         bool stateFound = VisualStateManager.GoToState(this, state, false);
         Debug.Assert(stateFound);
     }
 
-    public static readonly DependencyProperty DataProperty =
-        DependencyProperty.Register(nameof(Data),
-            typeof(ViewModels.Cell),
-            typeof(Cell),
-            new PropertyMetadata(null, CellDataChangedCallback));
-
-    public ViewModels.Cell Data
+    private void ViewModelCellChangedCallback()
     {
-        get { return (ViewModels.Cell)GetValue(DataProperty); }
-        set { base.SetValue(DataProperty, value); }
-    }
+        Debug.Assert(viewModelCell is not null);
 
-    private static void CellDataChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
-    {
-        Cell cell = (Cell)d;
-        ViewModels.Cell vmCell = (ViewModels.Cell)e.NewValue;
-
-        if (vmCell.HasValue)
+        if (viewModelCell.HasValue)
         {
 #if DEBUG
-            Origins origin = vmCell.Origin;
+            Origins origin = viewModelCell.Origin;
 #else
-            Origins origin = (vmCell.Origin == Origins.Trial) ? Origins.Calculated : vmCell.Origin;
+            Origins origin = (viewModelCell.Origin == Origins.Trial) ? Origins.Calculated : viewModelCell.Origin;
 #endif
-            cell.GoToVisualState(origin.ToString());
-            cell.CollapseAllPossibles();
+            GoToVisualState(origin.ToString());
+            CollapseAllPossibles();
 
-            if (vmCell.ViewModel.ShowSolution || (vmCell.Origin == Origins.User) || (vmCell.Origin == Origins.Provided))
+            if (viewModelCell.ViewModel.ShowSolution || (viewModelCell.Origin == Origins.User) || (viewModelCell.Origin == Origins.Provided))
             {
-                cell.CellValue.Opacity = 1;
-                cell.CellValue.Text = vmCell.Value.ToString();
+                CellValue.Opacity = 1;
+                CellValue.Text = viewModelCell.Value.ToString();
             }
             else
             {
-                cell.CellValue.Opacity = 0;  // still allows hit testing
+                CellValue.Opacity = 0;  // still allows hit testing
             }
         }
         else
         {
-            cell.CellValue.Opacity = 0;
+            CellValue.Opacity = 0;
 
-            if (!vmCell.ViewModel.ShowPossibles)
+            if (!viewModelCell.ViewModel.ShowPossibles)
             {
-                cell.CollapseAllPossibles();
+                CollapseAllPossibles();
             }
             else
             {
-                cell.UpdatePossible(cell.PossibleValue1, 1, vmCell);
-                cell.UpdatePossible(cell.PossibleValue2, 2, vmCell);
-                cell.UpdatePossible(cell.PossibleValue3, 3, vmCell);
-                cell.UpdatePossible(cell.PossibleValue4, 4, vmCell);
-                cell.UpdatePossible(cell.PossibleValue5, 5, vmCell);
-                cell.UpdatePossible(cell.PossibleValue6, 6, vmCell);
-                cell.UpdatePossible(cell.PossibleValue7, 7, vmCell);
-                cell.UpdatePossible(cell.PossibleValue8, 8, vmCell);
-                cell.UpdatePossible(cell.PossibleValue9, 9, vmCell);
+                UpdatePossible(PossibleValue1, 1);
+                UpdatePossible(PossibleValue2, 2);
+                UpdatePossible(PossibleValue3, 3);
+                UpdatePossible(PossibleValue4, 4);
+                UpdatePossible(PossibleValue5, 5);
+                UpdatePossible(PossibleValue6, 6);
+                UpdatePossible(PossibleValue7, 7);
+                UpdatePossible(PossibleValue8, 8);
+                UpdatePossible(PossibleValue9, 9);
+            }
+        }
+
+        void CollapseAllPossibles()
+        {
+            PossibleValue1.Visibility = Visibility.Collapsed;
+            PossibleValue2.Visibility = Visibility.Collapsed;
+            PossibleValue3.Visibility = Visibility.Collapsed;
+            PossibleValue4.Visibility = Visibility.Collapsed;
+            PossibleValue5.Visibility = Visibility.Collapsed;
+            PossibleValue6.Visibility = Visibility.Collapsed;
+            PossibleValue7.Visibility = Visibility.Collapsed;
+            PossibleValue8.Visibility = Visibility.Collapsed;
+            PossibleValue9.Visibility = Visibility.Collapsed;
+        }
+
+        void UpdatePossible(TextBlock tb, int index)
+        {
+            if (viewModelCell.Possibles[index])
+            {
+                if (viewModelCell.VerticalDirections[index])
+                {
+                    GoToVisualState(string.Concat("Vertical", tb.Text));
+                }
+                else if (viewModelCell.HorizontalDirections[index])
+                {
+                    GoToVisualState(string.Concat("Horizontal", tb.Text));
+                }
+                else
+                {
+                    GoToVisualState(string.Concat("Normal", tb.Text));
+                }
+
+                tb.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                tb.Visibility = Visibility.Collapsed;
             }
         }
     }
@@ -198,23 +243,25 @@ internal sealed partial class Cell : UserControl
     // the view model cell list is an observable collection bound to ui cells.
     protected override void OnKeyDown(KeyRoutedEventArgs e)
     {
+        Debug.Assert(viewModelCell is not null);
+
         int newIndex = -1; 
 
         if (e.Key == VirtualKey.Up)
         {
-            newIndex = Utils.Clamp2DVerticalIndex(Data.Index - SudokuGrid.cCellsInRow, SudokuGrid.cCellsInRow, SudokuGrid.cCellCount);
+            newIndex = Utils.Clamp2DVerticalIndex(viewModelCell.Index - SudokuGrid.cCellsInRow, SudokuGrid.cCellsInRow, SudokuGrid.cCellCount);
         }
         else if (e.Key == VirtualKey.Down)
         {
-            newIndex = Utils.Clamp2DVerticalIndex(Data.Index + SudokuGrid.cCellsInRow, SudokuGrid.cCellsInRow, SudokuGrid.cCellCount);
+            newIndex = Utils.Clamp2DVerticalIndex(viewModelCell.Index + SudokuGrid.cCellsInRow, SudokuGrid.cCellsInRow, SudokuGrid.cCellCount);
         }
         else if (e.Key == VirtualKey.Left)
         {
-            newIndex = Utils.Clamp2DHorizontalIndex(Data.Index - 1, SudokuGrid.cCellCount);
+            newIndex = Utils.Clamp2DHorizontalIndex(viewModelCell.Index - 1, SudokuGrid.cCellCount);
         }
         else if (e.Key == VirtualKey.Right)
         {
-            newIndex = Utils.Clamp2DHorizontalIndex(Data.Index + 1, SudokuGrid.cCellCount);
+            newIndex = Utils.Clamp2DHorizontalIndex(viewModelCell.Index + 1, SudokuGrid.cCellCount);
         }
 
         if (newIndex >= 0)
@@ -243,47 +290,9 @@ internal sealed partial class Cell : UserControl
 
             if (newValue >= 0)
             {
-                Data.ViewModel.UpdateCellForKeyDown(Data.Index, newValue);
+                viewModelCell.ViewModel.UpdateCellForKeyDown(viewModelCell.Index, newValue);
                 e.Handled = true;
             }
-        }
-    }
-
-    private void CollapseAllPossibles()
-    {
-        PossibleValue1.Visibility = Visibility.Collapsed;
-        PossibleValue2.Visibility = Visibility.Collapsed;
-        PossibleValue3.Visibility = Visibility.Collapsed;
-        PossibleValue4.Visibility = Visibility.Collapsed;
-        PossibleValue5.Visibility = Visibility.Collapsed;
-        PossibleValue6.Visibility = Visibility.Collapsed;
-        PossibleValue7.Visibility = Visibility.Collapsed;
-        PossibleValue8.Visibility = Visibility.Collapsed;
-        PossibleValue9.Visibility = Visibility.Collapsed;
-    }
-
-    private void UpdatePossible(TextBlock tb, int index, ViewModels.Cell vmCell)
-    {
-        if (vmCell.Possibles[index])
-        {
-            if (vmCell.VerticalDirections[index])
-            {
-                GoToVisualState(string.Concat("Vertical", tb.Text));
-            }
-            else if (vmCell.HorizontalDirections[index])
-            {
-                GoToVisualState(string.Concat("Horizontal", tb.Text));
-            }
-            else
-            {
-                GoToVisualState(string.Concat("Normal", tb.Text));
-            }
-
-            tb.Visibility = Visibility.Visible;
-        }
-        else
-        {
-            tb.Visibility = Visibility.Collapsed;
         }
     }
 }
