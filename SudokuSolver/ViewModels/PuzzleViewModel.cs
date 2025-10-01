@@ -150,11 +150,12 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
         // update the view model's observable collection, causing a ui update
         foreach (Models.Cell modelCell in model.Cells)
         {
-            int index = modelCell.Index;
+            Cell vmCell = Cells[modelCell.Index];
 
-            if (!modelCell.Equals(Cells[index]))
+            if (!modelCell.Equals(vmCell))
             {
-                Cells[index] = new Cell(modelCell, this);
+                vmCell.CopyFrom(modelCell);
+                vmCell.Version += 1;
             }
         }
 
@@ -209,7 +210,7 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
 
             if (predicate(cell))
             {
-                Cells[index] = new Cell(cell);
+                cell.Version += 1;
             }
         }
 

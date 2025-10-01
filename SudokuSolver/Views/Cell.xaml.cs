@@ -10,6 +10,8 @@ internal sealed partial class Cell : UserControl
 {
     private bool isFocused = false;
     private bool isSelected = false;
+
+    private int version = int.MinValue;
     private ViewModels.Cell? viewModelCell;
 
     public Cell()
@@ -138,9 +140,10 @@ internal sealed partial class Cell : UserControl
         {
             Debug.Assert(value is not null);
 
-            if (!ReferenceEquals(viewModelCell, value))
+            if (version != value.Version)
             {
                 viewModelCell = value;
+                version = value.Version;
                 ViewModelCellChangedCallback();
             }
         }
