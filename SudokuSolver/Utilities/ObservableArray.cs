@@ -14,16 +14,18 @@ internal partial class ObservableArray<T> : ICollection<T>, INotifyCollectionCha
     public T this[int index]
     {
         get => items[index];
-        set
-        {
-            T original = items[index];
-            items[index] = value;
-
-            CollectionChanged?.Invoke(this, new(NotifyCollectionChangedAction.Replace, value, original, index));
-        }
+        set => items[index] = value;
     }
 
     public event NotifyCollectionChangedEventHandler? CollectionChanged;
+
+    public void RaiseCollectionChanged()
+    {
+        // As of WAS 1.8.1, the auto-generated code ignores the newItem, oldItem and index parameters.
+        // It just updates the whole collection, so might as well batch changes and only notify it once.
+        // When opening a saved completed puzzle that could save up to 81x80 updates (6480)
+        CollectionChanged?.Invoke(this, new (NotifyCollectionChangedAction.Replace, new object(), new object(), 0));
+    }
 
     public IEnumerator<T> GetEnumerator() => new Enumerator(items);
     IEnumerator IEnumerable.GetEnumerator() => items.GetEnumerator();
