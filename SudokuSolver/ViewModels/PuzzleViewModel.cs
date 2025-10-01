@@ -158,6 +158,8 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
             }
         }
 
+        Cells.RaiseCollectionChanged();
+
         Debug.Assert(model.CompletedCellCountIsValid);
     }
 
@@ -210,6 +212,8 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
                 Cells[index] = new Cell(cell);
             }
         }
+
+        Cells.RaiseCollectionChanged();
     }
 
     public bool IsModified
