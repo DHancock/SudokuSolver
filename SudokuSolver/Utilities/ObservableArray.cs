@@ -19,7 +19,7 @@ internal partial class ObservableArray<T> : ICollection<T>, INotifyCollectionCha
             T original = items[index];
             items[index] = value;
 
-            CollectionChanged?.Invoke(this, new(NotifyCollectionChangedAction.Replace, original, value, index));
+            CollectionChanged?.Invoke(this, new(NotifyCollectionChangedAction.Replace, value, original, index));
         }
     }
 
