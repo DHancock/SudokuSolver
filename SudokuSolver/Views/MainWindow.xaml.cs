@@ -69,23 +69,26 @@ internal sealed partial class MainWindow : Window, ISession
         // Do it here instead, the accelerators are in known positions in the visual tree
         args.Handled = true;
 
-        foreach (KeyboardAccelerator ka in Tabs.KeyboardAccelerators)
+        if (Tabs.SelectedItem is not null) // guard against a closed last tab
         {
-            if (ka.IsEnabled && (ka.Modifiers == args.Modifiers) && (ka.Key == args.Key))
+            foreach (KeyboardAccelerator ka in Tabs.KeyboardAccelerators)
             {
-                if (ka.Key == VirtualKey.T)
+                if (ka.IsEnabled && (ka.Modifiers == args.Modifiers) && (ka.Key == args.Key))
                 {
-                    Tabs_AddTabButtonClick(Tabs, EventArgs.Empty);
+                    if (ka.Key == VirtualKey.T)
+                    {
+                        Tabs_AddTabButtonClick(Tabs, EventArgs.Empty);
+                    }
+                    else
+                    {
+                        NavigateToNumberedTab(ka.Key);
+                    }
+                    return;
                 }
-                else
-                {
-                    NavigateToNumberedTab(ka.Key);
-                }
-                return;
             }
-        }
 
-        ((ITabItem)Tabs.SelectedItem).InvokeKeyboardAccelerator(args.Modifiers, args.Key);
+            ((ITabItem)Tabs.SelectedItem).InvokeKeyboardAccelerator(args.Modifiers, args.Key);
+        }
     }
 
     private void AppWindow_Destroying(AppWindow sender, object args)
