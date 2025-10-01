@@ -198,27 +198,27 @@ internal sealed partial class Cell : UserControl
     // the view model cell list is an observable collection bound to ui cells.
     protected override void OnKeyDown(KeyRoutedEventArgs e)
     {
-        if ((e.Key == VirtualKey.Up) || (e.Key == VirtualKey.Down) || (e.Key == VirtualKey.Left) || (e.Key == VirtualKey.Right))
+        int newIndex = -1; 
+
+        if (e.Key == VirtualKey.Up)
         {
-            int newIndex;
+            newIndex = Utils.Clamp2DVerticalIndex(Data.Index - SudokuGrid.cCellsInRow, SudokuGrid.cCellsInRow, SudokuGrid.cCellCount);
+        }
+        else if (e.Key == VirtualKey.Down)
+        {
+            newIndex = Utils.Clamp2DVerticalIndex(Data.Index + SudokuGrid.cCellsInRow, SudokuGrid.cCellsInRow, SudokuGrid.cCellCount);
+        }
+        else if (e.Key == VirtualKey.Left)
+        {
+            newIndex = Utils.Clamp2DHorizontalIndex(Data.Index - 1, SudokuGrid.cCellCount);
+        }
+        else if (e.Key == VirtualKey.Right)
+        {
+            newIndex = Utils.Clamp2DHorizontalIndex(Data.Index + 1, SudokuGrid.cCellCount);
+        }
 
-            if (e.Key == VirtualKey.Up)
-            {
-                newIndex = Utils.Clamp2DVerticalIndex(Data.Index - SudokuGrid.cCellsInRow, SudokuGrid.cCellsInRow, SudokuGrid.cCellCount);
-            }
-            else if (e.Key == VirtualKey.Down)
-            {
-                newIndex = Utils.Clamp2DVerticalIndex(Data.Index + SudokuGrid.cCellsInRow, SudokuGrid.cCellsInRow, SudokuGrid.cCellCount);
-            }
-            else if (e.Key == VirtualKey.Left)
-            {
-                newIndex = Utils.Clamp2DHorizontalIndex(Data.Index - 1, SudokuGrid.cCellCount);
-            }
-            else
-            {
-                newIndex = Utils.Clamp2DHorizontalIndex(Data.Index + 1, SudokuGrid.cCellCount);
-            }
-
+        if (newIndex >= 0)
+        {
             ((SudokuGrid)Parent).Children[newIndex].Focus(FocusState.Programmatic);
             e.Handled = true;
         }
