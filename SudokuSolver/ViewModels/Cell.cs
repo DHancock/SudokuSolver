@@ -4,21 +4,12 @@ namespace SudokuSolver.ViewModels;
 
 internal sealed class Cell : CellBase
 {
-
+    public int Version { get; set; }
     public PuzzleViewModel ViewModel { get; }
 
-    public Cell(int index, PuzzleViewModel viewModel) : base(index) // default value
+    public Cell(int index, PuzzleViewModel viewModel) : base(index)
     {
-        ViewModel = viewModel;
-    }
-
-    public Cell(Cell source) : base(source) // a view model property has changed
-    {
-        ViewModel = source.ViewModel;
-    }
-
-    public Cell(Models.Cell source, PuzzleViewModel viewModel) : base(source)  // a new model value has been calculated
-    {
+        Version = 0;
         ViewModel = viewModel;
     }
 }
