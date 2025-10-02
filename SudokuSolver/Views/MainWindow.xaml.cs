@@ -105,7 +105,6 @@ internal sealed partial class MainWindow : Window, ISession
     {
         ContentDialogHelper.ThemeChanged(sender.ActualTheme);
         UpdateCaptionButtonColours();
-        ResetPuzzleTabsOpacity();
     }
 
     private async void AppWindow_Closing(AppWindow sender, AppWindowClosingEventArgs args)
@@ -149,17 +148,6 @@ internal sealed partial class MainWindow : Window, ISession
         else
         {
             await AttemptToCloseTabsAsync(Tabs.TabItems);
-        }
-    }
-
-    private void ResetPuzzleTabsOpacity()
-    {
-        foreach (object obj in Tabs.TabItems)
-        {
-            if (!ReferenceEquals(obj, Tabs.SelectedItem) && (obj is PuzzleTabViewItem puzzleTab))
-            {
-                puzzleTab.ResetOpacityTransitionForThemeChange();
-            }
         }
     }
                                                         
