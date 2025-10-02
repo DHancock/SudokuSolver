@@ -103,9 +103,9 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
         {
             if (modelFunction(index, newValue))
             {
-                UpdateView();
+                UpdateViewForModel();
                 undoHelper.Push(model);
-                IsModified = model != initialState;
+                IsModified = !model.Equals(initialState);
             }
             else
             {
@@ -142,20 +142,19 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
         undoHelper.Reset();
         undoHelper.Push(model);
 
-        UpdateView();
+        UpdateViewForModel();
     }
 
-    private void UpdateView()
+    private void UpdateViewForModel()
     {
-        // update the view model's observable collection, causing a ui update
-        foreach (Models.Cell modelCell in model.Cells)
+        foreach (Cell cell in Cells)
         {
-            Cell vmCell = Cells[modelCell.Index];
+            Models.Cell modelCell = model.Cells[cell.Index];
 
-            if (!modelCell.Equals(vmCell))
+            if (!cell.Equals(modelCell))
             {
-                vmCell.CopyFrom(modelCell);
-                vmCell.Version += 1;
+                cell.CopyFrom(modelCell);
+                cell.Version += 1;
             }
         }
 
@@ -204,10 +203,8 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
 
     private void UpdateViewWhere(Func<Cell, bool> predicate)
     {
-        for (int index = 0; index < Cells.Count; index++)
+        foreach (Cell cell in Cells)
         {
-            Cell cell = Cells[index];
-
             if (predicate(cell))
             {
                 cell.Version += 1;
@@ -236,8 +233,8 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
     private void ExecuteUndo(object? param) 
     {
         model = undoHelper.PopUndo();
-        UpdateView();
-        IsModified = model != initialState;
+        UpdateViewForModel();
+        IsModified = !model.Equals(initialState);
     }
 
     private bool CanRedo(object? param) => undoHelper.CanRedo;
@@ -245,8 +242,8 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
     private void ExecuteRedo(object? param) 
     {
         model = undoHelper.PopRedo();
-        UpdateView();
-        IsModified = model != initialState;
+        UpdateViewForModel();
+        IsModified = !model.Equals(initialState);
     }
 
     public void SelectedIndexChanged(int index, bool isSelected)
@@ -302,9 +299,9 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
     private void ExecuteMarkProvided(object? param) 
     {
         model.SetOriginToProvided();
-        UpdateView();
+        UpdateViewForModel();
         undoHelper.Push(model);
-        IsModified = model != initialState;
+        IsModified = !model.Equals(initialState);
     }
 
     private bool CanClearProvided(object? param) => Cells.Any(c => c.Origin == Origins.Provided);
@@ -312,9 +309,9 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
     private void ExecuteClearProvided(object? param)
     {
         model.SetOriginToUser();
-        UpdateView();
+        UpdateViewForModel();
         undoHelper.Push(model);
-        IsModified = model != initialState;
+        IsModified = !model.Equals(initialState);
     }
 
 
