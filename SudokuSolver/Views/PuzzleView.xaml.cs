@@ -10,7 +10,6 @@ internal partial class PuzzleView : UserControl
 {
     public bool IsPrintView { set; private get; } = false;
 
-    private ElementTheme themeWhenSelected;
     private PuzzleViewModel? viewModel;
     private Cell? selectedCell;
 
@@ -18,8 +17,6 @@ internal partial class PuzzleView : UserControl
     {
         InitializeComponent();
 
-        Grid.Loaded += Grid_Loaded;
-        Unloaded += PuzzleView_Unloaded;
         SizeChanged += PuzzleView_SizeChanged;
         PointerPressed += PuzzleView_PointerPressed;
     }
@@ -119,20 +116,6 @@ internal partial class PuzzleView : UserControl
         }
     }
 
-    private static void Grid_Loaded(object sender, RoutedEventArgs e)
-    {
-        // if the app theme is different from the systems an initial opacity of zero stops  
-        // excessive background flashing when creating new tabs, looks intentional...
-        SudokuGrid grid = (SudokuGrid)sender;
-        grid.Opacity = 1;
-    }
-
-    private static void PuzzleView_Unloaded(object sender, RoutedEventArgs e)
-    {
-        PuzzleView puzzleView = (PuzzleView)sender;
-        puzzleView.themeWhenSelected = puzzleView.ActualTheme;
-    }
-
     private static void PuzzleView_SizeChanged(object sender, SizeChangedEventArgs e)
     {
         // stop the grid lines being interpolated out when the view box scaling goes below 1.0
@@ -147,8 +130,6 @@ internal partial class PuzzleView : UserControl
 
     public void Closed()
     {
-        Grid.Loaded -= Grid_Loaded;
-        Unloaded -= PuzzleView_Unloaded;
         SizeChanged -= PuzzleView_SizeChanged;
 
         viewModel = null;
@@ -168,8 +149,6 @@ internal partial class PuzzleView : UserControl
             viewModel = value;
         }
     }
-
-    public BrushTransition BackgroundBrushTransition => PuzzleBrushTransition;
 
     public void CellSelectionChanged(Cell cell, int index, bool isSelected)
     {
@@ -203,7 +182,7 @@ internal partial class PuzzleView : UserControl
             else
             {
                 // When a TabSelectionChanged event is received the new content won't have finished being added to
-                // the Tab's content presenter. Wait for a subsequent size changed event indicating that it's now valid.
+                // the Tab's content presenter. Wait for a subsequent size changed event indicating that it has.
                 SizeChanged += PuzzleView_SizeChanged;
             }
         }
@@ -213,12 +192,5 @@ internal partial class PuzzleView : UserControl
             SizeChanged -= PuzzleView_SizeChanged;
             selectedCell?.Focus(FocusState.Programmatic);
         }
-    }
-
-    public void ResetOpacityTransitionForThemeChange()
-    {
-        Debug.Assert(!IsLoaded);
-        // the next time this tab is loaded the opacity transition may need to be restarted
-        Grid.Opacity = (themeWhenSelected != Utils.NormaliseTheme(Settings.Instance.Theme)) ? 0 : 1;
     }
 }

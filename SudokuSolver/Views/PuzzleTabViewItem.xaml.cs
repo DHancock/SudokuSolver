@@ -56,8 +56,6 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
             PuzzleTabViewItem tab = (PuzzleTabViewItem)sender;
             tab.Loaded -= LoadedHandler;
 
-            // set for the next theme transition
-            tab.Puzzle.BackgroundBrushTransition.Duration = TimeSpan.FromMilliseconds(250);
             tab.UpdateTabHeader();
 
             Button? closeButton = tab.FindChild<Button>("CloseButton");
@@ -574,11 +572,6 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         {
             IconSource = null;
         }
-    }
-
-    public void ResetOpacityTransitionForThemeChange()
-    {
-        Puzzle.ResetOpacityTransitionForThemeChange();
     }
 
     private bool CanRenameTab(object? param) => sourceFile is null;

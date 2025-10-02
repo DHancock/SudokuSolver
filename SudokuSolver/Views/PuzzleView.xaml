@@ -24,14 +24,7 @@
         </MenuFlyout>
     </UserControl.Resources>
     <Viewbox>
-        <local:SudokuGrid x:Name="Grid" x:DefaultBindMode="OneWay" Background="{ThemeResource CellFillBrush}" Opacity="0">
-            <local:SudokuGrid.BackgroundTransition>
-                <BrushTransition x:Name="PuzzleBrushTransition" Duration="00:00:00"/>
-            </local:SudokuGrid.BackgroundTransition>
-            <local:SudokuGrid.OpacityTransition>
-                <ScalarTransition Duration="00:00:00.500"/>
-            </local:SudokuGrid.OpacityTransition>
-
+        <local:SudokuGrid x:Name="Grid" x:DefaultBindMode="OneWay" Background="{ThemeResource CellFillBrush}">
             <local:SudokuGrid.Resources>
                 <Style x:Key="MinorGridStyle" TargetType="Line">
                     <Setter Property="Stroke" Value="{ThemeResource MinorGridStroke}"/>
