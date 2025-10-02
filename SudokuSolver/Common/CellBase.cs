@@ -2,8 +2,7 @@
 
 internal abstract class CellBase : IEquatable<CellBase>
 {
-    public int Index { get; private set; }
-
+    public int Index;
     public int Value = 0;
     public BitField Possibles = BitField.AllTrue;
     public BitField HorizontalDirections = BitField.Empty;
@@ -18,6 +17,7 @@ internal abstract class CellBase : IEquatable<CellBase>
 
     public CellBase(CellBase source)
     {
+        Index = source.Index;
         CopyFrom(source);
     }
     
@@ -25,7 +25,8 @@ internal abstract class CellBase : IEquatable<CellBase>
 
     public void CopyFrom(CellBase source)
     {
-        Index = source.Index;
+        Debug.Assert(Index == source.Index);
+
         Origin = source.Origin;
 
         if (source.HasValue)

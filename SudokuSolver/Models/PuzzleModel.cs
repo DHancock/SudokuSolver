@@ -1129,25 +1129,18 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
         return sb.ToString();
     }
 #endif
-    
-    public static bool operator ==(PuzzleModel? left, PuzzleModel? right)
+
+    public bool Equals(PuzzleModel? other)
     {
-        if (ReferenceEquals(left, right))
+        if (other is null)
         {
-            return true;
+            return false;
         }
         
-        return (left is not null) && 
-                (right is not null) && 
-                (left.CompletedCellsCount == right.CompletedCellsCount) &&
-                Enumerable.SequenceEqual(left.Cells, right.Cells);
+        return (CompletedCellsCount == other.CompletedCellsCount) && Cells.Equals(other.Cells);
     }
 
-    public static bool operator !=(PuzzleModel? left, PuzzleModel? right) => !(left == right);
-
     public override bool Equals(object? obj) => Equals(obj as PuzzleModel);
-
-    public bool Equals(PuzzleModel? other) => this == other;
 
     public override int GetHashCode() => throw new NotImplementedException();
 }
