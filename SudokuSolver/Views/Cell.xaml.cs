@@ -161,12 +161,7 @@ internal sealed partial class Cell : UserControl
 
         if (viewModelCell.HasValue)
         {
-#if DEBUG
-            Origins origin = viewModelCell.Origin;
-#else
-            Origins origin = (viewModelCell.Origin == Origins.Trial) ? Origins.Calculated : viewModelCell.Origin;
-#endif
-            GoToVisualState(origin.ToString());
+            GoToVisualState(viewModelCell.Origin.ToString());
             CollapseAllPossibles();
 
             if (viewModelCell.ViewModel.ShowSolution || (viewModelCell.Origin == Origins.User) || (viewModelCell.Origin == Origins.Provided))

@@ -1,6 +1,6 @@
 ﻿namespace SudokuSolver.Common;
 
-internal struct BitField
+internal struct BitField : IEquatable<BitField>
 {
     private const nuint cSpan = 0b_0000_0011_1111_1110;
 
@@ -47,9 +47,14 @@ internal struct BitField
 
     public readonly int Count => BitOperations.PopCount(data);
 
+    public readonly bool Equals(BitField other)
+    {
+        return data == other.data;
+    }
+
     public static bool operator ==(BitField a, BitField b)
     {
-        return a.data == b.data;
+        return a.Equals(b);
     }
 
     public static bool operator !=(BitField a, BitField b)
@@ -74,20 +79,14 @@ internal struct BitField
 
     public override readonly bool Equals(object? obj)
     {
-        if (obj is BitField a)
-        {
-            return this == a;
-        }
-
-        return false;
+        return obj is BitField field && Equals(field);
     }
 
     public override readonly int GetHashCode() => (int)data;
 
-#if DEBUG
     public override readonly string? ToString() 
     {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(9);
 
         for(int index = 9; index >= 1; index--)
         {
@@ -103,5 +102,4 @@ internal struct BitField
 
         return sb.ToString();
     }
-#endif
 }
