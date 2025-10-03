@@ -42,7 +42,7 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
     {
         XElement root = new XElement(Cx.Sudoku, new XAttribute(Cx.version, Cx.current_version));
 
-        foreach (Cell cell in Cells)
+        foreach (Cell cell in Cells.AsSpan())
         {
             if (cell.HasValue && (cell.Origin == Origins.User || cell.Origin == Origins.Provided))
             {
@@ -54,16 +54,6 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
         }
 
         return root;
-    }
-
-    public void Clear()
-    {
-        foreach (Cell cell in Cells)
-        {
-            cell.Reset();
-        }
-
-        CompletedCellsCount = 0;
     }
 
     public void LoadXml(XElement? root)
@@ -282,19 +272,18 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
         return true;
     }
 
-    public void SetOriginToProvided()
-    {
-        foreach (Cell cell in Cells.Where(c => c.Origin == Origins.User))
-        {
-            cell.Origin = Origins.Provided;
-        }
-    }
+    public void SetOriginToProvided() => SwapOrigins(Origins.User, Origins.Provided);
 
-    public void SetOriginToUser()
+    public void SetOriginToUser() => SwapOrigins(Origins.Provided, Origins.User);
+
+    private void SwapOrigins(Origins from, Origins to)
     {
-        foreach (Cell cell in Cells.Where(c => c.Origin == Origins.Provided))
+        foreach (Cell cell in Cells.AsSpan())
         {
-            cell.Origin = Origins.User;
+            if (cell.Origin == from)
+            {
+                cell.Origin = to;
+            }
         }
     }
 
@@ -469,7 +458,7 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
 
     private void CheckForBothRowColumnDirections(Stack<Cell> cellsToUpdate)
     {
-        foreach (Cell cell in Cells)
+        foreach (Cell cell in Cells.AsSpan())
         {
             if (!cell.HasValue)
             {
@@ -909,15 +898,27 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
     }
 
 
-    private bool PuzzleIsComplete => CompletedCellsCount == Cells.Count;
+    private bool PuzzleIsComplete => CompletedCellsCount == CellList.Count;
 
     public bool PuzzleIsEmpty => CompletedCellsCount == 0;
 
-    public bool CompletedCellCountIsValid => Cells.Count(cell =>
-                                                (cell.Origin == Origins.User) ||
-                                                (cell.Origin == Origins.Provided) ||
-                                                (cell.Origin == Origins.Trial) ||
-                                                (cell.Origin == Origins.Calculated)) == CompletedCellsCount;
+    public bool CompletedCellCountIsValid
+    {
+        get
+        {
+            int count = 0;
+
+            foreach (Cell cell in Cells.AsSpan())
+            {
+                if (cell.HasValue)
+                {
+                    ++count;
+                }
+            }
+
+            return count == CompletedCellsCount;
+        }
+    }
 
     private void CopyFrom(PuzzleModel other)
     {
@@ -949,7 +950,7 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
     {
         List<(int index, int value)> attempts = new(Cells.Count);
     
-        foreach (Cell cell in Cells)
+        foreach (Cell cell in Cells.AsSpan())
         {
             if (!cell.HasValue && (cell.Possibles.Count == 2))
             {
@@ -1015,7 +1016,7 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
     {
         PuzzleModel? originalModel = null;
 
-        foreach (Cell cell in Cells)
+        foreach (Cell cell in Cells.AsSpan())
         {
             if (!cell.HasValue && (cell.Possibles.Count == 2))
             {
@@ -1048,7 +1049,7 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
 
     private void CalculatePossibleValues(Cell updatedCell, bool forceRecalculation)
     {
-        Stack<Cell> cellsToUpdate = new Stack<Cell>(Cells.Count);
+        Stack<Cell> cellsToUpdate = new Stack<Cell>(CellList.Count);
 
         if (updatedCell.HasValue && !forceRecalculation)
         {
@@ -1057,7 +1058,7 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
         else
         {
             // it's much simpler to just start from scratch and rebuild it...
-            foreach (Cell cell in Cells)
+            foreach (Cell cell in Cells.AsSpan())
             {
                 if ((cell.Origin == Origins.User) || (cell.Origin == Origins.Provided))
                 {
@@ -1132,12 +1133,7 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
 
     public bool Equals(PuzzleModel? other)
     {
-        if (other is null)
-        {
-            return false;
-        }
-        
-        return (CompletedCellsCount == other.CompletedCellsCount) && Cells.Equals(other.Cells);
+        return (other is not null) && (CompletedCellsCount == other.CompletedCellsCount) && Cells.Equals(other.Cells);
     }
 
     public override bool Equals(object? obj) => Equals(obj as PuzzleModel);

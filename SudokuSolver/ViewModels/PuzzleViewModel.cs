@@ -147,7 +147,7 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
 
     private void UpdateViewForModel()
     {
-        foreach (Cell cell in Cells)
+        foreach (Cell cell in Cells.AsSpan())
         {
             Models.Cell modelCell = model.Cells[cell.Index];
 
@@ -203,7 +203,7 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
 
     private void UpdateViewWhere(Func<Cell, bool> predicate)
     {
-        foreach (Cell cell in Cells)
+        foreach (Cell cell in Cells.AsSpan())
         {
             if (predicate(cell))
             {
@@ -294,7 +294,7 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
         UpdateCellForKeyDown(selectedIndex, App.Instance.ClipboardHelper.Value);
     }
 
-    private bool CanMarkProvided(object? param) => Cells.Any(c => c.Origin == Origins.User);
+    private bool CanMarkProvided(object? param) => HasAny(Origins.User);
 
     private void ExecuteMarkProvided(object? param) 
     {
@@ -304,7 +304,7 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
         IsModified = !model.Equals(initialState);
     }
 
-    private bool CanClearProvided(object? param) => Cells.Any(c => c.Origin == Origins.Provided);
+    private bool CanClearProvided(object? param) => HasAny(Origins.Provided);
 
     private void ExecuteClearProvided(object? param)
     {
@@ -314,6 +314,18 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
         IsModified = !model.Equals(initialState);
     }
 
+    private bool HasAny(Origins target)
+    {
+        foreach (Cell cell in Cells.AsSpan())
+        {
+            if (cell.Origin == target)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     private void NotifyPropertyChanged([CallerMemberName] string? propertyName = default)
     {
