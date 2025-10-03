@@ -1105,12 +1105,11 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
         while (cellsToUpdate.Count > 0);
     }
 
-#if DEBUG
     public override string? ToString()
     {
         StringBuilder sb = new StringBuilder(90);
 
-        for (int index = 0; index < Cells.Count; index++)
+        for (int index = 0; index < CellList.Count; index++)
         {
             if (Cells[index].HasValue)
             {
@@ -1129,7 +1128,6 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
 
         return sb.ToString();
     }
-#endif
 
     public bool Equals(PuzzleModel? other)
     {
