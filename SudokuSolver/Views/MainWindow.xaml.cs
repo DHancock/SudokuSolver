@@ -61,6 +61,13 @@ internal sealed partial class MainWindow : Window, ISession
         Tabs.TabDragCompleted += Tabs_TabDragCompleted;
         Tabs.SelectionChanged += Tabs_SelectionChanged;
         Tabs.Loaded += Tabs_Loaded;
+
+        LayoutRoot.Loaded += LayoutRoot_Loaded;
+    }
+
+    private void LayoutRoot_Loaded(object sender, RoutedEventArgs e)
+    {
+        LayoutRoot.Opacity = 1; // trigger the opacity transition
     }
 
     private void LayoutRoot_ProcessKeyboardAccelerators(UIElement sender, ProcessKeyboardAcceleratorEventArgs args)
@@ -96,6 +103,7 @@ internal sealed partial class MainWindow : Window, ISession
         AppWindow.Destroying -= AppWindow_Destroying;
 
         Activated -= MainWindow_Activated;
+        LayoutRoot.Loaded -= LayoutRoot_Loaded;
         LayoutRoot.ActualThemeChanged -= LayoutRoot_ActualThemeChanged;
         LayoutRoot.ProcessKeyboardAccelerators -= LayoutRoot_ProcessKeyboardAccelerators;
         AppWindow.Closing -= AppWindow_Closing;

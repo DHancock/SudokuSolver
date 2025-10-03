@@ -9,8 +9,11 @@
         <MicaBackdrop Kind="BaseAlt"/>
     </Window.SystemBackdrop>
 
-    <Grid x:Name="LayoutRoot">
-
+    <Grid x:Name="LayoutRoot" Opacity="0">
+        <Grid.OpacityTransition>
+            <ScalarTransition Duration="00:00:00.350"/>
+        </Grid.OpacityTransition>
+        
         <!-- used to add print preview pages to the visual tree -->
         <Canvas x:Name="PrintCanvas" Opacity="0"/>
 
