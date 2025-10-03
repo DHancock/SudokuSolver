@@ -1,6 +1,6 @@
 ﻿namespace SudokuSolver.Models;
 
-internal sealed partial class CellList : IReadOnlyList<Cell>, IEquatable<CellList>
+internal sealed partial class CellList : IEquatable<CellList>
 {
     private const int cLength = 81;
 
@@ -220,27 +220,16 @@ internal sealed partial class CellList : IReadOnlyList<Cell>, IEquatable<CellLis
         }
     }
 
-
-    public IEnumerator<Cell> GetEnumerator()
+    public Span<Cell> AsSpan()
     {
-        for (int index = 0; index < cLength; index++)
-        {
-            yield return cells[index];
-        }
+        return new Span<Cell>(cells);
     }
 
-    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
-
-    public int Count => cLength;
+    public static int Count => cLength;
 
     public bool Equals(CellList? other)
     {
-        if (other is null)
-        {
-            return false;
-        }
-
-        return cells.AsSpan().SequenceEqual(other.cells);
+        return (other is not null) && cells.AsSpan().SequenceEqual(other.cells);
     }
 
     public override bool Equals(object? obj) => Equals(obj as CellList);
