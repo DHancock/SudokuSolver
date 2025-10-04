@@ -267,6 +267,8 @@ internal sealed partial class MainWindow : Window, ISession
 
     public void AddTab(TabViewItem tab, int index = -1)
     {
+        // if the TabView isn't loaded yet it will store the tabs temporarily
+        // and then add them once it has. 
         Debug.Assert(tab is ITabItem);
         Debug.Assert(tab is ISession);
 
