@@ -267,37 +267,19 @@ internal sealed partial class MainWindow : Window, ISession
 
     public void AddTab(TabViewItem tab, int index = -1)
     {
-        if (Tabs.IsLoaded)
+        Debug.Assert(tab is ITabItem);
+        Debug.Assert(tab is ISession);
+
+        if ((index >= 0) && (index < Tabs.TabItems.Count))
         {
-            AddTabInternal(tab, index);
+            Tabs.TabItems.Insert(index, tab);
         }
         else
         {
-            Tabs.Loaded += Tabs_Loaded;
+            Tabs.TabItems.Add(tab);
         }
 
-        void Tabs_Loaded(object sender, RoutedEventArgs e)
-        {
-            Tabs.Loaded -= Tabs_Loaded;
-            AddTabInternal(tab, index);
-        }
-
-        void AddTabInternal(TabViewItem tab, int index)
-        {
-            Debug.Assert(tab is ITabItem);
-            Debug.Assert(tab is ISession);
-
-            if ((index >= 0) && (index < Tabs.TabItems.Count))
-            {
-                Tabs.TabItems.Insert(index, tab);
-            }
-            else
-            {
-                Tabs.TabItems.Add(tab);
-            }
-
-            Tabs.SelectedItem = tab;
-        }
+        Tabs.SelectedItem = tab;
     }
 
     public void CloseTab(TabViewItem tab)
