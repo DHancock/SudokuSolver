@@ -150,12 +150,12 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         }
         else
         {
-            Loaded += LoadedHandlerAsync;  // avoid any delay creating the tab
+            Loaded += LoadedHandler;  // avoid any delay creating the tab
         }
 
-        void LoadedHandlerAsync(object sender, RoutedEventArgs e)
+        void LoadedHandler(object sender, RoutedEventArgs e)
         {
-            Loaded -= LoadedHandlerAsync;
+            Loaded -= LoadedHandler;
 
             if (!File.Exists(filePath))
             {
