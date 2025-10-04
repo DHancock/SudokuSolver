@@ -218,7 +218,7 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
     {
         get => isModified;
 
-        private set
+        set
         {
             if (isModified != value)
             {

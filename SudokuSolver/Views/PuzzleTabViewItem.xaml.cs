@@ -102,69 +102,65 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
     {
         initialisationPhase += 1;
 
+        XElement? data = root.Element("title");
+
+        if (data is not null)
+        {
+            HeaderText = data.Value;
+        }
+
+        data = root.Element("modified");
+        bool isModified = false;
+
+        if (data is not null)
+        {
+            isModified = data.Value == "true";
+        }
+
+        data = root.Element("showPossibles");
+
+        if (data is not null)
+        {
+            ViewModel.ShowPossibles = data.Value == "true";
+        }
+
+        data = root.Element("showSolution");
+
+        if (data is not null)
+        {
+            ViewModel.ShowSolution = data.Value == "true";
+        }
+
+        data = root.Element("Sudoku");
+
+        if (data is not null)
+        {
+            ViewModel.LoadXml(data, isModified);
+        }
+
         Loaded += LoadedHandlerAsync;
 
         async void LoadedHandlerAsync(object sender, RoutedEventArgs e)
         {
-            PuzzleTabViewItem tab = (PuzzleTabViewItem)sender;
-            tab.Loaded -= LoadedHandlerAsync;
-            bool forceModified = false;
+            Loaded -= LoadedHandlerAsync;
+
             XElement? data = root.Element("path");
 
             if ((data is not null) && !string.IsNullOrEmpty(data.Value))
             {
                 try
                 {
-                    tab.sourceFile = await StorageFile.GetFileFromPathAsync(data.Value);
+                    sourceFile = await StorageFile.GetFileFromPathAsync(data.Value);
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"{data.Value} - {ex}");
-
-                    // indicate that it may need to be resaved
-                    forceModified = true;
+                    // it may need to be saved
+                    ViewModel.IsModified = true;
                 }
             }
 
-            data = root.Element("title");
-
-            if (data is not null)
-            {
-                tab.HeaderText = data.Value;
-            }
-
-            data = root.Element("modified");
-            bool isModified = false;
-
-            if (data is not null)
-            {
-                isModified = data.Value == "true";
-            }
-
-            data = root.Element("showPossibles");
-
-            if (data is not null)
-            {
-                tab.ViewModel.ShowPossibles = data.Value == "true";
-            }
-
-            data = root.Element("showSolution");
-
-            if (data is not null)
-            {
-                tab.ViewModel.ShowSolution = data.Value == "true";
-            }
-
-            data = root.Element("Sudoku");
-
-            if (data is not null)
-            {
-                tab.ViewModel.LoadXml(data, isModified || forceModified);
-            }
-
-            tab.UpdateTabHeader();
-
-            tab.initialisationPhase -= 1;
+            UpdateTabHeader();
+            initialisationPhase -= 1;
         }
     }
 
