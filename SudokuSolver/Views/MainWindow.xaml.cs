@@ -745,13 +745,14 @@ internal sealed partial class MainWindow : Window, ISession
         }
     }
 
-    private PuzzleTabViewItem? FindExistingTab(StorageFile file)
+    private PuzzleTabViewItem? FindExistingTab(string filePath)
     {
+        Debug.Assert(!string.IsNullOrEmpty(filePath));
+
         foreach (object tab in Tabs.TabItems)
         {
             if (tab is PuzzleTabViewItem puzzleTab &&
-                puzzleTab.SourceFile is not null &&
-                puzzleTab.SourceFile.IsEqual(file))
+                filePath.Equals(puzzleTab.SourceFile, StringComparison.OrdinalIgnoreCase))
             {
                 return puzzleTab;
             }
@@ -760,14 +761,14 @@ internal sealed partial class MainWindow : Window, ISession
         return null;
     }
 
-    public bool IsOpenInExistingTab(StorageFile file)
+    public bool IsOpenInExistingTab(string filePath)
     {
-        return FindExistingTab(file) is not null;
+        return FindExistingTab(filePath) is not null;
     }
 
-    public void SwitchToTab(StorageFile file)
+    public void SwitchToTab(string filePath)
     {
-        TabViewItem? existingTab = FindExistingTab(file);
+        TabViewItem? existingTab = FindExistingTab(filePath);
 
         if (existingTab is not null)
         {
