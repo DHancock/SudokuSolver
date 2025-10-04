@@ -117,28 +117,28 @@
             <local:Cell ViewModelCell="{x:Bind ViewModel.Cells[79]}"/>
             <local:Cell ViewModelCell="{x:Bind ViewModel.Cells[80]}"/>
             <!-- minor grid lines -->
-            <Line Style="{ThemeResource MinorGridStyle}"/>
-            <Line Style="{ThemeResource MinorGridStyle}"/>
-            <Line Style="{ThemeResource MinorGridStyle}"/>
-            <Line Style="{ThemeResource MinorGridStyle}"/>
-            <Line Style="{ThemeResource MinorGridStyle}"/>
-            <Line Style="{ThemeResource MinorGridStyle}"/>
-            <Line Style="{ThemeResource MinorGridStyle}"/>
-            <Line Style="{ThemeResource MinorGridStyle}"/>
-            <Line Style="{ThemeResource MinorGridStyle}"/>
-            <Line Style="{ThemeResource MinorGridStyle}"/>
-            <Line Style="{ThemeResource MinorGridStyle}"/>
-            <Line Style="{ThemeResource MinorGridStyle}"/>
+            <Line Style="{StaticResource MinorGridStyle}"/>
+            <Line Style="{StaticResource MinorGridStyle}"/>
+            <Line Style="{StaticResource MinorGridStyle}"/>
+            <Line Style="{StaticResource MinorGridStyle}"/>
+            <Line Style="{StaticResource MinorGridStyle}"/>
+            <Line Style="{StaticResource MinorGridStyle}"/>
+            <Line Style="{StaticResource MinorGridStyle}"/>
+            <Line Style="{StaticResource MinorGridStyle}"/>
+            <Line Style="{StaticResource MinorGridStyle}"/>
+            <Line Style="{StaticResource MinorGridStyle}"/>
+            <Line Style="{StaticResource MinorGridStyle}"/>
+            <Line Style="{StaticResource MinorGridStyle}"/>
             <!-- internal major grid lines -->
-            <Line Style="{ThemeResource MajorGridStyle}"/>
-            <Line Style="{ThemeResource MajorGridStyle}"/>
-            <Line Style="{ThemeResource MajorGridStyle}"/>
-            <Line Style="{ThemeResource MajorGridStyle}"/>
+            <Line Style="{StaticResource MajorGridStyle}"/>
+            <Line Style="{StaticResource MajorGridStyle}"/>
+            <Line Style="{StaticResource MajorGridStyle}"/>
+            <Line Style="{StaticResource MajorGridStyle}"/>
             <!-- major grid lines forming the enclosing rectangle -->
-            <Line Style="{ThemeResource MajorGridStyle}"/>
-            <Line Style="{ThemeResource MajorGridStyle}"/>
-            <Line Style="{ThemeResource MajorGridStyle}"/>
-            <Line Style="{ThemeResource MajorGridStyle}"/>
+            <Line Style="{StaticResource MajorGridStyle}"/>
+            <Line Style="{StaticResource MajorGridStyle}"/>
+            <Line Style="{StaticResource MajorGridStyle}"/>
+            <Line Style="{StaticResource MajorGridStyle}"/>
         </local:SudokuGrid>
     </Viewbox>
 </UserControl>
