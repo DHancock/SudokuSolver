@@ -14,8 +14,8 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
     private RelayCommand CloseLeftTabsCommand { get; }
     private RelayCommand CloseRightTabsCommand { get; }
 
-    private PuzzleViewModel? viewModel;
-    private StorageFile? sourceFile;
+    private readonly PuzzleViewModel viewModel;
+    private string filePath = string.Empty;
     private readonly MainWindow parentWindow;
     private int initialisationPhase = 0;
 
@@ -76,7 +76,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         parentWindow.SetWindowDragRegions();
     }
 
-    public PuzzleTabViewItem(MainWindow parent, StorageFile storageFile) : this(parent)
+    public PuzzleTabViewItem(MainWindow parent, string path) : this(parent)
     {
         initialisationPhase += 1;
 
@@ -87,13 +87,12 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
             PuzzleTabViewItem tab = (PuzzleTabViewItem)sender;
             tab.Loaded -= LoadedHandlerAsync;
 
-            if (await tab.LoadFileAsync(storageFile) == Error.Success)
+            if (await tab.LoadFileAsync(path) == Error.Success)
             {
-                tab.sourceFile = storageFile;
+                filePath = path;
             }
             
             tab.UpdateTabHeader();
-
             tab.initialisationPhase -= 1;
         }
     }
@@ -102,69 +101,69 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
     {
         initialisationPhase += 1;
 
-        Loaded += LoadedHandlerAsync;
+        XElement? data = root.Element("title");
 
-        async void LoadedHandlerAsync(object sender, RoutedEventArgs e)
+        if (data is not null)
         {
-            PuzzleTabViewItem tab = (PuzzleTabViewItem)sender;
-            tab.Loaded -= LoadedHandlerAsync;
-            bool forceModified = false;
-            XElement? data = root.Element("path");
+            HeaderText = data.Value;
+        }
 
-            if ((data is not null) && !string.IsNullOrEmpty(data.Value))
+        data = root.Element("path");
+        
+        if (data is not null)
+        {
+            filePath = data.Value ?? string.Empty;
+        }
+
+        bool isModified = false;
+        data = root.Element("modified");
+
+        if (data is not null)
+        {
+            isModified = data.Value == "true";
+        }
+
+        data = root.Element("showPossibles");
+
+        if (data is not null)
+        {
+            ViewModel.ShowPossibles = data.Value == "true";
+        }
+
+        data = root.Element("showSolution");
+
+        if (data is not null)
+        {
+            ViewModel.ShowSolution = data.Value == "true";
+        }
+
+        data = root.Element("Sudoku");
+
+        if (data is not null)
+        {
+            ViewModel.LoadXml(data, isModified);
+        }
+
+        if (string.IsNullOrEmpty(filePath))
+        {
+            initialisationPhase -= 1;
+        }
+        else
+        {
+            Loaded += LoadedHandlerAsync;  // avoid any delay creating the tab
+        }
+
+        void LoadedHandlerAsync(object sender, RoutedEventArgs e)
+        {
+            Loaded -= LoadedHandlerAsync;
+
+            if (!File.Exists(filePath))
             {
-                try
-                {
-                    tab.sourceFile = await StorageFile.GetFileFromPathAsync(data.Value);
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"{data.Value} - {ex}");
-
-                    // indicate that it may need to be resaved
-                    forceModified = true;
-                }
+                filePath = string.Empty;
+                ViewModel.IsModified = true; // it may need to be saved
             }
 
-            data = root.Element("title");
-
-            if (data is not null)
-            {
-                tab.HeaderText = data.Value;
-            }
-
-            data = root.Element("modified");
-            bool isModified = false;
-
-            if (data is not null)
-            {
-                isModified = data.Value == "true";
-            }
-
-            data = root.Element("showPossibles");
-
-            if (data is not null)
-            {
-                tab.ViewModel.ShowPossibles = data.Value == "true";
-            }
-
-            data = root.Element("showSolution");
-
-            if (data is not null)
-            {
-                tab.ViewModel.ShowSolution = data.Value == "true";
-            }
-
-            data = root.Element("Sudoku");
-
-            if (data is not null)
-            {
-                tab.ViewModel.LoadXml(data, isModified || forceModified);
-            }
-
-            tab.UpdateTabHeader();
-
-            tab.initialisationPhase -= 1;
+            initialisationPhase -= 1;
         }
     }
 
@@ -178,11 +177,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         Puzzle.DragEnter -= Puzzle_DragEnter;
         Puzzle.Drop -= Puzzle_Drop;
 
-        if (viewModel is not null)
-        {
-            viewModel.PropertyChanged -= ViewModel_PropertyChanged;
-            viewModel = null;
-        }
+        viewModel.PropertyChanged -= ViewModel_PropertyChanged;
 
         Puzzle.Closed();
     }
@@ -200,13 +195,13 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         {
             if (IsValidStorgeItem(item))
             {
-                if (parentWindow.IsOpenInExistingTab((StorageFile)item))
+                if (parentWindow.IsOpenInExistingTab(item.Path))
                 {
-                    parentWindow.SwitchToTab((StorageFile)item);
+                    parentWindow.SwitchToTab(item.Path);
                 }
                 else
                 {
-                    parentWindow.AddTab(new PuzzleTabViewItem(parentWindow, (StorageFile)item));
+                    parentWindow.AddTab(new PuzzleTabViewItem(parentWindow, item.Path));
                 }
             }
         }
@@ -246,14 +241,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
                 App.cFileExt.Equals(Path.GetExtension(item.Path), StringComparison.OrdinalIgnoreCase);
     }
 
-    public PuzzleViewModel ViewModel
-    {
-        get
-        {
-            Debug.Assert(viewModel is not null);
-            return viewModel;
-        }
-    }
+    public PuzzleViewModel ViewModel => viewModel;
 
     public string HeaderText
     {
@@ -261,7 +249,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         private set => ((TextBlock)Header).Text = value;
     }
 
-    public StorageFile? SourceFile => sourceFile;
+    public string SourceFile => filePath;
 
     public void FocusSelectedCell()
     {
@@ -319,17 +307,17 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
             if (file is not null)
             {
-                if (parentWindow.IsOpenInExistingTab(file))
+                if (parentWindow.IsOpenInExistingTab(file.Path))
                 {
-                    parentWindow.SwitchToTab(file);
+                    parentWindow.SwitchToTab(file.Path);
                 }
                 else
                 {
-                    Error error = await LoadFileAsync(file);
+                    Error error = await LoadFileAsync(file.Path);
 
                     if (error == Error.Success)
                     {
-                        sourceFile = file;
+                        filePath = file.Path;
                         UpdateTabHeader();
                         AddToRecentFilesJumpList();
                     }
@@ -342,11 +330,11 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
     private unsafe void AddToRecentFilesJumpList()
     {
-        Debug.Assert(sourceFile is not null);
+        Debug.Assert(!string.IsNullOrEmpty(filePath));
 
-        if (sourceFile is not null)
+        if (!string.IsNullOrEmpty(filePath))
         {
-            fixed (char* lpStringLocal = sourceFile.Path)
+            fixed (char* lpStringLocal = filePath)
             {
                 PInvoke.SHAddToRecentDocs((uint)SHARD.SHARD_PATHW, lpStringLocal);
             }
@@ -413,19 +401,16 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         parentWindow.AddOrSelectSettingsTab();
     }
 
-    private async Task<Error> LoadFileAsync(StorageFile file)
+    private async Task<Error> LoadFileAsync(string path)
     {
         Error error = Error.Failure;
 
         try
         {
-            await using (Stream stream = await file.OpenStreamForReadAsync())
-            {
-                XDocument document = await XDocument.LoadAsync(stream, LoadOptions.None, CancellationToken.None);
-
-                ViewModel.LoadXml(document.Root, isModified: false);
-                error = Error.Success;
-            }
+            string xml = File.ReadAllText(path);
+            XDocument document = XDocument.Parse(xml);
+            ViewModel.LoadXml(document.Root, isModified: false);
+            error = Error.Success;
         }
         catch (Exception ex)
         {
@@ -434,11 +419,11 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
             if (dialog is not null)
             {
                 // if the user drags and drops files which have more than one error
-                dialog.AddError(file.Name, ex.Message);
+                dialog.AddError(Path.GetFileName(path), ex.Message);
             }
             else
             {
-                await parentWindow.ContentDialogHelper.ShowFileOpenErrorDialogAsync(this, file.Name, ex.Message);
+                await parentWindow.ContentDialogHelper.ShowFileOpenErrorDialogAsync(this, Path.GetFileName(path), ex.Message);
             }
         }
 
@@ -448,7 +433,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
     private async Task<Status> SaveExistingFirstAsync()
     {
         Status status = Status.Continue;
-        string path = (sourceFile is null) ? HeaderText : sourceFile.Path;
+        string path = string.IsNullOrEmpty(filePath) ? HeaderText : filePath;
 
         ContentDialogResult result = await parentWindow.ContentDialogHelper.ShowConfirmSaveDialogAsync(this, path);
 
@@ -464,19 +449,11 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         return status;
     }
 
-    private async Task SaveFileAsync(StorageFile file)
+    private async Task SaveFileAsync(string path)
     {
-        using (StorageStreamTransaction transaction = await file.OpenTransactedWriteAsync())
+        await using (Stream stream = File.Open(path, FileMode.Create))
         {
-            using (Stream stream = transaction.Stream.AsStreamForWrite())
-            {
-                await ViewModel.SaveAsync(stream);
-
-                // delete any existing file data beyond the end of the stream
-                transaction.Stream.Size = transaction.Stream.Position;
-
-                await transaction.CommitAsync();
-            }
+            await ViewModel.SaveAsync(stream);
         }
     }
 
@@ -484,17 +461,17 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
     {
         Status status = Status.Cancelled;
 
-        if (sourceFile is not null)
+        if (!string.IsNullOrEmpty(filePath))
         {
             try
             {
-                await SaveFileAsync(sourceFile);
+                await SaveFileAsync(filePath);
                 status = Status.Continue;
             }
             catch (Exception ex)
             {
                 string template = App.Instance.ResourceLoader.GetString("FileSaveErrorTemplate");
-                string heading = string.Format(template, sourceFile.Name);
+                string heading = string.Format(template, Path.GetFileName(filePath));
                 await parentWindow.ContentDialogHelper.ShowErrorDialogAsync(this, heading, ex.Message);
             }
         }
@@ -514,7 +491,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         InitializeWithWindow.Initialize(savePicker, parentWindow.WindowHandle);
         string fileChoice = App.Instance.ResourceLoader.GetString("SavePickerFileChoice");
         savePicker.FileTypeChoices.Add(fileChoice, new List<string>() { App.cFileExt });
-        savePicker.SuggestedFileName = (sourceFile is null) ? HeaderText : sourceFile.Name;
+        savePicker.SuggestedFileName = string.IsNullOrEmpty(filePath) ? HeaderText : Path.GetFileName(filePath);
 
         StorageFile file = await savePicker.PickSaveFileAsync();
 
@@ -522,8 +499,8 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         {
             try
             {
-                await SaveFileAsync(file);
-                sourceFile = file;
+                await SaveFileAsync(file.Path);
+                filePath = file.Path;
                 UpdateTabHeader();
                 AddToRecentFilesJumpList();
                 status = Status.Continue;
@@ -531,10 +508,12 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
             catch (Exception ex)
             {
                 string template = App.Instance.ResourceLoader.GetString("FileSaveErrorTemplate");
-                string heading = string.Format(template, file.Name);
+                string heading = string.Format(template, Path.GetFileName(file.Path));
                 await parentWindow.ContentDialogHelper.ShowErrorDialogAsync(this, heading, ex.Message);
             }
         }
+
+        Puzzle.FocusSelectedCell();
 
         return status;
     }
@@ -549,7 +528,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
     public void UpdateTabHeader()
     {
-        if (sourceFile is null)
+        if (string.IsNullOrEmpty(filePath))
         {
             if (string.IsNullOrEmpty(HeaderText))
             {
@@ -560,8 +539,8 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         }
         else
         {
-            HeaderText = sourceFile.Name;
-            ToolTipService.SetToolTip(this, sourceFile.Path);
+            HeaderText = Path.GetFileName(filePath);
+            ToolTipService.SetToolTip(this, filePath);
         }
 
         if (IsModified)
@@ -574,7 +553,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         }
     }
 
-    private bool CanRenameTab(object? param) => sourceFile is null;
+    private bool CanRenameTab(object? param) => string.IsNullOrEmpty(filePath);
 
     private async void ExecuteRenameTabCommand(object? param)
     {
@@ -622,7 +601,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         XElement root = new XElement("puzzle", new XAttribute("version", 1));
 
         root.Add(new XElement("title", HeaderText));
-        root.Add(new XElement("path", SourceFile?.Path));
+        root.Add(new XElement("path", filePath));
         root.Add(new XElement("modified", IsModified));
 
         // add the optional "per view" settings in release 1.13.0

@@ -61,13 +61,6 @@ internal sealed partial class MainWindow : Window, ISession
         Tabs.TabDragCompleted += Tabs_TabDragCompleted;
         Tabs.SelectionChanged += Tabs_SelectionChanged;
         Tabs.Loaded += Tabs_Loaded;
-
-        LayoutRoot.Loaded += LayoutRoot_Loaded;
-    }
-
-    private void LayoutRoot_Loaded(object sender, RoutedEventArgs e)
-    {
-        LayoutRoot.Opacity = 1; // trigger the opacity transition
     }
 
     private void LayoutRoot_ProcessKeyboardAccelerators(UIElement sender, ProcessKeyboardAcceleratorEventArgs args)
@@ -103,7 +96,6 @@ internal sealed partial class MainWindow : Window, ISession
         AppWindow.Destroying -= AppWindow_Destroying;
 
         Activated -= MainWindow_Activated;
-        LayoutRoot.Loaded -= LayoutRoot_Loaded;
         LayoutRoot.ActualThemeChanged -= LayoutRoot_ActualThemeChanged;
         LayoutRoot.ProcessKeyboardAccelerators -= LayoutRoot_ProcessKeyboardAccelerators;
         AppWindow.Closing -= AppWindow_Closing;
@@ -275,37 +267,19 @@ internal sealed partial class MainWindow : Window, ISession
 
     public void AddTab(TabViewItem tab, int index = -1)
     {
-        if (Tabs.IsLoaded)
+        Debug.Assert(tab is ITabItem);
+        Debug.Assert(tab is ISession);
+
+        if ((index >= 0) && (index < Tabs.TabItems.Count))
         {
-            AddTabInternal(tab, index);
+            Tabs.TabItems.Insert(index, tab);
         }
         else
         {
-            Tabs.Loaded += Tabs_Loaded;
+            Tabs.TabItems.Add(tab);
         }
 
-        void Tabs_Loaded(object sender, RoutedEventArgs e)
-        {
-            Tabs.Loaded -= Tabs_Loaded;
-            AddTabInternal(tab, index);
-        }
-
-        void AddTabInternal(TabViewItem tab, int index)
-        {
-            Debug.Assert(tab is ITabItem);
-            Debug.Assert(tab is ISession);
-
-            if ((index >= 0) && (index < Tabs.TabItems.Count))
-            {
-                Tabs.TabItems.Insert(index, tab);
-            }
-            else
-            {
-                Tabs.TabItems.Add(tab);
-            }
-
-            Tabs.SelectedItem = tab;
-        }
+        Tabs.SelectedItem = tab;
     }
 
     public void CloseTab(TabViewItem tab)
@@ -771,13 +745,14 @@ internal sealed partial class MainWindow : Window, ISession
         }
     }
 
-    private PuzzleTabViewItem? FindExistingTab(StorageFile file)
+    private PuzzleTabViewItem? FindExistingTab(string filePath)
     {
+        Debug.Assert(!string.IsNullOrEmpty(filePath));
+
         foreach (object tab in Tabs.TabItems)
         {
             if (tab is PuzzleTabViewItem puzzleTab &&
-                puzzleTab.SourceFile is not null &&
-                puzzleTab.SourceFile.IsEqual(file))
+                filePath.Equals(puzzleTab.SourceFile, StringComparison.OrdinalIgnoreCase))
             {
                 return puzzleTab;
             }
@@ -786,14 +761,14 @@ internal sealed partial class MainWindow : Window, ISession
         return null;
     }
 
-    public bool IsOpenInExistingTab(StorageFile file)
+    public bool IsOpenInExistingTab(string filePath)
     {
-        return FindExistingTab(file) is not null;
+        return FindExistingTab(filePath) is not null;
     }
 
-    public void SwitchToTab(StorageFile file)
+    public void SwitchToTab(string filePath)
     {
-        TabViewItem? existingTab = FindExistingTab(file);
+        TabViewItem? existingTab = FindExistingTab(filePath);
 
         if (existingTab is not null)
         {
