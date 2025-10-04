@@ -9,7 +9,6 @@
             <SolidColorBrush x:Key="UserCellBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
             <SolidColorBrush x:Key="ProvidedCellBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
             <SolidColorBrush x:Key="CalculatedCellBrush" Color="Gray"/>
-            <SolidColorBrush x:Key="TrialCellBrush" Color="Gray"/>
             <SolidColorBrush x:Key="CellFillBrush" Color="{ThemeResource SystemColorWindowColor}"/>
             <SolidColorBrush x:Key="CellPossiblesBrush" Color="Gray"/>
             <SolidColorBrush x:Key="PossiblesHorizontalBrush" Color="Red"/>
@@ -28,7 +27,6 @@
             <SolidColorBrush x:Key="UserCellBrush" Color="White"/>
             <SolidColorBrush x:Key="ProvidedCellBrush" Color="LightBlue"/>
             <SolidColorBrush x:Key="CalculatedCellBrush" Color="Blue"/>
-            <SolidColorBrush x:Key="TrialCellBrush" Color="Blue"/>
             <SolidColorBrush x:Key="CellFillBrush" Color="Black"/>
             <SolidColorBrush x:Key="CellPossiblesBrush" Color="Gray"/>
             <SolidColorBrush x:Key="PossiblesHorizontalBrush" Color="Red"/>
@@ -50,7 +48,6 @@
             <SolidColorBrush x:Key="UserCellBrush" Color="Black"/>
             <SolidColorBrush x:Key="ProvidedCellBrush" Color="Blue"/>
             <SolidColorBrush x:Key="CalculatedCellBrush" Color="LightBlue"/>
-            <SolidColorBrush x:Key="TrialCellBrush" Color="LightBlue"/>
             <SolidColorBrush x:Key="CellFillBrush" Color="White"/>
             <SolidColorBrush x:Key="CellPossiblesBrush" Color="LightGray"/>
             <SolidColorBrush x:Key="PossiblesHorizontalBrush" Color="Red"/>

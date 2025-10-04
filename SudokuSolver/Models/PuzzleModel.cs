@@ -944,11 +944,11 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
     //      which solution is found will be indeterminate. That isn't optimal, getting
     //      different results for the same action.      
 
-    private readonly ConcurrentStack<PuzzleModel> modelCache = new();
+    private readonly System.Collections.Concurrent.ConcurrentStack<PuzzleModel> modelCache = new();
 
     private void AttemptSimpleTrialAndError()
     {
-        List<(int index, int value)> attempts = new(Cells.Count);
+        List<(int index, int value)> attempts = new(CellList.Count);
     
         foreach (Cell cell in Cells.AsSpan())
         {
@@ -985,7 +985,7 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
 
                     if (!state.IsStopped)
                     {
-                        localModel.SetCellValue(attempt.index, attempt.value, Origins.Trial);
+                        localModel.SetCellValue(attempt.index, attempt.value, Origins.Calculated);
 
                         if (!state.IsStopped && localModel.PuzzleIsComplete && localModel.PuzzleIsErrorFree())
                         {
@@ -1030,7 +1030,7 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
 
                 while ((value = temp.First) > 0)
                 {        
-                    SetCellValue(cell.Index, value, Origins.Trial);
+                    SetCellValue(cell.Index, value, Origins.Calculated);
 
                     if (PuzzleIsComplete && PuzzleIsErrorFree())
                     {

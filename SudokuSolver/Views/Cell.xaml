@@ -17,11 +17,6 @@
                         <Setter Target="CellValue.Foreground" Value="{ThemeResource CalculatedCellBrush}"/>
                     </VisualState.Setters>
                 </VisualState>
-                <VisualState x:Name="Trial">
-                    <VisualState.Setters>
-                        <Setter Target="CellValue.Foreground" Value="{ThemeResource TrialCellBrush}"/>
-                    </VisualState.Setters>
-                </VisualState>
                 <VisualState x:Name="Provided">
                     <VisualState.Setters>
                         <Setter Target="CellValue.Foreground" Value="{ThemeResource ProvidedCellBrush}"/>

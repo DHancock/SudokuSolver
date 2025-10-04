@@ -71,13 +71,13 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
                     return model.Edit;
                 }
 
-                if ((currentOrigin == Origins.Trial) || (currentOrigin == Origins.Calculated))
+                if (currentOrigin == Origins.Calculated)
                 {
                     return model.EditForced;
                 }
             }
 
-            if ((currentValue == newValue) && ((currentOrigin == Origins.Trial) || (currentOrigin == Origins.Calculated)))
+            if ((currentValue == newValue) && (currentOrigin == Origins.Calculated))
             {
                 return model.SetOrigin;
             }
@@ -198,7 +198,7 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
 
     private void UpdateViewForShowSolutionStateChange()
     {
-        UpdateViewWhere(cell => cell.Origin == Origins.Calculated || cell.Origin == Origins.Trial);
+        UpdateViewWhere(cell => cell.Origin == Origins.Calculated);
     }
 
     private void UpdateViewWhere(Func<Cell, bool> predicate)
