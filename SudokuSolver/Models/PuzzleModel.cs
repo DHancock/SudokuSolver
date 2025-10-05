@@ -453,9 +453,6 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
         return modelUpdated;
     }
 
-
-
-
     private void CheckForBothRowColumnDirections(Stack<Cell> cellsToUpdate)
     {
         foreach (Cell cell in Cells.AsSpan())
@@ -464,17 +461,14 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
             {
                 BitField temp = cell.HorizontalDirections & cell.VerticalDirections;
 
-                if (!temp.IsEmpty && (cell.Possibles != temp))
+                if ((temp.Count == 1) && (cell.Possibles != temp))
                 {
-                    Debug.Assert(temp.Count == 1);
                     cell.Possibles = temp;
                     cellsToUpdate.Push(cell);
                 }
             }
         }
     }
-
-
 
     private bool ColumnDirectionElimination(Stack<Cell> cellsToUpdate)
     {
