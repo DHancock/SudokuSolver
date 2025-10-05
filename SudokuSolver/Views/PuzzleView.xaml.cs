@@ -58,9 +58,9 @@ internal partial class PuzzleView : UserControl
     private void ShowCellContextMenu(bool viaKeyboard, Cell cell, Point offset)
     {
         // Use a custom cell context menu. If the cell itself had a context menu it would be
-        // shown for the focused cell not necessarily the selected one on keyboard accelerator
-        // activation. Hence a paste or cut could be made to a apparently random cell because  
-        // there isn't any indication of a focused but not selected call.
+        // active for the focused cell not necessarily the selected one on keyboard accelerator
+        // activation. Hence a paste or cut could be made via the keyboard to a apparently random   
+        // cell because there isn't any indication of a focused but not selected call.
 
         MenuFlyout menu = (MenuFlyout)Resources["CellContextMenu"];
 
