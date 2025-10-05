@@ -2,7 +2,6 @@
 
 namespace SudokuSolver.Models;
 
-[DebuggerDisplay("[{Index  % 9}, {Index / 9}] value = {Value}, origin = {Origin}")]
 internal sealed class Cell : CellBase
 {
     public Cell(int index) : base(index)

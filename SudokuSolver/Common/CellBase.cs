@@ -7,8 +7,7 @@ internal abstract class CellBase : IEquatable<CellBase>
     public BitField Possibles = BitField.AllTrue;
     public BitField HorizontalDirections = BitField.Empty;
     public BitField VerticalDirections = BitField.Empty;
-
-    public Origins Origin { get; set; } = Origins.NotDefined;
+    public Origins Origin = Origins.NotDefined;
 
     public CellBase(int index)
     {
@@ -69,4 +68,16 @@ internal abstract class CellBase : IEquatable<CellBase>
     public override bool Equals(object? obj) => Equals(obj as CellBase);
 
     public override int GetHashCode() => throw new NotImplementedException();
+
+    public override string? ToString() // for the debugger
+    {
+        string index = $"[{Index % 9}, {Index / 9}] ({Index,2}) -";
+
+        if (HasValue)
+        {
+            return $"{index} value: {Value} origin: {Origin}";
+        }
+        
+        return $"{index} possibles: {Possibles} horizontal: {HorizontalDirections} vertical: {VerticalDirections}";
+    }
 }
