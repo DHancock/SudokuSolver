@@ -21,9 +21,8 @@ public partial class App : Application
     private MainWindow? currentWindow;
     internal ResourceLoader ResourceLoader { get; } = new ResourceLoader();
     internal SessionHelper SessionHelper { get; } = new SessionHelper();
+    internal ClipboardHelper ClipboardHelper { get; } = new ClipboardHelper();
     private bool appClosing = false;
-    internal ClipboardHelper ClipboardHelper { get; }
-
     /// <summary>
     /// Initializes the singleton application object. This will be the single current
     /// instance, attempts to open more apps will already have been redirected.
@@ -33,8 +32,6 @@ public partial class App : Application
         InitializeComponent();
 
         uiThreadDispatcher = DispatcherQueue.GetForCurrentThread();
-
-        ClipboardHelper = new ClipboardHelper(uiThreadDispatcher);
 
         Debug.Assert(instance.IsCurrent);
         appInstance = instance;

@@ -1,16 +1,14 @@
 ﻿namespace SudokuSolver;
 
-using DispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue;
-
 internal sealed partial class ClipboardHelper
 {
     private int currentValue = 0;
 
-    public ClipboardHelper(DispatcherQueue dispatcherQueue)
+    public ClipboardHelper()
     {
-        Clipboard.ContentChanged += Clipboard_ContentChanged;
+        Clipboard_ContentChanged(null, EventArgs.Empty);
 
-        dispatcherQueue.TryEnqueue(() => Clipboard_ContentChanged(null, EventArgs.Empty));
+        Clipboard.ContentChanged += Clipboard_ContentChanged;
     }
 
     private async void Clipboard_ContentChanged(object? sender, object e)
