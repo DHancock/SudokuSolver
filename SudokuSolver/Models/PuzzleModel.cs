@@ -287,6 +287,7 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
         }
     }
 
+    // now the updated cell has a value, remove that value fom the possibles of all other cells in it's row, column and cube
     private void SimpleEliminationForCell(Cell updatedCell, Stack<Cell> cellsToUpdate)
     {
         int newValue = updatedCell.Value;
@@ -568,9 +569,11 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
         return modelChanged;
     }
 
-    private void CheckForSinglePossibleRow(Stack<Cell> cellsToUpdate)
+
+    // find a cell in a row that has a unique possible value for the row (it may have several other possibles)
+    private void CheckForUniquePossibleInRow(Stack<Cell> cellsToUpdate)
     {
-        var temp = new (int count, Cell cell)[10];
+        (int count, Cell cell)[] temp = new(int, Cell)[10];
 
         for (int y = 0; y < 9; y++)  // for each row
         {
@@ -589,7 +592,7 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
                             }
                             else
                             {
-                                temp[index].count += 1;
+                                temp[index].count += 1; // it isn't unique, more than one cell has that possible value
                             }
                         }
                     }
@@ -598,11 +601,11 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
 
             for (int index = 1; index < 10; index++)
             {
-                if (temp[index].count == 1)  // must be the only possible value in the row/column
+                if (temp[index].count == 1)  // it is a unique possible value in the row/column
                 {
                     Cell cell = temp[index].cell;
 
-                    if (cell.Possibles.Count > 1)  // only push once
+                    if (cell.Possibles.Count > 1)  // only push once, it could already be in cellsToUpdate
                     {
                         cell.Possibles = BitField.Empty;
                         cell.Possibles[index] = true;
@@ -618,18 +621,18 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
 
 
 
-    private void CheckForSinglePossibleColumn(Stack<Cell> cellsToUpdate)
+    private void CheckForUniquePossibleInColumn(Stack<Cell> cellsToUpdate)
     {
         Cells.Rotated = true;
-        CheckForSinglePossibleRow(cellsToUpdate);
+        CheckForUniquePossibleInRow(cellsToUpdate);
         Cells.Rotated = false;
     }
 
 
-    private void CheckForSinglePossibles(Stack<Cell> cellsToUpdate)
+    private void CheckForUniquePossibles(Stack<Cell> cellsToUpdate)
     {
-        CheckForSinglePossibleRow(cellsToUpdate);
-        CheckForSinglePossibleColumn(cellsToUpdate);
+        CheckForUniquePossibleInRow(cellsToUpdate);
+        CheckForUniquePossibleInColumn(cellsToUpdate);
     }
 
 
@@ -1089,7 +1092,7 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
             {
                 modelChanged = DirectionElimination(cellsToUpdate);
 
-                CheckForSinglePossibles(cellsToUpdate);
+                CheckForUniquePossibles(cellsToUpdate);
 
                 modelChanged |= CubePatternMatchElimination(cellsToUpdate);
             }
