@@ -43,14 +43,7 @@ internal abstract class CellBase : IEquatable<CellBase>
 
     public bool Equals(CellBase? other)
     {
-        if (other is null)
-        {
-            return false;
-        }
-
-        Debug.Assert(Index == other.Index);
-
-        if (HasValue == other.HasValue)
+        if ((other is not null) && (Index == other.Index) && (HasValue == other.HasValue))
         {
             if (HasValue)
             {
