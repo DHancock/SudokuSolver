@@ -32,7 +32,7 @@ public static class Program
             {
                 Application.Start((p) =>
                 {
-                    var context = new DispatcherQueueSynchronizationContext(DispatcherQueue.GetForCurrentThread());
+                    DispatcherQueueSynchronizationContext context = new(DispatcherQueue.GetForCurrentThread());
                     SynchronizationContext.SetSynchronizationContext(context);
                     _ = new App(appInstance);
                 });
