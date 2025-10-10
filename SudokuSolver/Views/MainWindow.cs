@@ -170,9 +170,9 @@ internal partial class MainWindow : Window
                 return (LRESULT)0;
             }
 
-            case PInvoke.WM_NCLBUTTONDOWN when wParam == HTCAPTION:
+            case PInvoke.WM_NCLBUTTONDOWN:
             {
-                systemMenu.Hide();
+                HideSystemMenu();
                 break;
             }
 
@@ -203,6 +203,14 @@ internal partial class MainWindow : Window
         }
 
         systemMenu.ShowAt(null, new Point(p.X / scaleFactor, p.Y / scaleFactor));
+    }
+
+    private void HideSystemMenu()
+    {
+        if (systemMenu.IsOpen)
+        {
+            systemMenu.Hide();
+        }
     }
 
     private void MenuFlyout_Closing(FlyoutBase sender, FlyoutBaseClosingEventArgs args)
