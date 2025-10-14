@@ -24,6 +24,7 @@ InfoBeforeFile="{#SourcePath}\0BSD.txt"
 PrivilegesRequired=lowest
 DisableProgramGroupPage=yes
 DisableReadyPage=yes
+DisableDirPage=yes
 MinVersion=10.0.17763
 AppPublisher=David
 AppUpdatesURL=https://github.com/DHancock/SudokuSolver/releases
@@ -77,7 +78,6 @@ Filename: "{app}\{#appExeName}"; Parameters: "/unregister";
 
 [Code]
 function IsDowngradeInstall: Boolean; forward;
-function IsInstalledAppUntrimmed(const InstalledVersion: String): Boolean; forward;
 procedure BackupAppData; forward;
 procedure RestoreAppData; forward;
 
@@ -115,45 +115,44 @@ begin
 end;
 
 
-// The remnants of an untrimmed install will cause a trimmed version
-// to fail to start. Have to uninstall the untrimmed version first.
-// This also means the benfits of trimming will now be in effect.
-// The old installer releases will be removed from GitHub.
-procedure CurStepChanged(CurStep: TSetupStep);
+procedure UninatallAnyPreviousVersion();
 var
   ResultCode, Attempts: Integer;
-  InstalledVersion, UninstallerPath: String; 
+  UninstallerPath: String; 
+begin    
+  if RegQueryStringValue(HKCU, GetUninstallRegKey, 'UninstallString', UninstallerPath) then
+  begin
+    BackupAppData();
+    
+    Exec(RemoveQuotes(UninstallerPath), '/VERYSILENT', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+    
+    if ResultCode = 0 then // wait until the uninstall has completed
+    begin
+      Attempts := 2 * 30 ; // timeout after approximately 30 seconds
+       
+      while FileExists(UninstallerPath) and (Attempts > 0) do
+      Begin
+        Sleep(500);
+        Attempts := Attempts - 1;
+      end;
+    end;
+  
+    if (ResultCode <> 0) or FileExists(UninstallerPath) then
+    begin
+      SuppressibleMsgBox('Setup failed to uninstall a previous version.', mbCriticalError, MB_OK, IDOK) ;
+      Abort;
+    end;
+    
+    RestoreAppData();
+  end;
+end;
+
+procedure CurStepChanged(CurStep: TSetupStep);
 begin
   if (CurStep = ssInstall) then
   begin
-    if RegQueryStringValue(HKCU, GetUninstallRegKey, 'DisplayVersion', InstalledVersion) and IsInstalledAppUntrimmed(InstalledVersion) then
-    begin
-      if RegQueryStringValue(HKCU, GetUninstallRegKey, 'UninstallString', UninstallerPath) then
-      begin
-        BackupAppData;
-        
-        Exec(RemoveQuotes(UninstallerPath), '/VERYSILENT', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
-        
-        if ResultCode = 0 then // wait until the uninstall has completed
-        begin
-          Attempts := 2 * 30 ; // timeout after approximately 30 seconds
-           
-          while FileExists(UninstallerPath) and (Attempts > 0) do
-          Begin
-            Sleep(500);
-            Attempts := Attempts - 1;
-          end;
-        end;
-      
-        if (ResultCode <> 0) or FileExists(UninstallerPath) then
-        begin
-          SuppressibleMsgBox('Setup failed to uninstall a previous version.', mbCriticalError, MB_OK, IDOK) ;
-          Abort;
-        end;
-        
-        RestoreAppData;
-      end;
-    end;
+    // when upgrading the remnants of an old install may cause the new version to fail to start. 
+    UninatallAnyPreviousVersion();
   end;
 end;
 
@@ -181,12 +180,6 @@ begin
   if RegQueryStringValue(HKCU, GetUninstallRegKey, 'DisplayVersion', InstalledVersion) then
     Result := VersionComparer(InstalledVersion, '{#appVer}') > 0;
 end;
- 
- 
-function IsInstalledAppUntrimmed(const InstalledVersion: String): Boolean;
-begin
-  Result := VersionComparer(InstalledVersion, '1.13.0') < 0 ;
-end;
 
 
 procedure TransferFiles(const BackUp: Boolean);
@@ -196,7 +189,7 @@ begin
   try
     DirPart := '\sudokusolver.davidhancock.net';
     TempA := ExpandConstant('{localappdata}') + DirPart;
-    TempB := ExpandConstant('{%temp}') + DirPart; 
+    TempB := ExpandConstant('{%TEMP}') + DirPart; 
     
     if BackUp then
     begin
