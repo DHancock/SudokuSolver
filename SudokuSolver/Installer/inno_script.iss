@@ -1,6 +1,6 @@
 ﻿; This script assumes that all release configurations have been published
 ; and that the WinAppSdk and .Net framework are self contained.
-; Inno 6.2.2
+; Inno 6.5.4
 
 #define appDisplayName "Sudoku Solver"
 #define appName "SudokuSolver"
@@ -22,6 +22,7 @@ SolidCompression=yes
 OutputBaseFilename={#appName}_v{#appVer}
 InfoBeforeFile="{#SourcePath}\0BSD.txt"
 PrivilegesRequired=lowest
+WizardStyle=modern
 DisableProgramGroupPage=yes
 DisableReadyPage=yes
 DisableDirPage=yes
@@ -29,13 +30,12 @@ MinVersion=10.0.17763
 AppPublisher=David
 AppUpdatesURL=https://github.com/DHancock/SudokuSolver/releases
 ShowLanguageDialog=no
-ArchitecturesInstallIn64BitMode=x64 arm64
-ArchitecturesAllowed=x86 x64 arm64
+ArchitecturesInstallIn64BitMode=x64compatible or arm64
 
 [Files]
-Source: "..\bin\Release\win-x64\publish\*"; DestDir: "{app}"; Check: IsX64; Flags: recursesubdirs;
-Source: "..\bin\Release\win-arm64\publish\*"; DestDir: "{app}"; Check: IsARM64; Flags: recursesubdirs solidbreak;
-Source: "..\bin\Release\win-x86\publish\*"; DestDir: "{app}"; Check: IsX86; Flags: recursesubdirs solidbreak;
+Source: "..\bin\Release\win-arm64\publish\*"; DestDir: "{app}"; Check: PreferArm64Files; Flags: recursesubdirs;
+Source: "..\bin\Release\win-x64\publish\*";   DestDir: "{app}"; Check: PreferX64Files;   Flags: recursesubdirs solidbreak;
+Source: "..\bin\Release\win-x86\publish\*";   DestDir: "{app}"; Check: PreferX86Files;   Flags: recursesubdirs solidbreak;
 
 [Languages]
 Name: en; MessagesFile: "compiler:Default.isl"
@@ -76,83 +76,39 @@ Filename: "{app}\{#appExeName}"; Description: "{cm:LaunchProgram,{#appDisplayNam
 [UninstallRun]
 Filename: "{app}\{#appExeName}"; Parameters: "/unregister";
 
-[Code]
-function IsDowngradeInstall: Boolean; forward;
-procedure BackupAppData; forward;
-procedure RestoreAppData; forward;
+[InstallDelete]
+Type: filesandordirs; Name: "{app}\*"
 
-// because "DisableReadyPage" and "DisableProgramGroupPage" are set to yes adjust the next/install button text
+
+[Code]
+function PreferArm64Files: Boolean;
+begin
+  Result := IsArm64;
+end;
+
+function PreferX64Files: Boolean;
+begin
+  Result := not PreferArm64Files and IsX64Compatible;
+end;
+
+function PreferX86Files: Boolean;
+begin
+  Result := not PreferArm64Files and not PreferX64Files;
+end;
+
+
 procedure CurPageChanged(CurPageID: Integer);
 begin
+  // because "DisableReadyPage" and "DisableProgramGroupPage" are set to yes adjust the next/install button text
   if CurPageID = wpSelectTasks then
     WizardForm.NextButton.Caption := SetupMessage(msgButtonInstall)
   else
     WizardForm.NextButton.Caption := SetupMessage(msgButtonNext);
-end;
-
-
-function InitializeSetup: Boolean;
-var 
-  Message: String;
-begin
-  Result := true;
-  
-  try 
-    if IsDowngradeInstall then
-      RaiseException(CustomMessage('DownGradeNotSupported'));
     
-  except
-    Message := FmtMessage(CustomMessage('ExceptionHeader'), [GetExceptionMessage]);
-    SuppressibleMsgBox(Message, mbCriticalError, MB_OK, IDOK);
-    Result := false;
-  end;
-end;
-
-
-function GetUninstallRegKey: String;
-begin
-  Result := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#appId}_is1';
-end;
-
-
-procedure UninatallAnyPreviousVersion();
-var
-  ResultCode, Attempts: Integer;
-  UninstallerPath: String; 
-begin    
-  if RegQueryStringValue(HKCU, GetUninstallRegKey, 'UninstallString', UninstallerPath) then
+  // if the app is currently running don't allow the user to avoid inno setup shutting it down
+  if CurPageID = wpPreparing then
   begin
-    BackupAppData();
-    
-    Exec(RemoveQuotes(UninstallerPath), '/VERYSILENT', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
-    
-    if ResultCode = 0 then // wait until the uninstall has completed
-    begin
-      Attempts := 2 * 30 ; // timeout after approximately 30 seconds
-       
-      while FileExists(UninstallerPath) and (Attempts > 0) do
-      Begin
-        Sleep(500);
-        Attempts := Attempts - 1;
-      end;
-    end;
-  
-    if (ResultCode <> 0) or FileExists(UninstallerPath) then
-    begin
-      SuppressibleMsgBox('Setup failed to uninstall a previous version.', mbCriticalError, MB_OK, IDOK) ;
-      Abort;
-    end;
-    
-    RestoreAppData();
-  end;
-end;
-
-procedure CurStepChanged(CurStep: TSetupStep);
-begin
-  if (CurStep = ssInstall) then
-  begin
-    // when upgrading the remnants of an old install may cause the new version to fail to start. 
-    UninatallAnyPreviousVersion();
+    WizardForm.PreparingNoRadio.Enabled := false;
   end;
 end;
 
@@ -171,14 +127,38 @@ begin
 end;
 
 
+function GetUninstallRegKey: String;
+begin
+  Result := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#appId}_is1';
+end;
+
+
 function IsDowngradeInstall: Boolean;
 var
-  RegKey, InstalledVersion: String;
+  InstalledVersion: String;
 begin
   Result := false;
   
   if RegQueryStringValue(HKCU, GetUninstallRegKey, 'DisplayVersion', InstalledVersion) then
     Result := VersionComparer(InstalledVersion, '{#appVer}') > 0;
+end;
+
+
+function InitializeSetup: Boolean;
+var 
+  Message: String;
+begin
+  Result := true;
+  
+  try 
+    if IsDowngradeInstall then
+      RaiseException(CustomMessage('DownGradeNotSupported'));
+    
+  except
+    Message := FmtMessage(CustomMessage('ExceptionHeader'), [GetExceptionMessage]);
+    SuppressibleMsgBox(Message, mbCriticalError, MB_OK, IDOK);
+    Result := false;
+  end;
 end;
 
 
@@ -207,12 +187,12 @@ begin
       FilePart := '\settings.json';
       
       if FileExists(SourceDir + FilePart) then
-        FileCopy(SourceDir + FilePart, DestDir + FilePart, false);
+        CopyFile(SourceDir + FilePart, DestDir + FilePart, false);
         
       FilePart := '\session.xml';
         
       if FileExists(SourceDir + FilePart) then
-        FileCopy(SourceDir + FilePart, DestDir + FilePart, false)
+        CopyFile(SourceDir + FilePart, DestDir + FilePart, false)
     end;
   except
   end;
@@ -231,3 +211,44 @@ begin
 end;  
 
 
+procedure UninstallAnyPreviousVersion();
+var
+  ResultCode, Attempts: Integer;
+  UninstallerPath: String;
+begin    
+  if RegQueryStringValue(HKCU, GetUninstallRegKey, 'UninstallString', UninstallerPath) then
+  begin
+    Exec(RemoveQuotes(UninstallerPath), '/VERYSILENT', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+    
+    if ResultCode = 0 then // wait until the uninstall has completed
+    begin
+      BackupAppData;
+    
+      Attempts := 2 * 30 ; // timeout after approximately 30 seconds
+       
+      while FileExists(UninstallerPath) and (Attempts > 0) do
+      Begin
+        Sleep(500);
+        Attempts := Attempts - 1;
+      end;
+      
+      if FileExists(UninstallerPath) then
+      begin
+        SuppressibleMsgBox('Setup failed to uninstall a previous version.', mbCriticalError, MB_OK, IDOK);
+        Abort;
+      end;
+      
+      RestoreAppData;
+    end;
+  end;
+end;
+
+
+procedure CurStepChanged(CurStep: TSetupStep);
+begin
+  if CurStep = ssInstall then
+  begin
+    // when upgrading any remnants of an old install may cause the new version to fail to start. 
+    UninstallAnyPreviousVersion;
+  end;
+end;
