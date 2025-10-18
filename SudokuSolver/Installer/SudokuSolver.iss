@@ -7,6 +7,8 @@
 #define appExeName appName + ".exe"
 #define appVer RemoveFileExt(GetVersionNumbersString("..\bin\Release\win-x64\publish\" + appExeName));
 #define appId "sudukosolver.8628521D92E74106"
+#define appMutexName "51ECE64E-1954-41C4-81FB-E3A60CE4C224"
+#define setupMutexName "35D5D1E9-1FF3-48B7-B80C-E6BD3EA20751"
 
 [Setup]
 AppId={#appId}
@@ -17,25 +19,25 @@ DefaultDirName={autopf}\{#appDisplayName}
 DefaultGroupName={#appDisplayName}
 OutputDir={#SourcePath}\bin
 UninstallDisplayIcon={app}\{#appExeName}
+AppMutex={#appMutexName},Global\{#appMutexName}
+SetupMutex={#setupMutexName},Global\{#setupMutexName}
 Compression=lzma2/ultra64 
 SolidCompression=yes
 OutputBaseFilename={#appName}_v{#appVer}
-InfoBeforeFile="{#SourcePath}\0BSD.txt"
 PrivilegesRequired=lowest
 WizardStyle=modern
 DisableProgramGroupPage=yes
-DisableReadyPage=yes
 DisableDirPage=yes
+DisableFinishedPage=yes
 MinVersion=10.0.17763
 AppPublisher=David
-AppUpdatesURL=https://github.com/DHancock/SudokuSolver/releases
-ShowLanguageDialog=no
+ShowLanguageDialog=auto
 ArchitecturesInstallIn64BitMode=x64compatible or arm64
 
 [Files]
-Source: "..\bin\Release\win-arm64\publish\*"; DestDir: "{app}"; Check: PreferArm64Files; Flags: recursesubdirs;
-Source: "..\bin\Release\win-x64\publish\*";   DestDir: "{app}"; Check: PreferX64Files;   Flags: recursesubdirs solidbreak;
-Source: "..\bin\Release\win-x86\publish\*";   DestDir: "{app}"; Check: PreferX86Files;   Flags: recursesubdirs solidbreak;
+Source: "..\bin\Release\win-arm64\publish\*"; DestDir: "{app}"; Check: PreferArm64Files; Flags: ignoreversion recursesubdirs;
+Source: "..\bin\Release\win-x64\publish\*";   DestDir: "{app}"; Check: PreferX64Files;   Flags: ignoreversion recursesubdirs solidbreak;
+Source: "..\bin\Release\win-x86\publish\*";   DestDir: "{app}"; Check: PreferX86Files;   Flags: ignoreversion recursesubdirs solidbreak;
 
 [Languages]
 Name: en; MessagesFile: "compiler:Default.isl"
@@ -63,15 +65,11 @@ zh_Hant.DownGradeNotSupported=不支援降級。%n請先卸載目前版本。
 zh_Hant.ExceptionHeader=檢查安裝前提條件時發生錯誤:%n%n%1
 
 [Icons]
-Name: "{group}\{#appDisplayName}"; Filename: "{app}\{#appExeName}"
-Name: "{autodesktop}\{#appDisplayName}"; Filename: "{app}\{#appExeName}"; Tasks: desktopicon
-
-[Tasks]
-Name: desktopicon; Description: "{cm:CreateDesktopIcon}"
+Name: "{autodesktop}\{#appDisplayName}"; Filename: "{app}\{#appExeName}";
 
 [Run]
 Filename: "{app}\{#appExeName}"; Parameters: "/register"; 
-Filename: "{app}\{#appExeName}"; Description: "{cm:LaunchProgram,{#appDisplayName}}"; Flags: postinstall skipifsilent
+Filename: "{app}\{#appExeName}"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]
 Filename: "{app}\{#appExeName}"; Parameters: "/unregister";
@@ -99,13 +97,7 @@ end;
 
 procedure CurPageChanged(CurPageID: Integer);
 begin
-  // because "DisableReadyPage" and "DisableProgramGroupPage" are set to yes adjust the next/install button text
-  if CurPageID = wpSelectTasks then
-    WizardForm.NextButton.Caption := SetupMessage(msgButtonInstall)
-  else
-    WizardForm.NextButton.Caption := SetupMessage(msgButtonNext);
-    
-  // if the app is currently running don't allow the user to avoid inno setup shutting it down
+  // if an old version of the app is running ensure inno setup shuts it down
   if CurPageID = wpPreparing then
   begin
     WizardForm.PreparingNoRadio.Enabled := false;
@@ -135,12 +127,16 @@ end;
 
 function IsDowngradeInstall: Boolean;
 var
-  InstalledVersion: String;
+  InstalledVersion, UninstallerPath: String;
 begin
   Result := false;
   
-  if RegQueryStringValue(HKCU, GetUninstallRegKey, 'DisplayVersion', InstalledVersion) then
-    Result := VersionComparer(InstalledVersion, '{#appVer}') > 0;
+  if RegQueryStringValue(HKCU, GetUninstallRegKey, 'DisplayVersion', InstalledVersion) and 
+     RegQueryStringValue(HKCU, GetUninstallRegKey, 'UninstallString', UninstallerPath) then
+  begin   
+    // check both the app version and that it (may be) possible to uninstall it 
+    Result := (VersionComparer(InstalledVersion, '{#appVer}') > 0) and FileExists(RemoveQuotes(UninstallerPath));
+  end;
 end;
 
 
@@ -211,19 +207,19 @@ begin
 end;  
 
 
-procedure UninstallAnyPreviousVersion();
+procedure UninstallAnyPreviousVersion;
 var
   ResultCode, Attempts: Integer;
   UninstallerPath: String;
 begin    
   if RegQueryStringValue(HKCU, GetUninstallRegKey, 'UninstallString', UninstallerPath) then
   begin
+    BackupAppData;
+        
     Exec(RemoveQuotes(UninstallerPath), '/VERYSILENT', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
     
     if ResultCode = 0 then // wait until the uninstall has completed
-    begin
-      BackupAppData;
-    
+    begin 
       Attempts := 2 * 30 ; // timeout after approximately 30 seconds
        
       while FileExists(UninstallerPath) and (Attempts > 0) do
@@ -232,11 +228,10 @@ begin
         Attempts := Attempts - 1;
       end;
       
-      if FileExists(UninstallerPath) then
-      begin
-        SuppressibleMsgBox('Setup failed to uninstall a previous version.', mbCriticalError, MB_OK, IDOK);
-        Abort;
-      end;
+      // If the file still exists then the uninstall failed. 
+      // There isn't much that can be done, informing the user or aborting 
+      // won't acheive much and could render it imposible to install this new version.
+      // Installing the new version will over write the registry and add a new uninstaller exe etc.
       
       RestoreAppData;
     end;
@@ -248,7 +243,8 @@ procedure CurStepChanged(CurStep: TSetupStep);
 begin
   if CurStep = ssInstall then
   begin
-    // when upgrading any remnants of an old install may cause the new version to fail to start. 
+    // When upgrading uninstall first or the app may trap on start up.
+    // While some dll versions aren't incremented that isn't the only problem
     UninstallAnyPreviousVersion;
   end;
 end;

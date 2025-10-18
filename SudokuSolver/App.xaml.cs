@@ -23,12 +23,22 @@ public partial class App : Application
     internal SessionHelper SessionHelper { get; } = new SessionHelper();
     internal ClipboardHelper ClipboardHelper { get; } = new ClipboardHelper();
     private bool appClosing = false;
+
+    private readonly SafeHandle localMutex;
+    private readonly SafeHandle globalMutex;
+
     /// <summary>
     /// Initializes the singleton application object. This will be the single current
     /// instance, attempts to open more apps will already have been redirected.
     /// </summary>
     public App(AppInstance instance)
     {
+        // Create the installer mutexes with current user access. The app is installed per
+        // user rather than all users. It isn't obvious what the .Net Mutex class is creating.
+        const string name = "51ECE64E-1954-41C4-81FB-E3A60CE4C224";
+        localMutex = PInvoke.CreateMutex(null, false, name);
+        globalMutex = PInvoke.CreateMutex(null, false, "Global\\" + name);
+
         InitializeComponent();
 
         uiThreadDispatcher = DispatcherQueue.GetForCurrentThread();
