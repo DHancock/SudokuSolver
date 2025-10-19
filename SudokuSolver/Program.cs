@@ -16,7 +16,6 @@ public static class Program
         }
         else if ((args.Length == 1) && (args[0] == "/unregister"))
         {
-            KillOtherProcessesSync();
             UnregisterFileTypeActivation();
         }
         else
@@ -63,49 +62,6 @@ public static class Program
         try
         {
             ActivationRegistrationManager.UnregisterForFileTypeActivation(fileTypes, Environment.ProcessPath);
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine(ex.ToString());
-        }
-    }
-
-    private static void KillOtherProcessesSync() // ensure uninstall is able to complete
-    {
-        try
-        {
-            Process thisProcess = Process.GetCurrentProcess();
-
-            List<Process> killedProcesses = new List<Process>();
-
-            foreach (Process process in Process.GetProcessesByName(thisProcess.ProcessName))
-            {
-                if ((process.Id != thisProcess.Id) && (process.MainModule?.FileName == thisProcess.MainModule?.FileName))
-                {
-                    try
-                    {
-                        process.Kill();
-                        killedProcesses.Add(process);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine(ex.ToString());
-                    }
-                }
-            }
-
-            foreach (Process process in killedProcesses)
-            {
-                try
-                {
-                    // cannot use async version due to main entry point
-                    process.WaitForExit();
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine(ex.ToString());
-                }
-            }
         }
         catch (Exception ex)
         {
