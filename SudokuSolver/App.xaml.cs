@@ -33,8 +33,10 @@ public partial class App : Application
     /// </summary>
     public App(AppInstance instance)
     {
+        Debug.Assert(instance.IsCurrent);
+
         // Create the installer mutexes with current user access. The app is installed per
-        // user rather than all users. It isn't obvious what the .Net Mutex class is creating.
+        // user rather than all users.
         const string name = "51ECE64E-1954-41C4-81FB-E3A60CE4C224";
         localMutex = PInvoke.CreateMutex(null, false, name);
         globalMutex = PInvoke.CreateMutex(null, false, "Global\\" + name);
@@ -43,7 +45,6 @@ public partial class App : Application
 
         uiThreadDispatcher = DispatcherQueue.GetForCurrentThread();
 
-        Debug.Assert(instance.IsCurrent);
         appInstance = instance;
         appInstance.Activated += MainInstance_Activated;
     }
@@ -362,7 +363,7 @@ public partial class App : Application
     public static string GetAppDataPath()
     {
         string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        return Path.Join(localAppData, "sudokusolver.davidhancock.net");
+        return Path.Join(localAppData, "sudokusolver.davidhancock.net.v2");
     }
 
     private bool IsContentDialogOpen => currentWindow is not null && currentWindow.ContentDialogHelper.IsContentDialogOpen;

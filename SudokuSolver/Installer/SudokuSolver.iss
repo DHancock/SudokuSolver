@@ -21,14 +21,13 @@ OutputDir={#SourcePath}\bin
 UninstallDisplayIcon={app}\{#appExeName}
 AppMutex={#appMutexName},Global\{#appMutexName}
 SetupMutex={#setupMutexName},Global\{#setupMutexName}
-Compression=lzma2/ultra64 
+Compression=lzma2/ultra64
 SolidCompression=yes
 OutputBaseFilename={#appName}_v{#appVer}
 PrivilegesRequired=lowest
 WizardStyle=modern
 DisableProgramGroupPage=yes
 DisableDirPage=yes
-DisableFinishedPage=yes
 MinVersion=10.0.17763
 AppPublisher=David
 ShowLanguageDialog=auto
@@ -68,8 +67,8 @@ zh_Hant.ExceptionHeader=檢查安裝前提條件時發生錯誤:%n%n%1
 Name: "{autodesktop}\{#appDisplayName}"; Filename: "{app}\{#appExeName}";
 
 [Run]
-Filename: "{app}\{#appExeName}"; Parameters: "/register"; 
-Filename: "{app}\{#appExeName}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#appExeName}"; Parameters: "/register";
+Filename: "{app}\{#appExeName}"; Description: "{cm:LaunchProgram,{#appDisplayName}}"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]
 Filename: "{app}\{#appExeName}"; Parameters: "/unregister";
@@ -158,82 +157,39 @@ begin
 end;
 
 
-procedure TransferFiles(const BackUp: Boolean);
+procedure TransferSettingsIfRequired;
 var
-  SourceDir, DestDir, DirPart, FilePart, TempA, TempB: string;
-begin
-  try
-    DirPart := '\sudokusolver.davidhancock.net';
-    TempA := ExpandConstant('{localappdata}') + DirPart;
-    TempB := ExpandConstant('{%TEMP}') + DirPart; 
-    
-    if BackUp then
-    begin
-      SourceDir := TempA;
-      DestDir := TempB;
-    end
-    else
-    begin
-      SourceDir := TempB
-      DestDir := TempA;
-    end;
-      
-    if ForceDirectories(DestDir) then
-    begin
-      FilePart := '\settings.json';
-      
-      if FileExists(SourceDir + FilePart) then
-        CopyFile(SourceDir + FilePart, DestDir + FilePart, false);
-        
-      FilePart := '\session.xml';
-        
-      if FileExists(SourceDir + FilePart) then
-        CopyFile(SourceDir + FilePart, DestDir + FilePart, false)
-    end;
-  except
-  end;
-end;   
-
-
-procedure BackupAppData();
-begin
-  TransferFiles(true);
-end;  
-
-
-procedure RestoreAppData();
-begin
-  TransferFiles(false);
-end;  
-
-
-procedure UninstallAnyPreviousVersion;
-var
-  ResultCode, Attempts: Integer;
-  UninstallerPath: String;
+  old, new, root, file : String; 
 begin    
-  if RegQueryStringValue(HKCU, GetUninstallRegKey, 'UninstallString', UninstallerPath) then
-  begin
-    BackupAppData;
-        
-    Exec(RemoveQuotes(UninstallerPath), '/VERYSILENT', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  old := '\sudokusolver.davidhancock.net';
+  new := '\sudokusolver.davidhancock.net.v2';
+  root := ExpandConstant('{localappdata}')
+  file := '\settings.json';
+  
+  if (not FileExists(root + new + file)) and FileExists(root + old + file) then
+  begin 
+    CreateDir(root + new);
+    CopyFile(root + old + file,  root + new + file, false);
     
-    if ResultCode = 0 then // wait until the uninstall has completed
-    begin 
-      Attempts := 2 * 30 ; // timeout after approximately 30 seconds
-       
-      while FileExists(UninstallerPath) and (Attempts > 0) do
-      Begin
-        Sleep(500);
-        Attempts := Attempts - 1;
-      end;
-      
-      // If the file still exists then the uninstall failed. 
-      // There isn't much that can be done, informing the user or aborting 
-      // won't acheive much and could render it imposible to install this new version.
-      // Installing the new version will over write the registry and add a new uninstaller exe etc.
-      
-      RestoreAppData;
+    file := '\session.xml';
+    CopyFile(root + old + file,  root + new + file, false);
+  end;
+end;
+
+
+procedure UnRegisterFileAssociation;
+var
+  directory, path: String;
+  resultCode: Integer;
+begin
+  if RegQueryStringValue(HKCU, GetUninstallRegKey, 'InstallLocation', directory) then
+  begin
+    path := RemoveBackslashUnlessRoot(RemoveQuotes(directory)) + '\' + '{#appExeName}';
+    
+    if FileExists(path) then
+    begin
+      Exec(path, '/unregister', '', SW_HIDE, ewWaitUntilTerminated, resultCode);
+      Log('unregister result: ' + SysErrorMessage(ResultCode));
     end;
   end;
 end;
@@ -241,10 +197,11 @@ end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
-  if CurStep = ssInstall then
+  if (CurStep = ssInstall) then
   begin
-    // When upgrading uninstall first or the app may trap on start up.
-    // While some dll versions aren't incremented that isn't the only problem
-    UninstallAnyPreviousVersion;
+    // unfortunately I once thought that deleting the settings on uninstall was a good idea
+    TransferSettingsIfRequired;
+    // remove the previous 'open verb' file association (which may delete the old settings)
+    UnRegisterFileAssociation;
   end;
 end;
