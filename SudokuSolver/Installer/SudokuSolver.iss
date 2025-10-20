@@ -15,8 +15,8 @@ AppId={#appId}
 AppName={#appDisplayName}
 AppVersion={#appVer}
 AppVerName={cm:NameAndVersion,{#appDisplayName},{#appVer}}
-DefaultDirName={autopf}\{#appDisplayName}
-DefaultGroupName={#appDisplayName}
+DefaultDirName={code:GetDefaultDirName}
+UsePreviousAppDir=no
 OutputDir={#SourcePath}\bin
 UninstallDisplayIcon={app}\{#appExeName}
 AppMutex={#appMutexName},Global\{#appMutexName}
@@ -26,6 +26,7 @@ SolidCompression=yes
 OutputBaseFilename={#appName}_v{#appVer}
 PrivilegesRequired=lowest
 WizardStyle=modern
+WizardSizePercent=100,100
 DisableProgramGroupPage=yes
 DisableDirPage=yes
 MinVersion=10.0.17763
@@ -95,11 +96,18 @@ end;
 
 
 procedure CurPageChanged(CurPageID: Integer);
-begin
-  // if an old version of the app is running ensure inno setup shuts it down
-  if CurPageID = wpPreparing then
-  begin
-    WizardForm.PreparingNoRadio.Enabled := false;
+begin  
+  case CurPageID of
+    wpPreparing: // if an old version of the app is running ensure that inno setup shuts it down
+      begin   
+        WizardForm.PreparingNoRadio.Enabled := false;
+      end;
+    
+    wpInstalling: // hide the extracted file name, it's a bit busy
+      begin               
+        WizardForm.FilenameLabel.Visible := false;
+        WizardForm.StatusLabel.Visible := false;
+      end;
   end;
 end;
 
@@ -204,4 +212,11 @@ begin
     // remove the previous 'open verb' file association (which may delete the old settings)
     UnRegisterFileAssociation;
   end;
+end;
+
+
+function GetDefaultDirName(Param: string): String;
+begin
+  // construct a unique install dir
+  Result := ExpandConstant('{autopf}') + '\{#appName}.davidhancock.net'
 end;
