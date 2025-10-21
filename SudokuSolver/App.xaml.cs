@@ -15,7 +15,10 @@ public partial class App : Application
     public const string cAppDisplayName = "Sudoku Solver";
     public static App Instance => (App)Current;
 
+    public bool IsModified { private get; set; }
+
     private readonly DispatcherQueue uiThreadDispatcher;
+    private readonly DispatcherTimer autoSaveTimer;
     private readonly AppInstance appInstance;
     private readonly List<MainWindow> windowList = new();
     private MainWindow? currentWindow;
@@ -44,6 +47,8 @@ public partial class App : Application
         InitializeComponent();
 
         uiThreadDispatcher = DispatcherQueue.GetForCurrentThread();
+        autoSaveTimer = InitialiseAutoSaveTimer();
+        autoSaveTimer.Start();
 
         appInstance = instance;
         appInstance.Activated += MainInstance_Activated;
@@ -378,6 +383,7 @@ public partial class App : Application
         if (!SessionHelper.IsEndSession)
         {
             SessionHelper.IsEndSession = true;
+            autoSaveTimer.Stop();
 
             if (!Settings.Instance.SaveSessionState)
             {
@@ -441,6 +447,31 @@ public partial class App : Application
         foreach (MainWindow window in windowList)
         {
             window.UpdateTheme();
+        }
+    }
+
+    private DispatcherTimer InitialiseAutoSaveTimer()
+    {
+        DispatcherTimer timer = new DispatcherTimer();
+        timer.Interval = TimeSpan.FromSeconds(10);
+        timer.Tick += Timer_Tick;
+
+        return timer;
+
+        async void Timer_Tick(object? sender, object e)
+        {
+            if (Settings.Instance.SaveSessionState && App.Instance.IsModified && !SessionHelper.IsEndSession)
+            {
+                App.Instance.IsModified = false;
+                SessionHelper sessionHelper = new();
+
+                foreach (MainWindow window in GetWindowsInAscendingZOrder())
+                {
+                    sessionHelper.AddWindow(window);
+                }
+
+                await sessionHelper.SaveAsync();
+            }
         }
     }
 }
