@@ -225,6 +225,8 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
                 isModified = value;
                 NotifyPropertyChanged();
             }
+
+            App.Instance.IsModified = true;
         }
     }
 
