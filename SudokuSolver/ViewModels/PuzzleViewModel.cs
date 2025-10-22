@@ -123,7 +123,7 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
         IsModified = false;
     }
 
-    public void LoadXml(XElement? root, bool isModified)
+    public void LoadXml(XElement? root, bool isFileBacked)
     {
         PuzzleModel newModel = new PuzzleModel();
 
@@ -137,8 +137,20 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
         }
 
         model = newModel;
-        initialState = new PuzzleModel(model);
-        IsModified = isModified;
+
+        if (isFileBacked)
+        {
+            isModified = false;
+            initialState = new PuzzleModel(model);
+        }
+        else 
+        {
+            // It's from session data. 
+            // If it mirrors a file, it's contents will be read the data updated via a loaded event. 
+            isModified = !model.PuzzleIsEmpty;
+            initialState = new PuzzleModel();
+        }
+
         undoHelper.Reset();
         undoHelper.Push(model);
 
@@ -327,6 +339,15 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
         }
 
         return false;
+    }
+
+    public void ProcessBackingFileData(XElement? data)
+    {
+        PuzzleModel fileModel = new PuzzleModel();
+        fileModel.LoadXml(data);
+
+        initialState = fileModel;
+        IsModified = !model.Equals(fileModel);
     }
 
     private void NotifyPropertyChanged([CallerMemberName] string? propertyName = default)
