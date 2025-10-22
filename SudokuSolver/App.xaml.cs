@@ -450,22 +450,22 @@ public partial class App : Application
         }
     }
 
-    private DispatcherTimer InitialiseAutoSaveTimer()
+    private static DispatcherTimer InitialiseAutoSaveTimer()
     {
         DispatcherTimer timer = new DispatcherTimer();
-        timer.Interval = TimeSpan.FromSeconds(10);
+        timer.Interval = TimeSpan.FromSeconds(5);
         timer.Tick += Timer_Tick;
 
         return timer;
 
-        async void Timer_Tick(object? sender, object e)
+        async static void Timer_Tick(object? sender, object e)
         {
-            if (Settings.Instance.SaveSessionState && App.Instance.IsModified && !SessionHelper.IsEndSession)
+            if (Settings.Instance.SaveSessionState && App.Instance.IsModified && !App.Instance.SessionHelper.IsEndSession)
             {
                 App.Instance.IsModified = false;
                 SessionHelper sessionHelper = new();
 
-                foreach (MainWindow window in GetWindowsInAscendingZOrder())
+                foreach (MainWindow window in App.Instance.GetWindowsInAscendingZOrder())
                 {
                     sessionHelper.AddWindow(window);
                 }
