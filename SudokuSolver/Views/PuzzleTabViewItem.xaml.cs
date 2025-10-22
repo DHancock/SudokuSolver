@@ -71,11 +71,6 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         }
     }
 
-    private void Puzzle_SizeChanged(object sender, SizeChangedEventArgs e)
-    {
-        parentWindow.SetWindowDragRegions();
-    }
-
     public PuzzleTabViewItem(MainWindow parent, string path) : this(parent)
     {
         initialisationPhase += 1;
@@ -99,6 +94,9 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
     public PuzzleTabViewItem(MainWindow parent, XElement root) : this(parent)
     {
+        // Called when opening the session file and when duplicating the tab (copy plus drag and drop)
+        // In the later case, the undo history will be lost. For now I'm ignoring that deficiency.
+
         initialisationPhase += 1;
 
         XElement? data = root.Element("title");
@@ -113,14 +111,6 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         if (data is not null)
         {
             filePath = data.Value ?? string.Empty;
-        }
-
-        bool isModified = false;
-        data = root.Element("modified");
-
-        if (data is not null)
-        {
-            isModified = data.Value == "true";
         }
 
         data = root.Element("showPossibles");
@@ -141,7 +131,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
         if (data is not null)
         {
-            ViewModel.LoadXml(data, isModified);
+            ViewModel.LoadXml(data, isFileBacked: false);
         }
 
         if (string.IsNullOrEmpty(filePath))
@@ -153,18 +143,34 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
             Loaded += LoadedHandler;  // avoid any delay creating the tab
         }
 
-        void LoadedHandler(object sender, RoutedEventArgs e)
+        async void LoadedHandler(object sender, RoutedEventArgs e)
         {
             Loaded -= LoadedHandler;
 
-            if (!File.Exists(filePath))
+            try
             {
+                // load the mirrored backing file to update the modified flag and set the initial state
+                await using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                {
+                    XDocument document = await XDocument.LoadAsync(fs, LoadOptions.None, CancellationToken.None);
+                    ViewModel.ProcessBackingFileData(document.Root);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.Assert(ex is FileNotFoundException or DirectoryNotFoundException);
+
                 filePath = string.Empty;
-                ViewModel.IsModified = true; // it may need to be saved
+                ViewModel.IsModified = true; // it may now need to be saved
             }
 
             initialisationPhase -= 1;
         }
+    }
+
+    private void Puzzle_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        parentWindow.SetWindowDragRegions();
     }
 
     public void Closed()
@@ -407,10 +413,12 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
         try
         {
-            string xml = File.ReadAllText(path);
-            XDocument document = XDocument.Parse(xml);
-            ViewModel.LoadXml(document.Root, isModified: false);
-            error = Error.Success;
+            await using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            {
+                XDocument document = await XDocument.LoadAsync(fs, LoadOptions.None, CancellationToken.None);
+                ViewModel.LoadXml(document.Root, isFileBacked: true);
+                error = Error.Success;
+            }
         }
         catch (Exception ex)
         {
@@ -631,31 +639,26 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
                         if (data is not null)
                         {
-                            data = root.Element("modified");
+                            // the following two are new but optional
+                            data = root.Element("showPossibles");
 
-                            if ((data is not null) && bool.TryParse(data.Value, out _))
+                            if ((data is not null) && !bool.TryParse(data.Value, out _))
                             {
-                                // the following two are new but optional
-                                data = root.Element("showPossibles");
+                                return false;
+                            }
 
-                                if ((data is not null) && !bool.TryParse(data.Value, out _))
-                                {
-                                    return false;
-                                }
+                            data = root.Element("showSolution");
 
-                                data = root.Element("showSolution");
+                            if ((data is not null) && !bool.TryParse(data.Value, out _))
+                            {
+                                return false;
+                            }
 
-                                if ((data is not null) && !bool.TryParse(data.Value, out _))
-                                {
-                                    return false;
-                                }
+                            data = root.Element("Sudoku");
 
-                                data = root.Element("Sudoku");
-
-                                if ((data is not null) && (data.Attribute("version") is XAttribute vs) && int.TryParse(vs.Value, out int sv))
-                                {
-                                    return sv == 2;
-                                }
+                            if ((data is not null) && (data.Attribute("version") is XAttribute vs) && int.TryParse(vs.Value, out int sv))
+                            {
+                                return sv == 2;
                             }
                         }
                     }

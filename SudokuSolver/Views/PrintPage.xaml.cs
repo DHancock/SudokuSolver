@@ -39,7 +39,7 @@ internal sealed partial class PrintPage : UserControl
 
         if (data is not null)
         {
-            Puzzle.ViewModel.LoadXml(data, isModified: false);  // isModified isn't relevant to printed puzzles
+            Puzzle.ViewModel.LoadXml(data, isFileBacked: false); 
         }
     }
 

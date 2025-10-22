@@ -642,6 +642,7 @@ internal sealed partial class MainWindow : Window, ISession
                         {
                             if (!PuzzleTabViewItem.ValidateSessionData(child))
                             {
+                                Debug.WriteLine("PuzzleTabViewItem.ValidateSessionData() failed");
                                 return false;
                             }
                         }
@@ -650,8 +651,15 @@ internal sealed partial class MainWindow : Window, ISession
 
                         foreach (XElement child in root.Descendants("settings"))
                         {
-                            if ((++count > 1) || !SettingsTabViewItem.ValidateSessionData(child))
+                            if (++count > 1)
                             {
+                                Debug.WriteLine("Settings session count failed");
+                                return false;
+                            }
+
+                            if (!SettingsTabViewItem.ValidateSessionData(child))
+                            {
+                                Debug.WriteLine("SettingsTabViewItem.ValidateSessionData() failed");
                                 return false;
                             }
                         }
