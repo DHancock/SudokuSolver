@@ -94,9 +94,6 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
     public PuzzleTabViewItem(MainWindow parent, XElement root) : this(parent)
     {
-        // Called when opening the session file and when duplicating the tab (copy plus drag and drop)
-        // In the later case, the undo history will be lost. For now I'm ignoring that deficiency.
-
         initialisationPhase += 1;
 
         XElement? data = root.Element("title");
@@ -166,6 +163,11 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
             initialisationPhase -= 1;
         }
+    }
+
+    public PuzzleTabViewItem(MainWindow parent, PuzzleTabViewItem source) : this(parent, source.GetSessionData())
+    {
+        viewModel.TransferUndoHistory(source.viewModel);
     }
 
     private void Puzzle_SizeChanged(object sender, SizeChangedEventArgs e)

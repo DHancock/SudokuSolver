@@ -52,16 +52,6 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
         }
     }
 
-    private void Expander_SizeChanged(object sender, SizeChangedEventArgs e)
-    {
-        parentWindow.SetWindowDragRegions();
-    }
-
-    private void RootScrollViewer_ViewChanged(object? sender, ScrollViewerViewChangedEventArgs e)
-    {
-        parentWindow.SetWindowDragRegions();
-    }
-
     public SettingsTabViewItem(MainWindow parent, XElement root) : this(parent)
     {
         Loaded += SettingsTabViewItem_Loaded;
@@ -87,6 +77,10 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
         }
     }
 
+    public SettingsTabViewItem(MainWindow parent, SettingsTabViewItem source) : this(parent, source.GetSessionData())
+    {
+    }
+
     public void Closed()
     {
         LayoutRoot.SizeChanged -= LayoutRoot_SizeChanged;
@@ -97,6 +91,17 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
         LightColorsExpander.SizeChanged -= Expander_SizeChanged;
         DarkColorsExpander.SizeChanged -= Expander_SizeChanged;
         SessionExpander.SizeChanged -= Expander_SizeChanged;
+    }
+
+
+    private void Expander_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        parentWindow.SetWindowDragRegions();
+    }
+
+    private void RootScrollViewer_ViewChanged(object? sender, ScrollViewerViewChangedEventArgs e)
+    {
+        parentWindow.SetWindowDragRegions();
     }
 
     private void LayoutRoot_SizeChanged(object sender, SizeChangedEventArgs e)

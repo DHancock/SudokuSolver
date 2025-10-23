@@ -305,11 +305,11 @@ internal sealed partial class MainWindow : Window, ISession
 
             if (args.Tab is PuzzleTabViewItem puzzleTab)
             {
-                window.AddTab(new PuzzleTabViewItem(window, puzzleTab.GetSessionData()));
+                window.AddTab(new PuzzleTabViewItem(window, puzzleTab));
             }
             else if (args.Tab is SettingsTabViewItem settingsTab)
             {
-                window.AddTab(new SettingsTabViewItem(window, settingsTab.GetSessionData()));
+                window.AddTab(new SettingsTabViewItem(window, settingsTab));
             }
 
             // close tab after creating the window otherwise the app could terminate with zero windows
@@ -369,14 +369,14 @@ internal sealed partial class MainWindow : Window, ISession
 
                 if (sourceTab is PuzzleTabViewItem puzzleTab)
                 {
-                    AddTab(new PuzzleTabViewItem(this, puzzleTab.GetSessionData()), index);
+                    AddTab(new PuzzleTabViewItem(this, puzzleTab), index);
                 }
                 else if (sourceTab is SettingsTabViewItem settingsTab)
                 {
                     TabViewItem? existing = Tabs.TabItems.FirstOrDefault(x => x is SettingsTabViewItem) as TabViewItem;
 
                     // add first before closing an existing settings tab to avoid the window closing
-                    AddTab(new SettingsTabViewItem(this, settingsTab.GetSessionData()), index);
+                    AddTab(new SettingsTabViewItem(this, settingsTab), index);
 
                     if (existing is not null)
                     {

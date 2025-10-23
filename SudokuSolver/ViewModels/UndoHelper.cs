@@ -7,13 +7,24 @@ internal sealed class UndoHelper
     private const int cMaxUndoCount = 20;
 
     private readonly UndoStack<PuzzleModel> undoStack;
-    private readonly Stack<PuzzleModel> redoStack;
+    private readonly RedoStack<PuzzleModel> redoStack;
     private PuzzleModel? currentModel;
 
     public UndoHelper()
     {
         undoStack = new UndoStack<PuzzleModel>(cMaxUndoCount);
-        redoStack = new Stack<PuzzleModel>(cMaxUndoCount);
+        redoStack = new RedoStack<PuzzleModel>(cMaxUndoCount);
+    }
+
+    public UndoHelper(UndoHelper source)
+    {
+        undoStack = new UndoStack<PuzzleModel>(source.undoStack);
+        redoStack = new RedoStack<PuzzleModel>(source.redoStack);
+
+        if (source.currentModel is not null)
+        {
+            currentModel = new PuzzleModel(source.currentModel);
+        }
     }
 
     public void Push(PuzzleModel model)
@@ -74,6 +85,17 @@ internal sealed class UndoHelper
             this.maxCount = maxCount;
         }
 
+        public UndoStack(UndoStack<T> source) : this(source.maxCount)
+        {
+            LinkedListNode<T>? node = source.list.First;
+
+            while (node is not null)
+            {
+                list.AddLast(new LinkedListNode<T>(node.Value));
+                node = node.Next;
+            }
+        }
+
         public void Push(T item)
         {
             list.AddFirst(item);
@@ -100,5 +122,26 @@ internal sealed class UndoHelper
         public void Clear() => list.Clear();
 
         public int Count => list.Count;
+    }
+
+
+    private sealed class RedoStack<T> : Stack<T>
+    {
+        public RedoStack(int capacity): base(capacity) 
+        { 
+        }
+
+        public RedoStack(RedoStack<T> source) : base(source.Capacity)
+        {
+            if (source.Count > 0)
+            {
+                T[] temp = source.ToArray();
+
+                for (int index = source.Count - 1; index >= 0; index--)
+                {
+                    Push(temp[index]);
+                }
+            }
+        }
     }
 }
