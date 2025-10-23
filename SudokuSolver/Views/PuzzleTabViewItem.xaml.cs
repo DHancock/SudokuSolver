@@ -413,7 +413,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
         try
         {
-            await using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            await using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
             {
                 XDocument document = await XDocument.LoadAsync(fs, LoadOptions.None, CancellationToken.None);
                 ViewModel.LoadXml(document.Root, isFileBacked: true);
@@ -680,7 +680,6 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
         XElement root = GetSessionData();
         SetElement(root, "path", string.Empty);
-        SetElement(root, "modified", PuzzleHasData(root) ? "true" : "false");
         SetElement(root, "title", string.Empty);
 
         TabViewItem tab = new PuzzleTabViewItem(parentWindow, root);
@@ -694,13 +693,6 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
             {
                 data.Value = value;
             }
-        }
-
-        static bool PuzzleHasData(XElement root)
-        {
-            XElement? s = root.Element("Sudoku");
-            XElement? c = s?.Element("Cell");
-            return c is not null;
         }
     }
 
