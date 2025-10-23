@@ -43,8 +43,10 @@ internal class Settings
         {
             Directory.CreateDirectory(App.GetAppDataPath());
 
-            string jsonString = JsonSerializer.Serialize(this, SettingsJsonContext.Default.Settings);
-            await File.WriteAllTextAsync(GetSettingsFilePath(), jsonString);
+            await using (FileStream fs = File.Open(GetSettingsFilePath(), FileMode.Create))
+            {
+                await JsonSerializer.SerializeAsync(fs, this, SettingsJsonContext.Default.Settings);
+            }
         }
         catch (Exception ex)
         {
@@ -54,15 +56,11 @@ internal class Settings
 
     private static Settings Load()
     {
-        string path = GetSettingsFilePath();
-
         try
         {
-            string data = File.ReadAllText(path);
-
-            if (!string.IsNullOrWhiteSpace(data))
+            using (FileStream fs = File.Open(GetSettingsFilePath(), FileMode.Open, FileAccess.Read))
             {
-                Settings? settings = JsonSerializer.Deserialize<Settings>(data, SettingsJsonContext.Default.Settings);
+                Settings? settings = JsonSerializer.Deserialize<Settings>(fs, SettingsJsonContext.Default.Settings);
 
                 if (settings is not null)
                 {

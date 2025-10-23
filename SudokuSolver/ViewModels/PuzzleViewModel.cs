@@ -8,8 +8,7 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
 {
     public CellList Cells { get; }
 
-    private readonly UndoHelper undoHelper;
-
+    private UndoHelper undoHelper;
     private PuzzleModel model;
     private PuzzleModel initialState;
     private bool isModified = false;
@@ -348,6 +347,14 @@ internal sealed partial class PuzzleViewModel : INotifyPropertyChanged
 
         initialState = fileModel;
         IsModified = !model.Equals(fileModel);
+    }
+
+    internal void TransferUndoHistory(PuzzleViewModel source)
+    {
+        undoHelper = new UndoHelper(source.undoHelper);
+
+        // it's a shallow copy so remove the models from the source 
+        source.undoHelper.Reset();
     }
 
     private void NotifyPropertyChanged([CallerMemberName] string? propertyName = default)
