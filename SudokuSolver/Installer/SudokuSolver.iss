@@ -69,7 +69,7 @@ zh_Hant.DownGradeNotSupported=不支援降級。%n請先卸載目前版本。
 zh_Hant.ExceptionHeader=檢查安裝前提條件時發生錯誤:%n%n%1
 
 [Icons]
-Name: "{group}\{#appDisplayName}"; Filename: "{app}\{#appExeName}"; 
+Name: "{autoprograms}\{#appDisplayName}"; Filename: "{app}\{#appExeName}"; 
 
 [Run]
 Filename: "{app}\{#appExeName}"; Parameters: "/register";
