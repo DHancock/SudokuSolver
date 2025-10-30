@@ -2,11 +2,16 @@
 ; and that the WinAppSdk and .Net framework are self contained.
 ; Inno 6.5.4
 
+; Caution: There be dragons here. The only way I could get upgrades to work reliably with trimming
+; which rewrites dlls is to delete the install dir contents before copying the new stuff in.
+; To that end I specify a compulsory unique dir for the install in the users hidden AppData dir.
+; I wouldn't recomend it. This makes the install experience similar to installing a store app. 
+
 #define appDisplayName "Sudoku Solver"
 #define appName "SudokuSolver"
 #define appExeName appName + ".exe"
 #define appVer RemoveFileExt(GetVersionNumbersString("..\bin\Release\win-x64\publish\" + appExeName));
-#define appId "sudukosolver.8628521D92E74106"
+#define appId "C0A2E954-F594-42C4-B0C4-48BA0723C14A"
 #define appMutexName "51ECE64E-1954-41C4-81FB-E3A60CE4C224"
 #define setupMutexName "35D5D1E9-1FF3-48B7-B80C-E6BD3EA20751"
 
@@ -15,8 +20,7 @@ AppId={#appId}
 AppName={#appDisplayName}
 AppVersion={#appVer}
 AppVerName={cm:NameAndVersion,{#appDisplayName},{#appVer}}
-DefaultDirName={code:GetDefaultDirName}
-UsePreviousAppDir=no
+DefaultDirName={autopf}\{#appId}
 OutputDir={#SourcePath}\bin
 UninstallDisplayIcon={app}\{#appExeName}
 AppMutex={#appMutexName},Global\{#appMutexName}
@@ -32,12 +36,12 @@ DisableDirPage=yes
 MinVersion=10.0.17763
 AppPublisher=David
 ShowLanguageDialog=auto
+ArchitecturesAllowed=x64compatible or arm64
 ArchitecturesInstallIn64BitMode=x64compatible or arm64
 
 [Files]
 Source: "..\bin\Release\win-arm64\publish\*"; DestDir: "{app}"; Check: PreferArm64Files; Flags: ignoreversion recursesubdirs;
 Source: "..\bin\Release\win-x64\publish\*";   DestDir: "{app}"; Check: PreferX64Files;   Flags: ignoreversion recursesubdirs solidbreak;
-Source: "..\bin\Release\win-x86\publish\*";   DestDir: "{app}"; Check: PreferX86Files;   Flags: ignoreversion recursesubdirs solidbreak;
 
 [Languages]
 Name: en; MessagesFile: "compiler:Default.isl"
@@ -65,7 +69,7 @@ zh_Hant.DownGradeNotSupported=不支援降級。%n請先卸載目前版本。
 zh_Hant.ExceptionHeader=檢查安裝前提條件時發生錯誤:%n%n%1
 
 [Icons]
-Name: "{autodesktop}\{#appDisplayName}"; Filename: "{app}\{#appExeName}";
+Name: "{group}\{#appDisplayName}"; Filename: "{app}\{#appExeName}"; 
 
 [Run]
 Filename: "{app}\{#appExeName}"; Parameters: "/register";
@@ -89,78 +93,14 @@ begin
   Result := not PreferArm64Files and IsX64Compatible;
 end;
 
-function PreferX86Files: Boolean;
-begin
-  Result := not PreferArm64Files and not PreferX64Files;
-end;
-
 
 procedure CurPageChanged(CurPageID: Integer);
 begin  
-  case CurPageID of
-    wpPreparing: // if an old version of the app is running ensure that inno setup shuts it down
-      begin   
-        WizardForm.PreparingNoRadio.Enabled := false;
-      end;
-    
-    wpInstalling: // hide the extracted file name, it's a bit busy
-      begin               
-        WizardForm.FilenameLabel.Visible := false;
-        WizardForm.StatusLabel.Visible := false;
-      end;
-  end;
-end;
-
-
-// A < B returns -ve
-// A = B returns 0
-// A > B returns +ve
-function VersionComparer(const A, B: String): Integer;
-var
-  X, Y: Int64;
-begin
-  if not (StrToVersion(A, X) and StrToVersion(B, Y)) then
-    RaiseException('StrToVersion(''' + A + ''', ''' + B + ''')');
-  
-  Result := ComparePackedVersion(X, Y);
-end;
-
-
-function GetUninstallRegKey: String;
-begin
-  Result := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#appId}_is1';
-end;
-
-
-function IsDowngradeInstall: Boolean;
-var
-  InstalledVersion, UninstallerPath: String;
-begin
-  Result := false;
-  
-  if RegQueryStringValue(HKCU, GetUninstallRegKey, 'DisplayVersion', InstalledVersion) and 
-     RegQueryStringValue(HKCU, GetUninstallRegKey, 'UninstallString', UninstallerPath) then
+  if CurPageID = wpInstalling then 
   begin   
-    // check both the app version and that it (may be) possible to uninstall it 
-    Result := (VersionComparer(InstalledVersion, '{#appVer}') > 0) and FileExists(RemoveQuotes(UninstallerPath));
-  end;
-end;
-
-
-function InitializeSetup: Boolean;
-var 
-  Message: String;
-begin
-  Result := true;
-  
-  try 
-    if IsDowngradeInstall then
-      RaiseException(CustomMessage('DownGradeNotSupported'));
-    
-  except
-    Message := FmtMessage(CustomMessage('ExceptionHeader'), [GetExceptionMessage]);
-    SuppressibleMsgBox(Message, mbCriticalError, MB_OK, IDOK);
-    Result := false;
+    // hide the extracted file name etc.          
+    WizardForm.FilenameLabel.Visible := false;
+    WizardForm.StatusLabel.Visible := false;
   end;
 end;
 
@@ -181,24 +121,31 @@ begin
     
     file := '\session.xml';
     CopyFile(root + old + file,  root + new + file, false);
+    
+    DelTree(root + old, True, True, True);
   end;
 end;
 
 
-procedure UnRegisterFileAssociation;
+procedure UninstallOnUpgrade;
 var
-  directory, path: String;
-  resultCode: Integer;
+  Key, UninstallerPath, AppPath: String;
+  ResultCode: Integer;
 begin
-  if RegQueryStringValue(HKCU, GetUninstallRegKey, 'InstallLocation', directory) then
-  begin
-    path := RemoveBackslashUnlessRoot(RemoveQuotes(directory)) + '\' + '{#appExeName}';
+  // Uninstalling an old version shouldn't have any side effects as it's now a different app
+  Key := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\sudukosolver.8628521D92E74106_is1';
+  
+  if RegQueryStringValue(HKCU, Key, 'UninstallString', UninstallerPath) and
+     RegQueryStringValue(HKCU, Key, 'InstallLocation', AppPath) then
+  begin 
+    AppPath := RemoveBackslashUnlessRoot(RemoveQuotes(AppPath)) + '\{#AppExeName}' ;
     
-    if FileExists(path) then
-    begin
-      Exec(path, '/unregister', '', SW_HIDE, ewWaitUntilTerminated, resultCode);
-      Log('unregister result: ' + SysErrorMessage(ResultCode));
+    if not Exec('powershell.exe', 'gps | where path -eq ''' + AppPath + ''' | kill -force', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+    Begin
+      Exec('taskkill.exe', '/t /f /im {#appExeName}', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
     end;
+    
+    Exec(RemoveQuotes(UninstallerPath), '/VERYSILENT', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
   end;
 end;
 
@@ -209,14 +156,7 @@ begin
   begin
     // unfortunately I once thought that deleting the settings on uninstall was a good idea
     TransferSettingsIfRequired;
-    // remove the previous 'open verb' file association (which may delete the old settings)
-    UnRegisterFileAssociation;
+    UninstallOnUpgrade;
   end;
 end;
 
-
-function GetDefaultDirName(Param: string): String;
-begin
-  // construct a unique install dir
-  Result := ExpandConstant('{autopf}') + '\{#appName}.davidhancock.net'
-end;
