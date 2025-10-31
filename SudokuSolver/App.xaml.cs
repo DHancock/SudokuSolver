@@ -217,6 +217,8 @@ public partial class App : Application
         {
             // indicates that all windows are to be saved by the session helper
             SessionHelper.IsExit = true;
+            autoSaveTimer.Stop();
+
             windows = GetWindowsInAscendingZOrder();
         }
         else
