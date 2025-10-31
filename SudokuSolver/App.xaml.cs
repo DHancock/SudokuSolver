@@ -217,6 +217,8 @@ public partial class App : Application
         {
             // indicates that all windows are to be saved by the session helper
             SessionHelper.IsExit = true;
+            autoSaveTimer.Stop();
+
             windows = GetWindowsInAscendingZOrder();
         }
         else
@@ -460,17 +462,22 @@ public partial class App : Application
 
         async static void Timer_Tick(object? sender, object e)
         {
-            if (Settings.Instance.SaveSessionState && App.Instance.IsModified && !App.Instance.SessionHelper.IsEndSession)
+            if (Settings.Instance.SaveSessionState && App.Instance.IsModified && !(App.Instance.SessionHelper.IsExit || App.Instance.SessionHelper.IsEndSession))
             {
                 App.Instance.IsModified = false;
                 SessionHelper sessionHelper = new();
 
-                foreach (MainWindow window in App.Instance.GetWindowsInAscendingZOrder())
-                {
-                    sessionHelper.AddWindow(window);
-                }
+                List<MainWindow> windows = App.Instance.GetWindowsInAscendingZOrder();
 
-                await sessionHelper.SaveAsync();
+                if (windows.Count > 0)  // double check that the app isn't closing
+                {
+                    foreach (MainWindow window in windows)
+                    {
+                        sessionHelper.AddWindow(window);
+                    }
+
+                    await sessionHelper.SaveAsync();
+                }
             }
         }
     }
