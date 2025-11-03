@@ -1,5 +1,6 @@
 ﻿namespace SudokuSolver.Common;
 
+[DebuggerDisplay("{GetDebugStr(), nq}")]
 internal abstract class CellBase : IEquatable<CellBase>
 {
     public int Index;
@@ -62,7 +63,7 @@ internal abstract class CellBase : IEquatable<CellBase>
 
     public override int GetHashCode() => throw new NotImplementedException();
 
-    public override string? ToString() // for the debugger
+    private string GetDebugStr()
     {
         string index = $"[{Index % 9}, {Index / 9}] ({Index,2}) -";
 
@@ -71,6 +72,6 @@ internal abstract class CellBase : IEquatable<CellBase>
             return $"{index} value: {Value} origin: {Origin}";
         }
         
-        return $"{index} possibles: {Possibles} horizontal: {HorizontalDirections} vertical: {VerticalDirections}";
+        return $"{index} possible: {Possibles.GetDebugStr()} horizontal: {HorizontalDirections.GetDebugStr()} vertical: {VerticalDirections.GetDebugStr()}";
     }
 }

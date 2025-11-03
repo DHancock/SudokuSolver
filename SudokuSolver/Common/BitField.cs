@@ -1,5 +1,6 @@
 ﻿namespace SudokuSolver.Common;
 
+[DebuggerDisplay("{GetDebugStr(), nq}")]
 internal struct BitField : IEquatable<BitField>
 {
     private const nuint cSpan = 0b_0000_0011_1111_1110;
@@ -74,11 +75,6 @@ internal struct BitField : IEquatable<BitField>
         return new BitField(~a.data & cSpan);
     }
 
-    public static explicit operator nuint(BitField a)
-    {
-        return a.data;
-    }
-
     public static explicit operator BitField(nuint value)
     {
         return new BitField(value & cSpan);
@@ -91,7 +87,9 @@ internal struct BitField : IEquatable<BitField>
 
     public override readonly int GetHashCode() => (int)data;
 
-    public override readonly string? ToString() 
+    public override readonly string ToString() => data.ToString();
+   
+    public readonly string GetDebugStr() 
     {
         StringBuilder sb = new StringBuilder(9);
 

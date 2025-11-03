@@ -2,6 +2,7 @@
 
 namespace SudokuSolver.Models;
 
+[DebuggerDisplay("{GetDebugStr(), nq}")]
 internal sealed class PuzzleModel : IEquatable<PuzzleModel>
 {
     private static class Cx
@@ -62,9 +63,9 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
             else
             {
                 xCell = new XElement(Cx.v3_cell, new XElement(Cx.v3_value, "0"),
-                                                 new XElement(Cx.v3_possible, ((nuint)cell.Possibles).ToString()),
-                                                 new XElement(Cx.v3_horizontal, ((nuint)cell.HorizontalDirections).ToString()),
-                                                 new XElement(Cx.v3_vertical, ((nuint)cell.VerticalDirections).ToString()));
+                                                 new XElement(Cx.v3_possible, cell.Possibles.ToString()),
+                                                 new XElement(Cx.v3_horizontal, cell.HorizontalDirections.ToString()),
+                                                 new XElement(Cx.v3_vertical, cell.VerticalDirections.ToString()));
             }
 
             root.Add(xCell);
@@ -1180,7 +1181,7 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
         while (cellsToUpdate.Count > 0);
     }
 
-    public override string? ToString()
+    private string GetDebugStr()
     {
         StringBuilder sb = new StringBuilder(90);
 
