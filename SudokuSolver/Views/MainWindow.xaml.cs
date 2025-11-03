@@ -1,9 +1,6 @@
 ﻿using SudokuSolver.Utilities;
 using SudokuSolver.ViewModels;
 
-using Windows.Foundation.Collections;
-
-
 namespace SudokuSolver.Views;
 
 /// <summary>
@@ -33,8 +30,7 @@ internal sealed partial class MainWindow : Window, ISession
 
         App.Instance.RegisterWindow(this);
 
-        AppWindow.Closing += AppWindow_Closing;
-        AppWindow.Destroying += AppWindow_Destroying;
+        AppWindow.Closing += AppWindow_ClosingAsync;
 
         // these two are used in the iconic window displayed when hovering over the app's icon in the task bar
         AppWindow.Title = App.cAppDisplayName;
@@ -91,26 +87,23 @@ internal sealed partial class MainWindow : Window, ISession
         }
     }
 
-    private void AppWindow_Destroying(AppWindow sender, object args)
-    {
-        AppWindow.Destroying -= AppWindow_Destroying;
-
-        Activated -= MainWindow_Activated;
-        LayoutRoot.ActualThemeChanged -= LayoutRoot_ActualThemeChanged;
-        LayoutRoot.ProcessKeyboardAccelerators -= LayoutRoot_ProcessKeyboardAccelerators;
-        AppWindow.Closing -= AppWindow_Closing;
-    }
-
     private void LayoutRoot_ActualThemeChanged(FrameworkElement sender, object args)
     {
         ContentDialogHelper.ThemeChanged(sender.ActualTheme);
         UpdateCaptionButtonColours();
     }
 
-    private async void AppWindow_Closing(AppWindow sender, AppWindowClosingEventArgs args)
+    private async void AppWindow_ClosingAsync(AppWindow sender, AppWindowClosingEventArgs args)
     {
+        if (Settings.Instance.SaveSessionState && (App.Instance.WindowCount == 1))
+        {
+            App.Instance.SaveState();
+            Environment.Exit(0);
+        }
+
+        // the user may need to save the tab contents
         args.Cancel = true;
-        await HandleWindowCloseRequestedAsync();
+        await AttemptToCloseTabsAsync(Tabs.TabItems);
     }
 
     private void MainWindow_Activated(object sender, WindowActivatedEventArgs args)
@@ -129,25 +122,6 @@ internal sealed partial class MainWindow : Window, ISession
         else
         {
             WindowIcon.Opacity = 0.25;
-        }
-    }
-
-    private async Task HandleWindowCloseRequestedAsync()
-    {
-        if (Settings.Instance.SaveSessionState && (App.Instance.SessionHelper.IsExit || (App.Instance.WindowCount == 1)))
-        {
-            App.Instance.SessionHelper.AddWindow(this);
-
-            List<object> localCopy = new List<object>(Tabs.TabItems);
-
-            foreach (object tab in localCopy)
-            {
-                CloseTab((TabViewItem)tab);
-            }
-        }
-        else
-        {
-            await AttemptToCloseTabsAsync(Tabs.TabItems);
         }
     }
                                                         
@@ -228,40 +202,37 @@ internal sealed partial class MainWindow : Window, ISession
         }
     }
 
-    private async void Tabs_TabItemsChangedAsync(TabView sender, IVectorChangedEventArgs args)
+    private void Tabs_TabItemsChanged(TabView sender, IVectorChangedEventArgs args)
     {
-        if (sender.TabItems.Count == 0)
+        CollectionChange change = args.As<IVectorChangedEventArgs>().CollectionChange;
+
+        if ((change == CollectionChange.ItemInserted) || (change == CollectionChange.ItemRemoved))
         {
-            Settings.Instance.RestoreBounds = RestoreBounds;
-            Settings.Instance.WindowState = WindowState;
+            App.Instance.IsModified = true;
 
-            AppWindow.Hide();
-
-            App.Instance.UnRegisterWindow(this);
-
-            if (App.Instance.WindowCount == 0)
+            if (sender.TabItems.Count == 0)
             {
-                if (Settings.Instance.SaveSessionState)
-                {
-                    await Task.WhenAll(Settings.Instance.SaveAsync(), App.Instance.SessionHelper.SaveAsync());
-                }
-                else
-                {
-                    await Settings.Instance.SaveAsync();
-                }
-            }
+                AppWindow.Hide();
 
-            Close();
+                if (App.Instance.WindowCount == 1)
+                {
+                    App.Instance.SaveState();
+                    Environment.Exit(0);
+                }
+
+                App.Instance.UnRegisterWindow(this);
+                Close();
+            }
+            else
+            {
+                sender.CanReorderTabs = Tabs.TabItems.Count > 1;
+                sender.CanDragTabs = true;
+            }
         }
-        else if (IntegrityLevel.IsElevated)
+        else if (change == CollectionChange.Reset)
         {
-            sender.CanReorderTabs = false;
-            sender.CanDragTabs = false;
-        }
-        else
-        {
-            sender.CanReorderTabs = Tabs.TabItems.Count > 1;
-            sender.CanDragTabs = true;
+            sender.CanDragTabs = !IntegrityLevel.IsElevated;
+            sender.CanReorderTabs = !IntegrityLevel.IsElevated;
         }
     }
 
@@ -298,25 +269,45 @@ internal sealed partial class MainWindow : Window, ISession
         {
             RectInt32 bounds = new RectInt32(p.X, p.Y, RestoreBounds.Width, RestoreBounds.Height);
 
-            MainWindow window = new MainWindow(WindowState.Normal, bounds);
+            MainWindow? window = null;
+            TabViewItem? tab = null;
 
-            // cannot just move the tab to a new window because MenuFlyoutItemBase requires an XamlRoot
-            // which cannot be updated once set, have to replace the ui
-
-            if (args.Tab is PuzzleTabViewItem puzzleTab)
+            try
             {
-                window.AddTab(new PuzzleTabViewItem(window, puzzleTab));
+                window = new MainWindow(WindowState.Normal, bounds);
+
+                // cannot just move the tab to a new window because MenuFlyoutItemBase requires an XamlRoot
+                // which cannot be updated once set, have to replace the ui
+
+                if (args.Tab is PuzzleTabViewItem puzzleTab)
+                {
+                    tab = new PuzzleTabViewItem(window, puzzleTab);
+                }
+                else if (args.Tab is SettingsTabViewItem settingsTab)
+                {
+                    tab = new SettingsTabViewItem(window, settingsTab);
+                }
+
+                if (tab is not null)
+                {
+                    window.AddTab(tab);
+                    window.Activate();
+                    window.AttemptSwitchToForeground();
+
+                    // close tab after creating the window otherwise the app could terminate with zero windows
+                    CloseTab(args.Tab);
+                }
             }
-            else if (args.Tab is SettingsTabViewItem settingsTab)
+            catch (Exception ex) // not expected, it's just copying session data from one tab to another
             {
-                window.AddTab(new SettingsTabViewItem(window, settingsTab));
+                Debug.WriteLine(ex.ToString());
+
+                if (window is not null)
+                {
+                    window.AppWindow.Destroy();
+                    App.Instance.UnRegisterWindow(window);
+                }
             }
-
-            // close tab after creating the window otherwise the app could terminate with zero windows
-            CloseTab(args.Tab);
-
-            window.Activate();
-            window.AttemptSwitchToForeground();
         }
     }
 
@@ -367,24 +358,31 @@ internal sealed partial class MainWindow : Window, ISession
                 // It's from a different window, the tab has to be duplicated because a flyout's XamlRoot cannot be updated
                 Debug.Assert(!ReferenceEquals(window, this));
 
-                if (sourceTab is PuzzleTabViewItem puzzleTab)
+                try
                 {
-                    AddTab(new PuzzleTabViewItem(this, puzzleTab), index);
-                }
-                else if (sourceTab is SettingsTabViewItem settingsTab)
-                {
-                    TabViewItem? existing = Tabs.TabItems.FirstOrDefault(x => x is SettingsTabViewItem) as TabViewItem;
-
-                    // add first before closing an existing settings tab to avoid the window closing
-                    AddTab(new SettingsTabViewItem(this, settingsTab), index);
-
-                    if (existing is not null)
+                    if (sourceTab is PuzzleTabViewItem puzzleTab)
                     {
-                        CloseTab(existing);
+                        AddTab(new PuzzleTabViewItem(this, puzzleTab), index);
                     }
-                }
+                    else if (sourceTab is SettingsTabViewItem settingsTab)
+                    {
+                        TabViewItem? existing = Tabs.TabItems.FirstOrDefault(x => x is SettingsTabViewItem) as TabViewItem;
 
-                window?.CloseTab(sourceTab);
+                        // add first before closing an existing settings tab to avoid the window closing
+                        AddTab(new SettingsTabViewItem(this, settingsTab), index);
+
+                        if (existing is not null)
+                        {
+                            CloseTab(existing);
+                        }
+                    }
+
+                    window?.CloseTab(sourceTab);
+                }
+                catch (Exception ex) // not expected, it's just copying session data from one tab to another
+                {
+                    Debug.WriteLine(ex.ToString());
+                }
             }
         }
     }
@@ -591,19 +589,22 @@ internal sealed partial class MainWindow : Window, ISession
     {
         XElement root = new XElement("window", new XAttribute("version", 1));
 
-        XElement bounds = new XElement("bounds");
-        root.Add(bounds);
-
-        RectInt32 restoreBounds = RestoreBounds;
-
-        bounds.Add(new XElement(nameof(RectInt32.X), restoreBounds.X));
-        bounds.Add(new XElement(nameof(RectInt32.Y), restoreBounds.Y));
-        bounds.Add(new XElement(nameof(RectInt32.Width), restoreBounds.Width));
-        bounds.Add(new XElement(nameof(RectInt32.Height), restoreBounds.Height));
-
-        foreach (object tab in Tabs.TabItems)
+        if (Tabs.TabItems.Count > 0)
         {
-            root.Add(((ISession)tab).GetSessionData());
+            XElement bounds = new XElement("bounds");
+            root.Add(bounds);
+
+            RectInt32 restoreBounds = RestoreBounds;
+
+            bounds.Add(new XElement(nameof(RectInt32.X), restoreBounds.X));
+            bounds.Add(new XElement(nameof(RectInt32.Y), restoreBounds.Y));
+            bounds.Add(new XElement(nameof(RectInt32.Width), restoreBounds.Width));
+            bounds.Add(new XElement(nameof(RectInt32.Height), restoreBounds.Height));
+
+            foreach (object tab in Tabs.TabItems)
+            {
+                root.Add(((ISession)tab).GetSessionData());
+            }
         }
 
         return root;
@@ -824,7 +825,7 @@ internal sealed partial class MainWindow : Window, ISession
 
     public int IndexOf(PuzzleTabViewItem tab) => Tabs.TabItems.IndexOf(tab);
 
-    public object SelectedTab
+    public object? SelectedTab
     {
         get => Tabs.SelectedItem;
         set => Tabs.SelectedItem = value;

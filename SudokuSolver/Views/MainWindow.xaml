@@ -19,7 +19,7 @@
             HorizontalAlignment="Stretch"
             AddTabButtonClick="Tabs_AddTabButtonClick"
             TabCloseRequested="Tabs_TabCloseRequestedAsync"
-            TabItemsChanged="Tabs_TabItemsChangedAsync"
+            TabItemsChanged="Tabs_TabItemsChanged"
             TabDroppedOutside="Tabs_TabDroppedOutside"
             TabStripDrop="Tabs_TabStripDrop"
             TabWidthMode="SizeToContent">

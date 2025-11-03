@@ -14,29 +14,26 @@ internal struct BitField : IEquatable<BitField>
         data = value;
     }
 
-    // In a classic BitField implementation the indexer is a mask allowing
-    // multiple bits to be set or tested. Here it refers to the bit number
-    // of an individual bit, more like an array indexer.
-    public bool this[int bit]
+    public bool this[int index]
     {
         readonly get
         {
-            Debug.Assert((cSpan | ((nuint)1 << bit)) == cSpan);
+            Debug.Assert((cSpan | ((nuint)1 << index)) == cSpan);
 
-            return (data & ((nuint)1 << bit)) > 0;
+            return (data & ((nuint)1 << index)) > 0;
         }
 
         set
         {
-            Debug.Assert((cSpan | ((nuint)1 << bit)) == cSpan);
+            Debug.Assert((cSpan | ((nuint)1 << index)) == cSpan);
 
             if (value)
             {
-                data |= (nuint)1 << bit;
+                data |= (nuint)1 << index;
             }
             else
             {
-                data &= ~((nuint)1 << bit);
+                data &= ~((nuint)1 << index);
             }
         }
     }
@@ -75,6 +72,16 @@ internal struct BitField : IEquatable<BitField>
     public static BitField operator ~(BitField a)
     {
         return new BitField(~a.data & cSpan);
+    }
+
+    public static explicit operator nuint(BitField a)
+    {
+        return a.data;
+    }
+
+    public static explicit operator BitField(nuint value)
+    {
+        return new BitField(value & cSpan);
     }
 
     public override readonly bool Equals(object? obj)

@@ -37,15 +37,15 @@ internal class Settings
         DarkThemeColors = new List<Color>(DefaultDarkThemeColors);
     }
 
-    public async Task SaveAsync()
+    public void Save()
     {
         try
         {
             Directory.CreateDirectory(App.GetAppDataPath());
 
-            await using (FileStream fs = File.Open(GetSettingsFilePath(), FileMode.Create))
+            using (FileStream fs = File.Create(GetSettingsFilePath()))
             {
-                await JsonSerializer.SerializeAsync(fs, this, SettingsJsonContext.Default.Settings);
+                JsonSerializer.Serialize(fs, this, SettingsJsonContext.Default.Settings);
             }
         }
         catch (Exception ex)
@@ -58,7 +58,7 @@ internal class Settings
     {
         try
         {
-            using (FileStream fs = File.Open(GetSettingsFilePath(), FileMode.Open, FileAccess.Read))
+            using (FileStream fs = File.OpenRead(GetSettingsFilePath()))
             {
                 Settings? settings = JsonSerializer.Deserialize<Settings>(fs, SettingsJsonContext.Default.Settings);
 

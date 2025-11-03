@@ -10,6 +10,7 @@ global using Microsoft.UI.Xaml.Input;
 global using Microsoft.UI.Xaml.Media;
 global using Microsoft.UI.Xaml.Media.Imaging;
 global using Microsoft.UI.Xaml.Printing;
+global using Microsoft.Win32.SafeHandles;
 global using Microsoft.Windows.ApplicationModel.Resources;
 global using Microsoft.Windows.AppLifecycle;
 
@@ -32,6 +33,7 @@ global using System.Xml.Linq;
 global using Windows.ApplicationModel.Activation;
 global using Windows.ApplicationModel.DataTransfer;
 global using Windows.Foundation;
+global using Windows.Foundation.Collections;
 global using Windows.Graphics;
 global using Windows.Graphics.Printing;
 global using Windows.Graphics.Printing.OptionDetails;
@@ -45,4 +47,5 @@ global using Windows.Win32.Foundation;
 global using Windows.Win32.UI.Shell;
 global using Windows.Win32.UI.WindowsAndMessaging;
 
+global using WinRT;
 global using WinRT.Interop;
