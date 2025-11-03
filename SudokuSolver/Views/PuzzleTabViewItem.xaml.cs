@@ -147,7 +147,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
             try
             {
                 // load the mirrored backing file to update the modified flag and set the initial state
-                await using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                await using (FileStream fs = File.OpenRead(filePath))
                 {
                     XDocument document = await XDocument.LoadAsync(fs, LoadOptions.None, CancellationToken.None);
                     ViewModel.ProcessBackingFileData(document.Root);
@@ -415,7 +415,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
         try
         {
-            await using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
+            await using (FileStream fs = File.OpenRead(path))
             {
                 XDocument document = await XDocument.LoadAsync(fs, LoadOptions.None, CancellationToken.None);
                 ViewModel.LoadXml(document.Root, isFileBacked: true);
@@ -660,7 +660,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
                             if ((data is not null) && (data.Attribute("version") is XAttribute vs) && int.TryParse(vs.Value, out int sv))
                             {
-                                return sv == 2;
+                                return (sv == 2) || (sv == 3);
                             }
                         }
                     }

@@ -14,21 +14,18 @@ public partial class App : Application
     public const string cFileExt = ".sdku";
     public const string cAppDisplayName = "Sudoku Solver";
     public static App Instance => (App)Current;
-
     public bool IsModified { private get; set; }
+    internal ResourceLoader ResourceLoader { get; } = new ResourceLoader();
+    internal ClipboardHelper ClipboardHelper { get; } = new ClipboardHelper();
 
     private readonly DispatcherQueue uiThreadDispatcher;
     private readonly DispatcherTimer autoSaveTimer;
     private readonly AppInstance appInstance;
     private readonly List<MainWindow> windowList = new();
     private MainWindow? currentWindow;
-    internal ResourceLoader ResourceLoader { get; } = new ResourceLoader();
-    internal SessionHelper SessionHelper { get; } = new SessionHelper();
-    internal ClipboardHelper ClipboardHelper { get; } = new ClipboardHelper();
     private bool appClosing = false;
-
-    private readonly SafeHandle localMutex;
-    private readonly SafeHandle globalMutex;
+    private readonly SafeFileHandle localMutex;
+    private readonly SafeFileHandle globalMutex;
 
     /// <summary>
     /// Initializes the singleton application object. This will be the single current
@@ -59,7 +56,15 @@ public partial class App : Application
     {
         if (Settings.Instance.SaveSessionState)
         {
-            await SessionHelper.LoadPreviousSessionAsync();
+            try
+            {
+                await SessionHelper.LoadPreviousSessionAsync();
+                ActivateRestoredSessionWindows();
+            }
+            catch
+            {
+                CleanUpAfterLoadPreviousSessionException();
+            }
 
             if (Settings.Instance.OneTimeSaveOnEndSession)
             {
@@ -79,8 +84,14 @@ public partial class App : Application
             await ProcessCommandLineAsync(Environment.GetCommandLineArgs());
         }
 
-        currentWindow ??= CreateDefaultWindow();
-        currentWindow.Activate();
+        IsModified = false;
+
+        if (currentWindow is null)
+        {
+            currentWindow = CreateDefaultWindow();
+            currentWindow.Activate();
+        }
+
         currentWindow.AttemptSwitchToForeground();
     }
 
@@ -110,10 +121,10 @@ public partial class App : Application
                         await ProcessCommandLineAsync(SplitLaunchArguments(((ILaunchActivatedEventArgs)e.Data).Arguments));
                     }
 
-                    if (!appClosing)
+                    if (!appClosing && (currentWindow is not null))
                     {
-                        currentWindow?.Activate();
-                        currentWindow?.AttemptSwitchToForeground();
+                        currentWindow.Activate();
+                        currentWindow.AttemptSwitchToForeground();
                     }
                 }
             });
@@ -177,6 +188,25 @@ public partial class App : Application
         return window;
     }
 
+    private void CleanUpAfterLoadPreviousSessionException()
+    {
+        foreach (MainWindow window in windowList)
+        {
+            window.AppWindow.Destroy();
+        }
+
+        windowList.Clear();
+        currentWindow = null;
+    }
+
+    private void ActivateRestoredSessionWindows()
+    {
+        foreach (MainWindow window in windowList)
+        {
+            window.Activate();
+        }
+    }
+
     internal MainWindow? GetWindowForElement(UIElement element)
     {
         return windowList.FirstOrDefault(window => window.Content.XamlRoot == element.XamlRoot);
@@ -187,6 +217,7 @@ public partial class App : Application
         Debug.Assert(!appClosing);
         windowList.Add(window);
         currentWindow = window;
+        IsModified = true;
     }
 
     internal void UnRegisterWindow(MainWindow window)
@@ -198,12 +229,18 @@ public partial class App : Application
         {
             appClosing = true;
             currentWindow = null;
+            autoSaveTimer.Stop();
         }
-        else if (ReferenceEquals(currentWindow, window))
+        else
         {
-            // If all the other windows are minimized then another window won't be
-            // automatically activated. Until it's known, use the last one opened.
-            currentWindow = windowList.LastOrDefault();
+            IsModified = true;
+
+            if (ReferenceEquals(currentWindow, window))
+            {
+                // If all the other windows are minimized then another window won't be
+                // automatically activated. Until it's known, use the previous top one.
+                currentWindow = GetWindowsInDescendingZOrder().FirstOrDefault();
+            }
         }
     }
 
@@ -211,23 +248,14 @@ public partial class App : Application
 
     public void AttemptCloseAllWindows()
     {
-        List<MainWindow> windows;
-
         if (Settings.Instance.SaveSessionState)
         {
-            // indicates that all windows are to be saved by the session helper
-            SessionHelper.IsExit = true;
-            autoSaveTimer.Stop();
-
-            windows = GetWindowsInAscendingZOrder();
+            SaveState();
+            Environment.Exit(0);
         }
-        else
-        {
-            // the user will be prompted to save any unsaved changes
-            windows = GetWindowsInDescendingZOrder();
-        }
-
-        foreach (MainWindow window in windows)
+       
+        // the user will be prompted to save any unsaved changes
+        foreach (MainWindow window in GetWindowsInDescendingZOrder())
         {
             window.PostCloseMessage();
         }
@@ -382,33 +410,42 @@ public partial class App : Application
 
     public void SaveStateOnEndSession()
     {
-        if (!SessionHelper.IsEndSession)
+        if (!Settings.Instance.SaveSessionState)
         {
-            SessionHelper.IsEndSession = true;
+            // temporarily switch on, avoids the need to interrupt the shut down or sign out 
+            Settings.Instance.SaveSessionState = true;
+            Settings.Instance.OneTimeSaveOnEndSession = true;
+        }
+
+        SaveState();
+    }
+
+    public void SaveState()
+    {
+        if (!appClosing)
+        {
+            appClosing = true;
             autoSaveTimer.Stop();
 
-            if (!Settings.Instance.SaveSessionState)
+            if (currentWindow is not null)
             {
-                // temporarily switch on, avoids the need to interrupt the shut down or sign out 
-                Settings.Instance.SaveSessionState = true;
-                Settings.Instance.OneTimeSaveOnEndSession = true;
+                Settings.Instance.RestoreBounds = currentWindow.RestoreBounds;
+                Settings.Instance.WindowState = currentWindow.WindowState;
             }
 
-            foreach (MainWindow window in GetWindowsInAscendingZOrder())
+            Settings.Instance.Save();
+
+            if (Settings.Instance.SaveSessionState)
             {
-                SessionHelper.AddWindow(window);
+                SessionHelper sessionHelper = new SessionHelper();
+
+                foreach (MainWindow window in GetWindowsInAscendingZOrder())
+                {
+                    sessionHelper.AddWindow(window);
+                }
+
+                sessionHelper.Save();
             }
-
-            // convert to synchronous, the window subclass proc cannot be async
-            ManualResetEventSlim mres = new();
-
-            Task.Run(async () =>
-            {
-                await Task.WhenAll(Settings.Instance.SaveAsync(), SessionHelper.SaveAsync());
-                mres.Set();
-            });
-
-            mres.Wait();
         }
     }
 
@@ -452,32 +489,35 @@ public partial class App : Application
         }
     }
 
-    private static DispatcherTimer InitialiseAutoSaveTimer()
+    private DispatcherTimer InitialiseAutoSaveTimer()
     {
         DispatcherTimer timer = new DispatcherTimer();
-        timer.Interval = TimeSpan.FromSeconds(5);
+        timer.Interval = TimeSpan.FromSeconds(10);
         timer.Tick += Timer_Tick;
 
         return timer;
 
-        async static void Timer_Tick(object? sender, object e)
+        void Timer_Tick(object? sender, object e)
         {
-            if (Settings.Instance.SaveSessionState && App.Instance.IsModified && !(App.Instance.SessionHelper.IsExit || App.Instance.SessionHelper.IsEndSession))
+            try
             {
-                App.Instance.IsModified = false;
-                SessionHelper sessionHelper = new();
-
-                List<MainWindow> windows = App.Instance.GetWindowsInAscendingZOrder();
-
-                if (windows.Count > 0)  // double check that the app isn't closing
+                if (Settings.Instance.SaveSessionState && IsModified && !appClosing)
                 {
-                    foreach (MainWindow window in windows)
+                    IsModified = false;
+                    autoSaveTimer.Interval = TimeSpan.FromSeconds(5);
+
+                    SessionHelper sessionHelper = new();
+
+                    foreach (MainWindow window in GetWindowsInAscendingZOrder())
                     {
                         sessionHelper.AddWindow(window);
                     }
 
-                    await sessionHelper.SaveAsync();
+                    sessionHelper.Save();
                 }
+            }
+            catch
+            {
             }
         }
     }

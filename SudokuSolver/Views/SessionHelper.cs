@@ -1,11 +1,7 @@
-﻿
-namespace SudokuSolver.Views;
+﻿namespace SudokuSolver.Views;
 
 internal class SessionHelper
 {
-    public bool IsExit { get; set; } = false;   // save all windows when the Exit menu option is selected
-    public bool IsEndSession { get; set; } = false;   // save all windows on sign out or shut down
-
     private readonly XElement root;
 
     public SessionHelper()
@@ -16,7 +12,11 @@ internal class SessionHelper
     public void AddWindow(MainWindow mainWindow)
     {
         XElement window = mainWindow.GetSessionData();
-        root.Add(window);
+
+        if (window.HasElements)
+        {
+            root.Add(window);
+        }
     }
 
     private static string GetSessionPath()
@@ -24,15 +24,22 @@ internal class SessionHelper
         return Path.Combine(App.GetAppDataPath(), "session.xml");
     }
 
-    public async Task SaveAsync()
+    public void Save()
     {
         try
         {
-            Directory.CreateDirectory(App.GetAppDataPath());
-
-            await using (Stream stream = new FileStream(GetSessionPath(), FileMode.Create))
+            if (root.HasElements)
             {
-                await root.SaveAsync(stream, SaveOptions.DisableFormatting, CancellationToken.None);
+                Directory.CreateDirectory(App.GetAppDataPath());
+
+                using (Stream stream = File.Create(GetSessionPath()))
+                {
+                    root.Save(stream, SaveOptions.DisableFormatting);
+                }
+            }
+            else
+            {
+                File.Delete(GetSessionPath());
             }
         }
         catch (Exception ex)
@@ -45,7 +52,7 @@ internal class SessionHelper
     {
         try
         {
-            await using (Stream stream = new FileStream(GetSessionPath(), FileMode.Open, FileAccess.Read))
+            await using (Stream stream = File.OpenRead(GetSessionPath()))
             {
                 XDocument document = await XDocument.LoadAsync(stream, LoadOptions.None, CancellationToken.None);
 
@@ -76,16 +83,15 @@ internal class SessionHelper
                 }
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is FileNotFoundException or DirectoryNotFoundException)
         {
             Debug.WriteLine(ex.ToString());
         }
     }
 
-
-    private static void CreateWindow(XElement window)
+    private static void CreateWindow(XElement root)
     {
-        XElement? data = window.Element("bounds");
+        XElement? data = root.Element("bounds");
 
         if (data is not null)
         {
@@ -102,23 +108,24 @@ internal class SessionHelper
                 }
             }
 
-            // Always open with window state Normal, as does Notepad.
-            // It could be confusing if there are multiple windows and one is maximized.
-            MainWindow parentWindow = new MainWindow(WindowState.Normal, restoreBounds);
-
-            foreach (XElement child in window.Descendants())
+            if ((root.Element("puzzle") is not null) || (root.Element("settings") is not null))
             {
-                if (child.Name == "puzzle")
+                // Always open with window state Normal, as does Notepad.
+                // It could be confusing if there are multiple windows and one is maximized.
+                MainWindow window = new MainWindow(WindowState.Normal, restoreBounds);
+                
+                foreach (XElement child in root.Descendants())
                 {
-                    parentWindow.AddTab(new PuzzleTabViewItem(parentWindow, child));
-                }
-                else if (child.Name == "settings")
-                {
-                    parentWindow.AddTab(new SettingsTabViewItem(parentWindow, child));
+                    if (child.Name == "puzzle")
+                    {
+                        window.AddTab(new PuzzleTabViewItem(window, child));
+                    }
+                    else if (child.Name == "settings")
+                    {
+                        window.AddTab(new SettingsTabViewItem(window, child));
+                    }
                 }
             }
-
-            parentWindow.Activate();
         }
     }
 }

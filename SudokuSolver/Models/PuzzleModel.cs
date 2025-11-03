@@ -8,12 +8,20 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
     {
         public const string Sudoku = "Sudoku";
         public const string version = "version";
-        public const int current_version = 2;
+        public const int current_version = 3;
         public const string Cell = "Cell";
         public const string x = "x";
         public const string y = "y";
         public const string origin = "origin";
         public const string value = "value";
+
+        // version 3 format element names
+        public const string v3_cell = "c";
+        public const string v3_origin = "o";
+        public const string v3_value = "v";
+        public const string v3_possible = "p";
+        public const string v3_vertical = "u";
+        public const string v3_horizontal = "h";
     }
 
     public CellList Cells { get; }
@@ -44,13 +52,22 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
 
         foreach (Cell cell in Cells.AsSpan())
         {
-            if (cell.HasValue && (cell.Origin == Origins.User || cell.Origin == Origins.Provided))
+            XElement xCell;
+
+            if (cell.HasValue)
             {
-                root.Add(new XElement(Cx.Cell, new XElement(Cx.x, cell.Index % 9),
-                                                  new XElement(Cx.y, cell.Index / 9),
-                                                  new XElement(Cx.value, cell.Value),
-                                                  new XElement(Cx.origin, cell.Origin.ToString())));
+                xCell = new XElement(Cx.v3_cell, new XElement(Cx.v3_value, cell.Value.ToString()),
+                                                 new XElement(Cx.v3_origin, ((int)cell.Origin).ToString()));
             }
+            else
+            {
+                xCell = new XElement(Cx.v3_cell, new XElement(Cx.v3_value, "0"),
+                                                 new XElement(Cx.v3_possible, ((nuint)cell.Possibles).ToString()),
+                                                 new XElement(Cx.v3_horizontal, ((nuint)cell.HorizontalDirections).ToString()),
+                                                 new XElement(Cx.v3_vertical, ((nuint)cell.VerticalDirections).ToString()));
+            }
+
+            root.Add(xCell);
         }
 
         return root;
@@ -80,6 +97,7 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
             case 0: OpenVersion_0(root); break;
             case 1: OpenVersion_1(root); break;
             case 2: OpenVersion_2(root); break;
+            case 3: OpenVersion_3(root); break;
 
             default: throw new InvalidDataException("The file was created by newer version of this application. Please upgrade to open this file.");
         }
@@ -144,6 +162,66 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
 
         CalculatePossibleValues(Cells[0], forceRecalculation: true);
         AttemptSimpleTrialAndError();
+    }
+
+    // In previous versions only the user entered values were saved, then the solver called for those numbers.
+    // The problem is that the solution calculated may be dependent on the order that the numbers were entered in.
+    // So it could result in a different puzzle when saving and then subsequently reopening the same puzzle file.
+    // Could also affect drag and drop, printing and duplicating tabs. Uses format version 3 from release 1.14.0 
+    private void OpenVersion_3(XElement root)
+    {
+        int index = 0;
+
+        foreach (XElement cell in root.Descendants(Cx.v3_cell))
+        {
+            if (index > 80)
+            {
+                index = int.MaxValue;
+                break;
+            }
+
+            if (int.TryParse(cell.Element(Cx.v3_value)?.Value, out int value) && (value >= 0) && (value < 10))
+            {
+                if (value > 0)
+                {
+                    if (Enum.TryParse(cell.Element(Cx.v3_origin)?.Value, out Origins origin) && 
+                        ((origin == Origins.User) || (origin == Origins.Provided) || (origin == Origins.Calculated)))
+                    {
+                        Cells[index].Value = value;
+                        Cells[index].Origin = origin;
+                        CompletedCellsCount += 1;                         
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                else
+                {
+                    if (nuint.TryParse(cell.Element(Cx.v3_possible)?.Value, out nuint possible) &&
+                        nuint.TryParse(cell.Element(Cx.v3_horizontal)?.Value, out nuint hDir) &&
+                        nuint.TryParse(cell.Element(Cx.v3_vertical)?.Value, out nuint vDir))
+                    {
+                        Cells[index].Possibles = (BitField)possible;
+                        Cells[index].HorizontalDirections = (BitField)hDir;
+                        Cells[index].VerticalDirections = (BitField)vDir;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+
+            index += 1;
+        }
+
+        if (index != 81) 
+        {
+            // either the physical file or the session file is corrupted
+            // can't really make any assumptions so it's safest to just bail
+            throw new InvalidDataException("ile is corrupt.");
+        }
     }
 
     public bool Add(int index, int newValue)

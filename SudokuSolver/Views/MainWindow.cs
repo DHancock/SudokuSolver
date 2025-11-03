@@ -35,7 +35,7 @@ internal partial class MainWindow : Window
 
     private readonly InputNonClientPointerSource inputNonClientPointerSource;
     private readonly SUBCLASSPROC subClassDelegate;
-    private readonly DispatcherTimer dispatcherTimer;
+    private readonly DispatcherTimer dragRegionTimer;
     private PointInt32 restorePosition;
     private SizeInt32 restoreSize;
     private readonly MenuFlyout systemMenu;
@@ -65,9 +65,10 @@ internal partial class MainWindow : Window
 
         ContentDialogHelper = new ContentDialogHelper(this);
 
-        dispatcherTimer = InitialiseDragRegionTimer();
+        dragRegionTimer = InitialiseDragRegionTimer();
 
         AppWindow.Changed += AppWindow_Changed;
+        AppWindow.Destroying += AppWindow_Destroying;
         Activated += App.Instance.RecordWindowActivated;
 
         scaleFactor = InitialiseScaleFactor();
@@ -85,26 +86,27 @@ internal partial class MainWindow : Window
         systemMenu = (MenuFlyout)LayoutRoot.Resources["SystemMenu"];
 
         hookProc = new HOOKPROC(KeyboardHookProc);
-
-        Closed += MainWindow_Closed;
     }
 
-    private void MainWindow_Closed(object sender, WindowEventArgs args)
+    private void AppWindow_Destroying(AppWindow sender, object args)
     {
-        Closed -= MainWindow_Closed;
+        AppWindow.Destroying -= AppWindow_Destroying;
 
         bool success = PInvoke.RemoveWindowSubclass(WindowHandle, subClassDelegate, cSubClassId);
         Debug.Assert(success);
 
-        AppWindow.Changed -= AppWindow_Changed;
-        Activated -= App.Instance.RecordWindowActivated;
-
-        dispatcherTimer.Stop();
-        dispatcherTimer.Tick -= DispatcherTimer_Tick;
-
+        dragRegionTimer.Stop();
         Content = null;
 
         hookSafeHandle?.Dispose();
+
+        AppWindow.Changed -= AppWindow_Changed;
+        AppWindow.Closing -= AppWindow_ClosingAsync;
+
+        Activated -= MainWindow_Activated;
+        Activated -= App.Instance.RecordWindowActivated;
+        LayoutRoot.ActualThemeChanged -= LayoutRoot_ActualThemeChanged;
+        LayoutRoot.ProcessKeyboardAccelerators -= LayoutRoot_ProcessKeyboardAccelerators;
     }
 
     private void AppWindow_Changed(AppWindow sender, AppWindowChangedEventArgs args)
@@ -234,7 +236,7 @@ internal partial class MainWindow : Window
         if (code >= 0)
         {
             VirtualKey key = (VirtualKey)(nuint)wParam;
-            bool isKeyDown = (lParam >>> 31) == 0;
+            bool isKeyDown = (lParam & 0x8000_0000) == 0;
 
             if (isKeyDown)
             {
@@ -389,36 +391,39 @@ internal partial class MainWindow : Window
 
     private void SetWindowDragRegionsInternal()
     {
-        const int cTabViewPassthroughCount = 3;
-
         try
         {
-            RectInt32 windowRect = new RectInt32(0, 0, AppWindow.ClientSize.Width, AppWindow.ClientSize.Height);
-
-            if (ContentDialogHelper.IsContentDialogOpen)
+            if (AppWindow is not null)
             {
-                // this also effectively disables the caption buttons
-                inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Passthrough, [windowRect]);
-            }
-            else
-            {
-                // as there is no clear distinction any more between the title bar region and the client area,
-                // just treat the whole window as a title bar, click anywhere on the backdrop to drag the window.
-                inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Caption, [windowRect]);
+                RectInt32 windowRect = new RectInt32(0, 0, AppWindow.ClientSize.Width, AppWindow.ClientSize.Height);
 
-                int size = ((ITabItem)Tabs.SelectedItem).PassthroughCount + cTabViewPassthroughCount;
-                RectInt32[] rects = new RectInt32[size];
+                if (ContentDialogHelper.IsContentDialogOpen)
+                {
+                    // this also effectively disables the caption buttons
+                    inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Passthrough, [windowRect]);
+                }
+                else
+                {
+                    // as there is no clear distinction any more between the title bar region and the client area,
+                    // just treat the whole window as a title bar, click anywhere on the backdrop to drag the window.
+                    inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Caption, [windowRect]);
 
-                ((ITabItem)Tabs.SelectedItem).AddPassthroughContent(rects);
-                AddTabViewPassthroughContent(rects);
+                    if (Tabs.SelectedItem is not null)
+                    {
+                        const int cTabViewPassthroughCount = 3;
+                        int size = ((ITabItem)Tabs.SelectedItem).PassthroughCount + cTabViewPassthroughCount;
+                        RectInt32[] rects = new RectInt32[size];
 
-                inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Passthrough, rects);
+                        ((ITabItem)Tabs.SelectedItem).AddPassthroughContent(rects);
+                        AddTabViewPassthroughContent(rects);
+
+                        inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Passthrough, rects);
+                    }
+                }
             }
         }
-        catch (Exception ex)
+        catch
         {
-            // can throw if the window is closing
-            Debug.WriteLine(ex.ToString());
         }
     }
 
@@ -446,27 +451,27 @@ internal partial class MainWindow : Window
         dt.Interval = TimeSpan.FromMilliseconds(50);
         dt.Tick += DispatcherTimer_Tick;
         return dt;
+
+        void DispatcherTimer_Tick(object? sender, object e)
+        {
+            dragRegionTimer.Stop();
+            SetWindowDragRegionsInternal();
+        }
     }
 
     public void SetWindowDragRegions()
     {
         // defer setting the drag regions while still resizing the window or scrolling
         // it's content. If the timer is already running, this resets the interval.
-        dispatcherTimer.Start();
+        dragRegionTimer.Start();
     }  
-
-    private void DispatcherTimer_Tick(object? sender, object e)
-    {
-        dispatcherTimer.Stop();
-        SetWindowDragRegionsInternal();
-    }
 
     public void ContentDialogOpened()
     {
         // workaround for https://github.com/microsoft/microsoft-ui-xaml/issues/5739
         // focus can escape a content dialog when access keys are shown via the alt key...
         // (it makes no difference if the content dialog itself has any access keys)
-        ((ITabItem)Tabs.SelectedItem).EnableAccessKeys(enable: false);
+        ((ITabItem)Tabs.SelectedItem)?.EnableAccessKeys(enable: false);
 
         OverlappedPresenter op = (OverlappedPresenter)AppWindow.Presenter;
         op.IsResizable = false;
@@ -478,7 +483,7 @@ internal partial class MainWindow : Window
 
     public void ContentDialogClosing()
     {
-        ((ITabItem)Tabs.SelectedItem).EnableAccessKeys(enable: true);
+        ((ITabItem)Tabs.SelectedItem)?.EnableAccessKeys(enable: true);
 
         OverlappedPresenter op = (OverlappedPresenter)AppWindow.Presenter;
         op.IsResizable = true;
