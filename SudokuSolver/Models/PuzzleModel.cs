@@ -199,13 +199,13 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
                 }
                 else
                 {
-                    if (nuint.TryParse(cell.Element(Cx.v3_possible)?.Value, out nuint possible) &&
-                        nuint.TryParse(cell.Element(Cx.v3_horizontal)?.Value, out nuint hDir) &&
-                        nuint.TryParse(cell.Element(Cx.v3_vertical)?.Value, out nuint vDir))
+                    if (BitField.TryParse(cell.Element(Cx.v3_possible)?.Value, out BitField possible) &&
+                        BitField.TryParse(cell.Element(Cx.v3_horizontal)?.Value, out BitField horizontal) &&
+                        BitField.TryParse(cell.Element(Cx.v3_vertical)?.Value, out BitField vertical))
                     {
-                        Cells[index].Possibles = (BitField)possible;
-                        Cells[index].HorizontalDirections = (BitField)hDir;
-                        Cells[index].VerticalDirections = (BitField)vDir;
+                        Cells[index].Possibles = possible;
+                        Cells[index].HorizontalDirections = horizontal;
+                        Cells[index].VerticalDirections = vertical;
                     }
                     else
                     {

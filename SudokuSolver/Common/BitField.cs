@@ -75,11 +75,6 @@ internal struct BitField : IEquatable<BitField>
         return new BitField(~a.data & cSpan);
     }
 
-    public static explicit operator BitField(nuint value)
-    {
-        return new BitField(value & cSpan);
-    }
-
     public override readonly bool Equals(object? obj)
     {
         return obj is BitField field && Equals(field);
@@ -88,7 +83,19 @@ internal struct BitField : IEquatable<BitField>
     public override readonly int GetHashCode() => (int)data;
 
     public override readonly string ToString() => data.ToString();
-   
+
+    public static bool TryParse(string? s, out BitField result)
+    {
+        if (nuint.TryParse(s, out nuint value) && ((value | cSpan) == cSpan))
+        {
+            result.data = value;
+            return true;
+        }
+
+        result = Empty;
+        return false;
+    }
+
     public readonly string GetDebugStr() 
     {
         StringBuilder sb = new StringBuilder(9);
