@@ -177,7 +177,7 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
             }
             else
             {
-                throw new InvalidDataException("The file is corrupt.");
+                throw new InvalidDataException("The file contains invalid data.");
             }
         }
     }
