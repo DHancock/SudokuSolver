@@ -65,22 +65,6 @@ internal struct BitField : IEquatable<BitField>
 
     public readonly bool TryFormat(Span<char> destination, out int charsWritten) => value.TryFormat(destination, out charsWritten);
 
-    public readonly int DigitCount
-    {
-        get
-        {
-            Debug.Assert(AllTrue.value < 10000);
-
-            switch (value)
-            {
-                case < 10: return 1;
-                case < 100: return 2;
-                case < 1000: return 3;
-                default: return 4;
-            }
-        }
-    }     
-
     public static bool TryParse(string? str, out BitField result)
     {
         return TryParse(str.AsSpan(), out result);

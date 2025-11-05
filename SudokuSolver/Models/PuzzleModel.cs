@@ -46,16 +46,19 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
     {
         XElement root = new XElement(Cx.Sudoku, new XAttribute(Cx.version, Cx.current_version));
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(1024);
+        Span<char> encodedCell = stackalloc char[Cell.cMaxFormatSize];
 
         foreach (Cell cell in Cells.AsSpan())
         {
-            sb.Append(cell.GetEncodedString());
+            bool success = cell.TryFormat(encodedCell, out int charsWritten);
+            Debug.Assert(success);
+
+            sb.Append(encodedCell.Slice(0, charsWritten));
             sb.Append('|');
         }
 
         root.Add(new XElement(Cx.v3_cells, sb.ToString()));
-
         return root;
     }
 
