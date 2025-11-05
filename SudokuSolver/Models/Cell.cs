@@ -3,7 +3,9 @@
 namespace SudokuSolver.Models;
 
 internal sealed class Cell : CellBase
-{
+{        
+    public const int cMaxFormatSize = 16;
+
     public Cell(int index) : base(index)
     {
     }
@@ -21,36 +23,48 @@ internal sealed class Cell : CellBase
         VerticalDirections = BitField.Empty;
     }
 
-    public string GetEncodedString()
+
+    public bool TryFormat(Span<char> chars, out int charsWritten)
     {
         if (HasValue)
         {
-            return string.Create(2, this, (chars, state) =>
+            if (chars.Length >= 2)
             {
-                chars[0] = (char)('0' + state.Value);
-                chars[1] = (char)('0' + (int)state.Origin);
-            });
+                chars[0] = (char)('0' + Value);
+                chars[1] = (char)('0' + (int)Origin);
+                charsWritten = 2;
+                return true;
+            }
         }
-
-        int size = Possibles.DigitCount + 
-                     HorizontalDirections.DigitCount + 
-                     VerticalDirections.DigitCount + 3;
-
-        return string.Create(size, this, (chars, state) =>
+        else if (chars.Length >= 6) // the minimum size required
         {
             chars[0] = '0';
             chars = chars.Slice(1);
+            charsWritten = 1;
 
-            Possibles.TryFormat(chars, out int charsWritten);
-            chars[charsWritten] = '.';
-            chars = chars.Slice(charsWritten + 1);
+            if (Possibles.TryFormat(chars, out int written))
+            {
+                chars[written] = '.';
+                chars = chars.Slice(written + 1);
+                charsWritten += written + 1;
 
-            HorizontalDirections.TryFormat(chars, out charsWritten);
-            chars[charsWritten] = '.';
-            chars = chars.Slice(charsWritten + 1);
+                if (HorizontalDirections.TryFormat(chars, out written))
+                {
+                    chars[written] = '.';
+                    chars = chars.Slice(written + 1);
+                    charsWritten += written + 1;
 
-            VerticalDirections.TryFormat(chars, out charsWritten);
-        });
+                    if (VerticalDirections.TryFormat(chars, out written))
+                    {
+                        charsWritten += written;
+                        return true;
+                    }
+                }
+            }
+        }
+
+        charsWritten = 0;
+        return false;
     }
 
     public static bool TryParse(ReadOnlySpan<char> span, ref Cell cell)             
