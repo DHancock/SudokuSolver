@@ -5,14 +5,14 @@ internal struct BitField : IEquatable<BitField>
 {
     private const nuint cSpan = 0b_0000_0011_1111_1110;
 
-    private nuint data;
+    private nuint value;
 
     public static readonly BitField AllTrue = new BitField(cSpan);
     public static readonly BitField Empty = default;
 
     private BitField(nuint value)
     {
-        data = value;
+        this.value = value;
     }
 
     public bool this[int index]
@@ -21,7 +21,7 @@ internal struct BitField : IEquatable<BitField>
         {
             Debug.Assert((cSpan | ((nuint)1 << index)) == cSpan);
 
-            return (data & ((nuint)1 << index)) > 0;
+            return (value & ((nuint)1 << index)) > 0;
         }
 
         set
@@ -30,69 +30,71 @@ internal struct BitField : IEquatable<BitField>
 
             if (value)
             {
-                data |= (nuint)1 << index;
+                this.value |= (nuint)1 << index;
             }
             else
             {
-                data &= ~((nuint)1 << index);
+                this.value &= ~((nuint)1 << index);
             }
         }
     }
 
-    public readonly bool IsEmpty => data == 0;
+    public readonly bool IsEmpty => value == 0;
 
-    public readonly int First => (data > 0) ? BitOperations.TrailingZeroCount(data) : -1;
+    public readonly int First => (value > 0) ? BitOperations.TrailingZeroCount(value) : -1;
 
-    public readonly int Count => BitOperations.PopCount(data);
+    public readonly int Count => BitOperations.PopCount(value);
 
-    public readonly bool Equals(BitField other)
+    public readonly bool Equals(BitField other) => value == other.value;
+
+    public static bool operator ==(BitField a, BitField b) => a.Equals(b);
+
+    public static bool operator !=(BitField a, BitField b) => !(a == b);
+
+    public static BitField operator &(BitField a, BitField b) => new BitField(a.value & b.value);
+
+    public static BitField operator |(BitField a, BitField b) => new BitField(a.value | b.value);
+
+    public static BitField operator ~(BitField a) => new BitField(~a.value & cSpan);
+
+    public override readonly bool Equals(object? obj) => obj is BitField field && Equals(field);
+
+    public override readonly int GetHashCode() => (int)value;
+
+    public override readonly string ToString() => value.ToString();
+
+    public readonly bool TryFormat(Span<char> destination, out int charsWritten) => value.TryFormat(destination, out charsWritten);
+
+    public readonly int DigitCount
     {
-        return data == other.data;
-    }
-
-    public static bool operator ==(BitField a, BitField b)
-    {
-        return a.Equals(b);
-    }
-
-    public static bool operator !=(BitField a, BitField b)
-    {
-        return !(a == b);
-    }
-
-    public static BitField operator &(BitField a, BitField b)
-    {
-        return new BitField(a.data & b.data);
-    }
-
-    public static BitField operator |(BitField a, BitField b)
-    {
-        return new BitField(a.data | b.data);
-    }
-
-    public static BitField operator ~(BitField a)
-    {
-        return new BitField(~a.data & cSpan);
-    }
-
-    public override readonly bool Equals(object? obj)
-    {
-        return obj is BitField field && Equals(field);
-    }
-
-    public override readonly int GetHashCode() => (int)data;
-
-    public override readonly string ToString() => data.ToString();
-
-    public static bool TryParse(string? s, out BitField result)
-    {
-        if (nuint.TryParse(s, out nuint value) && ((value | cSpan) == cSpan))
+        get
         {
-            result.data = value;
+            Debug.Assert(AllTrue.value < 10000);
+
+            switch (value)
+            {
+                case < 10: return 1;
+                case < 100: return 2;
+                case < 1000: return 3;
+                default: return 4;
+            }
+        }
+    }     
+
+    public static bool TryParse(string? str, out BitField result)
+    {
+        return TryParse(str.AsSpan(), out result);
+    }
+
+    public static bool TryParse(ReadOnlySpan<char> chars, out BitField result)
+    {
+        if (nuint.TryParse(chars, out nuint value) && ((value | cSpan) == cSpan))
+        {
+            result.value = value;
             return true;
         }
 
-        result = Empty;
+        result.value = 0;
         return false;
     }
 

@@ -17,12 +17,7 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
         public const string value = "value";
 
         // version 3 format element names
-        public const string v3_cell = "c";
-        public const string v3_origin = "o";
-        public const string v3_value = "v";
-        public const string v3_possible = "p";
-        public const string v3_vertical = "u";
-        public const string v3_horizontal = "h";
+        public const string v3_cells = "c";
     }
 
     public CellList Cells { get; }
@@ -51,25 +46,15 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
     {
         XElement root = new XElement(Cx.Sudoku, new XAttribute(Cx.version, Cx.current_version));
 
+        StringBuilder sb = new StringBuilder();
+
         foreach (Cell cell in Cells.AsSpan())
         {
-            XElement xCell;
-
-            if (cell.HasValue)
-            {
-                xCell = new XElement(Cx.v3_cell, new XElement(Cx.v3_value, cell.Value.ToString()),
-                                                 new XElement(Cx.v3_origin, ((int)cell.Origin).ToString()));
-            }
-            else
-            {
-                xCell = new XElement(Cx.v3_cell, new XElement(Cx.v3_value, "0"),
-                                                 new XElement(Cx.v3_possible, cell.Possibles.ToString()),
-                                                 new XElement(Cx.v3_horizontal, cell.HorizontalDirections.ToString()),
-                                                 new XElement(Cx.v3_vertical, cell.VerticalDirections.ToString()));
-            }
-
-            root.Add(xCell);
+            sb.Append(cell.GetEncodedString());
+            sb.Append('|');
         }
+
+        root.Add(new XElement(Cx.v3_cells, sb.ToString()));
 
         return root;
     }
@@ -171,60 +156,29 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
     // Could also affect drag and drop, printing and duplicating tabs. Uses format version 3 from release 1.14.0 
     private void OpenVersion_3(XElement root)
     {
-        int index = 0;
+        Span<Cell> cells = Cells.AsSpan();
+        ReadOnlySpan<char> value = root.Element(Cx.v3_cells)?.Value;
 
-        foreach (XElement cell in root.Descendants(Cx.v3_cell))
+        for (int index = 0; index < 81; index++)
         {
-            if (index > 80)
+            int length = value.IndexOf('|');
+
+            if ((length > 0) && Cell.TryParse(value.Slice(0, length), ref cells[index]))
             {
-                index = int.MaxValue;
-                break;
-            }
+                if (cells[index].HasValue)
+                {
+                    ++CompletedCellsCount;
+                }
 
-            if (int.TryParse(cell.Element(Cx.v3_value)?.Value, out int value) && (value >= 0) && (value < 10))
+                value = value.Slice(length + 1);
+            }
+            else
             {
-                if (value > 0)
-                {
-                    if (Enum.TryParse(cell.Element(Cx.v3_origin)?.Value, out Origins origin) && 
-                        ((origin == Origins.User) || (origin == Origins.Provided) || (origin == Origins.Calculated)))
-                    {
-                        Cells[index].Value = value;
-                        Cells[index].Origin = origin;
-                        CompletedCellsCount += 1;                         
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-                else
-                {
-                    if (BitField.TryParse(cell.Element(Cx.v3_possible)?.Value, out BitField possible) &&
-                        BitField.TryParse(cell.Element(Cx.v3_horizontal)?.Value, out BitField horizontal) &&
-                        BitField.TryParse(cell.Element(Cx.v3_vertical)?.Value, out BitField vertical))
-                    {
-                        Cells[index].Possibles = possible;
-                        Cells[index].HorizontalDirections = horizontal;
-                        Cells[index].VerticalDirections = vertical;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
+                throw new InvalidDataException("The file is corrupt.");
             }
-
-            index += 1;
-        }
-
-        if (index != 81) 
-        {
-            // either the physical file or the session file is corrupted
-            // can't really make any assumptions so it's safest to just bail
-            throw new InvalidDataException("ile is corrupt.");
         }
     }
-
+  
     public bool Add(int index, int newValue)
     {
         if (ValidateNewCellValue(index, newValue))
