@@ -48,19 +48,29 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
 
         // max size will be (9 + 1) * 81 which is for an empty puzzle, too big for stackalloc
         // TryFormat() will only fail if the buffer is too small, use the next power of 2
-        Span<char> data = new char[1024];
-        int total = 0;
-
-        foreach (Cell cell in Cells.AsSpan())
+        char[] array = ArrayPool<char>.Shared.Rent(1024);
+        
+        try
         {
-            bool success = cell.TryFormat(data.Slice(total), out int charsWritten);
-            Debug.Assert(success);
+            int total = 0;
+            Span<char> buffer = array.AsSpan();
 
-            total += charsWritten;
-            data[total++] = '|';
+            foreach (Cell cell in Cells.AsSpan())
+            {
+                bool success = cell.TryFormat(buffer.Slice(total), out int charsWritten);
+                Debug.Assert(success);
+
+                total += charsWritten;
+                buffer[total++] = '|';
+            }
+
+            root.Add(new XElement(Cx.v3_cells, new string(buffer.Slice(0, total))));
+        }
+        finally
+        {
+            ArrayPool<char>.Shared.Return(array);
         }
 
-        root.Add(new XElement(Cx.v3_cells, new string(data.Slice(0, total))));
         return root;
     }
 

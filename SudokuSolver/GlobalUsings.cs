@@ -14,6 +14,7 @@ global using Microsoft.Win32.SafeHandles;
 global using Microsoft.Windows.ApplicationModel.Resources;
 global using Microsoft.Windows.AppLifecycle;
 
+global using System.Buffers;
 global using System.Collections;
 global using System.Collections.ObjectModel;
 global using System.Collections.Specialized;
