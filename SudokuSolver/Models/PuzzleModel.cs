@@ -46,19 +46,21 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
     {
         XElement root = new XElement(Cx.Sudoku, new XAttribute(Cx.version, Cx.current_version));
 
-        StringBuilder sb = new StringBuilder(1024);
-        Span<char> encodedCell = stackalloc char[Cell.cMaxFormatSize];
+        // max size will be (9 + 1) * 81 which is for an empty puzzle, too big for stackalloc
+        // TryFormat() will only fail if the buffer is too small, use the next power of 2
+        Span<char> data = new char[1024];
+        int total = 0;
 
         foreach (Cell cell in Cells.AsSpan())
         {
-            bool success = cell.TryFormat(encodedCell, out int charsWritten);
+            bool success = cell.TryFormat(data.Slice(total), out int charsWritten);
             Debug.Assert(success);
 
-            sb.Append(encodedCell.Slice(0, charsWritten));
-            sb.Append('|');
+            total += charsWritten;
+            data[total++] = '|';
         }
 
-        root.Add(new XElement(Cx.v3_cells, sb.ToString()));
+        root.Add(new XElement(Cx.v3_cells, new string(data.Slice(0, total))));
         return root;
     }
 
@@ -177,7 +179,7 @@ internal sealed class PuzzleModel : IEquatable<PuzzleModel>
             }
             else
             {
-                throw new InvalidDataException("The file is corrupt.");
+                throw new InvalidDataException("The file contains invalid data.");
             }
         }
     }
