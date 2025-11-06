@@ -4,8 +4,6 @@ namespace SudokuSolver.Models;
 
 internal sealed class Cell : CellBase
 {        
-    public const int cMaxFormatSize = 16;
-
     public Cell(int index) : base(index)
     {
     }
@@ -36,27 +34,24 @@ internal sealed class Cell : CellBase
                 return true;
             }
         }
-        else if (chars.Length >= 6) // the minimum size required
+        else if (chars.Length >= 6)
         {
             chars[0] = '0';
-            chars = chars.Slice(1);
-            charsWritten = 1;
+            int total = 1;
 
-            if (Possibles.TryFormat(chars, out int written))
+            if (Possibles.TryFormat(chars.Slice(total), out int written))
             {
-                chars[written] = '.';
-                chars = chars.Slice(written + 1);
-                charsWritten += written + 1;
-
-                if (HorizontalDirections.TryFormat(chars, out written))
+                total += written;
+                chars[total++] = '.';
+                
+                if (HorizontalDirections.TryFormat(chars.Slice(total), out written))
                 {
-                    chars[written] = '.';
-                    chars = chars.Slice(written + 1);
-                    charsWritten += written + 1;
+                    total += written;
+                    chars[total++] = '.';
 
-                    if (VerticalDirections.TryFormat(chars, out written))
+                    if (VerticalDirections.TryFormat(chars.Slice(total), out written))
                     {
-                        charsWritten += written;
+                        charsWritten = total + written;
                         return true;
                     }
                 }
