@@ -61,26 +61,9 @@ internal struct BitField : IEquatable<BitField>
 
     public override readonly int GetHashCode() => (int)value;
 
-    public override readonly string ToString() => value.ToString();
+    public readonly bool TryFormat(Span<char> span, out int charsWritten) => value.TryFormat(span, out charsWritten);
 
-    public readonly bool TryFormat(Span<char> destination, out int charsWritten) => value.TryFormat(destination, out charsWritten);
-
-    public static bool TryParse(string? str, out BitField result)
-    {
-        return TryParse(str.AsSpan(), out result);
-    }
-
-    public static bool TryParse(ReadOnlySpan<char> chars, out BitField result)
-    {
-        if (nuint.TryParse(chars, out nuint value) && ((value | cSpan) == cSpan))
-        {
-            result.value = value;
-            return true;
-        }
-
-        result.value = 0;
-        return false;
-    }
+    public static bool TryParse(ReadOnlySpan<char> span, out BitField result) => nuint.TryParse(span, out result.value) && ((result.value | cSpan) == cSpan);
 
     public readonly string GetDebugStr() 
     {
