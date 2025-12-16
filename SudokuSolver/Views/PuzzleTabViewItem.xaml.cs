@@ -722,10 +722,17 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         }
         else
         {
-            if ((modifiers == VirtualKeyModifiers.Shift) && (key == VirtualKey.Insert))
+            if (key == VirtualKey.Insert)
             {
-                modifiers = VirtualKeyModifiers.Control;
-                key = VirtualKey.V;
+                if (modifiers == VirtualKeyModifiers.Shift)
+                {
+                    modifiers = VirtualKeyModifiers.Control;
+                    key = VirtualKey.V;
+                }
+                else if (modifiers == VirtualKeyModifiers.Control)
+                {
+                    key = VirtualKey.C;
+                }
             }
 
             foreach (MenuBarItem mbi in Menu.Items)
