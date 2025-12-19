@@ -13,6 +13,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
     private RelayCommand CloseOtherTabsCommand { get; }
     private RelayCommand CloseLeftTabsCommand { get; }
     private RelayCommand CloseRightTabsCommand { get; }
+    private RelayCommand PrintCommand { get; }
 
     private readonly PuzzleViewModel viewModel;
     private string filePath = string.Empty;
@@ -43,6 +44,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         CloseOtherTabsCommand = new RelayCommand(ExecuteCloseOtherTabsAsync, CanCloseOtherTabs);
         CloseLeftTabsCommand = new RelayCommand(ExecuteCloseLeftTabsAsync, CanCloseLeftTabs);
         CloseRightTabsCommand = new RelayCommand(ExecuteCloseRightTabsAsync, CanCloseRightTabs);
+        PrintCommand = new RelayCommand(ExecutePrintAsync, CanPrint);
 
         if (!IntegrityLevel.IsElevated)
         {
@@ -284,8 +286,6 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         SettingsButtton.IsEnabled = enable;
     }
 
-    public static bool IsPrintingAvailable => !IntegrityLevel.IsElevated && PrintManager.IsSupported();
-
     public static bool IsFileDialogAvailable => !IntegrityLevel.IsElevated;
 
     public bool IsModified => ViewModel.IsModified;
@@ -366,11 +366,16 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         await SaveAsAsync();
     }
 
-    private async void PrintClickHandlerAsync(object sender, RoutedEventArgs e)
+    private bool CanPrint(object? param)
+    {
+        return !IntegrityLevel.IsElevated && PrintManager.IsSupported() && !parentWindow.IsCurrentlyPrinting;
+    }
+
+    private async void ExecutePrintAsync(object? param)
     {
         try
         {
-            await parentWindow.PrintPuzzleAsync(GetSessionData());
+            await parentWindow.PrintHelper.PrintPuzzleAsync(GetSessionData());
         }
         catch (Exception ex)
         {

@@ -11,9 +11,6 @@
 
     <Grid x:Name="LayoutRoot">
 
-        <!-- used to add print preview pages to the visual tree -->
-        <Canvas x:Name="PrintCanvas" Opacity="0"/>
-
         <TabView x:Name="Tabs" 
             VerticalAlignment="Stretch"
             HorizontalAlignment="Stretch"

@@ -53,7 +53,7 @@
                 </MenuFlyoutItem>
 
                 <MenuFlyoutSeparator />
-                <MenuFlyoutItem x:Uid="Print" Click="PrintClickHandlerAsync" IsEnabled="{x:Bind local:PuzzleTabViewItem.IsPrintingAvailable}" AccessKey="P">
+                <MenuFlyoutItem x:Uid="Print" Command="{x:Bind PrintCommand}" AccessKey="P">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="P" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
