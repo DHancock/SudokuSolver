@@ -130,10 +130,19 @@ internal sealed partial class MainWindow : Window, ISession
         LayoutRoot.RequestedTheme = Settings.Instance.Theme;
     }
 
-    public async Task PrintPuzzleAsync(XElement sessionData)
+    public PrintHelper PrintHelper
     {
-        printHelper ??= new PrintHelper(this);
-        await printHelper.PrintViewAsync(PrintCanvas, sessionData);
+        get
+        {
+            printHelper ??= new PrintHelper(this);
+            return printHelper;
+        }
+    }
+
+    public bool IsCurrentlyPrinting
+    {
+        // avoids allocating the PrintHelper just to enable it's menu item
+        get => printHelper is not null && printHelper.IsCurrentlyPrinting;
     }
 
     private async Task<bool> AttemptToCloseTabsAsync(IList<object> tabs)

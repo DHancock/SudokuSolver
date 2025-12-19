@@ -19,9 +19,8 @@ internal sealed class PrintHelper
     private Settings.PerPrintSettings? settings;
 
     private PrintTask? printTask;
-    private Panel? rootVisual;
     private PrintPage? printPage;
-    private bool currentlyPrinting;    
+    public bool IsCurrentlyPrinting { get; private set; } = false;   
 
     public PrintHelper(MainWindow window)
     {
@@ -41,27 +40,16 @@ internal sealed class PrintHelper
         printDocumentSource = printDocument.DocumentSource;
     }
 
-    public async Task PrintViewAsync(Canvas printCanvas, XElement sessionData)
+    public async Task PrintPuzzleAsync(XElement sessionData)
     {
         Debug.Assert(PrintManager.IsSupported());
+        Debug.Assert(!IsCurrentlyPrinting);
 
-        if (currentlyPrinting)
-        {
-            throw new InvalidOperationException(App.Instance.ResourceLoader.GetString("PrintReentrantErrorText"));
-        }
-
-        // printing isn't reentrant
-        currentlyPrinting = true;
-
+        IsCurrentlyPrinting = true;
         settings = Settings.Instance.PrintSettings.Clone();
 
         // a user control containing a puzzle view
         printPage = new PrintPage(sessionData);
-
-        // the printed object must be part of the visual tree
-        rootVisual = printCanvas;
-        rootVisual.Children.Clear();
-        rootVisual.Children.Add(printPage);
 
         await PrintManagerInterop.ShowPrintUIForWindowAsync(hWnd);
     }   
@@ -72,16 +60,9 @@ internal sealed class PrintHelper
         
         printTask.Completed += (s, args) =>
         {
-            // this is called after the data is handed off to the spooler(?), not actually printed
-            Debug.WriteLine($"print task completed, status: {args.Completion}");
-
-            bool success = dispatcherQueue.TryEnqueue(() =>
-            {
-                rootVisual?.Children.Clear();
-                printPage = null;
-                currentlyPrinting = false;
-            });
-            Debug.Assert(success);
+            // called after the data is handed off to the spooler, not printed
+            printPage = null;
+            IsCurrentlyPrinting = false;
         };
     }
 
@@ -234,14 +215,12 @@ internal sealed class PrintHelper
     {
         try
         {
-            Debug.Assert(rootVisual is not null);
             Debug.Assert(printPage is not null);
             Debug.Assert(settings is not null);
 
-            bool layoutInvalid = false;
             PrintPageDescription pd = e.PrintTaskOptions.GetPageDescription(jobPageNumber: 0);
 
-            layoutInvalid |= printPage.SetPageSize(pd.PageSize);
+            bool layoutInvalid = printPage.SetPageSize(pd.PageSize);
 
             // adjust the imageable areas for the selected margins
             double marginPercentage = 0.025 * (int)settings.PrintMargin ;
@@ -329,8 +308,8 @@ internal sealed class PrintHelper
 
             if (layoutInvalid)
             {
-                rootVisual.InvalidateMeasure();
-                rootVisual.UpdateLayout();
+                printPage.InvalidateMeasure();
+                printPage.UpdateLayout();
             }
 
             printDocument.SetPreviewPageCount(count: 1, PreviewPageCountType.Final);
