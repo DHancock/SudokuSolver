@@ -56,7 +56,7 @@ internal sealed class PrintHelper
 
     private void PrintTaskRequested(PrintManager sender, PrintTaskRequestedEventArgs e)
     {
-        printTask = e.Request.CreatePrintTask("Sudoku Puzzle", PrintTaskSourceRequestedHandler);
+        printTask = e.Request.CreatePrintTask(App.cAppDisplayName, PrintTaskSourceRequestedHandler);
         
         printTask.Completed += (s, args) =>
         {
