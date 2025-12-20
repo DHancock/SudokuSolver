@@ -14,11 +14,15 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
     private RelayCommand CloseLeftTabsCommand { get; }
     private RelayCommand CloseRightTabsCommand { get; }
     private RelayCommand PrintCommand { get; }
+    private RelayCommand OpenCommand { get; }
+    private RelayCommand SaveCommand { get; }
+    private RelayCommand SaveAsCommand { get; }
 
     private readonly PuzzleViewModel viewModel;
     private string filePath = string.Empty;
     private readonly MainWindow parentWindow;
     private int initialisationPhase = 0;
+    private bool isFileOperationActive = false;
 
     public PuzzleTabViewItem(MainWindow parent)
     {
@@ -37,7 +41,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
         Loaded += LoadedHandler;
 
-        // size changed can also indicate that this tab has been selected and that it's content is now valid 
+        // size changed also indicates that this tab's content is now valid 
         Puzzle.SizeChanged += Puzzle_SizeChanged;
 
         RenameTabCommand = new RelayCommand(ExecuteRenameTabCommand, CanRenameTab);
@@ -45,6 +49,9 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         CloseLeftTabsCommand = new RelayCommand(ExecuteCloseLeftTabsAsync, CanCloseLeftTabs);
         CloseRightTabsCommand = new RelayCommand(ExecuteCloseRightTabsAsync, CanCloseRightTabs);
         PrintCommand = new RelayCommand(ExecutePrintAsync, CanPrint);
+        OpenCommand = new RelayCommand(ExecuteOpenAsync, CanOpenFileDialog);
+        SaveCommand = new RelayCommand(ExecuteSaveAsync, CanOpenFileDialog);
+        SaveAsCommand = new RelayCommand(ExecuteSaveAsAsync, CanOpenFileDialog);
 
         if (!IntegrityLevel.IsElevated)
         {
@@ -286,8 +293,6 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         SettingsButtton.IsEnabled = enable;
     }
 
-    public static bool IsFileDialogAvailable => !IntegrityLevel.IsElevated;
-
     public bool IsModified => ViewModel.IsModified;
 
     private void NewTabClickHandler(object sender, RoutedEventArgs e)
@@ -296,9 +301,16 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         parentWindow.AddTab(tab);
     }
 
-    private async void OpenClickHandlerAsync(object sender, RoutedEventArgs e)
+    private bool CanOpenFileDialog(object? param)
+    {
+        // ensure that only a single file dialog is opened when quickly typing accelerator keys
+        return !(IntegrityLevel.IsElevated || isFileOperationActive);
+    }
+
+    private async void ExecuteOpenAsync(object? param)
     {
         Status status = Status.Continue;
+        isFileOperationActive = true;
 
         if (IsModified)
         {
@@ -332,7 +344,8 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
                 }
             }
         }
-        
+
+        isFileOperationActive = false;
         FocusSelectedCell();
     }
 
@@ -356,12 +369,12 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         window.Activate();
     }
 
-    private async void SaveClickHandlerAsync(object sender, RoutedEventArgs e)
+    private async void ExecuteSaveAsync(object? param)
     {
         await SaveAsync();
     }
 
-    private async void SaveAsClickHandlerAsync(object sender, RoutedEventArgs e)
+    private async void ExecuteSaveAsAsync(object? param)
     {
         await SaveAsAsync();
     }
@@ -475,6 +488,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
     private async Task<Status> SaveAsync()
     {
         Status status = Status.Cancelled;
+        isFileOperationActive = true;
 
         if (!string.IsNullOrEmpty(filePath))
         {
@@ -495,12 +509,15 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
             status = await SaveAsAsync();
         }
 
+        isFileOperationActive = false;
+
         return status;
     }
 
     private async Task<Status> SaveAsAsync()
     {
         Status status = Status.Cancelled;
+        isFileOperationActive = true;
 
         FileSavePicker savePicker = new FileSavePicker();
         InitializeWithWindow.Initialize(savePicker, parentWindow.WindowHandle);
@@ -528,6 +545,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
             }
         }
 
+        isFileOperationActive = false;
         Puzzle.FocusSelectedCell();
 
         return status;
