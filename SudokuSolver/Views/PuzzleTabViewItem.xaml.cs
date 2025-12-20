@@ -586,7 +586,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         }
     }
 
-    private bool CanRenameTab(object? param) => string.IsNullOrEmpty(filePath);
+    private bool CanRenameTab(object? param) => string.IsNullOrEmpty(filePath) && !parentWindow.ContentDialogHelper.IsContentDialogOpen;
 
     private async void ExecuteRenameTabCommand(object? param)
     {
