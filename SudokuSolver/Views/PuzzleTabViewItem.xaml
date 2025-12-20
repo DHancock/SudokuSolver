@@ -34,19 +34,19 @@
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
 
-                <MenuFlyoutItem x:Uid="Open" Click="OpenClickHandlerAsync" IsEnabled="{x:Bind local:PuzzleTabViewItem.IsFileDialogAvailable}" AccessKey="O">
+                <MenuFlyoutItem x:Uid="Open" Command="{x:Bind OpenCommand}" AccessKey="O">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="O" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
 
-                <MenuFlyoutItem x:Uid="Save" Click="SaveClickHandlerAsync" IsEnabled="{x:Bind local:PuzzleTabViewItem.IsFileDialogAvailable}" AccessKey="S">
+                <MenuFlyoutItem x:Uid="Save" Command="{x:Bind SaveCommand}" AccessKey="S">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="S" Modifiers="Control"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
 
-                <MenuFlyoutItem x:Uid="SaveAs" Click="SaveAsClickHandlerAsync" IsEnabled="{x:Bind local:PuzzleTabViewItem.IsFileDialogAvailable}" AccessKey="A">
+                <MenuFlyoutItem x:Uid="SaveAs" Command="{x:Bind SaveAsCommand}" AccessKey="A">
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <KeyboardAccelerator Key="S" Modifiers="Control,Shift"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
