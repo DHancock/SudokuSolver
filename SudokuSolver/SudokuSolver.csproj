@@ -16,7 +16,7 @@
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
 	<WindowsPackageType>None</WindowsPackageType>
 	<PackageIcon>app.ico</PackageIcon>
-	<Version>1.14.0</Version>
+	<Version>1.14.1</Version>
   </PropertyGroup>
 
 	<ItemGroup>
