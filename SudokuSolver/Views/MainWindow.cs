@@ -39,8 +39,6 @@ internal partial class MainWindow : Window
     private PointInt32 restorePosition;
     private SizeInt32 restoreSize;
     private readonly MenuFlyout systemMenu;
-    private int pixelMinWidth;
-    private int pixelMinHeight;
     private double scaleFactor;
     private readonly HOOKPROC hookProc;
     private UnhookWindowsHookExSafeHandle? hookSafeHandle;
@@ -72,8 +70,10 @@ internal partial class MainWindow : Window
         Activated += App.Instance.RecordWindowActivated;
 
         scaleFactor = InitialiseScaleFactor();
-        pixelMinWidth = ConvertToPixels(cMinWidth);
-        pixelMinHeight = ConvertToPixels(cMinHeight);
+
+        OverlappedPresenter op = (OverlappedPresenter)AppWindow.Presenter;
+        op.PreferredMinimumWidth = ConvertToPixels(cMinWidth);
+        op.PreferredMinimumHeight = ConvertToPixels(cMinHeight);
 
         restoreCommand = new RelayCommand(o => PostSysCommandMessage(SC.RESTORE), CanRestore);
         moveCommand = new RelayCommand(o => PostSysCommandMessage(SC.MOVE), CanMove);
@@ -136,22 +136,13 @@ internal partial class MainWindow : Window
 
         switch (uMsg)
         {
-            case PInvoke.WM_GETMINMAXINFO:
-            {
-                unsafe
-                {
-                    MINMAXINFO* mPtr = (MINMAXINFO*)lParam.Value;
-                    mPtr->ptMinTrackSize.X = pixelMinWidth;
-                    mPtr->ptMinTrackSize.Y = pixelMinHeight;
-                }
-                break;
-            }
-
             case PInvoke.WM_DPICHANGED:
             {
                 scaleFactor = (wParam & 0xFFFF) / 96.0;
-                pixelMinWidth = ConvertToPixels(cMinWidth);
-                pixelMinHeight = ConvertToPixels(cMinHeight);
+
+                OverlappedPresenter op = (OverlappedPresenter)AppWindow.Presenter;
+                op.PreferredMinimumWidth = ConvertToPixels(cMinWidth);
+                op.PreferredMinimumHeight = ConvertToPixels(cMinHeight);
                 break;
             }
 
