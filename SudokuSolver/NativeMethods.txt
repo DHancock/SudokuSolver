@@ -1,9 +1,7 @@
 ﻿MessageBeep
 GetDpiForWindow
-MINMAXINFO
 SetWindowSubclass
 DefSubclassProc
-WM_GETMINMAXINFO
 SetForegroundWindow
 GetForegroundWindow
 WM_SYSCOMMAND
