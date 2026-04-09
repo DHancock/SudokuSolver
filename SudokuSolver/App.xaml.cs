@@ -9,6 +9,7 @@ using DispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue;
 [assembly: GeneratedWinRTExposedExternalType(typeof(OverlappedPresenter))]
 [assembly: GeneratedWinRTExposedExternalType(typeof(Thickness))]
 [assembly: GeneratedWinRTExposedExternalType(typeof(MenuFlyout))]
+[assembly: GeneratedWinRTExposedExternalType(typeof(TabViewListView))]
 
 namespace SudokuSolver;
 
