@@ -40,8 +40,8 @@ ArchitecturesAllowed=x64compatible or arm64
 ArchitecturesInstallIn64BitMode=x64compatible or arm64
 
 [Files]
-Source: "..\bin\Release\win-arm64\publish\*"; DestDir: "{app}"; Check: PreferArm64Files; Flags: ignoreversion recursesubdirs;
-Source: "..\bin\Release\win-x64\publish\*";   DestDir: "{app}"; Check: PreferX64Files;   Flags: ignoreversion recursesubdirs solidbreak;
+Source: "..\bin\Release\win-arm64\publish\*"; Excludes: "*.pdb"; DestDir: "{app}"; Check: PreferArm64Files; Flags: ignoreversion recursesubdirs;
+Source: "..\bin\Release\win-x64\publish\*";   Excludes: "*.pdb"; DestDir: "{app}"; Check: PreferX64Files;   Flags: ignoreversion recursesubdirs solidbreak;
 
 [Languages]
 Name: en; MessagesFile: "compiler:Default.isl"
