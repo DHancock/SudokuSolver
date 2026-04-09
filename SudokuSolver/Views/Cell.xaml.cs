@@ -46,7 +46,7 @@ internal sealed partial class Cell : UserControl
             PuzzleView GetParentPuzzleView()
             {
                 Debug.Assert(IsLoaded);
-                return (PuzzleView)((Viewbox)((SudokuGrid)Parent).Parent).Parent;
+                return (PuzzleView)((FrameworkElement)((FrameworkElement)Parent).Parent).Parent;
             }
         }
     }
