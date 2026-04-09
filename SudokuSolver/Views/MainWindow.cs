@@ -5,7 +5,7 @@ namespace SudokuSolver.Views;
 
 internal enum WindowState { Normal, Minimized, Maximized }
 
-internal partial class MainWindow : Window
+internal sealed partial class MainWindow : Window
 {
     private const nuint cSubClassId = 0;
 
@@ -34,15 +34,15 @@ internal partial class MainWindow : Window
     private readonly RelayCommand closeWindowCommand;
 
     private readonly InputNonClientPointerSource inputNonClientPointerSource;
-    private readonly SUBCLASSPROC subClassDelegate;
     private readonly DispatcherTimer dragRegionTimer;
     private PointInt32 restorePosition;
     private SizeInt32 restoreSize;
     private readonly MenuFlyout systemMenu;
     private double scaleFactor;
-    private readonly HOOKPROC hookProc;
     private UnhookWindowsHookExSafeHandle? hookSafeHandle;
 
+    private const nuint cSubClassID = 0;
+    private readonly GCHandle thisGCHandle;
 
     public ContentDialogHelper ContentDialogHelper { get; }
 
@@ -52,11 +52,12 @@ internal partial class MainWindow : Window
 
         WindowHandle = (HWND)WindowNative.GetWindowHandle(this);
 
-        subClassDelegate = new SUBCLASSPROC(NewSubWindowProc);
+        thisGCHandle = GCHandle.Alloc(this);
 
-        if (!PInvoke.SetWindowSubclass(WindowHandle, subClassDelegate, cSubClassId, 0))
+        unsafe
         {
-            throw new Win32Exception(Marshal.GetLastPInvokeError());
+            bool success = PInvoke.SetWindowSubclass(WindowHandle, &NewSubWindowProc, cSubClassID, (nuint)GCHandle.ToIntPtr(thisGCHandle));
+            Debug.Assert(success);
         }
 
         inputNonClientPointerSource = InputNonClientPointerSource.GetForWindowId(AppWindow.Id);
@@ -84,16 +85,17 @@ internal partial class MainWindow : Window
         closeWindowCommand = new RelayCommand(o => PostSysCommandMessage(SC.CLOSE), CanClose);
 
         systemMenu = (MenuFlyout)LayoutRoot.Resources["SystemMenu"];
-
-        hookProc = new HOOKPROC(KeyboardHookProc);
     }
 
     private void AppWindow_Destroying(AppWindow sender, object args)
     {
         AppWindow.Destroying -= AppWindow_Destroying;
 
-        bool success = PInvoke.RemoveWindowSubclass(WindowHandle, subClassDelegate, cSubClassId);
-        Debug.Assert(success);
+        unsafe
+        {
+            bool success = PInvoke.RemoveWindowSubclass(WindowHandle, &NewSubWindowProc, cSubClassId);
+            Debug.Assert(success);
+        }
 
         dragRegionTimer.Stop();
         Content = null;
@@ -130,49 +132,55 @@ internal partial class MainWindow : Window
         }
     }
 
-    private LRESULT NewSubWindowProc(HWND hWnd, uint uMsg, WPARAM wParam, LPARAM lParam, nuint uIdSubclass, nuint dwRefData)
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
+    private static LRESULT NewSubWindowProc(HWND hWnd, uint uMsg, WPARAM wParam, LPARAM lParam, nuint uIdSubclass, nuint dwRefData)
     {
         const int HTCAPTION = 0x0002;
 
-        switch (uMsg)
+        GCHandle handle = GCHandle.FromIntPtr((nint)dwRefData);
+
+        if (handle.Target is MainWindow window)
         {
-            case PInvoke.WM_DPICHANGED:
+            switch (uMsg)
             {
-                scaleFactor = (wParam & 0xFFFF) / 96.0;
+                case PInvoke.WM_DPICHANGED:
+                {
+                    window.scaleFactor = (wParam & 0xFFFF) / 96.0;
 
-                OverlappedPresenter op = (OverlappedPresenter)AppWindow.Presenter;
-                op.PreferredMinimumWidth = ConvertToPixels(cMinWidth);
-                op.PreferredMinimumHeight = ConvertToPixels(cMinHeight);
-                break;
-            }
+                    OverlappedPresenter op = (OverlappedPresenter)window.AppWindow.Presenter;
+                    op.PreferredMinimumWidth = window.ConvertToPixels(cMinWidth);
+                    op.PreferredMinimumHeight = window.ConvertToPixels(cMinHeight);
+                    break;
+                }
 
-            case PInvoke.WM_SYSCOMMAND when (lParam == (int)VirtualKey.Space) && (AppWindow.Presenter.Kind != AppWindowPresenterKind.FullScreen):
-            {
-                ShowSystemMenu(viaKeyboard: true);
-                return (LRESULT)0;
-            }
+                case PInvoke.WM_SYSCOMMAND when (lParam == (int)VirtualKey.Space):
+                {
+                    window.ShowSystemMenu(viaKeyboard: true);
+                    return (LRESULT)0;
+                }
 
-            case PInvoke.WM_SYSCOMMAND when (wParam == (int)SC.CLOSE) && ContentDialogHelper.IsContentDialogOpen:
-            {
-                return (LRESULT)0;     // disable Alt+F4
-            }
-            
-            case PInvoke.WM_NCRBUTTONUP when wParam == HTCAPTION:
-            {
-                ShowSystemMenu(viaKeyboard: false);
-                return (LRESULT)0;
-            }
+                case PInvoke.WM_SYSCOMMAND when (wParam == (int)SC.CLOSE) && window.ContentDialogHelper.IsContentDialogOpen:
+                {
+                    return (LRESULT)0;     // disable Alt+F4
+                }
 
-            case PInvoke.WM_NCLBUTTONDOWN:
-            {
-                HideSystemMenu();
-                break;
-            }
+                case PInvoke.WM_NCRBUTTONUP when wParam == HTCAPTION:
+                {
+                    window.ShowSystemMenu(viaKeyboard: false);
+                    return (LRESULT)0;
+                }
 
-            case PInvoke.WM_ENDSESSION:
-            {
-                App.Instance.SaveStateOnEndSession();
-                return (LRESULT)0;
+                case PInvoke.WM_NCLBUTTONDOWN:
+                {
+                    window.HideSystemMenu();
+                    break;
+                }
+
+                case PInvoke.WM_ENDSESSION:
+                {
+                    App.Instance.SaveStateOnEndSession();
+                    return (LRESULT)0;
+                }
             }
         }
 
@@ -217,54 +225,64 @@ internal partial class MainWindow : Window
     private void MenuFlyout_Opening(object? sender, object e)
     {
         Debug.Assert(hookSafeHandle is null);
-        hookSafeHandle = PInvoke.SetWindowsHookEx(WINDOWS_HOOK_ID.WH_KEYBOARD, hookProc, null, PInvoke.GetCurrentThreadId()); 
+
+        unsafe
+        {
+            hookSafeHandle = PInvoke.SetWindowsHookEx(WINDOWS_HOOK_ID.WH_KEYBOARD, &KeyboardHookProc, null, PInvoke.GetCurrentThreadId());
+        }
     }
 
-    private LRESULT KeyboardHookProc(int code, WPARAM wParam, LPARAM lParam)
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
+    private static LRESULT KeyboardHookProc(int code, WPARAM wParam, LPARAM lParam)
     {
-        Debug.Assert(systemMenu.IsOpen);
+        MainWindow? window = App.Instance.GetCurrenWindow();
 
-        if (code >= 0)
+        if (window is not null)
         {
-            VirtualKey key = (VirtualKey)(nuint)wParam;
-            bool isKeyDown = (lParam & 0x8000_0000) == 0;
+            Debug.Assert(window.systemMenu.IsOpen);
 
-            if (isKeyDown)
+            if (code >= 0)
             {
-                if (IsAcceleratorKeyModifier(key))
-                {
-                    systemMenu.Hide();
-                }
-                else if (!IsMenuNavigationKey(key))
-                {
-                    bool found = false;
+                VirtualKey key = (VirtualKey)(nuint)wParam;
+                bool isKeyDown = (lParam & 0x8000_0000) == 0;
 
-                    foreach (MenuFlyoutItemBase itemBase in systemMenu.Items)
+                if (isKeyDown)
+                {
+                    if (IsAcceleratorKeyModifier(key))
                     {
-                        if (itemBase.AccessKey == key.ToString())
+                        window.systemMenu.Hide();
+                    }
+                    else if (!IsMenuNavigationKey(key))
+                    {
+                        bool found = false;
+
+                        foreach (MenuFlyoutItemBase itemBase in window.systemMenu.Items)
                         {
-                            systemMenu.Hide();
-                            found = true;
-
-                            if (itemBase.IsEnabled)
+                            if (itemBase.AccessKey == key.ToString())
                             {
-                                MenuFlyoutItem item = (MenuFlyoutItem)itemBase;
-                                item.Command.Execute(item.CommandParameter);
-                            }
+                                window.systemMenu.Hide();
+                                found = true;
 
-                            break; // no duplicate access keys
+                                if (itemBase.IsEnabled)
+                                {
+                                    MenuFlyoutItem item = (MenuFlyoutItem)itemBase;
+                                    item.Command.Execute(item.CommandParameter);
+                                }
+
+                                break; // no duplicate access keys
+                            }
+                        }
+
+                        if (!found)
+                        {
+                            Utils.PlayExclamation();  // mimics the old win32 menu
                         }
                     }
-
-                    if (!found)
-                    {
-                        Utils.PlayExclamation();  // mimics the old win32 menu
-                    }
                 }
-            }
-            else if (key == VirtualKey.Menu) // the menu is being opened via Alt+Space
-            {
-                AccessKeyManager.EnterDisplayMode(Content.XamlRoot);
+                else if (key == VirtualKey.Menu) // the menu is being opened via Alt+Space
+                {
+                    AccessKeyManager.EnterDisplayMode(window.Content.XamlRoot);
+                }
             }
         }
 

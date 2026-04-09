@@ -4,17 +4,23 @@ using SudokuSolver.ViewModels;
 
 using DispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue;
 
+// valid c# casts would otherwise fail for these types (using CsWinRT 2.2.0)
+[assembly: GeneratedWinRTExposedExternalType(typeof(Microsoft.UI.Xaml.Shapes.Line))]
+[assembly: GeneratedWinRTExposedExternalType(typeof(OverlappedPresenter))]
+[assembly: GeneratedWinRTExposedExternalType(typeof(Thickness))]
+[assembly: GeneratedWinRTExposedExternalType(typeof(MenuFlyout))]
+
 namespace SudokuSolver;
 
 /// <summary>
 /// Provides application-specific behavior to supplement the default Application class.
 /// </summary>
-public partial class App : Application
+public sealed partial class App : Application
 {
-    public const string cFileExt = ".sdku";
-    public const string cAppDisplayName = "Sudoku Solver";
-    public static App Instance => (App)Current;
-    public bool IsModified { private get; set; }
+    internal const string cFileExt = ".sdku";
+    internal const string cAppDisplayName = "Sudoku Solver";
+    internal static App Instance => (App)Current;
+    internal bool IsModified { private get; set; }
     internal ResourceLoader ResourceLoader { get; } = new ResourceLoader();
     internal ClipboardHelper ClipboardHelper { get; } = new ClipboardHelper();
 
@@ -211,6 +217,8 @@ public partial class App : Application
     {
         return windowList.FirstOrDefault(window => window.Content.XamlRoot == element.XamlRoot);
     }
+
+    internal MainWindow? GetCurrenWindow() => currentWindow;
 
     internal void RegisterWindow(MainWindow window)
     {
@@ -459,23 +467,38 @@ public partial class App : Application
     private List<MainWindow> GetWindowsInDescendingZOrder()
     {
         List<MainWindow> list = new List<MainWindow>(windowList.Count);
+        GCHandle listGCHandle = GCHandle.Alloc(list);
 
-        PInvoke.EnumWindows((HWND hWnd, LPARAM param) =>
+        unsafe
         {
-            foreach (MainWindow window in windowList)
-            {
-                if (window.WindowHandle == hWnd)
-                {
-                    list.Add(window);
-                    break;
-                }
-            }
+            PInvoke.EnumWindows(&EnumWindowsProc, GCHandle.ToIntPtr(listGCHandle));
+        }
 
-            return list.Count != windowList.Count;
-        },
-        (LPARAM)0);
+        listGCHandle.Free();
 
         return list;
+
+        [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
+        static BOOL EnumWindowsProc(HWND hwnd, LPARAM param)
+        {
+            GCHandle handle = GCHandle.FromIntPtr(param);
+
+            if (handle.Target is List<MainWindow> list)
+            {
+                foreach (MainWindow window in App.Instance.windowList)
+                {
+                    if (window.WindowHandle == hwnd)
+                    {
+                        list.Add(window);
+                        break;
+                    }
+                }
+
+                return list.Count != App.Instance.windowList.Count;
+            }
+
+            return false;
+        }
     }
 
     public void UpdateTheme()
