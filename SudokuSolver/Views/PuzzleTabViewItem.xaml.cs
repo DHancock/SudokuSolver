@@ -392,8 +392,9 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         }
         catch (NotSupportedException nse) when (nse.Message.Contains("Windows.Foundation.IAsyncOperation`1[System.Boolean]"))
         {
-            // WinRT throws -> Cannot retrieve a helper type for generic public type 'Windows.Foundation.IAsyncOperation`1[System.Boolean]'.
-            // however printing does seem to work, apart from it is now fire and forget...
+            // Adding <PublishAOT>true</PublishAOT> to the project causes debug, release and publish builds to throw this from WinRT.TypeExtensions.FindHelperType()
+            // The message is "Cannot retrieve a helper type for generic public type 'Windows.Foundation.IAsyncOperation`1[System.Boolean]'."
+            // However printing does seem to still work, apart from it is now fire and forget...
         }
         catch (Exception ex)
         {
