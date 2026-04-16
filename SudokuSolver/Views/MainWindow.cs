@@ -162,6 +162,13 @@ internal sealed partial class MainWindow : Window
                 case PInvoke.WM_SYSCOMMAND when (wParam == (int)SC.CLOSE) && window.ContentDialogHelper.IsContentDialogOpen:
                 {
                     return (LRESULT)0;     // disable Alt+F4
+                }  
+
+                case PInvoke.WM_SYSCOMMAND when wParam == (int)SC.MINIMIZE:
+                {
+                    // work around for https://github.com/microsoft/microsoft-ui-xaml/issues/11068
+                    CloseOpenPopUps(window.Content.XamlRoot);
+                    break;
                 }
 
                 case PInvoke.WM_NCRBUTTONUP when wParam == HTCAPTION:
@@ -185,6 +192,14 @@ internal sealed partial class MainWindow : Window
         }
 
         return PInvoke.DefSubclassProc(hWnd, uMsg, wParam, lParam);
+    }
+
+    private static void CloseOpenPopUps(XamlRoot xamlRoot)
+    {
+        foreach (Popup popup in VisualTreeHelper.GetOpenPopupsForXamlRoot(xamlRoot))
+        {
+            popup.IsOpen = false;
+        }
     }
 
     private void PostSysCommandMessage(SC command)
