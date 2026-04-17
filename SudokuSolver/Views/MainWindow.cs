@@ -198,7 +198,10 @@ internal sealed partial class MainWindow : Window
     {
         foreach (Popup popup in VisualTreeHelper.GetOpenPopupsForXamlRoot(xamlRoot))
         {
-            popup.IsOpen = false;
+            if (popup.Child is MenuFlyoutPresenter) // avoid content dialogs
+            {
+                popup.IsOpen = false;
+            }
         }
     }
 
