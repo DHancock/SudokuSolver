@@ -167,7 +167,7 @@ internal sealed partial class MainWindow : Window
                 case PInvoke.WM_SYSCOMMAND when wParam == (int)SC.MINIMIZE:
                 {
                     // work around for https://github.com/microsoft/microsoft-ui-xaml/issues/11068
-                    CloseOpenPopUps(window.Content.XamlRoot);
+                    CloseMenuPopups(window.Content.XamlRoot);
                     break;
                 }
 
@@ -194,7 +194,7 @@ internal sealed partial class MainWindow : Window
         return PInvoke.DefSubclassProc(hWnd, uMsg, wParam, lParam);
     }
 
-    private static void CloseOpenPopUps(XamlRoot xamlRoot)
+    private static void CloseMenuPopups(XamlRoot xamlRoot)
     {
         foreach (Popup popup in VisualTreeHelper.GetOpenPopupsForXamlRoot(xamlRoot))
         {
