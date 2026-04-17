@@ -4,12 +4,13 @@ using SudokuSolver.ViewModels;
 
 using DispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue;
 
-// valid c# casts would otherwise fail for these types (using CsWinRT 2.2.0)
+// valid c# casts would otherwise fail for these types in AOT builds (using CsWinRT 2.2.0)
 [assembly: GeneratedWinRTExposedExternalType(typeof(Microsoft.UI.Xaml.Shapes.Line))]
 [assembly: GeneratedWinRTExposedExternalType(typeof(OverlappedPresenter))]
 [assembly: GeneratedWinRTExposedExternalType(typeof(Thickness))]
 [assembly: GeneratedWinRTExposedExternalType(typeof(MenuFlyout))]
 [assembly: GeneratedWinRTExposedExternalType(typeof(TabViewListView))]
+[assembly: GeneratedWinRTExposedExternalType(typeof(MenuFlyoutPresenter))]
 
 namespace SudokuSolver;
 
