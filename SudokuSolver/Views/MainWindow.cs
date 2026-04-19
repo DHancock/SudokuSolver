@@ -509,7 +509,6 @@ internal sealed partial class MainWindow : Window
 
         OverlappedPresenter op = (OverlappedPresenter)AppWindow.Presenter;
         op.IsResizable = false;
-        op.IsMinimizable = false;
 
         UpdateCaptionButtonColours();
         SetWindowDragRegionsInternal();
@@ -521,7 +520,6 @@ internal sealed partial class MainWindow : Window
 
         OverlappedPresenter op = (OverlappedPresenter)AppWindow.Presenter;
         op.IsResizable = true;
-        op.IsMinimizable = true;
     }
 
     public void ContentDialogClosed()
