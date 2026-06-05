@@ -32,8 +32,6 @@ public sealed partial class App : Application
     private readonly List<MainWindow> windowList = new();
     private MainWindow? currentWindow;
     private bool appClosing = false;
-    private readonly SafeFileHandle localMutex;
-    private readonly SafeFileHandle globalMutex;
 
     /// <summary>
     /// Initializes the singleton application object. This will be the single current
@@ -41,17 +39,10 @@ public sealed partial class App : Application
     /// </summary>
     public App(AppInstance instance)
     {
-        Debug.Assert(instance.IsCurrent);
-
-        // Create the installer mutexes with current user access. The app is installed per
-        // user rather than all users.
-        const string name = "51ECE64E-1954-41C4-81FB-E3A60CE4C224";
-        localMutex = PInvoke.CreateMutex(null, false, name);
-        globalMutex = PInvoke.CreateMutex(null, false, "Global\\" + name);
-
         InitializeComponent();
 
         uiThreadDispatcher = DispatcherQueue.GetForCurrentThread();
+
         autoSaveTimer = InitialiseAutoSaveTimer();
         autoSaveTimer.Start();
 

@@ -29,6 +29,13 @@ public static class Program
             }
             else
             {
+                // Create the installer mutexes with current user access.
+                // The app is installed per user rather than all users.
+                const string name = "51ECE64E-1954-41C4-81FB-E3A60CE4C224";
+
+                PInvoke.CreateMutex(null, false, name);
+                PInvoke.CreateMutex(null, false, "Global\\" + name);
+
                 Application.Start((p) =>
                 {
                     DispatcherQueueSynchronizationContext context = new(DispatcherQueue.GetForCurrentThread());
