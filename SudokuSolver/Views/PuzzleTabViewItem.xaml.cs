@@ -392,9 +392,8 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         }
         catch (NotSupportedException nse) when (nse.Message.Contains("Windows.Foundation.IAsyncOperation`1[System.Boolean]"))
         {
-            // Adding <PublishAOT>true</PublishAOT> to the project causes debug, release and publish builds to throw this from WinRT.TypeExtensions.FindHelperType()
-            // The message is "Cannot retrieve a helper type for generic public type 'Windows.Foundation.IAsyncOperation`1[System.Boolean]'."
-            // However printing does seem to still work, apart from it is now fire and forget...
+            // work around CsWinRt 2.2.0 issue https://github.com/microsoft/CsWinRT/issues/1871
+            // Apart from now being fire and forget, printing does seem to still work...
         }
         catch (Exception ex)
         {
