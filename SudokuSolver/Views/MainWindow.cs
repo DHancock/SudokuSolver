@@ -11,6 +11,7 @@ internal sealed partial class MainWindow : Window
 
     private enum SC
     {
+        KEYMENU = 0xF100,
         RESTORE = 0xF120,
         SIZE = 0xF000,
         MOVE = 0xF010,
@@ -153,23 +154,23 @@ internal sealed partial class MainWindow : Window
                     break;
                 }
 
-                case PInvoke.WM_SYSCOMMAND when (lParam == (int)VirtualKey.Space):
+                case PInvoke.WM_SYSCOMMAND when ((wParam & 0xFFF0) == (nuint)SC.KEYMENU) && (lParam == (nint)VirtualKey.Space):
                 {
                     window.ShowSystemMenu(viaKeyboard: true);
                     return (LRESULT)0;
                 }
 
-                case PInvoke.WM_SYSCOMMAND when (wParam == (int)SC.CLOSE) && window.ContentDialogHelper.IsContentDialogOpen:
-                {
-                    return (LRESULT)0;     // disable Alt+F4
-                }  
-
-                case PInvoke.WM_SYSCOMMAND when wParam == (int)SC.MINIMIZE:
+                case PInvoke.WM_SYSCOMMAND when (wParam & 0xFFF0) == (nuint)SC.MINIMIZE:
                 {
                     // work around for https://github.com/microsoft/microsoft-ui-xaml/issues/11068
                     CloseMenuPopups(window.Content.XamlRoot);
                     break;
                 }
+
+                case PInvoke.WM_SYSCOMMAND when ((wParam & 0xFFF0) == (nuint)SC.CLOSE) && window.ContentDialogHelper.IsContentDialogOpen:
+                {
+                    return (LRESULT)0;     // disable Alt+F4
+                }  
 
                 case PInvoke.WM_NCRBUTTONUP when wParam == HTCAPTION:
                 {

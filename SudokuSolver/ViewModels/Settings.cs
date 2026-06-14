@@ -30,8 +30,8 @@ internal class Settings
     public Settings()
     {
         // load defaults before the current settings over write them
-        DefaultLightThemeColors = SettingsViewModel.ReadResourceThemeColors("Light");
-        DefaultDarkThemeColors = SettingsViewModel.ReadResourceThemeColors("Dark");
+        DefaultLightThemeColors = SettingsViewModel.ReadResourceThemeColors(ElementTheme.Light);
+        DefaultDarkThemeColors = SettingsViewModel.ReadResourceThemeColors(ElementTheme.Dark);
         // initialize now in case they aren't in the json file
         LightThemeColors = new List<Color>(DefaultLightThemeColors);
         DarkThemeColors = new List<Color>(DefaultDarkThemeColors);
@@ -64,7 +64,7 @@ internal class Settings
 
                 if (settings is not null)
                 {
-                    SettingsViewModel.UpdateResourceThemeColors("Light", settings.LightThemeColors);
+                    SettingsViewModel.UpdateResourceThemeColors(ElementTheme.Light, settings.LightThemeColors);
 
                     // if reading an old settings file with fewer custom colors, make up the numbers with default values
                     for (int index = settings.LightThemeColors.Count; index < settings.DefaultLightThemeColors.Count; index++)
@@ -72,7 +72,7 @@ internal class Settings
                         settings.LightThemeColors.Add(settings.DefaultLightThemeColors[index]);
                     }
 
-                    SettingsViewModel.UpdateResourceThemeColors("Dark", settings.DarkThemeColors);
+                    SettingsViewModel.UpdateResourceThemeColors(ElementTheme.Dark, settings.DarkThemeColors);
 
                     for (int index = settings.DarkThemeColors.Count; index < settings.DefaultDarkThemeColors.Count; index++)
                     {
