@@ -105,12 +105,12 @@ internal sealed partial class SettingsViewModel : INotifyPropertyChanged
 
             if (isLight)
             {
-                UpdateResourceThemeColors("Light", colors);
+                UpdateResourceThemeColors(ElementTheme.Light, colors);
                 ResetLightColors.RaiseCanExecuteChanged();
             }
             else
             {
-                UpdateResourceThemeColors("Dark", colors);
+                UpdateResourceThemeColors(ElementTheme.Dark, colors);
                 ResetDarkColors.RaiseCanExecuteChanged();
             }
         }
@@ -162,7 +162,7 @@ internal sealed partial class SettingsViewModel : INotifyPropertyChanged
         return !Enumerable.SequenceEqual(Settings.Instance.DefaultDarkThemeColors, Settings.Instance.DarkThemeColors);
     }
 
-    public static List<Color> ReadResourceThemeColors(string themeKey)
+    public static List<Color> ReadResourceThemeColors(ElementTheme themeKey)
     {
         ResourceDictionary? theme = Utils.GetThemeDictionary(themeKey);
 
@@ -180,7 +180,7 @@ internal sealed partial class SettingsViewModel : INotifyPropertyChanged
         return colors;
     }
 
-    public static void UpdateResourceThemeColors(string themeKey, List<Color> colors)
+    public static void UpdateResourceThemeColors(ElementTheme themeKey, List<Color> colors)
     {
         ResourceDictionary? theme = Utils.GetThemeDictionary(themeKey);
 
