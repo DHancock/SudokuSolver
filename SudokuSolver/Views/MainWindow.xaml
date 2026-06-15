@@ -55,7 +55,7 @@
         </TabView>
 
         <Grid.Resources>
-            <MenuFlyout x:Key="SystemMenu" Opening="MenuFlyout_Opening" Closing="MenuFlyout_Closing" OverlayInputPassThroughElement="{x:Bind LayoutRoot}">
+            <MenuFlyout x:Key="SystemMenu" Opening="SystemMenuFlyout_Opening" Closing="SystemMenuFlyout_Closing" OverlayInputPassThroughElement="{x:Bind LayoutRoot}">
                 
                 <MenuFlyoutItem x:Uid="SystemMenuRestore" Command="{x:Bind restoreCommand}" AccessKey="R"/>
                 <MenuFlyoutItem x:Uid="SystemMenuMove" Command="{x:Bind moveCommand}" AccessKey="M"/>
