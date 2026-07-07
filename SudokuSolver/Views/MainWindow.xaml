@@ -56,16 +56,31 @@
 
         <Grid.Resources>
             <MenuFlyout x:Key="SystemMenu" Opening="SystemMenuFlyout_Opening" Closing="SystemMenuFlyout_Closing" OverlayInputPassThroughElement="{x:Bind LayoutRoot}">
-                
-                <MenuFlyoutItem x:Uid="SystemMenuRestore" Command="{x:Bind restoreCommand}" AccessKey="R"/>
+
+                <MenuFlyoutItem x:Uid="SystemMenuRestore" Command="{x:Bind restoreCommand}" AccessKey="R">
+                    <MenuFlyoutItem.Icon>
+                        <FontIcon Glyph="&#xE923;" Margin="1"/>
+                    </MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
                 <MenuFlyoutItem x:Uid="SystemMenuMove" Command="{x:Bind moveCommand}" AccessKey="M"/>
                 <MenuFlyoutItem x:Uid="SystemMenuSize" Command="{x:Bind sizeCommand}" AccessKey="S"/>
-                <MenuFlyoutItem x:Uid="SystemMenuMinimize" Command="{x:Bind minimizeCommand}" AccessKey="N"/>
-                <MenuFlyoutItem x:Uid="SystemMenuMaximize" Command="{x:Bind maximizeCommand}" AccessKey="X"/>
+                <MenuFlyoutItem x:Uid="SystemMenuMinimize" Command="{x:Bind minimizeCommand}" AccessKey="N">
+                    <MenuFlyoutItem.Icon>
+                        <FontIcon Glyph="&#xE921;" Margin="3"/>
+                    </MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem x:Uid="SystemMenuMaximize" Command="{x:Bind maximizeCommand}" AccessKey="X">
+                    <MenuFlyoutItem.Icon>
+                        <FontIcon Glyph="&#xE922;" Margin="3"/>
+                    </MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
 
                 <MenuFlyoutSeparator/>
 
                 <MenuFlyoutItem x:Uid="SystemMenuCloseTab" Command="{x:Bind closeTabCommand}" AccessKey="W">
+                    <MenuFlyoutItem.Icon>
+                        <FontIcon Glyph="&#xE8BB;" Margin="3"/>
+                    </MenuFlyoutItem.Icon>
                     <MenuFlyoutItem.KeyboardAccelerators>
                         <!-- disabled because it's a duplicate -->
                         <KeyboardAccelerator Modifiers="Control" Key="W" IsEnabled="False"/>
