@@ -31,7 +31,7 @@
             <Expander x:Name="ThemeExpander" Grid.Row="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                 <Expander.Header>
                     <StackPanel Orientation="Horizontal">
-                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xF08C;"/>
+                        <FontIcon Glyph="&#xF08C;"/>
                         <TextBlock x:Uid="AppTheme"/>
                     </StackPanel>
                 </Expander.Header>
@@ -45,7 +45,7 @@
             <Expander x:Name="ViewExpander" Grid.Row="1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                 <Expander.Header>
                     <StackPanel Orientation="Horizontal">
-                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE80A;"/>
+                        <FontIcon Glyph="&#xE80A;"/>
                         <TextBlock x:Uid="ViewOptions"/>
                     </StackPanel>
                 </Expander.Header>
@@ -58,7 +58,7 @@
             <Expander x:Name="LightColorsExpander" Grid.Row="2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                 <Expander.Header>
                     <StackPanel Orientation="Horizontal">
-                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE790;"/>
+                        <FontIcon Glyph="&#xE790;"/>
                         <TextBlock x:Uid="LightThemeColors"/>
                     </StackPanel>
                 </Expander.Header>
@@ -96,7 +96,7 @@
             <Expander x:Name="DarkColorsExpander" Grid.Row="3" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                 <Expander.Header>
                     <StackPanel Orientation="Horizontal">
-                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE790;"/>
+                        <FontIcon Glyph="&#xE790;"/>
                         <TextBlock x:Uid="DarkThemeColors"/>
                     </StackPanel>
                 </Expander.Header>
