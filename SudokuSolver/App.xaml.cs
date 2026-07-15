@@ -11,6 +11,7 @@ using DispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue;
 [assembly: GeneratedWinRTExposedExternalType(typeof(MenuFlyout))]
 [assembly: GeneratedWinRTExposedExternalType(typeof(TabViewListView))]
 [assembly: GeneratedWinRTExposedExternalType(typeof(MenuFlyoutPresenter))]
+[assembly: GeneratedWinRTExposedExternalType(typeof(ScrollBar))]
 
 namespace SudokuSolver;
 
