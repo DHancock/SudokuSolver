@@ -243,23 +243,23 @@ internal sealed partial class Cell : UserControl
     {
         Debug.Assert(viewModelCell is not null);
 
-        int newIndex = -1; 
+        int newIndex = -1;
 
         if (e.Key == VirtualKey.Up)
         {
-            newIndex = Utils.Clamp2DVerticalIndex(viewModelCell.Index - SudokuGrid.cCellsInRow, SudokuGrid.cCellsInRow, SudokuGrid.cCellCount);
+            newIndex = Clamp2DVerticalIndex(viewModelCell.Index - SudokuGrid.cCellsInRow, SudokuGrid.cCellsInRow, SudokuGrid.cCellCount);
         }
         else if (e.Key == VirtualKey.Down)
         {
-            newIndex = Utils.Clamp2DVerticalIndex(viewModelCell.Index + SudokuGrid.cCellsInRow, SudokuGrid.cCellsInRow, SudokuGrid.cCellCount);
+            newIndex = Clamp2DVerticalIndex(viewModelCell.Index + SudokuGrid.cCellsInRow, SudokuGrid.cCellsInRow, SudokuGrid.cCellCount);
         }
         else if (e.Key == VirtualKey.Left)
         {
-            newIndex = Utils.Clamp2DHorizontalIndex(viewModelCell.Index - 1, SudokuGrid.cCellCount);
+            newIndex = Clamp2DHorizontalIndex(viewModelCell.Index - 1, SudokuGrid.cCellCount);
         }
         else if (e.Key == VirtualKey.Right)
         {
-            newIndex = Utils.Clamp2DHorizontalIndex(viewModelCell.Index + 1, SudokuGrid.cCellCount);
+            newIndex = Clamp2DHorizontalIndex(viewModelCell.Index + 1, SudokuGrid.cCellCount);
         }
 
         if (newIndex >= 0)
@@ -291,6 +291,33 @@ internal sealed partial class Cell : UserControl
                 viewModelCell.ViewModel.UpdateCellForKeyDown(viewModelCell.Index, newValue);
                 e.Handled = true;
             }
+        }
+
+        static int Clamp2DHorizontalIndex(int newIndex, int total)
+        {
+            int remainder = newIndex % total;
+
+            if (newIndex < 0)
+            {
+                return (remainder == 0) ? 0 : total + remainder;
+            }
+
+            return remainder;
+        }
+
+        static int Clamp2DVerticalIndex(int newIndex, int itemsInRow, int total)
+        {
+            if (newIndex < 0) // moving up from the top row, select the last index in the next column to the left
+            {
+                return newIndex == -itemsInRow ? total - 1 : (total + newIndex - 1);
+            }
+
+            if (newIndex >= total) // moving down from the bottom row, select the first index in the next column to the right
+            {
+                return newIndex == total + itemsInRow - 1 ? 0 : newIndex - total + 1;
+            }
+
+            return newIndex;
         }
     }
 }

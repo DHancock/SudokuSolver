@@ -8,41 +8,6 @@ internal static class Utils
         Debug.Assert(succeeded);
     }
 
-    public static int Clamp2DHorizontalIndex(int newIndex, int total)
-    {
-        int remainder = newIndex % total;
-
-        if (newIndex < 0)
-        {
-            return (remainder == 0) ? 0 : total + remainder;
-        }
-
-        return remainder;
-    }
-
-    public static int Clamp2DVerticalIndex(int newIndex, int itemsInRow, int total)
-    {
-        if (newIndex < 0) // moving up from the top row, select the last index in the next column to the left
-        {
-            return newIndex == -itemsInRow ? total - 1 : (total + newIndex - 1);
-        }
-
-        if (newIndex >= total) // moving down from the bottom row, select the first index in the next column to the right
-        {
-            return newIndex == total + itemsInRow - 1 ? 0 : newIndex - total + 1;
-        }
-
-        return newIndex;
-    }
-
-    public static ResourceDictionary? GetThemeDictionary(ElementTheme themeKey)
-    {
-        Debug.Assert(App.Instance.Resources.MergedDictionaries.Count == 2);
-        Debug.Assert(App.Instance.Resources.MergedDictionaries[1].ThemeDictionaries.ContainsKey(themeKey.ToString()));
-
-        return App.Instance.Resources.MergedDictionaries[1].ThemeDictionaries[themeKey.ToString()] as ResourceDictionary;
-    }
-
     public static ElementTheme NormaliseTheme(ElementTheme theme)
     {
         if (theme == ElementTheme.Default)

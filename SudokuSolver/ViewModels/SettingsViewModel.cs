@@ -164,7 +164,7 @@ internal sealed partial class SettingsViewModel : INotifyPropertyChanged
 
     public static List<Color> ReadResourceThemeColors(ElementTheme themeKey)
     {
-        ResourceDictionary? theme = Utils.GetThemeDictionary(themeKey);
+        ResourceDictionary? theme = GetThemeDictionary(themeKey);
 
         Debug.Assert(theme is not null);
         Debug.Assert(Array.TrueForAll(cValueKeys, x => theme.ContainsKey(x)));
@@ -182,7 +182,7 @@ internal sealed partial class SettingsViewModel : INotifyPropertyChanged
 
     public static void UpdateResourceThemeColors(ElementTheme themeKey, List<Color> colors)
     {
-        ResourceDictionary? theme = Utils.GetThemeDictionary(themeKey);
+        ResourceDictionary? theme = GetThemeDictionary(themeKey);
 
         Debug.Assert(theme is not null);
         Debug.Assert(Array.TrueForAll(cValueKeys, x => theme.ContainsKey(x)));
@@ -197,6 +197,14 @@ internal sealed partial class SettingsViewModel : INotifyPropertyChanged
                 scb.Color = colors[index];
             }
         }
+    }
+
+    private static ResourceDictionary? GetThemeDictionary(ElementTheme themeKey)
+    {
+        Debug.Assert(App.Instance.Resources.MergedDictionaries.Count == 2);
+        Debug.Assert(App.Instance.Resources.MergedDictionaries[1].ThemeDictionaries.ContainsKey(themeKey.ToString()));
+
+        return App.Instance.Resources.MergedDictionaries[1].ThemeDictionaries[themeKey.ToString()] as ResourceDictionary;
     }
 
     public int ThemeRadioButtonsIndex
