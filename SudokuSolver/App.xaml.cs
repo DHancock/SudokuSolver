@@ -34,11 +34,7 @@ public sealed partial class App : Application
     private MainWindow? currentWindow;
     private bool appClosing = false;
 
-    /// <summary>
-    /// Initializes the singleton application object. This will be the single current
-    /// instance, attempts to open more apps will already have been redirected.
-    /// </summary>
-    public App(AppInstance instance)
+    public App()
     {
         InitializeComponent();
 
@@ -47,7 +43,7 @@ public sealed partial class App : Application
         autoSaveTimer = InitialiseAutoSaveTimer();
         autoSaveTimer.Start();
 
-        appInstance = instance;
+        appInstance = AppInstance.GetCurrent();
         appInstance.Activated += MainInstance_Activated;
     }
 
