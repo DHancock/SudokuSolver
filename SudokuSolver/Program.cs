@@ -5,8 +5,6 @@ namespace SudokuSolver;
 
 public static class Program
 {
-    private const string cAppKey = "586A28D4-3FF0-42B2-829B-5F02BBFC8352";
-
     [STAThread]
     static void Main(string[] args)
     {
@@ -20,7 +18,7 @@ public static class Program
         }
         else
         {
-            AppInstance appInstance = AppInstance.FindOrRegisterForKey(cAppKey);
+            AppInstance appInstance = AppInstance.FindOrRegisterForKey("586A28D4-3FF0-42B2-829B-5F02BBFC8352");
 
             if (!appInstance.IsCurrent)
             {
@@ -40,7 +38,7 @@ public static class Program
                 {
                     DispatcherQueueSynchronizationContext context = new(DispatcherQueue.GetForCurrentThread());
                     SynchronizationContext.SetSynchronizationContext(context);
-                    _ = new App(appInstance);
+                    _ = new App();
                 });
             }
         }
