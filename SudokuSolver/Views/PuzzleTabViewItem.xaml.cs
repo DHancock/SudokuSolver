@@ -390,11 +390,6 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         {
             await parentWindow.PrintHelper.PrintPuzzleAsync(GetSessionData());
         }
-        catch (NotSupportedException nse) when (nse.Message.Contains("Windows.Foundation.IAsyncOperation`1[System.Boolean]"))
-        {
-            // work around CsWinRt 2.2.0 issue https://github.com/microsoft/CsWinRT/issues/1871
-            // Apart from now being fire and forget, printing does seem to still work...
-        }
         catch (Exception ex)
         {
             string heading = App.Instance.ResourceLoader.GetString("PrintErrorHeading");
