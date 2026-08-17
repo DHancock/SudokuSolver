@@ -27,8 +27,8 @@
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.3.1" />
-		<PackageReference Include="Microsoft.WindowsAppSDK.WinUI" Version="2.2.1" />
-		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.2270" />
+		<PackageReference Include="Microsoft.WindowsAppSDK.WinUI" Version="2.3.6" />
+		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.2526" />
 
 		<Manifest Include="$(ApplicationManifest)" />
 	</ItemGroup>
