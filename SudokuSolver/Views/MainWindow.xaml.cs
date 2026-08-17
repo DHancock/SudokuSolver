@@ -714,20 +714,17 @@ internal sealed partial class MainWindow : Window, ISession
 
     private MenuFlyout BuildTabJumpListMenu()
     {
-        const string cStyleKey = "DefaultMenuFlyoutPresenterStyle";
-        const string cPaddingKey = "MenuFlyoutItemThemePaddingNarrow";
-
         MenuFlyout menuFlyout = new MenuFlyout()
         {
             XamlRoot = Content.XamlRoot,
-            MenuFlyoutPresenterStyle = (Style)((FrameworkElement)Content).Resources[cStyleKey],
+            MenuFlyoutPresenterStyle = (Style)((FrameworkElement)Content).Resources["DefaultMenuFlyoutPresenterStyle"],
             OverlayInputPassThroughElement = Content,
         };
 
         menuFlyout.Closed += MenuFlyout_Closed;
 
         // ensure the use of narrow padding
-        Thickness narrow = (Thickness)((FrameworkElement)Content).Resources[cPaddingKey];
+        Thickness narrow = (Thickness)((FrameworkElement)Content).Resources["MenuFlyoutItemThemePaddingNarrow"];
 
         foreach (object tab in Tabs.TabItems)
         {
