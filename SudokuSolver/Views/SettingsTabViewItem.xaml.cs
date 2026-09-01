@@ -239,16 +239,15 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
         // no access keys to disable when a content dialog is shown
     }
 
-    public void InvokeKeyboardAccelerator(VirtualKeyModifiers modifiers, VirtualKey key)
+    public bool InvokeKeyboardAccelerator(VirtualKeyModifiers modifiers, VirtualKey key)
     {
         if ((modifiers == VirtualKeyModifiers.Shift) && (key == VirtualKey.F10))
         {
             ((MenuFlyout)ContextFlyout).ShowAt((FrameworkElement)Header);
+            return true;
         }
-        else
-        {
-            Utils.InvokeMenuItemForKeyboardAccelerator(((MenuFlyout)ContextFlyout).Items, modifiers, key);
-        }
+
+        return Utils.InvokeMenuItemForKeyboardAccelerator(((MenuFlyout)ContextFlyout).Items, modifiers, key);
     }
 
     public int PassthroughCount => 7;

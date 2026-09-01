@@ -63,8 +63,7 @@ internal sealed partial class MainWindow : Window, ISession
     {
         // The sdk's search for global keyboard accelerators is a bit challenged in WAS 1.8.0
         // Do it here instead, the accelerators are in known positions in the visual tree
-        args.Handled = true;
-
+        
         if (Tabs.SelectedItem is not null) // guard against a closed last tab
         {
             foreach (KeyboardAccelerator ka in Tabs.KeyboardAccelerators)
@@ -79,11 +78,13 @@ internal sealed partial class MainWindow : Window, ISession
                     {
                         NavigateToNumberedTab(ka.Key);
                     }
+
+                    args.Handled = true;
                     return;
                 }
             }
 
-            ((ITabItem)Tabs.SelectedItem).InvokeKeyboardAccelerator(args.Modifiers, args.Key);
+            args.Handled = ((ITabItem)Tabs.SelectedItem).InvokeKeyboardAccelerator(args.Modifiers, args.Key);
         }
     }
 
