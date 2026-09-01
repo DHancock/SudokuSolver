@@ -734,13 +734,14 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
         rects[4] = Utils.GetPassthroughRect(Puzzle);
     }
 
-    public void InvokeKeyboardAccelerator(VirtualKeyModifiers modifiers, VirtualKey key)
+    public bool InvokeKeyboardAccelerator(VirtualKeyModifiers modifiers, VirtualKey key)
     {
         if ((modifiers == VirtualKeyModifiers.Shift) && (key == VirtualKey.F10))
         {
             if ((FocusManager.GetFocusedElement(XamlRoot) is TabViewItem) || !Puzzle.ShowCellContextMenu())
             {
                 ((MenuFlyout)ContextFlyout).ShowAt((FrameworkElement)Header);
+                return true;
             }                                                
         }
         else
@@ -758,15 +759,17 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
                 }
             }
 
+            // the cell's context menu items are duplicates of File menu bar menu items
+
             foreach (MenuBarItem mbi in Menu.Items)
             {
                 if (mbi.IsEnabled && Utils.InvokeMenuItemForKeyboardAccelerator(mbi.Items, modifiers, key))
                 {
-                    return;
+                    return true;
                 }
             }
         }
 
-        Utils.InvokeMenuItemForKeyboardAccelerator(((MenuFlyout)ContextFlyout).Items, modifiers, key);
+        return Utils.InvokeMenuItemForKeyboardAccelerator(((MenuFlyout)ContextFlyout).Items, modifiers, key);
     }
 }
