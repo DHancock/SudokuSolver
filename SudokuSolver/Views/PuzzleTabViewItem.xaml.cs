@@ -759,7 +759,7 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
                 }
             }
 
-            // the cell's context menu items are duplicates of File menu bar menu items
+            // the cell's context menu items are duplicates of Edit menu bar menu items (cut/copy/paste)
 
             foreach (MenuBarItem mbi in Menu.Items)
             {
