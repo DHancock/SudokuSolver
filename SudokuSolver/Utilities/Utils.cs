@@ -18,33 +18,47 @@ internal static class Utils
         return theme;
     }
 
-    public static Point GetOffsetFromXamlRoot(UIElement e)
+    public static Vector3 GetOffsetFromXamlRoot(UIElement e)
     {
-        GeneralTransform gt = e.TransformToVisual(e.XamlRoot.Content);
-        return gt.TransformPoint(new Point(0f, 0f));
+        Vector3 offset = e.ActualOffset;
+
+        // FrameworkElement.Parent is the logical parent
+        DependencyObject? dependencyObject = VisualTreeHelper.GetParent(e);
+
+        while (dependencyObject != null)
+        {
+            if (dependencyObject is UIElement uie)
+            {
+                offset += uie.ActualOffset;
+            }
+
+            dependencyObject = VisualTreeHelper.GetParent(dependencyObject);
+        }
+
+        return offset;
     }
 
-    public static RectInt32 ScaledRect(in Point location, in Vector2 size, double scale)
+    public static RectInt32 ScaledRect(in Vector3 location, in Vector2 size, in float scale)
     {
-        Debug.Assert(location.X >= 0.0);
-        Debug.Assert(location.Y >= 0.0);
+        Debug.Assert(location.X >= 0f);
+        Debug.Assert(location.Y >= 0f);
         Debug.Assert(size.X >= 0f);
         Debug.Assert(size.Y >= 0f);
 
-        return new RectInt32((int)Math.FusedMultiplyAdd(location.X, scale, 0.5),
-                             (int)Math.FusedMultiplyAdd(location.Y, scale, 0.5),
-                             (int)Math.FusedMultiplyAdd(size.X, scale, 0.5),
-                             (int)Math.FusedMultiplyAdd(size.Y, scale, 0.5));
+        return new RectInt32((int)MathF.FusedMultiplyAdd(location.X, scale, 0.5f),
+                             (int)MathF.FusedMultiplyAdd(location.Y, scale, 0.5f),
+                             (int)MathF.FusedMultiplyAdd(size.X, scale, 0.5f),
+                             (int)MathF.FusedMultiplyAdd(size.Y, scale, 0.5f));
     }
 
-    public static RectInt32 GetPassthroughRect(UIElement e, double topBounds = 0.0)
+    public static RectInt32 GetPassthroughRect(UIElement e, float topBounds = 0f)
     {
-        Point offset = GetOffsetFromXamlRoot(e);
+        Vector3 offset = GetOffsetFromXamlRoot(e);
         Vector2 visibleSize = e.ActualSize;
 
         if (offset.Y < topBounds) // may be clipped if it's above the top edge of the scroll viewer
         {
-            visibleSize.Y = (float)(offset.Y + visibleSize.Y - topBounds);
+            visibleSize.Y = offset.Y + visibleSize.Y - topBounds;
 
             if (visibleSize.Y < 0.1) // it's scrolled up out of view
             {
@@ -56,7 +70,7 @@ internal static class Utils
 
         // ignore clipping when part or all of the element is below the window bottom, it can't be clicked anyway
 
-        return ScaledRect(offset, visibleSize, e.XamlRoot.RasterizationScale);
+        return ScaledRect(offset, visibleSize, (float)e.XamlRoot.RasterizationScale);
     }
 
     public static bool InvokeMenuItemForKeyboardAccelerator(IList<MenuFlyoutItemBase> menuItems, VirtualKeyModifiers modifiers, VirtualKey key)

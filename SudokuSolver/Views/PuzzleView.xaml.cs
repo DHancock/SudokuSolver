@@ -23,20 +23,15 @@ internal partial class PuzzleView : UserControl
 
     private void PuzzleView_PointerPressed(object sender, PointerRoutedEventArgs e)
     {
-        PointerPoint pointerInfo = e.GetCurrentPoint(this);
+        PointerPoint pointerInfo = e.GetCurrentPoint(null);
 
         if (pointerInfo.Properties.IsRightButtonPressed)
         {
-            Point offset = Utils.GetOffsetFromXamlRoot(this);
-
-            offset.X += pointerInfo.Position.X;
-            offset.Y += pointerInfo.Position.Y;
-
-            foreach (UIElement element in VisualTreeHelper.FindElementsInHostCoordinates(offset, this))
+            foreach (UIElement element in VisualTreeHelper.FindElementsInHostCoordinates(pointerInfo.Position, this))
             {
                 if (element is Cell cell)
                 {
-                    ShowCellContextMenu(viaKeyboard: false, cell, offset);
+                    ShowCellContextMenu(viaKeyboard: false, cell, pointerInfo.Position);
                     e.Handled = true;
                     break;
                 }
