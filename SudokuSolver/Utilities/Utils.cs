@@ -30,6 +30,17 @@ internal static class Utils
             if (dependencyObject is UIElement uie)
             {
                 offset += uie.ActualOffset;
+
+                if (uie is ScrollView sv)
+                {
+                    offset.X -= (float)sv.HorizontalOffset;
+                    offset.Y -= (float)sv.VerticalOffset;
+                }
+                else if (uie is ScrollViewer svr)
+                {
+                    offset.X -= (float)svr.HorizontalOffset;
+                    offset.Y -= (float)svr.VerticalOffset;
+                }
             }
 
             dependencyObject = VisualTreeHelper.GetParent(dependencyObject);
