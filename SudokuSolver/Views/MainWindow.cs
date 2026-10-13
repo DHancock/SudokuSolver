@@ -477,10 +477,10 @@ internal sealed partial class MainWindow : Window
         FrameworkElement right = (FrameworkElement)Tabs.TabStripFooter;
 
         // the passthrough region for the tab header strip is the space between the header and footer
-        Vector3 leftOffset = Utils.GetOffsetFromXamlRoot(left);
-        Vector3 rightOffset = Utils.GetOffsetFromXamlRoot(right);
+        Point leftOffset = Utils.GetOffsetFromXamlRoot(left);
+        Point rightOffset = Utils.GetOffsetFromXamlRoot(right);
 
-        Vector3 topLeft = new Vector3((float)(leftOffset.X + left.Margin.Left + left.ActualSize.X + left.Margin.Right), (float)(rightOffset.Y + Tabs.Padding.Top), 0f);
+        Point topLeft = new Point(leftOffset.X + left.Margin.Left + left.ActualSize.X + left.Margin.Right, rightOffset.Y + Tabs.Padding.Top);
         Vector2 size = new Vector2((float)(rightOffset.X - topLeft.X), right.ActualSize.Y);
 
         rects[rects.Length - 1] = Utils.ScaledRect(topLeft, size, (float)scaleFactor);
