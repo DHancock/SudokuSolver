@@ -18,58 +18,32 @@ internal static class Utils
         return theme;
     }
 
-    public static Vector3 GetOffsetFromXamlRoot(UIElement e)
+    public static Point GetOffsetFromXamlRoot(UIElement e)
     {
-        Vector3 offset = e.ActualOffset;
-
-        // FrameworkElement.Parent is the logical parent
-        DependencyObject? dependencyObject = VisualTreeHelper.GetParent(e);
-
-        while (dependencyObject != null)
-        {
-            if (dependencyObject is UIElement uie)
-            {
-                offset += uie.ActualOffset;
-
-                if (uie is ScrollView sv)
-                {
-                    offset.X -= (float)sv.HorizontalOffset;
-                    offset.Y -= (float)sv.VerticalOffset;
-                }
-                else if (uie is ScrollViewer svr)
-                {
-                    offset.X -= (float)svr.HorizontalOffset;
-                    offset.Y -= (float)svr.VerticalOffset;
-                }
-            }
-
-            dependencyObject = VisualTreeHelper.GetParent(dependencyObject);
-        }
-
-        return offset;
+        return e.TransformToVisual(e.XamlRoot.Content).TransformPoint(default);
     }
 
-    public static RectInt32 ScaledRect(in Vector3 location, in Vector2 size, in float scale)
+    public static RectInt32 ScaledRect(in Point location, in Vector2 size, in float scale)
     {
-        Debug.Assert(location.X >= 0f);
-        Debug.Assert(location.Y >= 0f);
+        Debug.Assert(location.X >= 0.0);
+        Debug.Assert(location.Y >= 0.0);
         Debug.Assert(size.X >= 0f);
         Debug.Assert(size.Y >= 0f);
 
-        return new RectInt32((int)MathF.FusedMultiplyAdd(location.X, scale, 0.5f),
-                             (int)MathF.FusedMultiplyAdd(location.Y, scale, 0.5f),
+        return new RectInt32((int)MathF.FusedMultiplyAdd((float)location.X, scale, 0.5f),
+                             (int)MathF.FusedMultiplyAdd((float)location.Y, scale, 0.5f),
                              (int)MathF.FusedMultiplyAdd(size.X, scale, 0.5f),
                              (int)MathF.FusedMultiplyAdd(size.Y, scale, 0.5f));
     }
 
-    public static RectInt32 GetPassthroughRect(UIElement e, float topBounds = 0f)
+    public static RectInt32 GetPassthroughRect(UIElement e, double topBounds = 0.0)
     {
-        Vector3 offset = GetOffsetFromXamlRoot(e);
+        Point offset = GetOffsetFromXamlRoot(e);
         Vector2 visibleSize = e.ActualSize;
 
         if (offset.Y < topBounds) // may be clipped if it's above the top edge of the scroll viewer
         {
-            visibleSize.Y = offset.Y + visibleSize.Y - topBounds;
+            visibleSize.Y = (float)(offset.Y + visibleSize.Y - topBounds);
 
             if (visibleSize.Y < 0.1) // it's scrolled up out of view
             {

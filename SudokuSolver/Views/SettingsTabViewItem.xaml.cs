@@ -256,7 +256,7 @@ internal sealed partial class SettingsTabViewItem : TabViewItem, ITabItem, ISess
     {
         Debug.Assert(rects.Length >= PassthroughCount);
 
-        float topClip = 0f;
+        double topClip = 0.0;
 
         if (RootScrollViewer.ComputedVerticalScrollBarVisibility == Visibility.Visible)
         {
