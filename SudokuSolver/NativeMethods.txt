@@ -21,3 +21,4 @@ SetWindowsHookEx
 CallNextHookEx
 GetCurrentThreadId
 CreateMutex
+WM_CONTEXTMENU

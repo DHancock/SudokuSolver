@@ -837,4 +837,13 @@ internal sealed partial class MainWindow : Window, ISession
         get => Tabs.SelectedItem;
         set => Tabs.SelectedItem = value;
     }
+
+    private void ProcessContextMenuMessage()
+    {
+        if ((SelectedTab is PuzzleTabViewItem puzzleTab) && (FocusManager.GetFocusedElement(Content.XamlRoot) is Cell))
+        {
+            // the cell uses a seperate menu flyout that's opened in code when it's context menu is required
+            puzzleTab.ShowCellContextMenu();
+        }
+    }
 }

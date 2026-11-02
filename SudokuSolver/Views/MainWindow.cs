@@ -198,6 +198,13 @@ internal sealed partial class MainWindow : Window
                     App.Instance.SaveStateOnEndSession();
                     return (LRESULT)0;
                 }
+
+                case PInvoke.WM_CONTEXTMENU:
+                {
+                    // the copilot key has been configured to open context menus
+                    window.ProcessContextMenuMessage();
+                    break;
+                }
             }
         }
 

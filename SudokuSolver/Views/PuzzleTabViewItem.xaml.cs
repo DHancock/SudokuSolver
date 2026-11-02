@@ -772,4 +772,6 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
         return Utils.InvokeMenuItemForKeyboardAccelerator(((MenuFlyout)ContextFlyout).Items, modifiers, key);
     }
+
+    public void ShowCellContextMenu() => Puzzle.ShowCellContextMenu();
 }
