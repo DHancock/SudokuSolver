@@ -84,8 +84,9 @@ internal static class Utils
                             if (mfi.Command.CanExecute(mfi.CommandParameter))   
                             {
                                 mfi.Command.Execute(mfi.CommandParameter);
-                                return true;
                             }
+
+                            return true;
                         }
                         else if (mfi.IsEnabled)
                         {

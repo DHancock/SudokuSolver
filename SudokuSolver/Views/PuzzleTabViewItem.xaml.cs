@@ -738,11 +738,11 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
     {
         if ((modifiers == VirtualKeyModifiers.Shift) && (key == VirtualKey.F10))
         {
-            if ((FocusManager.GetFocusedElement(XamlRoot) is TabViewItem) || !Puzzle.ShowCellContextMenu())
+            if (FocusManager.GetFocusedElement(XamlRoot) is Cell)
             {
-                ((MenuFlyout)ContextFlyout).ShowAt((FrameworkElement)Header);
-                return true;
-            }                                                
+                // cells don't have thier own context menu so need to open it here
+                return Puzzle.ShowCellContextMenu();
+            }
         }
         else
         {
@@ -772,6 +772,4 @@ internal sealed partial class PuzzleTabViewItem : TabViewItem, ITabItem, ISessio
 
         return Utils.InvokeMenuItemForKeyboardAccelerator(((MenuFlyout)ContextFlyout).Items, modifiers, key);
     }
-
-    public void ShowCellContextMenu() => Puzzle.ShowCellContextMenu();
 }
