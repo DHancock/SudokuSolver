@@ -230,6 +230,10 @@ internal sealed partial class MainWindow : Window, ISession
                     Environment.Exit(0);
                 }
 
+                // https://github.com/microsoft/microsoft-ui-xaml/issues/12210
+                ExtendsContentIntoTitleBar = false;
+                AppWindow.TitleBar.ResetToDefault();
+
                 App.Instance.UnRegisterWindow(this);
                 Close();
             }
@@ -840,10 +844,9 @@ internal sealed partial class MainWindow : Window, ISession
 
     private void ProcessContextMenuMessage()
     {
-        if ((SelectedTab is PuzzleTabViewItem puzzleTab) && (FocusManager.GetFocusedElement(Content.XamlRoot) is Cell))
+        if (SelectedTab is PuzzleTabViewItem puzzleTab)
         {
-            // the cell uses a seperate menu flyout that's opened in code when it's context menu is required
-            puzzleTab.ShowCellContextMenu();
+            puzzleTab.InvokeKeyboardAccelerator(VirtualKeyModifiers.Shift, VirtualKey.F10);
         }
     }
 }
