@@ -14,7 +14,7 @@ WM_DPICHANGED
 SHAddToRecentDocs
 GetDoubleClickTime
 WM_ENDSESSION
-EnumWindows
+EnumThreadWindows
 RemoveWindowSubclass
 SHARD
 SetWindowsHookEx
