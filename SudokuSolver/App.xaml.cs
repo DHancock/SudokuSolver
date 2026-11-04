@@ -463,7 +463,7 @@ public sealed partial class App : Application
 
         unsafe
         {
-            PInvoke.EnumWindows(&EnumWindowsProc, GCHandle.ToIntPtr(listGCHandle));
+            PInvoke.EnumThreadWindows(PInvoke.GetCurrentThreadId(), &EnumWindowsProc, GCHandle.ToIntPtr(listGCHandle));
         }
 
         listGCHandle.Free();
@@ -473,23 +473,20 @@ public sealed partial class App : Application
         [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
         static BOOL EnumWindowsProc(HWND hwnd, LPARAM param)
         {
-            GCHandle handle = GCHandle.FromIntPtr(param);
+            MainWindow? window = App.Instance.windowList.Find(window => window.WindowHandle == hwnd);
 
-            if (handle.Target is List<MainWindow> list)
+            if (window is not null)  // winui adds additional windows in this thread
             {
-                foreach (MainWindow window in App.Instance.windowList)
-                {
-                    if (window.WindowHandle == hwnd)
-                    {
-                        list.Add(window);
-                        break;
-                    }
-                }
+                GCHandle handle = GCHandle.FromIntPtr(param);
 
-                return list.Count != App.Instance.windowList.Count;
+                if (handle.Target is List<MainWindow> list)
+                {
+                    list.Add(window);
+                    return list.Count != App.Instance.windowList.Count;
+                }
             }
 
-            return false;
+            return true;
         }
     }
 
