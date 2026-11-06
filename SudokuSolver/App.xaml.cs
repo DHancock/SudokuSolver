@@ -475,7 +475,7 @@ public sealed partial class App : Application
         {
             MainWindow? window = App.Instance.windowList.Find(window => window.WindowHandle == hwnd);
 
-            if (window is not null)  // winui adds additional windows in this thread
+            if (window is not null)  // winui adds additional IME windows in this thread
             {
                 GCHandle handle = GCHandle.FromIntPtr(param);
 
