@@ -12,7 +12,6 @@ ScreenToClient
 PostMessage
 WM_DPICHANGED
 SHAddToRecentDocs
-GetDoubleClickTime
 WM_ENDSESSION
 EnumThreadWindows
 RemoveWindowSubclass

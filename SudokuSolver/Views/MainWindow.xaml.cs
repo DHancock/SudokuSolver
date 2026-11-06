@@ -14,7 +14,6 @@ internal sealed partial class MainWindow : Window, ISession
     public bool IsActive { get; private set; } = true;
 
     private PrintHelper? printHelper;
-    private DateTime lastPointerTimeStamp;
 
     public MainWindow(WindowState windowState, RectInt32 bounds) : this()
     {
@@ -718,18 +717,13 @@ internal sealed partial class MainWindow : Window, ISession
     private void TabStripHeader_PointerPressed(object sender, PointerRoutedEventArgs e)
     {
         ShowSystemMenu(viaKeyboard: true); // open at keyboard location as not to obscure double clicks
+        e.Handled = true;
+    }
 
-        TimeSpan doubleClickTime = TimeSpan.FromMilliseconds(PInvoke.GetDoubleClickTime());
-        DateTime utcNow = DateTime.UtcNow;
-
-        if ((utcNow - lastPointerTimeStamp) < doubleClickTime)
-        {
-            PostCloseMessage();
-        }
-        else
-        {
-            lastPointerTimeStamp = utcNow;
-        }
+    private void TabStripHeader_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+    {
+        PostCloseMessage();
+        e.Handled = true;
     }
 
     private void TabJumpListMenuButton_Click(object sender, RoutedEventArgs e)
