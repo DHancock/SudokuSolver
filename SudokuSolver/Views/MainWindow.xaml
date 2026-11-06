@@ -37,7 +37,7 @@
             </TabView.KeyboardAccelerators>
 
             <TabView.TabStripHeader>
-                <Grid PointerPressed="TabStripHeader_PointerPressed" Background="{ThemeResource LayerOnMicaBaseAltFillColorTransparentBrush}">
+                <Grid PointerPressed="TabStripHeader_PointerPressed" DoubleTapped="TabStripHeader_DoubleTapped" Background="{ThemeResource LayerOnMicaBaseAltFillColorTransparentBrush}">
                     <Image x:Name="WindowIcon" Source="ms-appx:///Resources/app.png" Height="16" Margin="10,8,4,0"/>
                 </Grid>
             </TabView.TabStripHeader>

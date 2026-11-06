@@ -14,7 +14,6 @@ internal sealed partial class MainWindow : Window, ISession
     public bool IsActive { get; private set; } = true;
 
     private PrintHelper? printHelper;
-    private DateTime lastPointerTimeStamp;
 
     public MainWindow(WindowState windowState, RectInt32 bounds) : this()
     {
@@ -615,6 +614,10 @@ internal sealed partial class MainWindow : Window, ISession
             bounds.Add(new XElement(nameof(RectInt32.Width), restoreBounds.Width));
             bounds.Add(new XElement(nameof(RectInt32.Height), restoreBounds.Height));
 
+            // the selected tab index was added in version 1.16.0
+            XElement index = new XElement("index", Tabs.SelectedIndex);
+            root.Add(index);
+
             foreach (object tab in Tabs.TabItems)
             {
                 root.Add(((ISession)tab).GetSessionData());
@@ -628,61 +631,80 @@ internal sealed partial class MainWindow : Window, ISession
     {
         try
         {
-            if ((root.Name == "window") && (root.Attribute("version") is XAttribute vw) && int.TryParse(vw.Value, out int version))
+            if (root.Name != "window")
             {
-                if (version == 1)
+                return false;
+            }
+
+            if ((root.Attribute("version") is not XAttribute vw) || !int.TryParse(vw.Value, out int version) || (version != 1))
+            {
+                return false;
+            }
+
+            XElement? bounds = root.Element("bounds");
+
+            if ((bounds is null) || !bounds.HasElements)
+            {
+                return false;
+            }
+
+            string[] names = [nameof(RectInt32.X), nameof(RectInt32.Y), nameof(RectInt32.Width), nameof(RectInt32.Height)];
+
+            foreach (string name in names)
+            {
+                XElement? field = bounds.Element(name);
+
+                if (field is null || !int.TryParse(field.Value, out int value))
                 {
-                    XElement? bounds = root.Element("bounds");
+                    return false;
+                }
 
-                    if ((bounds is not null) && bounds.HasElements)
-                    {
-                        string[] names = [nameof(RectInt32.X), nameof(RectInt32.Y), nameof(RectInt32.Width), nameof(RectInt32.Height)];
-
-                        foreach (string name in names)
-                        {
-                            XElement? field = bounds.Element(name);
-
-                            if (field is null || !int.TryParse(field.Value, out int value))
-                            {
-                                return false;
-                            }
-
-                            if (((field.Name == nameof(RectInt32.Width)) || (field.Name == nameof(RectInt32.Height))) && (value < 0))
-                            {
-                                return false;
-                            }
-                        }
-
-                        foreach (XElement child in root.Descendants("puzzle"))
-                        {
-                            if (!PuzzleTabViewItem.ValidateSessionData(child))
-                            {
-                                Debug.WriteLine("PuzzleTabViewItem.ValidateSessionData() failed");
-                                return false;
-                            }
-                        }
-
-                        int count = 0;
-
-                        foreach (XElement child in root.Descendants("settings"))
-                        {
-                            if (++count > 1)
-                            {
-                                Debug.WriteLine("Settings session count failed");
-                                return false;
-                            }
-
-                            if (!SettingsTabViewItem.ValidateSessionData(child))
-                            {
-                                Debug.WriteLine("SettingsTabViewItem.ValidateSessionData() failed");
-                                return false;
-                            }
-                        }
-
-                        return true;
-                    }
+                if (((name == nameof(RectInt32.Width)) || (name == nameof(RectInt32.Height))) && (value < 0))
+                {
+                    return false;
                 }
             }
+
+            int tabCount = 0;
+
+            foreach (XElement setting in root.Descendants("settings"))
+            {
+                if ((++tabCount > 1) || !SettingsTabViewItem.ValidateSessionData(setting))
+                {
+                    Debug.WriteLine("SettingsTabViewItem.ValidateSessionData() failed");
+                    return false;
+                }
+            }
+
+            foreach (XElement puzzle in root.Descendants("puzzle"))
+            {
+                ++tabCount;
+
+                if (!PuzzleTabViewItem.ValidateSessionData(puzzle))
+                {
+                    Debug.WriteLine("PuzzleTabViewItem.ValidateSessionData() failed");
+                    return false;
+                }
+            }
+
+            if (tabCount == 0)
+            {
+                Debug.WriteLine("Tab count validation failed");
+                return false;
+            }
+
+            XElement? indexElement = root.Element("index");
+
+            if (indexElement is not null) // it's an optional element
+            {
+                if (!int.TryParse(indexElement.Value, out int index) || (index < 0) || (index >= tabCount))
+                {
+                    Debug.WriteLine("Selected tab index validation failed");
+                    return false;
+                }
+            }
+
+            return true;
         }
         catch (Exception ex)
         {
@@ -695,18 +717,13 @@ internal sealed partial class MainWindow : Window, ISession
     private void TabStripHeader_PointerPressed(object sender, PointerRoutedEventArgs e)
     {
         ShowSystemMenu(viaKeyboard: true); // open at keyboard location as not to obscure double clicks
+        e.Handled = true;
+    }
 
-        TimeSpan doubleClickTime = TimeSpan.FromMilliseconds(PInvoke.GetDoubleClickTime());
-        DateTime utcNow = DateTime.UtcNow;
-
-        if ((utcNow - lastPointerTimeStamp) < doubleClickTime)
-        {
-            PostCloseMessage();
-        }
-        else
-        {
-            lastPointerTimeStamp = utcNow;
-        }
+    private void TabStripHeader_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+    {
+        PostCloseMessage();
+        e.Handled = true;
     }
 
     private void TabJumpListMenuButton_Click(object sender, RoutedEventArgs e)
@@ -847,6 +864,29 @@ internal sealed partial class MainWindow : Window, ISession
         if (SelectedTab is PuzzleTabViewItem puzzleTab)
         {
             puzzleTab.InvokeKeyboardAccelerator(VirtualKeyModifiers.Shift, VirtualKey.F10);
+        }
+    }
+
+    internal void LoadSessionData(XElement root)
+    {
+        foreach (XElement child in root.Descendants())
+        {
+            if (child.Name == "puzzle")
+            {
+                AddTab(new PuzzleTabViewItem(this, child));
+            }
+            else if (child.Name == "settings")
+            {
+                AddTab(new SettingsTabViewItem(this, child));
+            }
+        }
+
+        // the selected index is an option element added in version 1.16.0 
+        XElement? indexElement = root.Element("index");
+
+        if ((indexElement is not null) && int.TryParse(indexElement.Value, out int index) && (index >= 0) && (index < Tabs.TabItems.Count))
+        {
+            Tabs.SelectedItem = Tabs.TabItems[index];
         }
     }
 }

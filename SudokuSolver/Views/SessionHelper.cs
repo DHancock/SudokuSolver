@@ -56,25 +56,13 @@ internal class SessionHelper
             {
                 XDocument document = await XDocument.LoadAsync(stream, LoadOptions.None, CancellationToken.None);
 
-                if (document.Root is not null)
+                if ((document.Root?.Name == "session") && (document.Root.Attribute("version") is XAttribute va) && int.TryParse(va.Value, out int version))
                 {
-                    if ((document.Root.Name == "session") && (document.Root.Attribute("version") is XAttribute va) && int.TryParse(va.Value, out int version))
+                    if (version == 1)
                     {
-                        if (version == 1)
+                        foreach (XElement window in document.Descendants("window"))
                         {
-                            IEnumerable<XElement> windows = document.Descendants("window");
-
-                            foreach (XElement window in windows)
-                            {
-                                if (!MainWindow.ValidateSessionData(window))
-                                {
-                                    // This should only happen if the user has been editing the 
-                                    // session file, in which case all bets are off...
-                                    return;
-                                }
-                            }
-
-                            foreach (XElement window in windows)
+                            if (MainWindow.ValidateSessionData(window))
                             {
                                 CreateWindow(window);
                             }
@@ -113,18 +101,7 @@ internal class SessionHelper
                 // Always open with window state Normal, as does Notepad.
                 // It could be confusing if there are multiple windows and one is maximized.
                 MainWindow window = new MainWindow(WindowState.Normal, restoreBounds);
-                
-                foreach (XElement child in root.Descendants())
-                {
-                    if (child.Name == "puzzle")
-                    {
-                        window.AddTab(new PuzzleTabViewItem(window, child));
-                    }
-                    else if (child.Name == "settings")
-                    {
-                        window.AddTab(new SettingsTabViewItem(window, child));
-                    }
-                }
+                window.LoadSessionData(root);
             }
         }
     }

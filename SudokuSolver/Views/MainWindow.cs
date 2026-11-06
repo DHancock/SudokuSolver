@@ -47,7 +47,7 @@ internal sealed partial class MainWindow : Window
 
     public ContentDialogHelper ContentDialogHelper { get; }
 
-    public MainWindow()
+    private MainWindow()
     {
         InitializeComponent();
 
@@ -235,7 +235,7 @@ internal sealed partial class MainWindow : Window
         if (viaKeyboard || !PInvoke.GetCursorPos(out p) || !PInvoke.ScreenToClient(WindowHandle, ref p))
         {
             p.X = 3;
-            p.Y = AppWindow.TitleBar.Height;
+            p.Y = (int)(((Grid)Tabs.TabStripHeader).ActualHeight * scaleFactor);
         }
 
         systemMenu.ShowAt(null, new Point(p.X / scaleFactor, p.Y / scaleFactor));
