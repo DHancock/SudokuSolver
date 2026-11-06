@@ -47,7 +47,7 @@ internal sealed partial class MainWindow : Window
 
     public ContentDialogHelper ContentDialogHelper { get; }
 
-    public MainWindow()
+    private MainWindow()
     {
         InitializeComponent();
 
