@@ -9,8 +9,6 @@
                 <ResourceDictionary Source="ms-appx:///Resources/Themes.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
-            <x:Double x:Key="cell_size">50</x:Double>
-
             <Style x:Key="CustomContentDialogStyle" TargetType="ContentDialog" BasedOn="{StaticResource DefaultContentDialogStyle}">
                 <Setter Property="TitleTemplate">
                     <Setter.Value>
