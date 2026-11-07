@@ -1,9 +1,11 @@
 ﻿<UserControl x:Class="SudokuSolver.Views.Cell"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="using:SudokuSolver.Views"
-             Height="{StaticResource cell_size}"
-             Width="{StaticResource cell_size}">
+             xmlns:local="using:SudokuSolver.Views">
+
+    <UserControl.Resources>
+        <x:Double x:Key="cell_size">50</x:Double>
+    </UserControl.Resources>
 
     <Canvas x:Name="CellCanvas" Height="{StaticResource cell_size}" Width="{StaticResource cell_size}">
         <Canvas.BackgroundTransition>
@@ -39,130 +41,131 @@
                 <VisualState x:Name="Normal"/>
             </VisualStateGroup>
 
+            <!-- text blocks aren't controls so they can't have there own visual states -->
             <VisualStateGroup x:Name="PossibleStates1">
-                <VisualState x:Name="Horizontal1">
+                <VisualState x:Name="H1">
                     <VisualState.Setters>
                         <Setter Target="PossibleValue1.Foreground" Value="{ThemeResource PossiblesHorizontalBrush}"/>
                     </VisualState.Setters>
                 </VisualState>
-                <VisualState x:Name="Vertical1">
+                <VisualState x:Name="V1">
                     <VisualState.Setters>
                         <Setter Target="PossibleValue1.Foreground" Value="{ThemeResource PossiblesVerticalBrush}"/>
                     </VisualState.Setters>
                 </VisualState>
-                <VisualState x:Name="Normal1"/>
+                <VisualState x:Name="N1"/>
             </VisualStateGroup>
 
             <VisualStateGroup x:Name="PossibleStates2">
-                <VisualState x:Name="Horizontal2">
+                <VisualState x:Name="H2">
                     <VisualState.Setters>
                         <Setter Target="PossibleValue2.Foreground" Value="{ThemeResource PossiblesHorizontalBrush}"/>
                     </VisualState.Setters>
                 </VisualState>
-                <VisualState x:Name="Vertical2">
+                <VisualState x:Name="V2">
                     <VisualState.Setters>
                         <Setter Target="PossibleValue2.Foreground" Value="{ThemeResource PossiblesVerticalBrush}"/>
                     </VisualState.Setters>
                 </VisualState>
-                <VisualState x:Name="Normal2"/>
+                <VisualState x:Name="N2"/>
             </VisualStateGroup>
 
             <VisualStateGroup x:Name="PossibleStates3">
-                <VisualState x:Name="Horizontal3">
+                <VisualState x:Name="H3">
                     <VisualState.Setters>
                         <Setter Target="PossibleValue3.Foreground" Value="{ThemeResource PossiblesHorizontalBrush}"/>
                     </VisualState.Setters>
                 </VisualState>
-                <VisualState x:Name="Vertical3">
+                <VisualState x:Name="V3">
                     <VisualState.Setters>
                         <Setter Target="PossibleValue3.Foreground" Value="{ThemeResource PossiblesVerticalBrush}"/>
                     </VisualState.Setters>
                 </VisualState>
-                <VisualState x:Name="Normal3"/>
+                <VisualState x:Name="N3"/>
             </VisualStateGroup>
 
             <VisualStateGroup x:Name="PossibleStates4">
-                <VisualState x:Name="Horizontal4">
+                <VisualState x:Name="H4">
                     <VisualState.Setters>
                         <Setter Target="PossibleValue4.Foreground" Value="{ThemeResource PossiblesHorizontalBrush}"/>
                     </VisualState.Setters>
                 </VisualState>
-                <VisualState x:Name="Vertical4">
+                <VisualState x:Name="V4">
                     <VisualState.Setters>
                         <Setter Target="PossibleValue4.Foreground" Value="{ThemeResource PossiblesVerticalBrush}"/>
                     </VisualState.Setters>
                 </VisualState>
-                <VisualState x:Name="Normal4"/>
+                <VisualState x:Name="N4"/>
             </VisualStateGroup>
 
             <VisualStateGroup x:Name="PossibleStates5">
-                <VisualState x:Name="Horizontal5">
+                <VisualState x:Name="H5">
                     <VisualState.Setters>
                         <Setter Target="PossibleValue5.Foreground" Value="{ThemeResource PossiblesHorizontalBrush}"/>
                     </VisualState.Setters>
                 </VisualState>
-                <VisualState x:Name="Vertical5">
+                <VisualState x:Name="V5">
                     <VisualState.Setters>
                         <Setter Target="PossibleValue5.Foreground" Value="{ThemeResource PossiblesVerticalBrush}"/>
                     </VisualState.Setters>
                 </VisualState>
-                <VisualState x:Name="Normal5"/>
+                <VisualState x:Name="N5"/>
             </VisualStateGroup>
 
             <VisualStateGroup x:Name="PossibleStates6">
-                <VisualState x:Name="Horizontal6">
+                <VisualState x:Name="H6">
                     <VisualState.Setters>
                         <Setter Target="PossibleValue6.Foreground" Value="{ThemeResource PossiblesHorizontalBrush}"/>
                     </VisualState.Setters>
                 </VisualState>
-                <VisualState x:Name="Vertical6">
+                <VisualState x:Name="V6">
                     <VisualState.Setters>
                         <Setter Target="PossibleValue6.Foreground" Value="{ThemeResource PossiblesVerticalBrush}"/>
                     </VisualState.Setters>
                 </VisualState>
-                <VisualState x:Name="Normal6"/>
+                <VisualState x:Name="N6"/>
             </VisualStateGroup>
 
             <VisualStateGroup x:Name="PossibleStates7">
-                <VisualState x:Name="Horizontal7">
+                <VisualState x:Name="H7">
                     <VisualState.Setters>
                         <Setter Target="PossibleValue7.Foreground" Value="{ThemeResource PossiblesHorizontalBrush}"/>
                     </VisualState.Setters>
                 </VisualState>
-                <VisualState x:Name="Vertical7">
+                <VisualState x:Name="V7">
                     <VisualState.Setters>
                         <Setter Target="PossibleValue7.Foreground" Value="{ThemeResource PossiblesVerticalBrush}"/>
                     </VisualState.Setters>
                 </VisualState>
-                <VisualState x:Name="Normal7"/>
+                <VisualState x:Name="N7"/>
             </VisualStateGroup>
 
             <VisualStateGroup x:Name="PossibleStates8">
-                <VisualState x:Name="Horizontal8">
+                <VisualState x:Name="H8">
                     <VisualState.Setters>
                         <Setter Target="PossibleValue8.Foreground" Value="{ThemeResource PossiblesHorizontalBrush}"/>
                     </VisualState.Setters>
                 </VisualState>
-                <VisualState x:Name="Vertical8">
+                <VisualState x:Name="V8">
                     <VisualState.Setters>
                         <Setter Target="PossibleValue8.Foreground" Value="{ThemeResource PossiblesVerticalBrush}"/>
                     </VisualState.Setters>
                 </VisualState>
-                <VisualState x:Name="Normal8"/>
+                <VisualState x:Name="N8"/>
             </VisualStateGroup>
 
             <VisualStateGroup x:Name="PossibleStates9">
-                <VisualState x:Name="Horizontal9">
+                <VisualState x:Name="H9">
                     <VisualState.Setters>
                         <Setter Target="PossibleValue9.Foreground" Value="{ThemeResource PossiblesHorizontalBrush}"/>
                     </VisualState.Setters>
                 </VisualState>
-                <VisualState x:Name="Vertical9">
+                <VisualState x:Name="V9">
                     <VisualState.Setters>
                         <Setter Target="PossibleValue9.Foreground" Value="{ThemeResource PossiblesVerticalBrush}"/>
                     </VisualState.Setters>
                 </VisualState>
-                <VisualState x:Name="Normal9"/>
+                <VisualState x:Name="N9"/>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 

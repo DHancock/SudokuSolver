@@ -144,7 +144,7 @@ internal sealed partial class Cell : UserControl
             {
                 viewModelCell = value;
                 version = value.Version;
-                ViewModelCellChangedCallback();
+                UpdateForViewModelCellChange();
             }
         }
     }
@@ -155,7 +155,16 @@ internal sealed partial class Cell : UserControl
         Debug.Assert(stateFound);
     }
 
-    private void ViewModelCellChangedCallback()
+    private void GoToVisualState(char prefix, int index)
+    {
+        VisualStateManager.GoToState(this, string.Create(2, (prefix, index), (chars, state) =>
+        {
+            chars[0] = state.prefix;
+            chars[1] = (char)('0' + state.index);
+        }), false);  
+    }
+
+    private void UpdateForViewModelCellChange()
     {
         Debug.Assert(viewModelCell is not null);
 
@@ -215,15 +224,15 @@ internal sealed partial class Cell : UserControl
             {
                 if (viewModelCell.VerticalDirections[index])
                 {
-                    GoToVisualState(string.Concat("Vertical", tb.Text));
+                    GoToVisualState('V', index);
                 }
                 else if (viewModelCell.HorizontalDirections[index])
                 {
-                    GoToVisualState(string.Concat("Horizontal", tb.Text));
+                    GoToVisualState('H', index);
                 }
                 else
                 {
-                    GoToVisualState(string.Concat("Normal", tb.Text));
+                    GoToVisualState('N', index);
                 }
 
                 tb.Visibility = Visibility.Visible;
