@@ -1,5 +1,4 @@
 ﻿using SudokuSolver.Common;
-using SudokuSolver.Utilities;
 
 namespace SudokuSolver.Views;
 
@@ -10,7 +9,6 @@ internal sealed partial class Cell : UserControl
 {
     private bool isFocused = false;
     private bool isSelected = false;
-
     private int version = int.MinValue;
     private ViewModels.Cell? viewModelCell;
 
@@ -116,16 +114,16 @@ internal sealed partial class Cell : UserControl
         {
             if (isFocused)
             {
-                GoToVisualState("SelectedFocused");
+                VisualStateManager.GoToState(this, "SelectedFocused", false);
             }
             else
             {
-                GoToVisualState("SelectedUnfocused");
+                VisualStateManager.GoToState(this, "SelectedUnfocused", false);
             }
         }
         else
         {
-            GoToVisualState("Normal");
+            VisualStateManager.GoToState(this, "Normal", false);
         }
     }
 
@@ -149,29 +147,18 @@ internal sealed partial class Cell : UserControl
         }
     }
 
-    private void GoToVisualState(string state)
-    {
-        bool stateFound = VisualStateManager.GoToState(this, state, false);
-        Debug.Assert(stateFound);
-    }
-
-    private void GoToVisualState(char prefix, int index)
-    {
-        VisualStateManager.GoToState(this, string.Create(2, (prefix, index), (chars, state) =>
-        {
-            chars[0] = state.prefix;
-            chars[1] = (char)('0' + state.index);
-        }), false);  
-    }
-
     private void UpdateForViewModelCellChange()
     {
         Debug.Assert(viewModelCell is not null);
 
         if (viewModelCell.HasValue)
         {
-            GoToVisualState(viewModelCell.Origin.ToString());
-            CollapseAllPossibles();
+            for (int index = 1; index < 10; index++)
+            {
+                CellCanvas.Children[index].Visibility = Visibility.Collapsed;
+            }
+
+            VisualStateManager.GoToState(this, viewModelCell.Origin.ToString(), false);
 
             if (viewModelCell.ViewModel.ShowSolution || (viewModelCell.Origin == Origins.User) || (viewModelCell.Origin == Origins.Provided))
             {
@@ -180,67 +167,48 @@ internal sealed partial class Cell : UserControl
             }
             else
             {
-                CellValue.Opacity = 0;  // still allows hit testing
+                CellValue.Opacity = 0;  // allows hit testing
             }
         }
         else
         {
             CellValue.Opacity = 0;
 
-            if (!viewModelCell.ViewModel.ShowPossibles)
+            for (int index = 1; index < 10; index++)
             {
-                CollapseAllPossibles();
-            }
-            else
-            {
-                UpdatePossible(PossibleValue1, 1);
-                UpdatePossible(PossibleValue2, 2);
-                UpdatePossible(PossibleValue3, 3);
-                UpdatePossible(PossibleValue4, 4);
-                UpdatePossible(PossibleValue5, 5);
-                UpdatePossible(PossibleValue6, 6);
-                UpdatePossible(PossibleValue7, 7);
-                UpdatePossible(PossibleValue8, 8);
-                UpdatePossible(PossibleValue9, 9);
-            }
-        }
+                UIElement tb = CellCanvas.Children[index];
 
-        void CollapseAllPossibles()
-        {
-            PossibleValue1.Visibility = Visibility.Collapsed;
-            PossibleValue2.Visibility = Visibility.Collapsed;
-            PossibleValue3.Visibility = Visibility.Collapsed;
-            PossibleValue4.Visibility = Visibility.Collapsed;
-            PossibleValue5.Visibility = Visibility.Collapsed;
-            PossibleValue6.Visibility = Visibility.Collapsed;
-            PossibleValue7.Visibility = Visibility.Collapsed;
-            PossibleValue8.Visibility = Visibility.Collapsed;
-            PossibleValue9.Visibility = Visibility.Collapsed;
-        }
+                if (viewModelCell.ViewModel.ShowPossibles && viewModelCell.Possibles[index])
+                {
+                    if (viewModelCell.VerticalDirections[index])
+                    {
+                        GoToVisualState(this, 'V', index);
+                    }
+                    else if (viewModelCell.HorizontalDirections[index])
+                    {
+                        GoToVisualState(this, 'H', index);
+                    }
+                    else
+                    {
+                        GoToVisualState(this, 'N', index);
+                    }
 
-        void UpdatePossible(TextBlock tb, int index)
-        {
-            if (viewModelCell.Possibles[index])
-            {
-                if (viewModelCell.VerticalDirections[index])
-                {
-                    GoToVisualState('V', index);
-                }
-                else if (viewModelCell.HorizontalDirections[index])
-                {
-                    GoToVisualState('H', index);
+                    tb.Visibility = Visibility.Visible;
                 }
                 else
                 {
-                    GoToVisualState('N', index);
+                    tb.Visibility = Visibility.Collapsed;
                 }
+            }
+        }
 
-                tb.Visibility = Visibility.Visible;
-            }
-            else
+        static void GoToVisualState(Cell cell, char prefix, int index)
+        {
+            VisualStateManager.GoToState(cell, string.Create(2, (prefix, index), (chars, state) =>
             {
-                tb.Visibility = Visibility.Collapsed;
-            }
+                chars[0] = state.prefix;
+                chars[1] = (char)('0' + state.index);
+            }), false);
         }
     }
 
