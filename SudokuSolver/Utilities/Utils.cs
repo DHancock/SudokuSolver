@@ -91,10 +91,8 @@ internal static class Utils
                         else if (mfi.IsEnabled)
                         {
                             // the menu item has a click event handler, it's enabled state would be adjusted in code when required
-                            AutomationPeer? ap = FrameworkElementAutomationPeer.FromElement(mfi);
-                            MenuFlyoutItemAutomationPeer? ip = ap?.GetPattern(PatternInterface.Invoke) as MenuFlyoutItemAutomationPeer;
-
-                            ip?.Invoke();
+                            MenuFlyoutItemAutomationPeer? ap = FrameworkElementAutomationPeer.FromElement(mfi) as MenuFlyoutItemAutomationPeer;
+                            ap?.Invoke();
                             return true;
                         }
                     }
